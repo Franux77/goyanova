@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../utils/supabaseClient';
-import Loading from '../../loading/Loading'; // 👈 IMPORTAR
+import Loading from '../../loading/Loading';
 import './MisServicios.css';
 
 const MisServicios = () => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandidos, setExpandidos] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,83 +81,158 @@ const MisServicios = () => {
     }
   };
 
-  // 👇 REEMPLAZAR ESTE BLOQUE
+  const toggleExpandir = (id) => {
+    setExpandidos(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const truncarTexto = (texto, limite = 100) => {
+    if (!texto || texto.length <= limite) return texto;
+    return texto.substring(0, limite) + '...';
+  };
+
   if (loading) {
     return <Loading message="Cargando tus servicios..." />;
   }
 
   if (servicios.length === 0) {
     return (
-      <div className="usuario-misservicios-vacio">
-        <p>No tenés servicios publicados todavía.</p>
+      <div className="goya-servicios-vacio">
+        <div className="goya-vacio-icono">
+          <span className="material-icons">inventory_2</span>
+        </div>
+        <h3>No tenés servicios publicados</h3>
+        <p>Empezá a publicar tus servicios y llegá a más clientes</p>
         <button
-          className="usuario-btn-publicar"
+          className="goya-btn-publicar-vacio"
           onClick={() => navigate('/publicar', { state: { desde: 'panel' } })}
         >
-          + Publicar nuevo servicio
+          <span className="material-icons">add_circle</span>
+          Publicar mi primer servicio
         </button>
       </div>
     );
   }
 
   return (
-    <div className="usuario-misservicios-container">
-      <div className="usuario-misservicios-header">
-        <h2>Mis Servicios</h2>
+    <div className="goya-servicios-container">
+      {/* Header con contador */}
+      <div className="goya-servicios-header">
+        <div className="goya-header-info">
+          <h2>Mis Servicios</h2>
+          <span className="goya-contador-badge">{servicios.length}</span>
+        </div>
         <button
-          className="usuario-btn-publicar"
+          className="goya-btn-nuevo"
           onClick={() => navigate('/publicar', { state: { desde: 'panel' } })}
         >
-          + Publicar Servicio
+          <span className="material-icons">add</span>
+          Nuevo
         </button>
       </div>
 
-      <div className="usuario-misservicios-grid">
-        {servicios.map((servicio) => (
-          <div key={servicio.id} className="usuario-servicio-item">
-            <h3>{servicio.nombre}</h3>
-            <p><strong>Categoría:</strong> {servicio.categorias?.nombre || "Sin categoría"}</p>
-            <p>{servicio.descripcion}</p>
-            <p><strong>Ubicación:</strong> {servicio.direccion_escrita}</p>
-            <p><strong>Estado:</strong> {servicio.estado || "activo"}</p>
-            {servicio.suspendido_por === 'admin' && (
-              <p className="usuario-servicio-suspendido-admin">
-                🔒 Suspendido por el administrador
-              </p>
-            )}
-            <p><small>Creado: {new Date(servicio.creado_en).toLocaleDateString()}</small></p>
+      {/* Lista de servicios */}
+      <div className="goya-servicios-lista">
+        {servicios.map((servicio) => {
+          const descripcionCompleta = servicio.descripcion || '';
+          const esLargo = descripcionCompleta.length > 100;
+          const mostrarCompleto = expandidos[servicio.id];
 
-            <div className="usuario-servicio-acciones">
-              <Link to={`/panel/editar-servicio/${servicio.id}`} className="usuario-btn-editar">
-                Editar
-              </Link>
-              <button
-                className="usuario-btn-suspender"
-                onClick={() =>
-                  handleSuspender(servicio.id, servicio.estado, servicio.suspendido_por)
-                }
-                disabled={
-                  servicio.suspendido_por === 'admin' ||
-                  servicio.estado === 'suspendido_por_admin'
-                }
-              >
-                {servicio.suspendido_por === 'admin' ||
-                servicio.estado === 'suspendido_por_admin'
-                  ? 'Suspendido por admin'
-                  : servicio.estado === 'suspendido'
-                  ? 'Reactivar'
-                  : 'Suspender'}
-              </button>
+          return (
+            <div key={servicio.id} className="goya-servicio-card">
+              {/* Badge de estado */}
+              <div className="goya-card-badges">
+                {servicio.estado === 'suspendido' && (
+                  <span className={`goya-badge ${servicio.suspendido_por === 'admin' ? 'goya-badge-admin' : 'goya-badge-suspendido'}`}>
+                    <span className="material-icons">pause_circle</span>
+                    {servicio.suspendido_por === 'admin' ? 'Suspendido por Admin' : 'Suspendido'}
+                  </span>
+                )}
+                {servicio.estado === 'activo' && (
+                  <span className="goya-badge goya-badge-activo">
+                    <span className="material-icons">check_circle</span>
+                    Activo
+                  </span>
+                )}
+              </div>
 
-              <button
-                className="usuario-btn-eliminar"
-                onClick={() => handleEliminar(servicio.id)}
-              >
-                Eliminar
-              </button>
+              {/* Contenido principal */}
+              <div className="goya-card-content">
+                <div className="goya-card-main">
+                  <h3 className="goya-card-titulo">{servicio.nombre}</h3>
+                  
+                  <div className="goya-card-meta">
+                    <div className="goya-meta-item">
+                      <span className="material-icons">category</span>
+                      <span>{servicio.categorias?.nombre || "Sin categoría"}</span>
+                    </div>
+                    <div className="goya-meta-item">
+                      <span className="material-icons">location_on</span>
+                      <span>{servicio.direccion_escrita}</span>
+                    </div>
+                    <div className="goya-meta-item">
+                      <span className="material-icons">calendar_today</span>
+                      <span>{new Date(servicio.creado_en).toLocaleDateString('es-AR')}</span>
+                    </div>
+                  </div>
+
+                  {descripcionCompleta && (
+                    <div className="goya-card-descripcion">
+                      <p>
+                        {mostrarCompleto ? descripcionCompleta : truncarTexto(descripcionCompleta, 100)}
+                      </p>
+                      {esLargo && (
+                        <button
+                          className="goya-btn-ver-mas"
+                          onClick={() => toggleExpandir(servicio.id)}
+                        >
+                          {mostrarCompleto ? 'Ver menos' : 'Ver más'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Acciones */}
+                <div className="goya-card-acciones">
+                  <Link 
+                    to={`/panel/editar-servicio/${servicio.id}`} 
+                    className="goya-btn-accion goya-btn-editar"
+                    title="Editar servicio"
+                  >
+                    <span className="material-icons">edit</span>
+                    <span className="goya-btn-text">Editar</span>
+                  </Link>
+
+                  <button
+                    className={`goya-btn-accion ${servicio.estado === 'suspendido' ? 'goya-btn-reactivar' : 'goya-btn-suspender'}`}
+                    onClick={() => handleSuspender(servicio.id, servicio.estado, servicio.suspendido_por)}
+                    disabled={servicio.suspendido_por === 'admin'}
+                    title={servicio.suspendido_por === 'admin' ? 'Bloqueado por admin' : (servicio.estado === 'suspendido' ? 'Reactivar' : 'Suspender')}
+                  >
+                    <span className="material-icons">
+                      {servicio.estado === 'suspendido' ? 'play_circle' : 'pause_circle'}
+                    </span>
+                    <span className="goya-btn-text">
+                      {servicio.estado === 'suspendido' ? 'Reactivar' : 'Pausar'}
+                    </span>
+                  </button>
+
+                  <button
+                    className="goya-btn-accion goya-btn-eliminar"
+                    onClick={() => handleEliminar(servicio.id)}
+                    title="Eliminar servicio"
+                  >
+                    <span className="material-icons">delete</span>
+                    <span className="goya-btn-text">Eliminar</span>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

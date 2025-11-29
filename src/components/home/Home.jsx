@@ -13,7 +13,7 @@ const Home = () => {
   const [selectedType, setSelectedType] = useState('servicio');
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, perfil, loading } = useAuth(); // 🔴 AGREGADO loading aquí
+  const { user, perfil, loading } = useAuth();
 
   const [mostrarModalCodigo, setMostrarModalCodigo] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(null);
@@ -27,25 +27,6 @@ const Home = () => {
     : 999;
   
   const esUsuarioNuevo = diasDesdeRegistro <= 5;
-
-  useEffect(() => {
-    console.log('🏠 [HOME] Componente montado');
-    console.log('👤 [HOME] User:', user?.id);
-    console.log('📝 [HOME] Perfil:', perfil?.id);
-    console.log('⏳ [HOME] Loading:', loading);
-    
-    return () => {
-      console.log('👋 [HOME] Componente desmontado');
-    };
-  }, []);
-
-  useEffect(() => {
-    console.log('🔄 [HOME] Cambio en auth:', {
-      user: user?.id,
-      perfil: perfil?.id,
-      loading
-    });
-  }, [user, perfil, loading]);
 
   useEffect(() => {
     if (!user?.id || verificacionRealizada.current) {
@@ -201,22 +182,141 @@ const Home = () => {
     <div className="home">
       <SaludoUsuario />
 
-      <section className="hero">
-        <div className="hero-content">
-          <h1>GoyaNova es para satisfacer tus necesidades</h1>
-          <p>Puedes buscar desde servicios hasta productos cerca tuyo en Goya, con contacto directo sin perder tiempo.</p>
+      {/* 🆕 HERO MEJORADO */}
+      <section className="goya-hero-section">
+        <div className="goya-hero-content">
+          <div className="goya-hero-badge">
+            <span className="material-icons">location_on</span>
+            Servicios locales en Goya, Corrientes
+          </div>
           
-          <a
-            href="#categorias"
-            className="btn-primaryy"
-            onClick={(e) => {
-              e.preventDefault();
-              handleScrollCategorias();
-            }}
-          >
-            Explorar Categorías
-          </a>
+          <h1 className="goya-hero-title">
+            Encontrá el profesional que necesitás
+          </h1>
+          
+          <p className="goya-hero-description">
+            Plomeros, electricistas, pintores y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
+          </p>
+          
+          <div className="goya-hero-benefits">
+            <div className="goya-benefit-item">
+              <span className="material-icons">check_circle</span>
+              <span>Gratis</span>
+            </div>
+            <div className="goya-benefit-item">
+              <span className="material-icons">check_circle</span>
+              <span>Sin comisiones</span>
+            </div>
+            <div className="goya-benefit-item">
+              <span className="material-icons">check_circle</span>
+              <span>Directo</span>
+            </div>
+          </div>
+          
+          <div className="goya-hero-actions">
+            <a
+              href="#categorias"
+              className="goya-btn-hero-primary"
+              onClick={(e) => {
+                e.preventDefault();
+                handleScrollCategorias();
+              }}
+            >
+              <span className="material-icons">search</span>
+              Buscar
+            </a>
+            <button
+              className="goya-btn-hero-secondary"
+              onClick={handlePublicarClick}
+            >
+              <span className="material-icons">add_circle</span>
+              Publicar
+            </button>
+          </div>
         </div>
+      </section>
+
+      {/* 🆕 CÓMO FUNCIONA - Compacto */}
+      <section className="goya-howworks-section">
+        <h2 className="goya-section-title">¿Cómo funciona?</h2>
+        
+        <div className="goya-howworks-grid">
+          {/* Para Clientes */}
+          <div className="goya-howworks-card">
+            <div className="goya-card-header">
+              <span className="material-icons goya-card-icon goya-icon-client">person_search</span>
+              <h3>Clientes</h3>
+            </div>
+            <div className="goya-steps-list">
+              <div className="goya-step-item">
+                <div className="goya-step-number">1</div>
+                <div className="goya-step-text">
+                  <strong>Buscá</strong>
+                  <p>Por categoría o mapa</p>
+                </div>
+              </div>
+              <div className="goya-step-item">
+                <div className="goya-step-number">2</div>
+                <div className="goya-step-text">
+                  <strong>Mirá perfiles</strong>
+                  <p>Fotos y opiniones</p>
+                </div>
+              </div>
+              <div className="goya-step-item">
+                <div className="goya-step-number">3</div>
+                <div className="goya-step-text">
+                  <strong>Contactá</strong>
+                  <p>Directo por WhatsApp</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Para Profesionales */}
+          <div className="goya-howworks-card">
+            <div className="goya-card-header">
+              <span className="material-icons goya-card-icon goya-icon-professional">engineering</span>
+              <h3>Profesionales</h3>
+            </div>
+            <div className="goya-steps-list">
+              <div className="goya-step-item">
+                <div className="goya-step-number">1</div>
+                <div className="goya-step-text">
+                  <strong>Registrate</strong>
+                  <p>Cuenta gratis</p>
+                </div>
+              </div>
+              <div className="goya-step-item">
+                <div className="goya-step-number">2</div>
+                <div className="goya-step-text">
+                  <strong>Publicá</strong>
+                  <p>Con fotos y detalles</p>
+                </div>
+              </div>
+              <div className="goya-step-item">
+                <div className="goya-step-number">3</div>
+                <div className="goya-step-text">
+                  <strong>Recibí consultas</strong>
+                  <p>Clientes reales</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🆕 BANNER PROYECTO LOCAL - Compacto */}
+      <section className="goya-local-banner">
+        <div className="goya-local-content">
+          <span className="material-icons goya-local-icon">favorite</span>
+          <div className="goya-local-text">
+            <strong>Proyecto 100% local de Goya</strong>
+            <p>Creado por un joven correntino para conectar nuestra ciudad</p>
+          </div>
+        </div>
+        <button className="goya-local-btn" onClick={handlePublicarClick}>
+          Sumate gratis
+        </button>
       </section>
 
       {mostrarBanner && tiempoRestante && (

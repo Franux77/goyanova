@@ -1,191 +1,494 @@
-/* Contenedor general */
-.usuario-perfil-container {
-  max-width: 900px;
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
+.goya-perfil-container {
+  max-width: 1200px;
   margin: 0 auto;
-  /* padding: 20px; */
-  font-family: 'Inter', sans-serif;
-  color: #333;
+  padding: 1.5rem;
+  min-height: 100vh;
 }
 
-.usuario-perfil-titulo {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 30px;
-}
-
-/* Card principal */
-.usuario-perfil-card {
+/* ============================================
+   HEADER
+   ============================================ */
+.goya-perfil-header {
   display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-  padding: 25px;
-  gap: 25px;
-}
-
-/* Foto de perfil */
-.usuario-perfil-foto {
-  display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-}
-
-.usuario-perfil-foto img,
-.usuario-perfil-foto-placeholder {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: #fff;
-  margin-bottom: 12px;
-}
-
-.usuario-perfil-foto-placeholder {
-  text-transform: uppercase;
-}
-
-/* Upload */
-.usuario-perfil-upload {
-  font-size: 0.85rem;
-  color: #1976d2;
-  cursor: pointer;
-  transition: color 0.3s;
-  text-align: center;
-}
-
-.usuario-perfil-upload:hover {
-  color: #115293;
-}
-
-.usuario-perfil-upload input {
-  display: none;
-}
-
-/* Formulario */
-.usuario-perfil-formulario {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.usuario-perfil-campo {
-  display: flex;
-  flex-direction: column;
-}
-
-.usuario-perfil-campo label {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.usuario-perfil-campo input {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  transition: 0.3s;
-}
-
-.usuario-perfil-campo input:focus {
-  outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 5px rgba(25, 118, 210, 0.3);
-}
-
-.usuario-perfil-campo p {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.usuario-perfil-placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-/* Acciones */
-.usuario-perfil-acciones {
-  display: flex;
-  gap: 12px;
-  margin-top: 15px;
+  margin-bottom: 2rem;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
-.usuario-perfil-acciones button {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
+.goya-perfil-header-info h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.goya-perfil-header-info p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.goya-perfil-btn-editar-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
   border: none;
-  transition: 0.3s;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(23, 116, 246, 0.25);
 }
 
-.btn-editar2 {
-  background-color: #1976d2;
-  color: #fff;
+.goya-perfil-btn-editar-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(23, 116, 246, 0.35);
 }
 
-.btn-editar2:hover {
-  background-color: #115293;
+/* ============================================
+   GRID LAYOUT
+   ============================================ */
+.goya-perfil-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.btn-guardar {
-  background-color: #4caf50;
-  color: #fff;
+/* ============================================
+   CARD FOTO DE PERFIL
+   ============================================ */
+.goya-perfil-foto-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
 }
 
-.btn-guardar:hover {
-  background-color: #357a38;
+.goya-perfil-foto-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
 }
 
-.btn-cancelar {
-  background-color: #f44336;
-  color: #fff;
+.goya-perfil-foto,
+.goya-perfil-foto-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #f1f5f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-cancelar:hover {
-  background-color: #ba000d;
+.goya-perfil-foto-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
 }
 
-/* Responsive */
-@media (min-width: 768px) {
-  .usuario-perfil-card {
+.goya-perfil-foto-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.goya-perfil-foto-wrapper:hover .goya-perfil-foto-overlay {
+  opacity: 1;
+}
+
+.goya-perfil-foto-overlay .material-icons {
+  font-size: 32px;
+}
+
+.goya-perfil-foto-overlay input {
+  display: none;
+}
+
+.goya-perfil-foto-info {
+  width: 100%;
+}
+
+.goya-perfil-foto-info h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.goya-perfil-foto-email {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 1rem 0;
+  word-break: break-word;
+}
+
+.goya-perfil-foto-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8e8e8;
+}
+
+.goya-stat-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.goya-stat-item .material-icons {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+/* ============================================
+   CARD INFORMACIÓN PERSONAL
+   ============================================ */
+.goya-perfil-info-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+}
+
+.goya-perfil-info-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.goya-perfil-info-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.goya-perfil-info-header .material-icons {
+  color: #1774f6;
+  font-size: 24px;
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+.goya-perfil-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.goya-perfil-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.goya-perfil-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.goya-perfil-field label .material-icons {
+  font-size: 20px;
+  color: #94a3b8;
+}
+
+.goya-perfil-input {
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  transition: all 0.3s ease;
+  background: #f8fafc;
+}
+
+.goya-perfil-input:focus {
+  outline: none;
+  border-color: #1774f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.goya-perfil-value {
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  border: 2px solid transparent;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.goya-perfil-empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN
+   ============================================ */
+.goya-perfil-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f1f5f9;
+}
+
+.goya-perfil-btn-guardar,
+.goya-perfil-btn-cancelar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.goya-perfil-btn-guardar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.goya-perfil-btn-guardar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+.goya-perfil-btn-guardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.goya-perfil-btn-cancelar {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.goya-perfil-btn-cancelar:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* Spinner */
+.goya-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: goyaSpin 0.6s linear infinite;
+}
+
+@keyframes goyaSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   CARD SEGURIDAD
+   ============================================ */
+.goya-perfil-security-card {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(251, 191, 36, 0.15);
+}
+
+.goya-security-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.goya-security-header .material-icons {
+  font-size: 32px;
+  color: #f59e0b;
+}
+
+.goya-security-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #78350f;
+  margin: 0;
+}
+
+.goya-security-header p {
+  font-size: 0.85rem;
+  color: #92400e;
+  margin: 0;
+}
+
+.goya-security-items {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.goya-security-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #78350f;
+}
+
+.goya-security-item .material-icons {
+  font-size: 20px;
+  color: #10b981;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .goya-perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goya-perfil-foto-card {
     flex-direction: row;
+    text-align: left;
+    align-items: center;
+  }
+
+  .goya-perfil-foto-info {
+    text-align: left;
+  }
+
+  .goya-perfil-foto-stats {
     align-items: flex-start;
-    gap: 40px;
   }
 
-  .usuario-perfil-foto {
-    flex: 0 0 160px;
+  .goya-stat-item {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .goya-perfil-container {
+    padding: 0;
   }
 
-  .usuario-perfil-formulario {
-    flex: 1;
+  .goya-perfil-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .goya-perfil-btn-editar-header {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .goya-perfil-foto-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .goya-perfil-foto-info {
+    text-align: center;
+  }
+
+  .goya-perfil-foto-stats {
+    align-items: center;
+  }
+
+  .goya-stat-item {
+    justify-content: center;
+  }
+
+  .goya-perfil-actions {
+    flex-direction: column;
+  }
+
+  .goya-perfil-btn-guardar,
+  .goya-perfil-btn-cancelar {
+    width: 100%;
+  }
+
+  .goya-security-items {
+    flex-direction: column;
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .usuario-perfil-card {
-    padding: 20px;
+  .goya-perfil-foto-wrapper {
+    width: 120px;
+    height: 120px;
   }
 
-  .usuario-perfil-foto img,
-  .usuario-perfil-foto-placeholder {
-    width: 100px;
-    height: 100px;
-    font-size: 1.6rem;
+  .goya-perfil-foto,
+  .goya-perfil-foto-placeholder {
+    width: 120px;
+    height: 120px;
+    font-size: 2.5rem;
   }
 
-  .usuario-perfil-acciones {
-    flex-direction: column;
+  .goya-perfil-info-card {
+    padding: 1.5rem;
   }
 
-  .usuario-perfil-acciones button {
-    width: 100%;
+  .goya-perfil-security-card {
+    padding: 1.25rem;
   }
 }

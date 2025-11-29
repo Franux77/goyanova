@@ -9,6 +9,7 @@ const Perfil = () => {
   const [perfil, setPerfil] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [fotoPreview, setFotoPreview] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -48,7 +49,9 @@ const Perfil = () => {
 
   const handleGuardar = async () => {
     try {
+      setGuardando(true);
       let foto_url = perfil.foto_url;
+      
       if (perfil.foto_file) {
         const { data: fotoData, error: uploadError } = await supabase.storage
           .from('fotos-usuarios')
@@ -76,16 +79,28 @@ const Perfil = () => {
 
       setPerfil((prev) => ({ ...prev, foto_url }));
       setModoEdicion(false);
-      alert('Perfil actualizado correctamente');
+      alert('✅ Perfil actualizado correctamente');
     } catch (err) {
       console.error('Error al actualizar perfil:', err.message);
-      alert('Error al actualizar perfil');
+      alert('❌ Error al actualizar perfil');
+    } finally {
+      setGuardando(false);
     }
   };
 
   const handleCancelar = () => {
     setModoEdicion(false);
     setFotoPreview(perfil.foto_url || '');
+    // Restaurar datos originales
+    const fetchPerfil = async () => {
+      const { data } = await supabase
+        .from('perfiles_usuarios')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (data) setPerfil(data);
+    };
+    fetchPerfil();
   };
 
   const generarColorAleatorio = (seed) => {
@@ -103,64 +118,185 @@ const Perfil = () => {
 
   if (!perfil) return <Loading message="Cargando perfil..." />;
 
-  return (
-    <div className="usuario-perfil-container">
-      <h2 className="usuario-perfil-titulo">Mi Perfil</h2>
+  const campos = [
+    { 
+      label: 'Nombre', 
+      name: 'nombre', 
+      type: 'text', 
+      icon: 'person',
+      placeholder: 'Tu nombre'
+    },
+    { 
+      label: 'Apellido', 
+      name: 'apellido', 
+      type: 'text', 
+      icon: 'badge',
+      placeholder: 'Tu apellido'
+    },
+    { 
+      label: 'Email', 
+      name: 'email', 
+      type: 'email', 
+      icon: 'email',
+      placeholder: 'tu@email.com'
+    },
+    { 
+      label: 'Teléfono', 
+      name: 'telefono', 
+      type: 'tel', 
+      icon: 'phone',
+      placeholder: '3777123456'
+    },
+    { 
+      label: 'Edad', 
+      name: 'edad', 
+      type: 'number', 
+      icon: 'cake',
+      placeholder: 'Tu edad'
+    },
+  ];
 
-      <div className="usuario-perfil-card">
-        <div className="usuario-perfil-foto">
-          {fotoPreview ? (
-            <img src={fotoPreview} alt="Foto de perfil" />
-          ) : (
-            <div
-              className="usuario-perfil-foto-placeholder"
-              style={{
-                backgroundColor: generarColorAleatorio(perfil.nombre + perfil.apellido),
-              }}
-            >
-              {obtenerIniciales(perfil.nombre, perfil.apellido)}
+  return (
+    <div className="goya-perfil-container">
+      {/* Header */}
+      <div className="goya-perfil-header">
+        <div className="goya-perfil-header-info">
+          <h2>Mi Perfil</h2>
+          <p>Gestiona tu información personal</p>
+        </div>
+        {!modoEdicion && (
+          <button 
+            className="goya-perfil-btn-editar-header" 
+            onClick={() => setModoEdicion(true)}
+          >
+            <span className="material-icons">edit</span>
+            Editar
+          </button>
+        )}
+      </div>
+
+      <div className="goya-perfil-grid">
+        {/* Card Foto de Perfil */}
+        <div className="goya-perfil-foto-card">
+          <div className="goya-perfil-foto-wrapper">
+            {fotoPreview ? (
+              <img src={fotoPreview} alt="Foto de perfil" className="goya-perfil-foto" />
+            ) : (
+              <div
+                className="goya-perfil-foto-placeholder"
+                style={{
+                  backgroundColor: generarColorAleatorio(perfil.nombre + perfil.apellido),
+                }}
+              >
+                {obtenerIniciales(perfil.nombre, perfil.apellido)}
+              </div>
+            )}
+            
+            {modoEdicion && (
+              <label className="goya-perfil-foto-overlay">
+                <span className="material-icons">photo_camera</span>
+                <span>Cambiar foto</span>
+                <input type="file" accept="image/*" onChange={handleFotoChange} />
+              </label>
+            )}
+          </div>
+
+          <div className="goya-perfil-foto-info">
+            <h3>{perfil.nombre} {perfil.apellido}</h3>
+            <p className="goya-perfil-foto-email">{perfil.email}</p>
+            <div className="goya-perfil-foto-stats">
+              <div className="goya-stat-item">
+                <span className="material-icons">calendar_today</span>
+                <span>Miembro desde {new Date(perfil.creado_en).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })}</span>
+              </div>
             </div>
-          )}
-          {modoEdicion && (
-            <label className="usuario-perfil-upload">
-              Cambiar foto
-              <input type="file" accept="image/*" onChange={handleFotoChange} />
-            </label>
-          )}
+          </div>
         </div>
 
-        <div className="usuario-perfil-formulario">
-          {[
-            { label: 'Nombre', name: 'nombre', type: 'text' },
-            { label: 'Apellido', name: 'apellido', type: 'text' },
-            { label: 'Email', name: 'email', type: 'email' },
-            { label: 'Teléfono', name: 'telefono', type: 'text' },
-            { label: 'Edad', name: 'edad', type: 'number' },
-          ].map((campo) => (
-            <div key={campo.name} className="usuario-perfil-campo">
-              <label>{campo.label}</label>
-              {modoEdicion ? (
-                <input
-                  type={campo.type}
-                  name={campo.name}
-                  value={perfil[campo.name] || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p>{perfil[campo.name] ?? <em className="usuario-perfil-placeholder">No especificado</em>}</p>
-              )}
-            </div>
-          ))}
+        {/* Card Información Personal */}
+        <div className="goya-perfil-info-card">
+          <div className="goya-perfil-info-header">
+            <h3>
+              <span className="material-icons">info</span>
+              Información Personal
+            </h3>
+          </div>
 
-          <div className="usuario-perfil-acciones">
-            {modoEdicion ? (
-              <>
-                <button className="btn-guardar" onClick={handleGuardar}>Guardar</button>
-                <button className="btn-cancelar" onClick={handleCancelar}>Cancelar</button>
-              </>
-            ) : (
-              <button className="btn-editar2" onClick={() => setModoEdicion(true)}>Editar perfil</button>
-            )}
+          <div className="goya-perfil-form">
+            {campos.map((campo) => (
+              <div key={campo.name} className="goya-perfil-field">
+                <label>
+                  <span className="material-icons">{campo.icon}</span>
+                  {campo.label}
+                </label>
+                {modoEdicion ? (
+                  <input
+                    type={campo.type}
+                    name={campo.name}
+                    value={perfil[campo.name] || ''}
+                    onChange={handleChange}
+                    placeholder={campo.placeholder}
+                    className="goya-perfil-input"
+                  />
+                ) : (
+                  <div className="goya-perfil-value">
+                    {perfil[campo.name] || <em className="goya-perfil-empty">No especificado</em>}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Botones de acción */}
+          {modoEdicion && (
+            <div className="goya-perfil-actions">
+              <button 
+                className="goya-perfil-btn-guardar" 
+                onClick={handleGuardar}
+                disabled={guardando}
+              >
+                {guardando ? (
+                  <>
+                    <span className="goya-spinner"></span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons">save</span>
+                    Guardar cambios
+                  </>
+                )}
+              </button>
+              <button 
+                className="goya-perfil-btn-cancelar" 
+                onClick={handleCancelar}
+                disabled={guardando}
+              >
+                <span className="material-icons">close</span>
+                Cancelar
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Card Seguridad (opcional) */}
+      <div className="goya-perfil-security-card">
+        <div className="goya-security-header">
+          <span className="material-icons">security</span>
+          <div>
+            <h3>Seguridad de la cuenta</h3>
+            <p>Tu cuenta está protegida</p>
+          </div>
+        </div>
+        <div className="goya-security-items">
+          <div className="goya-security-item">
+            <span className="material-icons">check_circle</span>
+            <span>Email verificado</span>
+          </div>
+          <div className="goya-security-item">
+            <span className="material-icons">lock</span>
+            <span>Contraseña segura</span>
           </div>
         </div>
       </div>

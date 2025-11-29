@@ -1,39 +1,83 @@
-/* MisServicios.css */
-.usuario-misservicios-container {
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
+.goya-servicios-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
-  background: #f8f9fa;
   min-height: 100vh;
 }
 
-.usuario-misservicios-cargando {
+/* ============================================
+   ESTADO VACÍO
+   ============================================ */
+.goya-servicios-vacio {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 60vh;
-  font-size: 1.1rem;
-  color: #1774f6;
-}
-
-/* Estado vacío */
-.usuario-misservicios-vacio {
+  justify-content: center;
+  min-height: 60vh;
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 2rem;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-top: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-.usuario-misservicios-vacio p {
-  font-size: 1.1rem;
-  color: #666;
+.goya-vacio-icono {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1.5rem;
 }
 
-/* Header */
-.usuario-misservicios-header {
+.goya-vacio-icono .material-icons {
+  font-size: 50px;
+  color: #1774f6;
+}
+
+.goya-servicios-vacio h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.goya-servicios-vacio p {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0 0 2rem 0;
+}
+
+.goya-btn-publicar-vacio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+.goya-btn-publicar-vacio:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(23, 116, 246, 0.4);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.goya-servicios-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -42,204 +86,372 @@
   flex-wrap: wrap;
 }
 
-.usuario-misservicios-header h2 {
-  color: #1774f6;
+.goya-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goya-header-info h2 {
   font-size: 1.8rem;
-  font-weight: 700;
+  font-weight: 800;
+  color: #1e293b;
   margin: 0;
 }
 
-.usuario-btn-publicar {
-  padding: 0.75rem 1.5rem;
+.goya-contador-badge {
   background: #1774f6;
   color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.goya-btn-nuevo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(23, 116, 246, 0.25);
+}
+
+.goya-btn-nuevo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(23, 116, 246, 0.35);
+}
+
+.goya-btn-nuevo .material-icons {
+  font-size: 20px;
+}
+
+/* ============================================
+   LISTA DE SERVICIOS
+   ============================================ */
+.goya-servicios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ============================================
+   CARD DE SERVICIO - Horizontal y moderno
+   ============================================ */
+.goya-servicio-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.goya-servicio-card:hover {
+  box-shadow: 0 4px 20px rgba(23, 116, 246, 0.12);
+  border-color: #1774f6;
+  transform: translateY(-2px);
+}
+
+/* Badges de estado */
+.goya-card-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  justify-content: right;
+}
+
+.goya-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.goya-badge .material-icons {
+  font-size: 16px;
+}
+
+.goya-badge-activo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.goya-badge-suspendido {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.goya-badge-admin {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Contenido principal */
+.goya-card-content {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.goya-card-main {
+  flex: 1;
+  min-width: 280px;
+}
+
+.goya-card-titulo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.3;
+}
+
+/* Meta información */
+.goya-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.goya-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.goya-meta-item .material-icons {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+/* Descripción */
+.goya-card-descripcion {
+  margin-top: 0.75rem;
+}
+
+.goya-card-descripcion p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.goya-btn-ver-mas {
+  background: none;
+  border: none;
+  color: #1774f6;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.goya-btn-ver-mas:hover {
+  color: #0d5bbf;
+}
+
+/* ============================================
+   ACCIONES - Compactas y modernas
+   ============================================ */
+.goya-card-acciones {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.goya-btn-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.usuario-btn-publicar:hover {
-  background: #125bc4;
+.goya-btn-accion .material-icons {
+  font-size: 18px;
+}
+
+.goya-btn-editar {
+  background: #1774f6;
+  color: white;
+}
+
+.goya-btn-editar:hover {
+  background: #0d5bbf;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
 }
 
-/* Grid de servicios */
-.usuario-misservicios-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.25rem;
-}
-
-.usuario-servicio-item {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-  border: 1px solid #e8e8e8;
-  display: flex;
-  flex-direction: column;
-}
-
-.usuario-servicio-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.15);
-  border-color: #1774f6;
-}
-
-.usuario-servicio-item h3 {
-  color: #222;
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  line-height: 1.3;
-}
-
-.usuario-servicio-item p {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.5;
-}
-
-.usuario-servicio-item p strong {
-  color: #1774f6;
-  font-weight: 600;
-}
-
-.usuario-servicio-item small {
-  color: #999;
-  font-size: 0.8rem;
-}
-
-.usuario-servicio-suspendido-admin {
-  background: #ffebee;
-  color: #c62828;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem !important;
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
-/* Acciones del servicio */
-.usuario-servicio-acciones {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.usuario-servicio-acciones button,
-.usuario-servicio-acciones a {
-  padding: 0.65rem 0.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.usuario-btn-editar {
-  background: #1774f6;
-  color: white;
-}
-
-.usuario-btn-editar:hover {
-  background: #125bc4;
-  transform: translateY(-1px);
-}
-
-.usuario-btn-suspender {
+.goya-btn-suspender {
   background: #ff9800;
   color: white;
 }
 
-.usuario-btn-suspender:hover {
+.goya-btn-suspender:hover {
   background: #f57c00;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
 }
 
-.usuario-btn-suspender:disabled {
-  background: #ccc;
+.goya-btn-reactivar {
+  background: #4caf50;
+  color: white;
+}
+
+.goya-btn-reactivar:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.goya-btn-accion:disabled {
+  background: #e0e0e0;
+  color: #9e9e9e;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.usuario-btn-suspender:disabled:hover {
+.goya-btn-accion:disabled:hover {
   transform: none;
+  box-shadow: none;
 }
 
-.usuario-btn-eliminar {
+.goya-btn-eliminar {
   background: #f44336;
   color: white;
 }
 
-.usuario-btn-eliminar:hover {
+.goya-btn-eliminar:hover {
   background: #d32f2f;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
-/* Responsividad */
+/* ============================================
+   RESPONSIVE - Mobile optimizado
+   ============================================ */
 @media (max-width: 768px) {
-  .usuario-misservicios-container {
-    padding: 1rem;
+  .goya-servicios-container {
+    padding: 0;
   }
 
-  .usuario-misservicios-header {
+  .goya-servicios-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .usuario-misservicios-header h2 {
+  .goya-header-info {
+    justify-content: space-between;
+  }
+
+  .goya-header-info h2 {
     font-size: 1.5rem;
-    text-align: center;
   }
 
-  .usuario-btn-publicar {
+  .goya-btn-nuevo {
     width: 100%;
+    justify-content: center;
   }
 
-  .usuario-misservicios-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  /* Card horizontal en mobile */
+  .goya-servicio-card {
+    padding: 1rem;
   }
 
-  .usuario-servicio-item {
-    padding: 1.25rem;
+  .goya-card-content {
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
-  .usuario-servicio-acciones {
-    /* grid-template-columns: 1fr; */
-    gap: 0.2rem;
+  .goya-card-main {
+    min-width: 100%;
   }
 
-  .usuario-servicio-acciones button,
-  .usuario-servicio-acciones a {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+  .goya-card-titulo {
+    font-size: 1.1rem;
+  }
+
+  .goya-card-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Acciones horizontales en mobile */
+  .goya-card-acciones {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .goya-btn-accion {
+    flex-direction: column;
+    padding: 8px 4px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .goya-btn-text {
+    font-size: 0.75rem;
+  }
+
+  .goya-btn-accion .material-icons {
+    font-size: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .usuario-servicio-item h3 {
-    font-size: 1.05rem;
+  .goya-card-titulo {
+    font-size: 1rem;
   }
 
-  .usuario-servicio-item p {
+  .goya-meta-item {
+    font-size: 0.8rem;
+  }
+
+  .goya-card-descripcion p {
     font-size: 0.85rem;
+  }
+
+  .goya-btn-accion {
+    padding: 6px 2px;
+  }
+
+  .goya-btn-text {
+    display: none; /* Ocultar texto en pantallas muy pequeñas */
+  }
+
+  .goya-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
   }
 }
