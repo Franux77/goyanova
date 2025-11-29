@@ -1,0 +1,308 @@
+/* ============================================
+   DISPONIBILIDAD - Compacto y moderno
+   ============================================ */
+
+.disponibilidad-seccion-principal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(23, 116, 246, 0.1);
+  max-width: 800px;
+  margin: 1rem auto;
+  border: 2px solid rgba(23, 116, 246, 0.08);
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.disponibilidad-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(23, 116, 246, 0.1);
+}
+
+.disponibilidad-titulo-principal {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1774f6;
+  margin: 0;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.disponibilidad-icono-titulo {
+  font-size: 1.5rem !important;
+  color: #1774f6;
+}
+
+/* ============================================
+   Badge de estado
+   ============================================ */
+
+.disponibilidad-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.disponibilidad-estado-badge.disponible {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+}
+
+.disponibilidad-estado-badge.no-disponible {
+  background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+  color: white;
+}
+
+.disponibilidad-icono-estado {
+  font-size: 1rem !important;
+}
+
+/* ============================================
+   Contenedor principal
+   ============================================ */
+
+.disponibilidad-contenido-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.disponibilidad-mensaje-vacio {
+  text-align: center;
+  padding: 1.5rem;
+  color: #888;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   Mensajes especiales (whatsapp/no_disponible)
+   ============================================ */
+
+.disponibilidad-mensaje-especial {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.disponibilidad-mensaje-especial.whatsapp {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.disponibilidad-mensaje-especial.no_disponible {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  color: #c62828;
+  border-left: 4px solid #ef5350;
+}
+
+.disponibilidad-icono-especial {
+  font-size: 1.2rem !important;
+}
+
+/* ============================================
+   Tarjetas de turnos con título/mensaje
+   ============================================ */
+
+.disponibilidad-turno-card {
+  background: #ffffff;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(23, 116, 246, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.disponibilidad-turno-card:hover {
+  border-color: #1774f6;
+  box-shadow: 0 3px 12px rgba(23, 116, 246, 0.15);
+}
+
+.disponibilidad-turno-titulo {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1774f6;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.disponibilidad-icono-turno {
+  font-size: 1rem !important;
+}
+
+.disponibilidad-turno-mensaje {
+  font-style: italic;
+  color: #555;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding-left: 1.4rem;
+}
+
+/* ============================================
+   Tabla de horarios
+   ============================================ */
+
+.disponibilidad-tabla-horarios {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(23, 116, 246, 0.1);
+}
+
+.disponibilidad-tabla-horarios tbody tr {
+  transition: background 0.2s ease;
+}
+
+.disponibilidad-tabla-horarios tbody tr:hover {
+  background: rgba(23, 116, 246, 0.04);
+}
+
+.disponibilidad-tabla-horarios td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(23, 116, 246, 0.08);
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.disponibilidad-tabla-horarios td:first-child {
+  font-weight: 700;
+  color: #1774f6;
+  width: 28%;
+}
+
+.disponibilidad-tabla-horarios td:last-child {
+  width: 72%;
+}
+
+/* Día actual destacado */
+.disponibilidad-tabla-horarios tr.dia-actual {
+  background: rgba(53, 137, 255, 0.143);
+  border-left: 4px solid #1774f6;
+}
+
+.disponibilidad-tabla-horarios tr.dia-actual td {
+  font-weight: 700;
+  color: #0d5abf;
+}
+
+.disponibilidad-tabla-horarios tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   Chips de horarios
+   ============================================ */
+
+.disponibilidad-turnos-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.disponibilidad-turno-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(23, 116, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+.disponibilidad-icono-reloj {
+  font-size: 0.9rem !important;
+}
+
+.disponibilidad-turno-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(23, 116, 246, 0.4);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .disponibilidad-seccion-principal {
+    padding: 1.2rem;
+    margin: 0.8rem auto;
+  }
+
+  .disponibilidad-header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .disponibilidad-titulo-principal {
+    font-size: 1.25rem;
+  }
+
+  .disponibilidad-estado-badge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .disponibilidad-tabla-horarios td {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .disponibilidad-turnos-container {
+    flex-direction: column;
+  }
+
+  .disponibilidad-turno-chip {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .disponibilidad-seccion-principal {
+    padding: 1rem;
+  }
+
+  .disponibilidad-titulo-principal {
+    font-size: 1.1rem;
+  }
+
+  .disponibilidad-tabla-horarios td {
+    padding: 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .disponibilidad-tabla-horarios td:first-child {
+    width: 35%;
+  }
+}

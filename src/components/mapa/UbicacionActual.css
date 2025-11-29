@@ -1,0 +1,442 @@
+/* Botón flotante de ubicación actual */
+.boton-ubicacion-actual {
+  position: fixed;
+  bottom: 7rem;
+  right: 1rem;
+  width: 50px;
+  height: 50px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  color: #666;
+}
+.boton-ubicacion-actual svg {
+  width: 28px;   /* 🔹 agrandá el ícono */
+  height: 28px;
+}
+
+.boton-ubicacion-actual.cargando svg {
+  width: 32px;   /* 🔹 un poco más grande mientras gira */
+  height: 32px;
+}
+
+.boton-ubicacion-actual:hover {
+  background: #f9f9f9;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.boton-ubicacion-actual:active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: scale(0.95);
+}
+
+/* Estado cargando */
+.boton-ubicacion-actual.cargando {
+  pointer-events: none;
+}
+
+.boton-ubicacion-actual.cargando svg {
+  animation: girar-ubicacion 1s linear infinite;
+}
+
+@keyframes girar-ubicacion {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estado cuando la ubicación está activa */
+.boton-ubicacion-actual.ubicacion-activa {
+  background: #e3f2fd;
+  border-color: #4A90E2;
+}
+
+.boton-ubicacion-actual.ubicacion-activa svg {
+  color: #4A90E2;
+}
+
+.boton-ubicacion-actual .ubicacion-activa {
+  color: #4A90E2;
+}
+
+/* Estado permiso denegado */
+.boton-ubicacion-actual.permiso-negado {
+  border-color: #ef4444;
+  background: #fff1f0;
+}
+
+.boton-ubicacion-actual.permiso-negado svg {
+  color: #ef4444;
+}
+
+.boton-ubicacion-actual.permiso-negado:hover {
+  background: #ffe4e1;
+  transform: scale(1.05);
+}
+
+/* Modal de guía */
+.modal-guia-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999 !important; /* 🔹 MUY ALTO para estar sobre TODO */
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-guia-contenido {
+  background: white;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  z-index: 100000 !important; /* 🔹 Aún más alto */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-guia-cerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.modal-guia-cerrar:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.modal-guia-icono {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: white;
+}
+
+.modal-guia-contenido h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem;
+  text-align: center;
+}
+
+.modal-guia-descripcion {
+  font-size: 1rem;
+  color: #666;
+  text-align: center;
+  margin: 0 0 2rem;
+  line-height: 1.5;
+}
+
+.modal-guia-pasos {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-guia-pasos h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+}
+
+.paso-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+}
+
+.paso-icono {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.paso-contenido {
+  flex: 1;
+}
+
+.paso-contenido p {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.paso-contenido ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #555;
+}
+
+.paso-contenido ol li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.paso-alternativo {
+  background: #fff7ed;
+  border: 2px solid #fb923c;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.paso-alternativo p {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: #ea580c;
+}
+
+.paso-alternativo ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #9a3412;
+}
+
+.paso-alternativo ul li {
+  margin-bottom: 0.375rem;
+  line-height: 1.4;
+}
+
+.btn-guia-entendido {
+  width: 100%;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.btn-guia-entendido:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+/* Toast de error */
+.ubicacion-error-toast {
+  position: fixed;
+  bottom: 13rem;
+  right: 1rem;
+  background: #ef4444;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: aparecer-toast 0.3s ease, desaparecer-toast 0.3s ease 2.7s forwards;
+  max-width: 250px;
+  font-size: 0.875rem;
+}
+
+.ubicacion-error-toast .material-icons {
+  font-size: 20px;
+}
+
+@keyframes aparecer-toast {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes desaparecer-toast {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Marcador de ubicación actual (punto azul) */
+.ubicacion-actual-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.punto-azul {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.punto-azul-interior {
+  width: 14px;
+  height: 14px;
+  background: #4A90E2;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  position: relative;
+}
+
+/* Animación de pulso */
+.pulso-azul {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: rgba(74, 144, 226, 0.4);
+  border-radius: 50%;
+  animation: pulsar-ubicacion 2s ease-out infinite;
+}
+
+@keyframes pulsar-ubicacion {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .boton-ubicacion-actual {
+    bottom: 5.5rem;
+  }
+
+  .ubicacion-error-toast {
+    bottom: 11rem;
+    right: 0.75rem;
+    max-width: 200px;
+    font-size: 0.8125rem;
+  }
+
+  .modal-guia-contenido {
+    padding: 1.5rem;
+    max-height: 85vh;
+  }
+
+  .modal-guia-icono {
+    width: 64px;
+    height: 64px;
+  }
+
+  .modal-guia-contenido h3 {
+    font-size: 1.25rem;
+  }
+
+  .modal-guia-descripcion {
+    font-size: 0.9375rem;
+  }
+
+  .paso-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.875rem;
+  }
+
+  .paso-icono {
+    width: 40px;
+    height: 40px;
+  }
+
+  .paso-contenido ol,
+  .paso-alternativo ul {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .boton-ubicacion-actual {
+    width: 44px;
+    height: 44px;
+  }
+
+  .ubicacion-error-toast {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.75rem;
+  }
+
+  .ubicacion-error-toast .material-icons {
+    font-size: 18px;
+  }
+}

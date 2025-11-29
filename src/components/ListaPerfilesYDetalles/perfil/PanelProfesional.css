@@ -1,0 +1,50 @@
+.panel-profesional {
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-top: 2rem;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.panel-profesional h3 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #222;
+}
+
+.estadisticas {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.estadistica-item {
+  text-align: center;
+}
+
+.estadistica-numero {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.estadistica-numero.trabajos {
+  color: #007bff;
+}
+
+.estadistica-numero.valoracion {
+  color: #f1c40f;
+}
+
+.estadistica-numero.visitas {
+  color: #28a745;
+}
+
+.resumen-profesional {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}

@@ -1,0 +1,131 @@
+/* Móvil */
+.lista-perfiles-container {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  max-height: 65vh;
+  background-color: #fff;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.18);
+  transition: bottom 0.4s ease;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem 1rem;
+}
+
+.lista-perfiles-container.visible {
+  bottom: 0;
+}
+
+.lista-perfiles-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.28);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.lista-perfiles-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.handle-bar {
+  width: 60px;
+  height: 7px;
+  background-color: #bbb;
+  border-radius: 9999px;
+  margin: 0.5rem auto 1rem;
+  cursor: grab;
+  transition: background-color 0.3s ease;
+}
+
+.handle-bar:active {
+  background-color: #888;
+}
+
+.lista-perfiles-scroll {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lista-perfiles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* gap: 1rem; */
+}
+
+/* ⬆️ Hasta acá Móvil ✅ */
+
+/* ⬇️ A partir de acá para PC */
+@media (min-width: 768px) {
+  .lista-perfiles-container {
+    width: 90%;
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -60vh;
+    max-height: 60vh;
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+  }
+
+  .lista-perfiles-container.visible {
+    bottom: 2rem;
+  }
+
+  .lista-perfiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Extra mejora para que todos los items se vean del mismo ancho */
+.card-perfil {
+  min-width: 0; /* evita que se desborde */
+}
+@media (max-width: 767px) {
+  .lista-perfiles-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 0;
+  }
+
+  .lista-perfiles-scroll {
+    overflow-x: hidden;
+  }
+
+  .lista-perfiles-grid {
+    grid-template-columns: 1fr; /* solo una columna en mobile */
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+}
+/* Para que el mensaje ocupe todo el ancho del grid en PC */
+.lista-perfiles-grid.no-resultados {
+  grid-template-columns: 1fr !important;
+}
+.sin-resultados-panel {
+  width: 100%;
+  text-align: center;
+  padding: 20px 10px;
+  color: #555;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+

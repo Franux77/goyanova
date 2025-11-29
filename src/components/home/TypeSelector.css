@@ -1,0 +1,28 @@
+.type-selector {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.type-selector button {
+  padding: 0.6rem 1.5rem;
+  border: 1px solid #0077ff;
+  border-radius: 6px;
+  background-color: white;
+  color: #0077ff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 1.2rem;
+}
+
+.type-selector button.active {
+  background-color: #0077ff;
+  color: white;
+}
+
+.type-selector button:hover {
+  background-color: #005fcc;
+  color: white;
+}

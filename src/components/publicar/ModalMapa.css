@@ -1,0 +1,123 @@
+.modal-mapa-leaflet {
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #ffffff, #f2f2f2);
+  border-radius: 24px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: 700px;
+  margin: auto;
+  animation: fadeIn 0.4s ease-in-out;
+  position: relative;
+}
+
+#mapa {
+  height: 420px;
+  width: 100%;
+  border-radius: 18px;
+  border: 2px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.4s ease-in-out;
+}
+
+/* Contenedor de botones */
+.acciones-mapa {
+  display: flex;
+  flex-wrap: wrap; /* ✅ permite que salten abajo si no entran */
+  gap: 0.5rem;
+  justify-content: center; /* opcional para centrar */
+  align-items: center;
+}
+
+.acciones-mapa button {
+  padding: 0.85rem 1.8rem;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  flex: 1 1 auto; /* ✅ que se ajusten al tamaño */
+  width: auto;
+  /* max-width: 200px;  */
+}
+
+
+/* Botón: Volver */
+.btn-volver {
+  background: #3b82f6;
+  color: #fff;
+}
+.btn-volver:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Botón: Confirmar */
+.btn-confirmar {
+  background: #10b981;
+  color: #fff;
+}
+.btn-confirmar:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+/* Botón: Cancelar */
+.btn-cerrar {
+  background: #ef4444;
+  color: #fff;
+}
+.btn-cerrar:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive para mobile */
+@media (max-width: 768px) {
+  
+
+  #mapa {
+    height: 320px;
+  }
+
+  .modal-mapa-leaflet {
+    border-radius: 18px;
+    padding: 1rem;
+  }
+}
+
+.instruccion-mapa {
+  background-color: #f0f4ff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 4px solid #3b82f6;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+  text-align: justify;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}

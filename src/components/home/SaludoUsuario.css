@@ -1,0 +1,396 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Contenedor principal */
+.saludo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin: 1rem auto;
+  max-width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  
+  /* Fondo con gradiente elegante */
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(23, 116, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(23, 116, 246, 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, #ffffff 0%, #fafcff 50%, #ffffff 100%);
+  
+  /* Borde con efecto premium */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 
+    0 10px 40px rgba(23, 116, 246, 0.12),
+    0 0 0 1px rgba(23, 116, 246, 0.08) inset,
+    0 5px 15px rgba(0, 0, 0, 0.03);
+  
+  animation: fadeIn 1s ease-in-out, floatSmooth 8s ease-in-out infinite;
+}
+
+/* Efecto de borde animado con gradiente */
+.saludo-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 2px;
+  background: linear-gradient(135deg, #77abf39d rgba(23, 116, 246, 0.3), #1774f6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rotateBorder 4s linear infinite;
+  opacity: 0.8;
+}
+
+/* Brillo sutil de fondo */
+.saludo-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(23, 116, 246, 0.08) 0%, transparent 70%);
+  animation: rotateGlow 10s linear infinite;
+  pointer-events: none;
+}
+
+/* Contenedor de texto */
+.saludo-texto {
+  position: relative;
+  z-index: 1;
+}
+
+.saludo-texto h2 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #1774f6;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(23, 116, 246, 0.15);
+  animation: slideInDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  /* display: ; */
+}
+
+/* Efecto de brillo en el texto */
+.saludo-texto h2::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Línea decorativa bajo el título */
+.saludo-texto h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #1774f6, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(23, 116, 246, 0.5);
+  animation: underlineExpand 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s forwards;
+}
+
+.saludo-texto p {
+  margin: 1.5rem 0 1rem;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.saludo-texto strong {
+  font-size: 1.8rem;
+  color: #1774f6;
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+  display: inline-block;
+  position: relative;
+  animation: pulseGlow 3s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(23, 116, 246, 0.3);
+  letter-spacing: 0.5px;
+}
+
+/* Efecto de resplandor en GoyaNova */
+.saludo-texto strong::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  background: radial-gradient(circle, rgba(23, 116, 246, 0.2) 0%, transparent 70%);
+  z-index: -1;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Spinner mejorado con diseño moderno */
+.spinner {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 1.5rem;
+}
+
+.spinner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(23, 116, 246, 0.1);
+  border-top-color: #1774f6;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: rgba(23, 116, 246, 0.5);
+  animation: spin 1.5s linear infinite reverse;
+}
+
+/* Botón de login premium */
+.login-buttonn {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  letter-spacing: 0.5px;
+  border-radius: 14px;
+  cursor: pointer;
+  display: inline-block;
+  min-width: 200px;
+  text-align: center;
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 
+    0 6px 20px rgba(23, 116, 246, 0.35),
+    0 0 0 0 rgba(23, 116, 246, 0.4);
+  animation: shake-bounce-pausado 6s ease-in-out infinite;
+}
+
+/* Capa de brillo en el botón */
+.login-buttonn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.7s ease;
+}
+
+.login-buttonn:hover::before {
+  left: 100%;
+}
+
+/* Partículas decorativas en el botón */
+.login-buttonn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.login-buttonn:hover {
+  background: linear-gradient(135deg, #0d5bbf 0%, #1774f6 100%);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 12px 35px rgba(23, 116, 246, 0.45),
+    0 0 0 12px rgba(23, 116, 246, 0.08);
+}
+
+.login-buttonn:hover::after {
+  opacity: 1;
+}
+
+.login-buttonn:active {
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes floatSmooth {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes underlineExpand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 80%;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes rotateBorder {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateGlow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake-bounce-pausado {
+  0%, 20%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  25% {
+    transform: translateX(-5px) scale(1.03);
+  }
+  30% {
+    transform: translateX(5px) scale(1.03);
+  }
+  35% {
+    transform: translateX(-3px) scale(1.02);
+  }
+  40% {
+    transform: translateX(3px) scale(1.02);
+  }
+  45% {
+    transform: translateX(-1px) scale(1.01);
+  }
+  50% {
+    transform: translateX(1px) scale(1.01);
+  }
+  55%, 95% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .saludo-wrapper {
+    padding: 2rem 1.5rem;
+    margin: 1rem auto;
+    border-radius: 20px;
+  }
+
+  .saludo-texto h2 {
+    font-size: 1.6rem;
+  }
+
+  .saludo-texto p {
+    font-size: 1.1rem;
+    margin: 1rem 0 0.8rem;
+  }
+
+  .saludo-texto strong {
+    font-size: 1.4rem;
+  }
+
+  .login-buttonn {
+    font-size: 1rem;
+    padding: 14px 32px;
+    min-width: 160px;
+  }
+}

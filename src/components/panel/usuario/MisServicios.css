@@ -1,0 +1,245 @@
+/* MisServicios.css */
+.usuario-misservicios-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.usuario-misservicios-cargando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  font-size: 1.1rem;
+  color: #1774f6;
+}
+
+/* Estado vacío */
+.usuario-misservicios-vacio {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+
+.usuario-misservicios-vacio p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Header */
+.usuario-misservicios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.usuario-misservicios-header h2 {
+  color: #1774f6;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.usuario-btn-publicar {
+  padding: 0.75rem 1.5rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.usuario-btn-publicar:hover {
+  background: #125bc4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+/* Grid de servicios */
+.usuario-misservicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.usuario-servicio-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  border: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario-servicio-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.15);
+  border-color: #1774f6;
+}
+
+.usuario-servicio-item h3 {
+  color: #222;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.usuario-servicio-item p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.usuario-servicio-item p strong {
+  color: #1774f6;
+  font-weight: 600;
+}
+
+.usuario-servicio-item small {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.usuario-servicio-suspendido-admin {
+  background: #ffebee;
+  color: #c62828;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem !important;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Acciones del servicio */
+.usuario-servicio-acciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.usuario-servicio-acciones button,
+.usuario-servicio-acciones a {
+  padding: 0.65rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.usuario-btn-editar {
+  background: #1774f6;
+  color: white;
+}
+
+.usuario-btn-editar:hover {
+  background: #125bc4;
+  transform: translateY(-1px);
+}
+
+.usuario-btn-suspender {
+  background: #ff9800;
+  color: white;
+}
+
+.usuario-btn-suspender:hover {
+  background: #f57c00;
+  transform: translateY(-1px);
+}
+
+.usuario-btn-suspender:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.usuario-btn-suspender:disabled:hover {
+  transform: none;
+}
+
+.usuario-btn-eliminar {
+  background: #f44336;
+  color: white;
+}
+
+.usuario-btn-eliminar:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .usuario-misservicios-container {
+    padding: 1rem;
+  }
+
+  .usuario-misservicios-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .usuario-misservicios-header h2 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .usuario-btn-publicar {
+    width: 100%;
+  }
+
+  .usuario-misservicios-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .usuario-servicio-item {
+    padding: 1.25rem;
+  }
+
+  .usuario-servicio-acciones {
+    /* grid-template-columns: 1fr; */
+    gap: 0.2rem;
+  }
+
+  .usuario-servicio-acciones button,
+  .usuario-servicio-acciones a {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .usuario-servicio-item h3 {
+    font-size: 1.05rem;
+  }
+
+  .usuario-servicio-item p {
+    font-size: 0.85rem;
+  }
+}

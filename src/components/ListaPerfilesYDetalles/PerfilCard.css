@@ -1,0 +1,375 @@
+/* ============================================
+   PERFIL CARD NUEVO - MODERNO Y COMPACTO
+   ============================================ */
+
+.perfil-card-nuevo {
+  position: relative;
+  display: flex;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+  min-width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .perfil-card-nuevo {
+    min-height: 180px;
+  }
+}
+
+.perfil-card-nuevo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   BADGE PREMIUM - ESQUINA SUPERIOR DERECHA DE LA CARD
+   ============================================ */
+
+.badge-perfil-card-top {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 
+    0 4px 12px rgba(23, 116, 246, 0.45),
+    0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 15;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  animation: badge-perfil-glow 3.5s ease-in-out infinite;
+}
+
+.badge-perfil-icon {
+  font-size: 0.85rem !important;
+  animation: badge-perfil-star 4.5s ease-in-out infinite;
+}
+
+.badge-perfil-text {
+  white-space: nowrap;
+}
+
+@keyframes badge-perfil-glow {
+  0%, 100% {
+    box-shadow: 
+      0 4px 12px rgba(23, 116, 246, 0.45),
+      0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 6px 20px rgba(23, 116, 246, 0.65),
+      0 3px 7px rgba(0, 0, 0, 0.15),
+      0 0 30px rgba(23, 116, 246, 0.3);
+  }
+}
+
+@keyframes badge-perfil-star {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  8% {
+    transform: rotate(18deg) scale(1.15);
+  }
+  16% {
+    transform: rotate(-10deg) scale(1);
+  }
+  24% {
+    transform: rotate(0deg) scale(1);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.perfil-card-nuevo:hover .badge-perfil-card-top {
+  box-shadow: 
+    0 6px 24px rgba(23, 116, 246, 0.75),
+    0 3px 9px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(23, 116, 246, 0.4);
+  transform: scale(1.08);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   FOTO Y CONTENIDO
+   ============================================ */
+
+.perfil-card-foto {
+  position: relative;
+  flex-shrink: 0;
+  padding: 16px;
+}
+
+.perfil-card-foto img {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+  transition: transform 0.3s ease;
+}
+
+.perfil-card-nuevo:hover .perfil-card-foto img {
+  transform: scale(1.05);
+}
+
+.perfil-placeholder {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.perfil-card-contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 16px 16px 0;
+  gap: 8px;
+  padding-top: 1rem auto;
+}
+
+.perfil-card-texto h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #222;
+  text-align: left;
+  line-height: 1.3;
+  margin: 1rem 0 0;
+}
+
+.perfil-card-texto .descripcion {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-align: left;
+}
+
+.perfil-card-texto .descripcion.expandida {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+
+.btn-ver-mas {
+  background: none;
+  border: none;
+  color: #1774f6;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.2s;
+  text-align: left;
+}
+
+.btn-ver-mas:hover {
+  color: #0d5bbf;
+}
+
+.perfil-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.rating-text {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN
+   ============================================ */
+
+.perfil-card-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.btn-verr,
+.btn-ver-mapa,
+.btn-wsp {
+  border: none;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-verr {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: #fff;
+}
+
+.btn-verr:hover {
+  background: linear-gradient(135deg, #0d5bbf 0%, #094a9e 100%);
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-ver-mapa {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+}
+
+.btn-ver-mapa:hover {
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-wsp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+}
+
+.btn-wsp:hover {
+  background: linear-gradient(135deg, #128c7e 0%, #0d6e5f 100%);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .perfil-card-nuevo {
+    flex-direction: row;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .perfil-card-foto {
+    padding: 0 12px 0 0;
+  }
+
+  .perfil-card-foto img,
+  .perfil-placeholder {
+    width: 70px;
+    height: 70px;
+  }
+
+  .perfil-placeholder {
+    font-size: 1.5rem;
+  }
+
+  .perfil-card-contenido {
+    padding: 0;
+    gap: 6px;
+  }
+
+  .perfil-card-texto h3 {
+    font-size: 1rem;
+  }
+
+  .perfil-card-texto .descripcion {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .perfil-card-botones {
+    gap: 6px;
+  }
+
+  .btn-verr,
+  .btn-ver-mapa,
+  .btn-wsp {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+
+  .badge-perfil-card-top {
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 0.6rem;
+    gap: 3px;
+  }
+
+  .badge-perfil-icon {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .perfil-card-foto img,
+  .perfil-placeholder {
+    width: 60px;
+    height: 60px;
+  }
+
+  .perfil-placeholder {
+    font-size: 1.3rem;
+  }
+
+  .perfil-card-texto h3 {
+    font-size: 0.95rem;
+  }
+
+  .perfil-card-texto .descripcion {
+    font-size: 0.8rem;
+  }
+
+  .btn-verr,
+  .btn-ver-mapa,
+  .btn-wsp {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+  }
+
+  .badge-perfil-card-top {
+    top: 6px;
+    right: 6px;
+    padding: 3px 7px;
+    font-size: 0.55rem;
+    border-radius: 14px;
+  }
+
+  .badge-perfil-icon {
+    font-size: 0.7rem !important;
+  }
+}

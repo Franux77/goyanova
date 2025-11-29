@@ -1,0 +1,162 @@
+/* src/components/mapa/BarraBusquedaExplorar.css */
+
+.search-explorar-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0.6rem auto 0;
+  /* padding: 0 0.8rem; */
+  z-index: 1004;
+  box-sizing: border-box;
+}
+
+.search-explorar-box {
+  position: relative;
+  width: 100%;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 
+    0 4px 12px rgba(23, 116, 246, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+}
+
+.search-explorar-box:focus-within {
+  border-color: #1774f6;
+  box-shadow: 
+    0 0 0 4px rgba(23, 116, 246, 0.12),
+    0 8px 20px rgba(23, 116, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.search-explorar-icon {
+  position: absolute;
+  left: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #999;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.search-explorar-box:focus-within .search-explorar-icon {
+  color: #1774f6;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-explorar-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.9rem 3.5rem 0.9rem 3.2rem;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.search-explorar-input::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+
+.search-explorar-clear {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.search-explorar-clear svg {
+  width: 14px;
+  height: 14px;
+  color: #666;
+  transition: color 0.25s ease;
+}
+
+.search-explorar-clear:hover {
+  background: linear-gradient(135deg, #1774f6 0%, #0d4fa3 100%);
+  transform: translateY(-50%) scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 8px rgba(23, 116, 246, 0.3);
+}
+
+.search-explorar-clear:hover svg {
+  color: white;
+}
+
+.search-explorar-clear:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Animación de entrada */
+.search-explorar-container {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .search-explorar-container {
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+
+  .search-explorar-input {
+    font-size: 1.05rem;
+    padding: 1rem 3.5rem 1rem 3.5rem;
+  }
+  
+  .search-explorar-icon {
+    left: 1.3rem;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .search-explorar-clear {
+    width: 32px;
+    height: 32px;
+    right: 1rem;
+  }
+  
+  .search-explorar-clear svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .search-explorar-container {
+    max-width: 700px;
+  }
+  
+  .search-explorar-input {
+    font-size: 1.1rem;
+  }
+}

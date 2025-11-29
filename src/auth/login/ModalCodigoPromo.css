@@ -1,0 +1,419 @@
+/* ============================================
+   MODAL DE CÓDIGO PROMOCIONAL - OVERLAY
+   ============================================ */
+.modal-codigo-promo-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   MODAL DE CÓDIGO PROMOCIONAL - CONTENEDOR
+   ============================================ */
+.modal-codigo-promo-content {
+  background: white;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.modal-codigo-promo-header {
+  text-align: center;
+  padding: 30px 30px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-codigo-promo-header .welcome-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.modal-codigo-promo-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+}
+
+.modal-codigo-promo-header p {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+/* ============================================
+   BODY
+   ============================================ */
+.modal-codigo-promo-body {
+  padding: 30px;
+}
+
+/* Info del código */
+.promo-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border-left: 4px solid #1774f6;
+}
+
+.promo-info .material-icons {
+  font-size: 32px;
+  color: #1774f6;
+  flex-shrink: 0;
+}
+
+.promo-info strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+}
+
+.promo-info p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Input del código */
+.codigo-input-group {
+  margin-bottom: 25px;
+}
+
+.codigo-input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.codigo-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.codigo-input-wrapper input {
+  width: 100%;
+  padding: 14px 50px 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.codigo-input-wrapper input:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 4px rgba(23, 116, 246, 0.1);
+}
+
+.codigo-input-wrapper input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input-status {
+  position: absolute;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-status .material-icons {
+  font-size: 24px;
+}
+
+.input-status.status-ok .material-icons {
+  color: #10b981;
+  animation: checkPop 0.3s ease;
+}
+
+.input-status.status-error .material-icons {
+  color: #ef4444;
+  animation: shake 0.4s ease;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Spinner mini */
+.spinner-mini {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1774f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mensajes de validación */
+.codigo-mensaje {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.codigo-mensaje.exito {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.codigo-mensaje.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.codigo-mensaje .material-icons {
+  font-size: 20px;
+}
+
+/* Beneficios Premium */
+.beneficios-preview {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.beneficios-preview h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 15px;
+}
+
+.beneficios-preview ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.beneficios-preview li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.beneficios-preview li:last-child {
+  border-bottom: none;
+}
+
+.beneficios-preview li .material-icons {
+  font-size: 20px;
+  color: #1774f6;
+}
+
+/* ============================================
+   ACTIONS
+   ============================================ */
+.modal-codigo-promo-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px 30px 30px;
+}
+
+.btn-omitir,
+.btn-aplicar {
+  flex: 1;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-omitir {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.btn-omitir:hover:not(:disabled) {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.btn-aplicar {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+.btn-aplicar:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-omitir:disabled,
+.btn-aplicar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Spinner del botón */
+.spinner-btn {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 600px) {
+  .modal-codigo-promo-content {
+    border-radius: 20px 20px 0 0;
+    max-height: 95vh;
+  }
+
+  .modal-codigo-promo-header {
+    padding: 25px 20px 15px;
+  }
+
+  .modal-codigo-promo-header h2 {
+    font-size: 22px;
+  }
+
+  .modal-codigo-promo-body {
+    padding: 20px;
+  }
+
+  .modal-codigo-promo-actions {
+    flex-direction: column;
+    padding: 15px 20px 25px;
+  }
+
+  .btn-omitir,
+  .btn-aplicar {
+    width: 100%;
+  }
+
+  .promo-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .promo-info .material-icons {
+    font-size: 40px;
+  }
+}

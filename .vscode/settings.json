@@ -1,0 +1,14 @@
+{
+  "javascript.implicitProjectConfig.checkJs": false,
+  "typescript.tsserver.enable": false,
+  "typescript.tsserver.useSeparateSyntaxServer": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
+}

@@ -1,0 +1,827 @@
+/* =====================================================
+   GESTIÓN DE TUTORIALES - PANEL ADMIN
+   ===================================================== */
+
+.gtut-container {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================== LOADING ==================== */
+.gtut-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+  color: #666;
+}
+
+.gtut-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #1774f6;
+  border-radius: 50%;
+  animation: gtut-spin 1s linear infinite;
+}
+
+@keyframes gtut-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== HEADER ==================== */
+.gtut-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.gtut-titulo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.gtut-header-icon {
+  font-size: 2.5rem !important;
+  color: #1774f6;
+}
+
+.gtut-titulo {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.gtut-subtitulo {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0.3rem 0 0 0;
+}
+
+/* ==================== BOTONES ==================== */
+.gtut-btn-primary {
+  padding: 0.8rem 1.5rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.gtut-btn-primary:hover {
+  background: #0d5dd9;
+  transform: translateY(-2px);
+}
+
+.gtut-btn-refrescar {
+  padding: 0.8rem 1.5rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease;
+}
+
+.gtut-btn-refrescar:hover {
+  background: #0d5dd9;
+}
+
+.gtut-btn-icon {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.gtut-btn-icon:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.gtut-btn-icon.gtut-btn-danger:hover {
+  background: #fee;
+  color: #f44336;
+}
+
+/* ==================== ESTADÍSTICAS ==================== */
+.gtut-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.gtut-stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid #f0f0f0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gtut-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gtut-stat-icon {
+  font-size: 2.5rem !important;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+}
+
+.gtut-stat-numero {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.gtut-stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.3rem;
+}
+
+/* ==================== FILTROS ==================== */
+.gtut-filtros {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.gtut-buscador-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.gtut-buscador-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+}
+
+.gtut-buscador {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 3rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.gtut-buscador:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.gtut-select {
+  padding: 0.8rem 1rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background: white;
+}
+
+.gtut-select:focus {
+  border-color: #1774f6;
+}
+
+/* ==================== GRID TUTORIALES ==================== */
+.gtut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.gtut-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #999;
+  background: white;
+  border: 2px dashed #e0e0e0;
+  border-radius: 12px;
+}
+
+.gtut-empty-icon {
+  font-size: 4rem !important;
+  color: #ddd;
+}
+
+/* ==================== CARD TUTORIAL ==================== */
+.gtut-card {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.gtut-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: #1774f6;
+}
+
+.gtut-card.gtut-inactivo {
+  opacity: 0.6;
+}
+
+.gtut-card-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.gtut-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gtut-card:hover .gtut-thumbnail-img {
+  transform: scale(1.05);
+}
+
+.gtut-thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gtut-thumbnail-placeholder .material-icons {
+  font-size: 4rem !important;
+  color: white;
+  opacity: 0.8;
+}
+
+.gtut-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gtut-card:hover .gtut-card-overlay {
+  opacity: 1;
+}
+
+.gtut-overlay-icon {
+  font-size: 2rem !important;
+  color: white;
+}
+
+.gtut-duracion {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.gtut-tipo-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== CARD CONTENIDO ==================== */
+.gtut-card-contenido {
+  padding: 1.5rem;
+}
+
+.gtut-card-titulo {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0 0 0.8rem 0;
+  font-weight: 600;
+  line-height: 1.4;
+  min-height: 2.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gtut-card-descripcion {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  min-height: 3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gtut-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gtut-plataforma-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: #e3f2fd;
+  color: #1774f6;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.gtut-plataforma-badge .material-icons {
+  font-size: 1rem !important;
+}
+
+.gtut-vistas {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.gtut-vistas .material-icons {
+  font-size: 1rem !important;
+}
+
+.gtut-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ==================== OVERLAY INACTIVO ==================== */
+.gtut-inactivo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #999;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.gtut-inactivo-overlay .material-icons {
+  font-size: 3rem !important;
+}
+
+/* ==================== MODAL ==================== */
+.gtut-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  animation: gtut-fadeIn 0.3s ease;
+}
+
+@keyframes gtut-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gtut-modal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: gtut-slideUp 0.3s ease;
+}
+
+@keyframes gtut-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gtut-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.gtut-modal-titulo {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.gtut-modal-close {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.gtut-modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.gtut-modal-form {
+  padding: 2rem;
+}
+
+/* ==================== FORMULARIO ==================== */
+.gtut-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.gtut-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.gtut-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.gtut-input,
+.gtut-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'Segoe UI', sans-serif;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.gtut-input:focus,
+.gtut-textarea:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.gtut-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ==================== INPUT CON BOTÓN ==================== */
+.gtut-input-with-button {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gtut-input-with-button .gtut-input {
+  flex: 1;
+}
+
+.gtut-btn-generar {
+  padding: 0.8rem 1rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.gtut-btn-generar:hover {
+  background: #45a049;
+}
+
+.gtut-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ==================== THUMBNAIL PREVIEW ==================== */
+.gtut-thumbnail-preview {
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+}
+
+.gtut-thumbnail-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==================== CHECKBOX ==================== */
+.gtut-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.gtut-checkbox-label:hover {
+  border-color: #1774f6;
+  background: #f8f9fa;
+}
+
+.gtut-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #1774f6;
+}
+
+/* ==================== MODAL ACTIONS ==================== */
+.gtut-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.gtut-btn-cancel {
+  padding: 0.8rem 1.5rem;
+  background: white;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.gtut-btn-cancel:hover {
+  background: #f8f9fa;
+  border-color: #999;
+  color: #333;
+}
+
+.gtut-btn-submit {
+  padding: 0.8rem 1.5rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease;
+}
+
+.gtut-btn-submit:hover {
+  background: #0d5dd9;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+  .gtut-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .gtut-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gtut-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gtut-filtros {
+    flex-direction: column;
+  }
+
+  .gtut-buscador-wrapper {
+    width: 100%;
+  }
+
+  .gtut-select {
+    width: 100%;
+  }
+
+  .gtut-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .gtut-container {
+    padding: 1rem;
+  }
+
+  .gtut-titulo {
+    font-size: 1.5rem;
+  }
+
+  .gtut-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .gtut-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gtut-modal-overlay {
+    padding: 1rem;
+  }
+
+  .gtut-modal-form {
+    padding: 1.5rem;
+  }
+
+  .gtut-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .gtut-modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .gtut-input-with-button {
+    flex-direction: column;
+  }
+
+  .gtut-btn-generar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .gtut-card-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .gtut-card-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .gtut-container {
+    padding: 1rem;
+  }
+
+  .gtut-titulo {
+    font-size: 1.5rem;
+  }
+
+  .gtut-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+  }
+
+  .gtut-stat-card {
+    background: white;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .gtut-stat-icon {
+    font-size: 2rem !important;
+    padding: 0.6rem;
+  }
+
+  .gtut-stat-numero {
+    font-size: 1.5rem;
+  }
+
+  .gtut-stat-label {
+    font-size: 0.8rem;
+  }
+
+  .gtut-grid {
+    grid-template-columns: 1fr;
+  }
+}

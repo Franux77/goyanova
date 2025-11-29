@@ -1,0 +1,403 @@
+* {
+  box-sizing: border-box;
+}
+
+main {
+  background-color: #f9f9f9;
+}
+
+.category-container {
+  padding: 10px 0 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.category-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.category-title {
+  font-size: 2.2rem;
+  margin-top: 6rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d4fa3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.category-subtitle {
+  font-size: 1.05rem;
+  color: #666;
+  margin-top: 0.5rem;
+  font-weight: 400;
+}
+
+/* ============================================
+   FILTROS MODERNOS
+   ============================================ */
+.category-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  flex: 1 1 100%;
+  min-width: 250px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #999;
+  pointer-events: none;
+  transition: color 0.3s;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.9rem 3rem 0.9rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1774f6;
+  box-shadow: 0 0 0 4px rgba(23, 116, 246, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.search-input:focus + .search-icon,
+.search-box:focus-within .search-icon {
+  color: #1774f6;
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f3f4f6;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.search-clear svg {
+  width: 14px;
+  height: 14px;
+  color: #666;
+}
+
+.search-clear:hover {
+  background: #1774f6;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-clear:hover svg {
+  color: white;
+}
+
+/* Sort Box */
+.sort-box {
+  position: relative;
+  flex: 1 1 100%;
+  min-width: 250px;
+}
+
+.sort-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #999;
+  pointer-events: none;
+  transition: color 0.3s;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #1774f6;
+  box-shadow: 0 0 0 4px rgba(23, 116, 246, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sort-box:focus-within .sort-icon {
+  color: #1774f6;
+}
+
+@media (min-width: 768px) {
+  .category-filtros {
+    flex-wrap: nowrap;
+  }
+  
+  .search-box,
+  .sort-box {
+    flex: 1 1 50%;
+  }
+}
+
+/* ============================================
+   RESULT INFO
+   ============================================ */
+.result-info {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.info-loading,
+.info-success,
+.info-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.info-loading {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  color: #1774f6;
+  animation: pulse-info 2s ease-in-out infinite;
+}
+
+.info-success {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #2e7d32;
+}
+
+.info-success svg {
+  width: 18px;
+  height: 18px;
+}
+
+.info-empty {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  color: #e65100;
+}
+
+.info-empty svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes pulse-info {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   PERFIL LIST
+   ============================================ */
+.perfil-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem;
+  padding: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .perfil-list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1900px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================
+   LOADER MODERNO
+   ============================================ */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 450px;
+  gap: 2rem;
+  position: relative;
+}
+
+.modern-loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  animation: rotate 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.loader-ring:nth-child(1) {
+  border-top-color: #1774f6;
+  animation-delay: 0s;
+}
+
+.loader-ring:nth-child(2) {
+  border-right-color: rgba(23, 116, 246, 0.6);
+  animation-delay: 0.3s;
+  inset: 8px;
+}
+
+.loader-ring:nth-child(3) {
+  border-bottom-color: rgba(23, 116, 246, 0.3);
+  animation-delay: 0.6s;
+  inset: 16px;
+}
+
+.loader-pulse {
+  position: absolute;
+  inset: 28px;
+  background: radial-gradient(circle, #1774f6 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse-loader 2s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-loader {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+.loader-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #1774f6, #0d4fa3, #1774f6);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-flow 3s ease-in-out infinite;
+}
+
+@keyframes gradient-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ============================================
+   PAGINACIÓN
+   ============================================ */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 2.5rem 0;
+  flex-wrap: wrap;
+}
+
+.pagina-btn {
+  background: white;
+  color: #666;
+  border: 2px solid #e5e7eb;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 42px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.pagina-btn:hover:not(.activa) {
+  background: #f8f9fa;
+  border-color: #1774f6;
+  color: #1774f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(23, 116, 246, 0.15);
+}
+
+.pagina-btn.activa {
+  background: linear-gradient(135deg, #1774f6 0%, #0d4fa3 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
+  transform: scale(1.05);
+}
+
+.pagina-btn:active {
+  transform: scale(0.95);
+}

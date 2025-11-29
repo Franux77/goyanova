@@ -1,0 +1,579 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ============================================
+   HOME GENERAL
+   ============================================ */
+.home {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem 0.5rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ============================================
+   HERO - Moderno y limpio
+   ============================================ */
+.hero {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: white;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border-radius: 20px;
+  box-shadow: 
+    0 10px 40px rgba(23, 116, 246, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: rotateGlow 15s linear infinite;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.95;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.btn-primaryy {
+  background-color: white;
+  color: #1774f6;
+  padding: 14px 32px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.btn-primaryy:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   BANNER CÓDIGO PROMOCIONAL - Premium
+   ============================================ */
+.promo-code-banner {
+  background: linear-gradient(135deg, #fff9e6 0%, #fef3c7 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 20px;
+  padding: 28px;
+  margin: 2rem auto;
+  max-width: 1200px;
+  box-shadow: 
+    0 8px 30px rgba(251, 191, 36, 0.2),
+    0 0 0 1px rgba(251, 191, 36, 0.1) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.promo-code-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 3s infinite;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.banner-icon {
+  font-size: 52px;
+  color: #f59e0b;
+  flex-shrink: 0;
+  animation: bounceGentle 2s ease-in-out infinite;
+}
+
+.banner-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.banner-text strong {
+  display: block;
+  font-size: 1.3rem;
+  color: #78350f;
+  margin-bottom: 8px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.banner-text p {
+  font-size: 0.95rem;
+  color: #92400e;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+/* ============================================
+   CUENTA REGRESIVA - Moderna
+   ============================================ */
+.countdown-timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 65px;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.countdown-item:hover {
+  transform: translateY(-2px);
+}
+
+.countdown-numero {
+  font-size: 26px;
+  font-weight: 800;
+  color: #78350f;
+  line-height: 1;
+  font-family: 'Poppins', sans-serif;
+}
+
+.countdown-label {
+  font-size: 11px;
+  color: #92400e;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.countdown-separador {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f59e0b;
+  padding: 0 4px;
+}
+
+.btn-aplicar-codigo {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.btn-aplicar-codigo:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+}
+
+.btn-aplicar-codigo .material-icons {
+  font-size: 22px;
+}
+
+.banner-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px dashed rgba(251, 191, 36, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #92400e;
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.banner-footer .material-icons {
+  font-size: 20px;
+  color: #f59e0b;
+}
+
+/* ============================================
+   BOTÓN FLOTANTE - Elegante
+   ============================================ */
+.floating-promo-btn {
+  position: fixed;
+  bottom: 85px;
+  right: 24px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 18px 24px;
+  border-radius: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 
+    0 8px 30px rgba(239, 68, 68, 0.4),
+    0 0 0 4px rgba(239, 68, 68, 0.1);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+.floating-promo-btn:hover {
+  transform: scale(1.15) translateY(-5px);
+  box-shadow: 
+    0 12px 40px rgba(239, 68, 68, 0.5),
+    0 0 0 8px rgba(239, 68, 68, 0.15);
+}
+
+.floating-promo-btn .material-icons {
+  font-size: 30px;
+}
+
+.floating-text {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* ============================================
+   MAPA - Clean
+   ============================================ */
+.map-section {
+  padding: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.map-placeholder {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  width: 100%;
+  max-width: 900px;
+  height: 300px;
+  border-radius: 16px;
+  border: 2px solid rgba(23, 116, 246, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   BOTÓN PUBLICAR SERVICIO - Premium
+   ============================================ */
+.publicar-servicio-section {
+  text-align: center;
+  margin: 0;
+  padding: 1.5rem 0 1rem;
+}
+
+.btn-publicar-servicio {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: #fff;
+  border: none;
+  padding: 16px 40px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 
+    0 6px 20px rgba(23, 116, 246, 0.35),
+    0 0 0 0 rgba(23, 116, 246, 0.3);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-publicar-servicio::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-publicar-servicio:hover {
+  background: linear-gradient(135deg, #0d5bbf 0%, #1774f6 100%);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 10px 30px rgba(23, 116, 246, 0.45),
+    0 0 0 8px rgba(23, 116, 246, 0.1);
+}
+
+.btn-publicar-servicio:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-publicar-servicio:active {
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
+}
+
+/* ============================================
+   CATEGORÍAS - Clean
+   ============================================ */
+.category-section {
+  /* padding: 1.5rem 0; */
+  text-align: center;
+}
+
+.category-section h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  color: #1774f6;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.services-section {
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.services-section h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #1774f6;
+  margin-bottom: 1rem;
+}
+
+.select-category-message {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 1rem;
+  font-weight: 500;
+}
+
+/* ============================================
+   ANIMACIONES - Optimizadas
+   ============================================ */
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes bounceGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ============================================
+   RESPONSIVE - Optimizado
+   ============================================ */
+@media (max-width: 768px) {
+  .home {
+    padding-top: 0;
+  }
+
+  .hero {
+    padding: 2rem 1rem;
+    margin-top: 1rem;
+    border-radius: 16px;
+  }
+
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .btn-primaryy {
+    padding: 12px 28px;
+    font-size: 0.95rem;
+  }
+
+  .promo-code-banner {
+    margin: 1.5rem 0;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .banner-icon {
+    font-size: 48px;
+  }
+
+  .banner-info {
+    width: 100%;
+  }
+
+  .countdown-timer {
+    justify-content: center;
+  }
+
+  .countdown-item {
+    min-width: 55px;
+    padding: 8px 10px;
+  }
+
+  .countdown-numero {
+    font-size: 22px;
+  }
+
+  .btn-aplicar-codigo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .floating-promo-btn {
+    bottom: 20px;
+    right: 16px;
+    padding: 14px 20px;
+  }
+
+  .floating-promo-btn .material-icons {
+    font-size: 26px;
+  }
+
+  .map-placeholder {
+    height: 250px;
+    border-radius: 12px;
+  }
+
+  .btn-publicar-servicio {
+    width: 95%;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+  }
+
+  /* .category-section {
+    padding: 1rem 0;
+  } */
+
+  .category-section h2 {
+    font-size: 1.7rem;
+  }
+
+  .services-section h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.4rem;
+  }
+
+  .countdown-item {
+    min-width: 48px;
+    padding: 6px 8px;
+  }
+
+  .countdown-numero {
+    font-size: 20px;
+  }
+
+  .countdown-separador {
+    font-size: 22px;
+  }
+
+  .floating-promo-btn {
+    padding: 12px 18px;
+  }
+
+  .floating-text {
+    font-size: 0.7rem;
+  }
+
+  .category-section h2 {
+    font-size: 1.5rem;
+  }
+}

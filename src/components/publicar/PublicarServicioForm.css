@@ -1,0 +1,294 @@
+/* CONTENEDOR GENERAL */
+.psf-container {
+  min-width: 100%;
+  max-width: 300px;
+  background-color: #f4f5f7;
+  font-family: 'Segoe UI', sans-serif;
+  padding-top: 0; /* 🔹 ELIMINADO: Ya no necesitamos padding aquí */
+  position: relative;
+  min-height: 100vh;
+}
+
+/* NAVBAR FIJO */
+.psf-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 150px;
+  transition: left 0.3s ease, width 0.3s ease;
+}
+
+/* Botón volver */
+.psf-volver {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.psf-volver:hover {
+  background: linear-gradient(135deg, #2575fc, #6a11cb);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+/* Logo */
+.psf-logo {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background-clip: text; /* versión estándar */
+  -webkit-background-clip: text; /* compatibilidad con Chrome/Safari */
+  -webkit-text-fill-color: transparent;
+  z-index: 10000;
+}
+
+/* Pasos */
+.psf-pasos-bar {
+  display: flex;
+  gap: 12px;
+}
+
+.psf-paso {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.psf-paso::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 4px;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.psf-paso:hover {
+  background: #f0f4ff;
+  transform: scale(1.1);
+  color: #2D9CDB;
+}
+
+.psf-paso.activo {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.psf-paso.activo::after {
+  width: 60%;
+}
+
+/* SECCIONES */
+.psf-seccion {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem; /* 🔹 CAMBIADO: Separación entre secciones */
+}
+
+/* 🔹 NUEVO: La primera sección debe tener margen superior para no taparse con navbar */
+.psf-seccion:first-child {
+  margin-top: calc(110px + 2rem); /* Altura navbar + espacio */
+}
+
+/* CONTROLES */
+.psf-controles {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.psf-btn-siguiente {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  width: 100%;
+  padding: 22px 24px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  justify-content: center;
+  display: flex;
+  margin: 0;
+}
+
+.psf-btn-siguiente:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.psf-controles:only-child > * {
+  flex: 1 0 100%;
+}
+
+/* OVERLAY DE PUBLICACIÓN */
+.overlay-publicando {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10001;
+  color: #fff;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* MODAL DE ERROR */
+.modal-errorr {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-errorr.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-contenidoo {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  text-align: center;
+  transform: translateY(-20px);
+  transition: transform 0.3s ease-in-out;
+}
+
+.modal-errorr.show .modal-contenidoo {
+  transform: translateY(0);
+}
+
+.modal-contenidoo h3 {
+  color: #e53935;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.modal-contenidoo p,
+.modal-contenidoo ul {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.modal-contenidoo button {
+  background-color: #e53935;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modal-contenidoo button:hover {
+  background-color: #c62828;
+}
+
+@media (max-width: 768px) {
+  .psf-navbar {
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    height: auto;
+    margin-left: 0;
+  }
+
+  .psf-pasos-bar {
+    margin-top: 0.5rem;
+  }
+
+  .psf-logo {
+    margin: 0.3rem 0;
+  }
+
+  .psf-volver {
+    align-self: flex-start;
+  }
+
+  /* 🔹 NUEVO: Ajustar margen superior de primera sección en móvil */
+  .psf-seccion:first-child {
+    margin-top: calc(70px + 1.5rem);
+  }
+}
+
+@media (max-width: 1000px) {
+  .psf-seccion:first-child {
+  margin-top: calc(50px + 2rem); /* Altura navbar + espacio */
+}
+}
+@media (max-width: 1024px) {
+  .psf-navbar {
+    height: auto;
+  }
+}
+

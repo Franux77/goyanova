@@ -1,0 +1,678 @@
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.paso3-wrapper {
+  padding: 1.5rem 1rem;
+  font-family: "Segoe UI", sans-serif;
+  max-width: 600px;
+  margin: auto;
+}
+
+.paso3-titulo {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #222;
+  text-align: center;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+/* ========== OPCIONES DE DISPONIBILIDAD ========== */
+.opciones-disponibilidad {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.opciones-disponibilidad button {
+  padding: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  text-align: left;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.opciones-disponibilidad button:hover {
+  background-color: #f0f0f0;
+  border-color: #999;
+}
+
+.opciones-disponibilidad .activa {
+  background-color: #e0f0ff;
+  border-color: #2196f3;
+  color: #1a73e8;
+  font-weight: bold;
+}
+
+/* ========== ALERTAS ========== */
+.alerta-sin-dias {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ========== BLOQUES DE CONTENIDO ========== */
+.bloque-horario {
+  margin-top: 1.5rem;
+}
+
+.bloque-nodisp {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  color: #991b1b;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ========== MENSAJE ADICIONAL (TURNOS/PEDIDO) ========== */
+.mensaje-pedido-info {
+  margin-top: 1.5rem;
+  background: #f8f9fc;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #d0d7e1;
+  margin-bottom: 1.5rem;
+}
+
+.mensaje-pedido-info p {
+  margin-bottom: 0.5rem;
+  color: #3b82f6;
+}
+
+.mensaje-textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  background: #fff;
+  font-family: inherit;
+}
+
+.mensaje-textarea:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+/* ========== LISTA DE DÍAS ========== */
+.lista-dias {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item-dia {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f3f6fa;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.item-dia.inactivo {
+  opacity: 0.5;
+  background: #ececec;
+}
+
+.item-dia.incompleto {
+  border-left: 4px solid #ff9800;
+  background: #fff8e1;
+}
+
+.item-dia.incompleto .dia-info {
+  cursor: pointer;
+}
+
+.dia-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.dia-info span:first-child {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.cantidad-turnos,
+.off {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.cantidad-turnos.advertencia {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.cantidad-turnos.advertencia::after {
+  content: " ← Hacé clic para configurar";
+  font-size: 11px;
+  color: #ff9800;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* ========== SWITCH (TOGGLE) ========== */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #28a745;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.item-dia.incompleto .switch input:checked + .slider {
+  background-color: #ff9800;
+}
+
+/* ========== MODAL ========== */
+.modal-dia {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 10000;
+}
+
+.modal-contenido {
+  position: fixed;
+  background: #fff;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px 16px 0 0;
+  padding: 2rem;
+  animation: slideUp 0.3s ease;
+    z-index: 10000;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.grupo-turno {
+  /* display: flex; */
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.grupo-turno input[type="time"] {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 45%;
+}
+
+.btn-remove {
+  background: #1a73e854;
+  border: 1px solid #1a73e8;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-add {
+  background-color: #e3f2fd;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: none;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.footer-botones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.btn-cancelar,
+.btn-guardar {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.btn-cancelar {
+  background-color: #eee;
+}
+
+.btn-guardar {
+  background-color: #1a73e8;
+  color: white;
+}
+
+.textarea-mensaje {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 1.5rem;
+  resize: vertical;
+}
+.mensaje-pedido-info {
+  margin-top: 1.5rem;
+  background: #f8f9fc;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #d0d7e1;
+}
+
+.mensaje-icono {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: #3b82f6;
+}
+
+.mensaje-explicacion {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.mensaje-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mensaje-textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  background: #fff;
+}
+.mensaje-importante {
+  background-color: #f0f8ff;
+  padding: 1rem;
+  border-left: 4px solid #1e90ff;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  color: #1e3a8a;
+}
+
+.info-extra {
+  font-size: 14px;
+  color: #555;
+  margin-top: -0.5rem;
+}
+
+.bloque-nodisp {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  color: #991b1b;
+  font-weight: 600;
+  text-align: center;
+}
+.item-dia.error-dia {
+  border: 2px solid #e74c3c;
+  border-radius: 6px;
+  background-color: #fceaea;
+}
+
+.mensaje-no-disponible {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.mensaje-sugerencia {
+  font-size: 0.9rem;
+  color: #7f1d1d;
+}
+.mensaje-error { color: red; margin: 0.5rem 0; }
+
+.bloque-consultar {
+  background-color: #e6fee2;
+  border: 1px solid #9cf871;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  color: #1b991b;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Agregar estos estilos a Paso3DetallesDisponibilidad.css */
+
+/* Alerta sin días activos */
+.alerta-sin-dias {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Estados del item día */
+.item-dia.incompleto {
+  border-left: 3px solid #ff9800;
+  background: #fff8e1;
+}
+
+.item-dia.incompleto .dia-info {
+  cursor: pointer;
+}
+
+/* Cantidad de turnos con advertencia */
+.cantidad-turnos.advertencia {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Inputs con error en modal */
+.input-error {
+  border: 2px solid #dc3545 !important;
+  background: #fff5f5 !important;
+}
+
+.input-error:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Grupo de turno mejorado */
+.grupo-turno {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.grupo-turno label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #495057;
+  font-size: 13px;
+}
+
+.inputs-horario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inputs-horario input[type="time"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.inputs-horario input[type="time"]:focus {
+  border-color: #80bdff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.inputs-horario span {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.inputs-horario .btn-remove {
+  padding: 8px 12px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.inputs-horario .btn-remove:hover {
+  background: #c82333;
+}
+
+/* Mensajes de error mejorados */
+.error-text {
+  display: block;
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+  padding: 4px 8px;
+  background: #fff5f5;
+  border-radius: 4px;
+  border-left: 3px solid #dc3545;
+}
+
+/* Modal mejorado */
+.modal-dia .modal-contenido h3 {
+  margin-bottom: 20px;
+  color: #212529;
+  font-size: 18px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 12px;
+}
+
+/* Botón agregar turno */
+.btn-add {
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 16px 0;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: #218838;
+}
+
+.btn-add:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Checkbox copiar mejorado */
+.checkbox-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #e7f3ff;
+  border-radius: 6px;
+  margin: 16px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #004085;
+}
+
+.checkbox-copy input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Footer botones mejorado */
+.footer-botones {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-botones button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-cancelar {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background: #5a6268;
+}
+
+.btn-guardar {
+  background: #007bff;
+  color: white;
+}
+
+.btn-guardar:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Animaciones */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.input-error {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Tooltip para días sin configurar */
+.cantidad-turnos.advertencia::after {
+  content: " Hacé clic para configurar";
+  font-size: 11px;
+  color: #ff9800;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* Mejora visual del switch */
+.switch input:checked + .slider {
+  background-color: #28a745;
+}
+
+.item-dia.incompleto .switch input:checked + .slider {
+  background-color: #ff9800;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .inputs-horario {
+    flex-wrap: wrap;
+  }
+  
+  /* .inputs-horario input[type="time"] {
+    flex: 1 1 45%;
+  } */
+  
+  .inputs-horario .btn-remove {
+    flex: 1 1 100%;
+    margin-top: 8px;
+  }
+  
+  .footer-botones {
+    flex-direction: column;
+  }
+}

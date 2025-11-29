@@ -1,0 +1,278 @@
+/* ============================================
+   OPINIONES COMPLETAS - Estilo Play Store
+   ============================================ */
+
+.opiniones-completas-wrapper-main {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 1rem auto;
+  box-shadow: 0 4px 20px rgba(23, 116, 246, 0.1);
+  border: 2px solid rgba(23, 116, 246, 0.06);
+}
+
+.opiniones-completas-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(23, 116, 246, 0.1);
+}
+
+.opiniones-completas-encabezado h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1774f6;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.opiniones-completas-btn-volver {
+  background: rgba(23, 116, 246, 0.08);
+  border: 2px solid rgba(23, 116, 246, 0.2);
+  color: #1774f6;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.opiniones-completas-btn-volver:hover {
+  background: #1774f6;
+  color: white;
+  transform: translateX(-4px);
+}
+
+/* ============================================
+   Lista de Opiniones
+   ============================================ */
+
+.opiniones-completas-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.opinion-completa-card {
+  background: #ffffff;
+  border: 1px solid rgba(23, 116, 246, 0.1);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.opinion-completa-card:hover {
+  box-shadow: 0 4px 16px rgba(23, 116, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.opinion-completa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7rem;
+}
+
+.opinion-completa-nombre-usuario {
+  font-weight: 700;
+  color: #1774f6;
+  font-size: 1rem;
+}
+
+.opinion-completa-estrellas {
+  display: flex;
+  gap: 3px;
+}
+
+/* ============================================
+   Texto
+   ============================================ */
+
+.opinion-completa-texto {
+  font-size: 0.92rem;
+  color: #444;
+  line-height: 1.65;
+  max-height: 6em; /* ~4 líneas */
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-bottom: 0.6rem;
+}
+
+.opinion-completa-texto.expandida {
+  max-height: 2000px;
+}
+
+/* ============================================
+   Botón Ver Más
+   ============================================ */
+
+.opinion-completa-btn-ver-mas {
+  display: inline-block;
+  color: #1774f6;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 5px 14px;
+  border: none;
+  background: rgba(23, 116, 246, 0.08);
+  border-radius: 18px;
+  transition: all 0.2s ease;
+  user-select: none;
+  margin-bottom: 0.6rem;
+}
+
+.opinion-completa-btn-ver-mas:hover {
+  background: #1774f6;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* ============================================
+   Footer (Fecha + Eliminar)
+   ============================================ */
+
+.opinion-completa-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(23, 116, 246, 0.08);
+}
+
+.opinion-completa-fecha {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.opinion-completa-btn-eliminar {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.opinion-completa-btn-eliminar:hover {
+  background: #d9363e;
+  transform: scale(1.05);
+}
+
+/* ============================================
+   Paginación
+   ============================================ */
+
+.opiniones-completas-paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(23, 116, 246, 0.1);
+}
+
+.opiniones-completas-pagina-actual {
+  font-size: 0.95rem;
+  color: #1774f6;
+  font-weight: 700;
+}
+
+.opiniones-completas-btn-paginacion {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(23, 116, 246, 0.3);
+  transition: all 0.3s ease;
+  min-width: 110px;
+}
+
+.opiniones-completas-btn-paginacion:disabled {
+  background: #e0e0e0;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.opiniones-completas-btn-paginacion:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.4);
+}
+
+/* ============================================
+   Mensaje Sin Opiniones
+   ============================================ */
+
+.opiniones-completas-sin-mensaje {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 600px) {
+  .opiniones-completas-wrapper-main {
+    padding: 1rem;
+  }
+
+  .opiniones-completas-encabezado {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .opiniones-completas-encabezado h2 {
+    font-size: 1.3rem;
+  }
+
+  .opiniones-completas-btn-volver {
+    width: 100%;
+  }
+
+  .opinion-completa-card {
+    padding: 1rem;
+  }
+
+  .opinion-completa-nombre-usuario {
+    font-size: 0.9rem;
+  }
+
+  .opinion-completa-texto {
+    font-size: 0.87rem;
+  }
+
+  .opiniones-completas-paginacion {
+    gap: 1rem;
+  }
+
+  .opiniones-completas-btn-paginacion {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    min-width: 90px;
+  }
+}

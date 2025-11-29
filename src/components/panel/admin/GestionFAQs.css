@@ -1,0 +1,727 @@
+/* =====================================================
+   GESTIÓN DE FAQs - PANEL ADMIN (COMPACTO)
+   ===================================================== */
+
+.gfaqs-container {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================== LOADING ==================== */
+.gfaqs-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 0.8rem;
+  color: #666;
+}
+
+.gfaqs-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #1774f6;
+  border-radius: 50%;
+  animation: gfaqs-spin 1s linear infinite;
+}
+
+@keyframes gfaqs-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== HEADER ==================== */
+.gfaqs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+}
+
+.gfaqs-titulo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.gfaqs-header-icon {
+  font-size: 2rem !important;
+  color: #1774f6;
+}
+
+.gfaqs-titulo {
+  font-size: 1.6rem;
+  color: #333;
+  margin: 0;
+}
+
+.gfaqs-subtitulo {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.2rem 0 0 0;
+}
+
+.gfaqs-header-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+/* ==================== BOTONES ==================== */
+.gfaqs-btn-primary,
+.gfaqs-btn-secondary {
+  padding: 0.65rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.gfaqs-btn-primary {
+  background: #1774f6;
+  color: white;
+  border: none;
+}
+
+.gfaqs-btn-primary:hover {
+  background: #0d5dd9;
+  transform: translateY(-1px);
+}
+
+.gfaqs-btn-secondary {
+  background: white;
+  color: #1774f6;
+  border: 2px solid #1774f6;
+}
+
+.gfaqs-btn-secondary:hover {
+  background: #1774f6;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.gfaqs-btn-icon {
+  padding: 0.4rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gfaqs-btn-icon:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.gfaqs-btn-icon.gfaqs-btn-danger:hover {
+  background: #fee;
+  color: #f44336;
+}
+
+/* ==================== SECCIONES ==================== */
+.gfaqs-seccion {
+  margin-bottom: 2rem;
+}
+
+.gfaqs-seccion-titulo {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gfaqs-seccion-titulo .material-icons {
+  font-size: 1.3rem !important;
+  color: #1774f6;
+}
+
+/* ==================== CATEGORÍAS GRID ==================== */
+.gfaqs-categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.gfaqs-categoria-card {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.gfaqs-categoria-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border-color: #1774f6;
+}
+
+.gfaqs-categoria-card.gfaqs-inactivo {
+  opacity: 0.6;
+  background: #f8f9fa;
+}
+
+.gfaqs-categoria-header {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.gfaqs-categoria-icono {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.gfaqs-categoria-info {
+  flex: 1;
+}
+
+.gfaqs-categoria-nombre {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.2rem 0;
+  font-weight: 600;
+}
+
+.gfaqs-categoria-desc {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.gfaqs-categoria-stats {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.gfaqs-stat-badge {
+  padding: 0.25rem 0.6rem;
+  background: #e3f2fd;
+  color: #1774f6;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gfaqs-estado-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gfaqs-estado-badge.gfaqs-activo {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.gfaqs-estado-badge.gfaqs-inactivo {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.gfaqs-categoria-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+/* ==================== FAQs SECTION ==================== */
+.gfaqs-faqs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1.5rem;
+}
+
+.gfaqs-filtros {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.gfaqs-buscador-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.gfaqs-buscador-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+  font-size: 1.2rem !important;
+}
+
+.gfaqs-buscador {
+  width: 100%;
+  padding: 0.65rem 0.8rem 0.65rem 2.5rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.gfaqs-buscador:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.gfaqs-select {
+  padding: 0.65rem 0.8rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  background: white;
+}
+
+.gfaqs-select:focus {
+  border-color: #1774f6;
+}
+
+/* ==================== LISTA FAQs ==================== */
+.gfaqs-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.gfaqs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  gap: 0.8rem;
+  color: #999;
+  background: white;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+}
+
+.gfaqs-empty-icon {
+  font-size: 3rem !important;
+  color: #ddd;
+}
+
+.gfaqs-faq-card {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.gfaqs-faq-card:hover {
+  border-color: #1774f6;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.gfaqs-faq-card.gfaqs-inactivo {
+  opacity: 0.6;
+  background: #f8f9fa;
+}
+
+.gfaqs-faq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.gfaqs-faq-categoria-badge {
+  padding: 0.3rem 0.8rem;
+  background: #e3f2fd;
+  color: #1774f6;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.gfaqs-faq-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.gfaqs-faq-pregunta {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.6rem 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.gfaqs-faq-respuesta {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 0.8rem 0;
+}
+
+.gfaqs-faq-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.gfaqs-vistas {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.gfaqs-vistas .material-icons {
+  font-size: 0.95rem !important;
+}
+
+/* ==================== MODAL ==================== */
+.gfaqs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+  animation: gfaqs-fadeIn 0.2s ease;
+}
+
+@keyframes gfaqs-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gfaqs-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: gfaqs-slideUp 0.2s ease;
+}
+
+@keyframes gfaqs-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gfaqs-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.gfaqs-modal-titulo {
+  font-size: 1.3rem;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.gfaqs-modal-close {
+  padding: 0.4rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.gfaqs-modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.gfaqs-modal-form {
+  padding: 1.5rem;
+}
+
+/* ==================== FORMULARIO ==================== */
+.gfaqs-form-group {
+  margin-bottom: 1.2rem;
+}
+
+.gfaqs-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.gfaqs-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.4rem;
+}
+
+.gfaqs-input,
+.gfaqs-textarea {
+  width: 100%;
+  padding: 0.65rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.gfaqs-input:focus,
+.gfaqs-textarea:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.gfaqs-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.gfaqs-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  padding: 0.65rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.gfaqs-checkbox-label:hover {
+  border-color: #1774f6;
+  background: #f8f9fa;
+}
+
+.gfaqs-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #1774f6;
+}
+
+/* ==================== ICONOS GRID ==================== */
+.gfaqs-iconos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  gap: 0.6rem;
+}
+
+.gfaqs-icono-btn {
+  padding: 0.8rem;
+  font-size: 1.5rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gfaqs-icono-btn:hover {
+  border-color: #1774f6;
+  background: #f8f9fa;
+  transform: scale(1.05);
+}
+
+.gfaqs-icono-btn.gfaqs-icono-seleccionado {
+  border-color: #1774f6;
+  background: #e3f2fd;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+/* ==================== MODAL ACTIONS ==================== */
+.gfaqs-modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.gfaqs-btn-cancel {
+  padding: 0.65rem 1.2rem;
+  background: white;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.gfaqs-btn-cancel:hover {
+  background: #f8f9fa;
+  border-color: #999;
+  color: #333;
+}
+
+.gfaqs-btn-submit {
+  padding: 0.65rem 1.2rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s ease;
+}
+
+.gfaqs-btn-submit:hover {
+  background: #0d5dd9;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+  .gfaqs-categorias-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .gfaqs-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gfaqs-header-actions {
+    width: 100%;
+  }
+
+  .gfaqs-faqs-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gfaqs-filtros {
+    width: 100%;
+  }
+
+  .gfaqs-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .gfaqs-container {
+    padding: 0.2rem;
+  }
+
+  .gfaqs-titulo {
+    font-size: 1.4rem;
+  }
+
+  .gfaqs-categorias-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gfaqs-header-actions {
+    flex-direction: column;
+  }
+
+  .gfaqs-header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .gfaqs-modal-overlay {
+    padding: 1rem;
+  }
+
+  .gfaqs-modal-form {
+    padding: 1.2rem;
+  }
+
+  .gfaqs-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .gfaqs-modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .gfaqs-categorias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gfaqs-faq-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .gfaqs-faq-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .gfaqs-categoria-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .gfaqs-categoria-actions {
+    justify-content: center;
+  }
+}

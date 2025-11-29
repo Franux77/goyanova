@@ -1,0 +1,180 @@
+/* src/components/mapa/FiltrosExplorar.css */
+
+.filtros-explorar-container {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 700px;
+  margin: 0.8rem auto 0;
+  /* padding: 0 0.8rem; */
+  box-sizing: border-box;
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filtro-explorar-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.filtro-explorar-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #999;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.filtro-explorar-wrapper:focus-within .filtro-explorar-icon {
+  color: #1774f6;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.filtro-explorar-select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 2rem 0.7rem 2.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 500;
+  background: white;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Flecha personalizada */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  
+  /* Evita desbordamiento de texto */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.filtro-explorar-select:hover:not(:disabled) {
+  border-color: #1774f6;
+  box-shadow: 0 4px 8px rgba(23, 116, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.filtro-explorar-select:focus {
+  border-color: #1774f6;
+  box-shadow: 
+    0 0 0 4px rgba(23, 116, 246, 0.12),
+    0 4px 8px rgba(23, 116, 246, 0.15);
+  transform: translateY(-1px);
+}
+
+.filtro-explorar-select:disabled {
+  background-color: #f9fafb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  color: #999;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+  transform: none;
+}
+
+.filtro-explorar-select:disabled + .filtro-explorar-icon {
+  color: #ccc;
+}
+
+/* Estilo para las opciones con emojis */
+.filtro-explorar-select option {
+  padding: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Efecto de pulso al cambiar */
+.filtro-explorar-select:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .filtros-explorar-container {
+    gap: 0.8rem;
+    padding: 0 1rem;
+    margin-top: 1rem;
+  }
+
+  .filtro-explorar-select {
+    font-size: 0.95rem;
+    padding: 0.8rem 2.2rem 0.8rem 2.8rem;
+  }
+  
+  .filtro-explorar-icon {
+    left: 1rem;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .filtro-explorar-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-position: right 0.8rem center;
+  }
+}
+
+@media (min-width: 1200px) {
+  .filtros-explorar-container {
+    max-width: 700px;
+  }
+  
+  .filtro-explorar-select {
+    font-size: 1rem;
+    padding: 0.85rem 2.5rem 0.85rem 3rem;
+  }
+  
+  .filtro-explorar-icon {
+    width: 19px;
+    height: 19px;
+  }
+}
+
+/* Animación de entrada escalonada */
+.filtro-explorar-wrapper:nth-child(1) {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+.filtro-explorar-wrapper:nth-child(2) {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+.filtro-explorar-wrapper:nth-child(3) {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

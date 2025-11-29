@@ -1,0 +1,623 @@
+/* =====================================================
+   MENSAJES DE SOPORTE - PANEL ADMIN (COMPACTO)
+   ===================================================== */
+
+.ms-admin-container {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================== HEADER ==================== */
+.ms-admin-header {
+  margin-bottom: 1.5rem;
+}
+
+.ms-admin-titulo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.ms-admin-header-icon {
+  font-size: 2rem !important;
+  color: #1774f6;
+}
+
+.ms-admin-titulo {
+  font-size: 1.6rem;
+  color: #333;
+  margin: 0;
+}
+
+.ms-admin-subtitulo {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.2rem 0 0 0;
+}
+
+/* ==================== ESTADÍSTICAS ==================== */
+.ms-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+}
+
+.ms-admin-stat-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 2px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.ms-admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.ms-admin-stat-card .material-icons {
+  font-size: 2rem !important;
+  padding: 0.6rem;
+  border-radius: 8px;
+}
+
+.ms-stat-pendiente .material-icons {
+  background: #fff3cd;
+  color: #ffc107;
+}
+
+.ms-stat-proceso .material-icons {
+  background: #cfe2ff;
+  color: #2196F3;
+}
+
+.ms-stat-resuelto .material-icons {
+  background: #d1e7dd;
+  color: #4caf50;
+}
+
+.ms-stat-total .material-icons {
+  background: #e7e9fc;
+  color: #1774f6;
+}
+
+.ms-stat-numero {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.ms-stat-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+/* ==================== FILTROS ==================== */
+.ms-admin-filtros {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ms-admin-buscador-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ms-admin-buscador-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+  font-size: 1.2rem !important;
+}
+
+.ms-admin-buscador {
+  width: 100%;
+  padding: 0.65rem 0.8rem 0.65rem 2.5rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ms-admin-buscador:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.ms-admin-select {
+  padding: 0.65rem 0.8rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  background: white;
+}
+
+.ms-admin-select:focus {
+  border-color: #1774f6;
+}
+
+.ms-admin-btn-refrescar {
+  padding: 0.65rem 1.2rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s ease;
+}
+
+.ms-admin-btn-refrescar:hover {
+  background: #0d5dd9;
+}
+
+/* ==================== CONTENIDO PRINCIPAL ==================== */
+.ms-admin-contenido {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  min-height: 500px;
+}
+
+/* ==================== LISTA DE MENSAJES ==================== */
+.ms-admin-lista {
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #f0f0f0;
+  overflow-y: auto;
+  max-height: calc(100vh - 350px);
+}
+
+.ms-admin-loading,
+.ms-admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  gap: 0.8rem;
+  color: #999;
+}
+
+.ms-admin-spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #1774f6;
+  border-radius: 50%;
+  animation: ms-spin 1s linear infinite;
+}
+
+@keyframes ms-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ms-admin-empty-icon {
+  font-size: 3rem !important;
+  color: #ddd;
+}
+
+/* ==================== MENSAJE ITEM ==================== */
+.ms-admin-mensaje-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ms-admin-mensaje-item:hover {
+  background: #f8f9fa;
+}
+
+.ms-mensaje-activo {
+  background: #e3f2fd !important;
+  border-left: 3px solid #1774f6;
+}
+
+.ms-mensaje-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+}
+
+.ms-mensaje-usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ms-usuario-icon {
+  font-size: 2rem !important;
+  color: #1774f6;
+}
+
+.ms-usuario-nombre {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.ms-usuario-email {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.ms-mensaje-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ms-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 15px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ms-badge .material-icons {
+  font-size: 0.9rem !important;
+}
+
+.ms-mensaje-asunto {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.ms-mensaje-preview {
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  margin-bottom: 0.6rem;
+}
+
+.ms-mensaje-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.ms-mensaje-footer .material-icons {
+  font-size: 0.9rem !important;
+}
+
+/* ==================== DETALLE ==================== */
+.ms-admin-detalle {
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #f0f0f0;
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 350px);
+}
+
+.ms-detalle-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 0.8rem;
+  color: #999;
+}
+
+.ms-detalle-empty-icon {
+  font-size: 4rem !important;
+  color: #ddd;
+}
+
+.ms-detalle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ms-detalle-titulo {
+  font-size: 1.3rem;
+  color: #333;
+  margin: 0 0 0.4rem 0;
+}
+
+.ms-detalle-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.ms-btn-eliminar {
+  padding: 0.65rem;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.ms-btn-eliminar:hover {
+  background: #d32f2f;
+}
+
+.ms-detalle-usuario-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.ms-info-item {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.ms-info-item .material-icons {
+  color: #1774f6;
+  font-size: 1.6rem !important;
+}
+
+.ms-info-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.2rem;
+}
+
+.ms-info-value {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.ms-info-value a {
+  color: #1774f6;
+  text-decoration: none;
+}
+
+.ms-info-value a:hover {
+  text-decoration: underline;
+}
+
+.ms-detalle-controles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.ms-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ms-control-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.ms-control-select {
+  padding: 0.65rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.ms-control-select:focus {
+  border-color: #1774f6;
+}
+
+.ms-seccion-titulo {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.8rem 0;
+  font-weight: 600;
+}
+
+.ms-detalle-mensaje {
+  margin-bottom: 1.5rem;
+}
+
+.ms-mensaje-contenido {
+  background: #f8f9fa;
+  padding: 1.2rem;
+  border-radius: 6px;
+  border-left: 3px solid #1774f6;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.ms-detalle-respuesta-enviada {
+  margin-bottom: 1.5rem;
+  padding: 1.2rem;
+  background: #d4edda;
+  border-radius: 6px;
+  border-left: 3px solid #4caf50;
+}
+
+.ms-detalle-respuesta-enviada .ms-seccion-titulo {
+  color: #155724;
+}
+
+.ms-respuesta-contenido {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 6px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.ms-respuesta-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #155724;
+  font-size: 0.85rem;
+}
+
+.ms-respuesta-meta .material-icons {
+  font-size: 1.1rem !important;
+}
+
+.ms-form-respuesta {
+  padding: 0.2rem;
+  background: transparent;
+  border-radius: 6px;
+}
+
+.ms-textarea-respuesta {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', sans-serif;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ms-textarea-respuesta:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.ms-btn-enviar-respuesta {
+  width: 100%;
+  padding: 0.8rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.ms-btn-enviar-respuesta:hover {
+  background: #0d5dd9;
+}
+
+.ms-btn-enviar-respuesta:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.ms-spinner-icon {
+  animation: ms-spin 1s linear infinite;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+  .ms-admin-contenido {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .ms-admin-contenido {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-admin-lista {
+    max-height: 350px;
+  }
+
+  .ms-detalle-usuario-info {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-detalle-controles {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ms-admin-container {
+    padding: 1rem;
+  }
+
+  .ms-admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ms-admin-filtros {
+    flex-direction: column;
+  }
+
+  .ms-admin-buscador-wrapper {
+    width: 100%;
+  }
+
+  .ms-admin-select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .ms-admin-titulo {
+    font-size: 1.4rem;
+  }
+
+  .ms-detalle-header {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}

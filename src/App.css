@@ -1,0 +1,12 @@
+main {
+  margin-top: 10px;  /* espacio para el navbar fijo */
+  /* padding: 20px; */
+
+  display: flex;
+  justify-content: center; /* centra horizontalmente */
+  align-items: center;     /* centra verticalmente */
+  /* height: calc(100vh - 60px);  */
+  
+  font-family: Arial, sans-serif;
+  font-size: 1.5rem;
+}

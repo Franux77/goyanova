@@ -1,0 +1,569 @@
+.ca-categorias-admin {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 0.2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+}
+
+.ca-categorias-admin__titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #1774f6;
+}
+
+/* Resumen */
+.ca-categorias-admin__resumen {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+  flex-wrap: wrap;
+}
+
+.ca-resumen-card {
+  flex: 1 1 150px;
+  background: #f8f9fa;
+  border-left: 5px solid #1774f6;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.07);
+  font-weight: 600;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Controles */
+.ca-categorias-admin__controles {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+/* ---------------------- */
+/* INICIO: FORMULARIO AVANZADO COMPACTO Y RESPONSIVE */
+/* ---------------------- */
+
+.ca-form-avanzado {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  background: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow: auto; /* ✅ scroll solo si hay zoom extremo */
+  max-height: 90vh; /* no rompe la pantalla */
+}
+
+.ca-form-avanzado label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: block;
+  margin-top: 6px;
+  color: #333;
+}
+
+.ca-input,
+.ca-textarea,
+.ca-select,
+.ca-input-color {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ca-input:focus,
+.ca-select:focus,
+.ca-textarea:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+.ca-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.ca-error {
+  color: #ff4d4d;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* Color e íconos */
+.ca-color-picker,
+.ca-icon-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ca-icon-preview span {
+  font-size: 24px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 4px;
+}
+.ca-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fafafa;
+
+  /* 🔹 Scroll interno */
+  overflow-y: auto;
+
+  /* 🔹 Altura adaptable */
+  min-height: 240px; /* siempre visible */
+  max-height: 360px; /* evita que sea demasiado grande */
+
+  /* 🔹 Evita que se deforme con zoom o escalas */
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.ca-icon-item {
+  font-size: 28px;
+  cursor: pointer;
+  text-align: center;
+  color: #555;
+  transition: transform 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.ca-icon-item:hover {
+  transform: scale(1.2);
+  color: #000;
+}
+
+.ca-icon-activo {
+  color: #1774f6;
+  transform: scale(1.25);
+}
+
+/* Botones dentro del form */
+.ca-form-avanzado .ca-btn-submit {
+  background-color: #1774f6;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ca-form-avanzado .ca-btn-submit:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ca-form-avanzado {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .ca-input,
+  .ca-textarea,
+  .ca-select,
+  .ca-input-color {
+    font-size: 0.85rem;
+    padding: 5px 8px;
+  }
+
+  .ca-icon-grid {
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    gap: 4px;
+    max-height: 120px;
+  }
+
+  .ca-btn-submit {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ---------------------- */
+/* FIN: FORMULARIO AVANZADO COMPACTO Y RESPONSIVE */
+/* ---------------------- */
+
+/* --- FIN NUEVO FORM --- */
+
+/* Lista */
+.ca-categorias-admin__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+
+.ca-categoria-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.06);
+  transition: box-shadow 0.25s ease;
+}
+
+.ca-categoria-card:hover {
+  box-shadow: 0 6px 14px rgb(0 0 0 / 0.1);
+}
+
+.ca-categoria-info {
+  max-width: 70%;
+}
+
+.ca-categoria-nombre {
+  font-size: 1.1rem;
+  color: #1774f6;
+  font-weight: 700;
+}
+
+.ca-categoria-desc {
+  margin: 0.2rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.ca-categoria-estado {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.ca-activa {
+  color: #28a745;
+}
+
+.ca-suspendida {
+  color: #dc3545;
+}
+
+.ca-categoria-tipo {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #555;
+}
+
+.ca-categoria-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ca-btn-toggle,
+.ca-btn-eliminar {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  transition: background-color 0.3s ease;
+  min-width: 110px;
+}
+
+.ca-btn-suspender {
+  background-color: #dc3545;
+}
+
+.ca-btn-suspender:hover {
+  background-color: #a71d2a;
+}
+
+.ca-btn-habilitar {
+  background-color: #28a745;
+}
+
+.ca-btn-habilitar:hover {
+  background-color: #1e7e34;
+}
+
+.ca-btn-eliminar {
+  background-color: #6c757d;
+}
+
+.ca-btn-eliminar:hover {
+  background-color: #495057;
+}
+
+/* Botón Editar */
+.ca-btn-editar {
+  background-color: #ffc107;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ca-btn-editar:hover {
+  background-color: #e0a800;
+}
+
+.ca-btn-editar:active {
+  transform: scale(0.96);
+}
+
+/* Sin resultados */
+.ca-sin-resultados {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+/* Paginación */
+.ca-categorias-admin__paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ca-btn-paginacion {
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  border: 2px solid #1774f6;
+  background: transparent;
+  color: #1774f6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.ca-btn-paginacion.ca-activo,
+.ca-btn-paginacion:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #0056b3;
+}
+
+/* Modal */
+.ca-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.ca-modal-content {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ca-modal-content h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1774f6;
+}
+
+.ca-modal-content input,
+.ca-modal-content select {
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.25s ease;
+}
+
+.ca-modal-content input:focus,
+.ca-modal-content select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.ca-modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+.ca-modal-acciones button {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.ca-modal-acciones button:first-child {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.ca-modal-acciones button:first-child:hover {
+  background-color: #0056b3;
+}
+
+.ca-modal-acciones button:last-child {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.ca-modal-acciones button:last-child:hover {
+  background-color: #495057;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ca-categorias-admin__resumen {
+    flex-direction: grid;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .ca-resumen-card {
+    width: auto;
+    max-width: none;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-left-width: 4px;
+    flex: 1 1 auto;
+  }
+
+  .ca-categorias-admin__controles {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .ca-input,
+  .ca-select {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    flex: 1 1 auto;
+  }
+
+  .ca-categoria-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .ca-categoria-info {
+    max-width: 100%;
+  }
+
+  .ca-categoria-acciones {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.6rem;
+  }
+
+  .ca-btn-toggle,
+  .ca-btn-eliminar {
+    min-width: 100px;
+  }
+}
+
+.ca-btn-agregar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #1774f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  user-select: none;
+}
+
+/* Ícono dentro del botón */
+.ca-btn-agregar .material-icons {
+  font-size: 1.5rem;
+  transition: transform 0.25s ease;
+}
+
+/* Hover suave */
+.ca-btn-agregar:hover {
+  background-color: #005fcc;
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.ca-btn-agregar:hover .material-icons {
+  transform: rotate(90deg) scale(1.2);
+}
+
+/* Click */
+.ca-btn-agregar:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+}
+
+/* Modo accesible */
+.ca-btn-agregar:focus-visible {
+  outline: 3px solid rgba(0, 123, 255, 0.6);
+  outline-offset: 3px;
+}
+
+/* 🔹 Responsive */
+@media (max-width: 768px) {
+  .ca-btn-agregar {
+    font-size: 0.95rem;
+    padding: 9px 14px;
+    gap: 6px;
+  }
+  .ca-btn-agregar .material-icons {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ca-btn-agregar {
+    width: 100%;
+    justify-content: center;
+    font-size: 1rem;
+  }
+}

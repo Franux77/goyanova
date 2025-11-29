@@ -1,0 +1,227 @@
+.detalle-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 7px;
+  font-family: Arial, sans-serif;
+}
+
+/* PerfilDetalle.css */
+
+
+.btn-volver-perfil {
+  background: transparent;
+  border: 1px solid #007bff;
+  padding: 6px 25px;
+  border-radius: 8px;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+@media (min-width: 1000px) {
+  .btn-volver-perfil {
+    margin-left: 2.8rem;
+  }
+}
+
+.btn-volver-perfil:hover {
+  color: #0056b3;
+}
+
+/* Opcional: para el icono que uses dentro del botón */
+.btn-volver-perfil svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+
+.detalle-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detalle-foto {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  align-self: center;
+}
+
+.detalle-info {
+  text-align: center;
+}
+
+.detalle-info h2 {
+  margin: 10px 0 5px;
+  font-size: 1.6rem;
+  color: #222;
+}
+
+.detalle-descripcion {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.detalle-rating {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+
+.btn-whatsapp-detalle {
+  display: inline-block;
+  background-color: #25D366;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.btn-whatsapp-detalle:hover {
+  background-color: #1ebe5d;
+}
+
+
+@media (min-width: 768px) {
+  .detalle-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .detalle-info {
+    text-align: left;
+  }
+  
+}
+/* ============================================
+   LOADER MODERNO CENTRADO (igual a CategoryList)
+   ============================================ */
+.perfil-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 2rem;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.perfil-loader {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  will-change: transform;
+}
+
+.perfil-loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  animation: rotateLoader 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.perfil-loader-ring:nth-child(1) {
+  border-top-color: #1774f6;
+  animation-delay: 0s;
+}
+
+.perfil-loader-ring:nth-child(2) {
+  border-right-color: rgba(23, 116, 246, 0.6);
+  animation-delay: 0.3s;
+  inset: 8px;
+}
+
+.perfil-loader-ring:nth-child(3) {
+  border-bottom-color: rgba(23, 116, 246, 0.3);
+  animation-delay: 0.6s;
+  inset: 16px;
+}
+
+.perfil-loader-pulse {
+  position: absolute;
+  inset: 22px;
+  background: radial-gradient(circle, #1774f6 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulseLoader 2s ease-in-out infinite;
+}
+
+@keyframes rotateLoader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseLoader {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+.perfil-loader-text {
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #1774f6, #0d4fa3, #1774f6);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientFlowLoader 3s ease-in-out infinite;
+  letter-spacing: 0.5px;
+}
+
+@keyframes gradientFlowLoader {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Responsive para loader */
+@media (max-width: 768px) {
+  .perfil-loader {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .perfil-loader-text {
+    font-size: 0.95rem;
+  }
+}

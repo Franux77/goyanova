@@ -1,0 +1,1041 @@
+/* ============================================
+   MI MEMBRESÍA - ESTILOS GENERALES
+   ============================================ */
+.mi-membresia-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Loading */
+.mi-membresia-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 15px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f4f6;
+  border-top-color: #1774f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.membresia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  gap: 15px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+}
+
+.header-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.membresia-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.membresia-title .material-icons {
+  font-size: 32px;
+  color: #1774f6;
+  flex-shrink: 0;
+}
+
+.membresia-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+.btn-cancelar-header {
+  padding: 10px 18px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 2px solid #fca5a5;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-cancelar-header:hover {
+  background: #fecaca;
+  border-color: #f87171;
+}
+
+.btn-cancelar-header .material-icons {
+  font-size: 18px;
+}
+
+/* ============================================
+   CARD PRINCIPAL
+   ============================================ */
+.membresia-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.membresia-card.membresia-premium {
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+}
+
+.membresia-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+}
+
+.membresia-tipo-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+  min-width: 200px;
+  min-width: 0;
+}
+
+.membresia-icono {
+  font-size: 48px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tipo-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.membresia-tipo-titulo {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.membresia-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #fbbf24;
+  color: #78350f;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.membresia-estado-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.membresia-estado-badge .material-icons {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   TIEMPO RESTANTE
+   ============================================ */
+.membresia-tiempo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+}
+
+.tiempo-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(245, 158, 11, 0.1);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 15px 25px;
+  min-width: 120px;
+}
+
+.tiempo-numero {
+  font-size: 48px;
+  font-weight: 800;
+  color: #78350f;
+  line-height: 1;
+  font-family: 'Courier New', monospace;
+}
+
+.tiempo-label {
+  font-size: 13px;
+  color: #92400e;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+
+.tiempo-fecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #78350f;
+  font-weight: 600;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.tiempo-fecha .material-icons {
+  font-size: 20px;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+/* Barra de progreso */
+.membresia-progreso {
+  width: 100%;
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+
+.membresia-progreso-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 20px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================
+   BENEFICIOS
+   ============================================ */
+.membresia-beneficios h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.membresia-beneficios h3 .material-icons {
+  font-size: 24px;
+  color: #1774f6;
+  flex-shrink: 0;
+}
+
+.beneficios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.beneficio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  background: #f9fafb;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.beneficio-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.beneficio-icon.activo {
+  color: #10b981;
+}
+
+.beneficio-icon.inactivo {
+  color: #9ca3af;
+}
+
+.beneficio-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.beneficio-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.beneficio-text small {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   INFO UPGRADE
+   ============================================ */
+.upgrade-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid #60a5fa;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.upgrade-icon {
+  flex-shrink: 0;
+}
+
+.upgrade-icon .material-icons {
+  font-size: 48px;
+  color: #1d4ed8;
+}
+
+.upgrade-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.upgrade-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0 0 10px 0;
+  word-wrap: break-word;
+}
+
+.upgrade-content p {
+  font-size: 14px;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.upgrade-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.upgrade-cta .material-icons {
+  font-size: 20px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   TABLA COMPARATIVA
+   ============================================ */
+.comparativa-planes {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e5e7eb;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.comparativa-planes h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.tabla-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 -10px;
+  padding: 0 10px;
+}
+
+.tabla-planes {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+.tabla-planes thead {
+  background: #f3f4f6;
+}
+
+.tabla-planes th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 14px;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.tabla-planes th.plan-premium {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #78350f;
+}
+
+.tabla-planes td {
+  padding: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.tabla-planes td:first-child {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tabla-planes td.highlight {
+  font-weight: 700;
+  color: #78350f;
+}
+
+.check, .cross {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.check {
+  color: #10b981;
+}
+
+.premium-check {
+  color: #f59e0b;
+}
+
+.cross {
+  color: #9ca3af;
+}
+
+/* ============================================
+   MODAL CANCELAR
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.modal-cancelar {
+  max-width: 550px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header-cancelar {
+  text-align: center;
+  padding: 30px 25px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.icon-warning {
+  font-size: 64px;
+  color: #ef4444;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.modal-header-cancelar h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.modal-body-cancelar {
+  padding: 25px;
+}
+
+.modal-body-cancelar p {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+}
+
+.info-box-warning {
+  display: flex;
+  gap: 12px;
+  background: #fef3c7;
+  border: 2px solid #fbbf24;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.info-box-warning .material-icons {
+  font-size: 24px;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.info-box-warning strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #78350f;
+  margin-bottom: 8px;
+}
+
+.info-box-warning ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.confirmacion-text {
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 20px;
+}
+
+.modal-actions-cancelar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 25px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-volver,
+.btn-confirmar-cancelar {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+}
+
+.btn-volver {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-volver:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.btn-confirmar-cancelar {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-confirmar-cancelar:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-volver:disabled,
+.btn-confirmar-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================
+   RESPONSIVE - TABLETS
+   ============================================ */
+@media (max-width: 768px) {
+  .mi-membresia-container {
+    padding: 15px 10px;
+  }
+
+  .membresia-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-cancelar-header {
+    justify-content: center;
+  }
+
+  .membresia-title {
+    font-size: 24px;
+  }
+
+  .membresia-title .material-icons {
+    font-size: 28px;
+  }
+
+  .membresia-card {
+    padding: 20px 15px;
+  }
+
+  .membresia-tipo-titulo {
+    font-size: 20px;
+  }
+
+  .beneficios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tiempo-info {
+    min-width: 100px;
+    padding: 12px 20px;
+  }
+
+  .tiempo-numero {
+    font-size: 40px;
+  }
+
+  .upgrade-info {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px;
+  }
+
+  .comparativa-planes {
+    padding: 20px 15px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MÓVILES
+   ============================================ */
+@media (max-width: 480px) {
+  .mi-membresia-container {
+    padding: 10px 8px;
+  }
+
+  .membresia-title {
+    font-size: 20px;
+  }
+
+  .membresia-title .material-icons {
+    font-size: 24px;
+  }
+
+  .membresia-subtitle {
+    font-size: 13px;
+  }
+
+  .btn-cancelar-header {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .membresia-card {
+    padding: 15px 12px;
+    border-radius: 12px;
+  }
+
+  .membresia-icono {
+    font-size: 36px;
+  }
+
+  .membresia-tipo-titulo {
+    font-size: 18px;
+  }
+
+  .membresia-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .membresia-estado-badge {
+    align-self: flex-start;
+  }
+
+  .membresia-tiempo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tiempo-info {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .tiempo-numero {
+    font-size: 36px;
+  }
+
+  .tiempo-fecha {
+    justify-content: center;
+  }
+
+  .membresia-beneficios h3 {
+    font-size: 18px;
+  }
+
+  .beneficio-item {
+    padding: 12px;
+  }
+
+  .beneficio-text strong {
+    font-size: 14px;
+  }
+
+  .beneficio-text small {
+    font-size: 12px;
+  }
+
+  .upgrade-info {
+    padding: 15px 12px;
+  }
+
+  .upgrade-icon .material-icons {
+    font-size: 36px;
+  }
+
+  .upgrade-content h3 {
+    font-size: 18px;
+  }
+
+  .upgrade-content p {
+    font-size: 13px;
+  }
+
+  .comparativa-planes {
+    padding: 15px 12px;
+  }
+
+  .comparativa-planes h2 {
+    font-size: 18px;
+  }
+
+  .tabla-responsive {
+    margin: 0 -5px;
+    padding: 0 5px;
+  }
+
+  .tabla-planes th,
+  .tabla-planes td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .modal-overlay {
+    padding: 15px 10px;
+  }
+
+  .modal-header-cancelar {
+    padding: 20px 15px 15px;
+  }
+
+  .icon-warning {
+    font-size: 48px;
+    margin-top: 2rem;
+  }
+
+  .modal-header-cancelar h3 {
+    font-size: 18px;
+  }
+
+  .modal-body-cancelar {
+    padding: 15px;
+  }
+
+  .modal-actions-cancelar {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .btn-volver,
+  .btn-confirmar-cancelar {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   EXTRA SMALL (< 360px)
+   ============================================ */
+@media (max-width: 360px) {
+  .mi-membresia-container {
+    padding: 8px 5px;
+  }
+
+  .membresia-title {
+    font-size: 18px;
+  }
+
+  .membresia-tipo-titulo {
+    font-size: 16px;
+  }
+
+  .membresia-icono {
+    font-size: 32px;
+  }
+
+  .tiempo-numero {
+    font-size: 32px;
+  }
+
+  .beneficio-icon {
+    font-size: 20px;
+  }
+
+  .tabla-planes th,
+  .tabla-planes td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+}
+
+/* ============================================
+   SECCIÓN UPGRADE PREMIUM
+   ============================================ */
+.upgrade-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+  border: 2px solid #4a90e2;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.upgrade-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.upgrade-icon {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.upgrade-icon .material-icons {
+  font-size: 2rem;
+  color: white;
+}
+
+.upgrade-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.upgrade-content p {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.upgrade-beneficios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.beneficio-upgrade {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.beneficio-upgrade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4a90e2;
+}
+
+.beneficio-upgrade .material-icons {
+  font-size: 2rem;
+  color: #4a90e2;
+}
+
+.beneficio-upgrade strong {
+  display: block;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.beneficio-upgrade small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.upgrade-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  background: white;
+  border-radius: 10px;
+  color: #555;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+.upgrade-cta .material-icons {
+  font-size: 1.2rem;
+  color: #4a90e2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .upgrade-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .upgrade-beneficios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upgrade-section {
+    padding: 1.5rem;
+  }
+}

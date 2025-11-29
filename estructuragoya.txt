@@ -1,0 +1,330 @@
+Listado de rutas de carpetas para el volumen FRANCO F
+El n£mero de serie del volumen es 5C42-6190
+D:.
+³   eslint.config.js
+³   index.html
+³   README.md
+³   vite.config.js
+³   .gitignore
+³   package.json
+³   .env
+³   package-lock.json
+³   estructuragoya.txt
+³   estructuragoya
+³   
+ÃÄÄÄpublic
+³   ³   _redirects
+³   ³   
+³   ÀÄÄÄassets
+³           GoyaNova_20250918_144009_0000.png
+³           
+ÃÄÄÄsrc
+³   ³   App.css
+³   ³   App.jsx
+³   ³   index.css
+³   ³   main.jsx
+³   ³   RouterApp.jsx
+³   ³   
+³   ÃÄÄÄassets
+³   ³       react.svg
+³   ³       image.png
+³   ³       Imagen de WhatsApp 2025-09-18 a las 14.33.45_37c6ee86.jpg
+³   ³       LOGO.jpg
+³   ³       GoyaNova_20250918_144009_0000.png
+³   ³       
+³   ÃÄÄÄcomponents
+³   ³   ³   ModalMantenimiento.jsx
+³   ³   ³   ModalMantenimiento.css
+³   ³   ³   
+³   ³   ÃÄÄÄpublicar
+³   ³   ³   ³   Paso1InfoBasica.jsx
+³   ³   ³   ³   Paso1InfoBasica.css
+³   ³   ³   ³   Paso2ImagenesUbicacion.jsx
+³   ³   ³   ³   Paso2ImagenesUbicacion.css
+³   ³   ³   ³   Paso3DetallesDisponibilidad.jsx
+³   ³   ³   ³   Paso3DetallesDisponibilidad.css
+³   ³   ³   ³   Paso4ContactoOpciones.jsx
+³   ³   ³   ³   Paso4ContactoOpciones.css
+³   ³   ³   ³   Paso5ResumenConfirmacion.jsx
+³   ³   ³   ³   Paso5ResumenConfirmacion.css
+³   ³   ³   ³   PublicarServicioForm.jsx
+³   ³   ³   ³   PublicarServicioForm.css
+³   ³   ³   ³   FinalizacionExitosa.jsx
+³   ³   ³   ³   FinalizacionExitosa.css
+³   ³   ³   ³   SeccionFormulario.css
+³   ³   ³   ³   SeccionFormulario.jsx
+³   ³   ³   ³   ModalMapa.jsx
+³   ³   ³   ³   ModalMapa.css
+³   ³   ³   ³   
+³   ³   ³   ÀÄÄÄutils
+³   ³   ³           validacionesServicio.js
+³   ³   ³           helpers.js
+³   ³   ³           serviciosService.js
+³   ³   ³           
+³   ³   ÃÄÄÄpanel
+³   ³   ³   ÃÄÄÄusuario
+³   ³   ³   ³   ³   PanelUsuario.jsx
+³   ³   ³   ³   ³   PanelUsuario.css
+³   ³   ³   ³   ³   MisServicios.jsx
+³   ³   ³   ³   ³   ServicioCard.jsx
+³   ³   ³   ³   ³   MisServicios.css
+³   ³   ³   ³   ³   ServicioCard.css
+³   ³   ³   ³   ³   Dashboard.jsx
+³   ³   ³   ³   ³   Dashboard.css
+³   ³   ³   ³   ³   Perfil.jsx
+³   ³   ³   ³   ³   Opiniones.jsx
+³   ³   ³   ³   ³   Solicitudes.jsx
+³   ³   ³   ³   ³   Configuracion.jsx
+³   ³   ³   ³   ³   PublicarServicio.jsx
+³   ³   ³   ³   ³   Perfil.css
+³   ³   ³   ³   ³   Opiniones.css
+³   ³   ³   ³   ³   Configuracion.css
+³   ³   ³   ³   ³   Notificaciones.jsx
+³   ³   ³   ³   ³   Notificaciones.css
+³   ³   ³   ³   ³   AyudaSoporte.jsx
+³   ³   ³   ³   ³   AyudaSoporte.css
+³   ³   ³   ³   ³   PublicarServicio.css
+³   ³   ³   ³   ³   MiMembresia.jsx
+³   ³   ³   ³   ³   MiMembresia.css
+³   ³   ³   ³   ³   BotonPagarMembresia.jsx
+³   ³   ³   ³   ³   BotonPagarMembresia.css
+³   ³   ³   ³   ³   
+³   ³   ³   ³   ÀÄÄÄcomponents
+³   ³   ³   ³           icons.jsx
+³   ³   ³   ³           
+³   ³   ³   ÀÄÄÄadmin
+³   ³   ³           PanelAdmin.jsx
+³   ³   ³           PanelAdmin.css
+³   ³   ³           DashboardAdmin.jsx
+³   ³   ³           DashboardAdmin.css
+³   ³   ³           UsuariosAdmin.jsx
+³   ³   ³           UsuariosAdmin.css
+³   ³   ³           ServiciosAdmin.jsx
+³   ³   ³           ServiciosAdmin.css
+³   ³   ³           CategoriasAdmin.jsx
+³   ³   ³           CategoriasAdmin.css
+³   ³   ³           ConfiguracionAdmin.jsx
+³   ³   ³           ConfiguracionAdmin.css
+³   ³   ³           SolicitudesEliminacion.jsx
+³   ³   ³           SolicitudesEliminacion.css
+³   ³   ³           ReportesAdmin.jsx
+³   ³   ³           ReportesAdmin.css
+³   ³   ³           CodigosPromocionalesAdmin.jsx
+³   ³   ³           CodigosPromocionalesAdmin.css
+³   ³   ³           MembresiasAdmin.jsx
+³   ³   ³           MembresiasAdmin.css
+³   ³   ³           ComentariosAdmin.jsx
+³   ³   ³           ComentariosAdmin.css
+³   ³   ³           GestionFAQs.css
+³   ³   ³           GestionFAQs.jsx
+³   ³   ³           GestionTutoriales.jsx
+³   ³   ³           GestionTutoriales.css
+³   ³   ³           MensajesSoporte.jsx
+³   ³   ³           MensajesSoporte.css
+³   ³   ³           
+³   ³   ÃÄÄÄhome
+³   ³   ³       Home.jsx
+³   ³   ³       Home.css
+³   ³   ³       Navbar.jsx
+³   ³   ³       Navbar.css
+³   ³   ³       SaludoUsuario.jsx
+³   ³   ³       SaludoUsuario.css
+³   ³   ³       TypeSelector.css
+³   ³   ³       TypeSelector.jsx
+³   ³   ³       CategoryList.jsx
+³   ³   ³       CategoryCard.jsx
+³   ³   ³       CategoryList.css
+³   ³   ³       CategoryCard.css
+³   ³   ³       MapaHome.jsx
+³   ³   ³       MapaHome.css
+³   ³   ³       BuscadorCategorias.jsx
+³   ³   ³       
+³   ³   ÃÄÄÄListaPerfilesYDetalles
+³   ³   ³   ³   NavbarCategory.jsx
+³   ³   ³   ³   CategoryPageWrapper.jsx
+³   ³   ³   ³   CategoryPage.css
+³   ³   ³   ³   CategoryPage.jsx
+³   ³   ³   ³   NavbarCategory.css
+³   ³   ³   ³   PerfilCard.css
+³   ³   ³   ³   PerfilCard.jsx
+³   ³   ³   ³   NavbarPerfil.jsx
+³   ³   ³   ³   
+³   ³   ³   ÀÄÄÄperfil
+³   ³   ³       ³   PerfilDetalle.jsx
+³   ³   ³       ³   PerfilDetalle.css
+³   ³   ³       ³   SobrePerfil.jsx
+³   ³   ³       ³   DisponibilidadPerfilRobusto.css
+³   ³   ³       ³   DisponibilidadPerfilRobusto.jsx
+³   ³   ³       ³   GaleriaTrabajos.css
+³   ³   ³       ³   GaleriaTrabajos.jsx
+³   ³   ³       ³   OpinionesSection.css
+³   ³   ³       ³   ResumenPerfil.jsx
+³   ³   ³       ³   ResumenPerfil.css
+³   ³   ³       ³   SobrePerfil.css
+³   ³   ³       ³   OpinionesSection.jsx
+³   ³   ³       ³   PanelProfesional.jsx
+³   ³   ³       ³   PanelProfesional.css
+³   ³   ³       ³   MenuOpciones.jsx
+³   ³   ³       ³   MenuOpciones.css
+³   ³   ³       ³   ModalReporte.jsx
+³   ³   ³       ³   ModalReporte.css
+³   ³   ³       ³   
+³   ³   ³       ÀÄÄÄopinion
+³   ³   ³               OpinionesCompletas.jsx
+³   ³   ³               OpinionesList.jsx
+³   ³   ³               OpinionesList.css
+³   ³   ³               OpinionesCompletas.css
+³   ³   ³               
+³   ³   ÃÄÄÄnosotros
+³   ³   ³       Nosotros.jsx
+³   ³   ³       Nosotros.css
+³   ³   ³       
+³   ³   ÃÄÄÄcontacto
+³   ³   ³       Contacto.jsx
+³   ³   ³       Contacto.css
+³   ³   ³       
+³   ³   ÃÄÄÄmapa
+³   ³   ³       ExplorarMapa.jsx
+³   ³   ³       FiltrosExplorar.jsx
+³   ³   ³       DetallesServicio.jsx
+³   ³   ³       ExplorarMapa.css
+³   ³   ³       BarraBusquedaExplorar.jsx
+³   ³   ³       BarraBusquedaExplorar.css
+³   ³   ³       FiltrosExplorar.css
+³   ³   ³       ListaPerfilesExplorar.jsx
+³   ³   ³       ListaPerfilesExplorar.css
+³   ³   ³       CardPerfilExplorar.jsx
+³   ³   ³       CardPerfilExplorar.css
+³   ³   ³       DetallesServicio.css
+³   ³   ³       ScrollControl.jsx
+³   ³   ³       PanelInferiorResultados.jsx
+³   ³   ³       MarkerCluster.css
+³   ³   ³       MapFlyTo.jsx
+³   ³   ³       UbicacionActual.jsx
+³   ³   ³       UbicacionActual.css
+³   ³   ³       
+³   ³   ÃÄÄÄComentariosProyecto
+³   ³   ³       ComentariosProyecto.jsx
+³   ³   ³       ComentariosProyecto.css
+³   ³   ³       
+³   ³   ÀÄÄÄloading
+³   ³           Loading.css
+³   ³           Loading.jsx
+³   ³           
+³   ÃÄÄÄauth
+³   ³   ³   AuthContext.jsx
+³   ³   ³   useAuth.js
+³   ³   ³   ProtectedRoute.jsx
+³   ³   ³   RutaProtegidaAdmin.jsx
+³   ³   ³   useSuspension.js
+³   ³   ³   
+³   ³   ÀÄÄÄlogin
+³   ³           login.jsx
+³   ³           Login.css
+³   ³           Register.jsx
+³   ³           Register.css
+³   ³           ResetPassword.jsx
+³   ³           ResetPassword.css
+³   ³           SuspensionModal.jsx
+³   ³           SuspensionModal.css
+³   ³           ModalCodigoPromo.jsx
+³   ³           ModalCodigoPromo.css
+³   ³           
+³   ÃÄÄÄutils
+³   ³       supabaseClient.js
+³   ³       materialIconsList.js
+³   ³       validacionesReportes.js
+³   ³       suspensionUtils.js
+³   ³       
+³   ÃÄÄÄcontexts
+³   ³       NotificationsProvider.jsx
+³   ³       NotificationsProvider.css
+³   ³       
+³   ÀÄÄÄhooks
+³           useMantenimiento.js
+³           
+ÃÄÄÄ.vscode
+³       settings.json
+³       launch.json
+³       
+ÃÄÄÄdist
+³   ³   _redirects
+³   ³   index.html
+³   ³   
+³   ÀÄÄÄassets
+³           GoyaNova_20250918_144009_0000.png
+³           GoyaNova_20250918_144009_0000-C_BJVZ63.png
+³           index-D2-zTyLJ.css
+³           Contacto-Czmm4aER.css
+³           Nosotros-gg72FF-i.css
+³           PublicarServicioForm-3LMMDqdW.css
+³           PerfilDetalle-Z2Z1Yx8g.css
+³           CategoryPage-DZwh71Oj.css
+³           OpinionesCompletas-sxbglnVq.css
+³           ExplorarMapa-alLuZo8s.css
+³           MisServicios-Bj2h-iUv.css
+³           Perfil-BcPpbX3P.css
+³           Opiniones-C3xEW4z7.css
+³           Configuracion-EcnawQiJ.css
+³           Notificaciones-B1ynQThX.css
+³           AyudaSoporte-CMOcQxvM.css
+³           MiMembresia-Dj6sKEta.css
+³           PanelAdmin-DJe3pIcX.css
+³           PanelUsuario-DAJP0Ebo.css
+³           DashboardAdmin-DoMPfILL.css
+³           FinalizacionExitosa-BkaRU4rP.css
+³           Dashboard-DbD14ibP.css
+³           UsuariosAdmin-CjvJUySE.css
+³           ServiciosAdmin-BuKJ8DIF.css
+³           ComentariosAdmin-wkDnQnCz.css
+³           SolicitudesEliminacion-BGtrlTee.css
+³           ReportesAdmin-B3dPz7Pn.css
+³           MembresiasAdmin-B1mkKp_n.css
+³           CodigosPromocionalesAdmin-DhfLByIf.css
+³           CategoriasAdmin-BSmv8F2l.css
+³           ConfiguracionAdmin-BORh5FAU.css
+³           GestionTutoriales-BewOUKhX.css
+³           GestionFAQs-CsRtkP-T.css
+³           MensajesSoporte-BxsaoeNP.css
+³           vendor-react-B595ec7m.js
+³           Contacto-BJct9AS9.js
+³           index-CoXZKxNh.js
+³           PublicarServicioForm-BkeWmrUn.js
+³           Nosotros-CdrekPFS.js
+³           CategoryPage-DQ9seIxk.js
+³           PerfilDetalle-BGnjpu_2.js
+³           FinalizacionExitosa-3JguI1nt.js
+³           OpinionesCompletas-6_FBSZWL.js
+³           ExplorarMapa-B0t4xuJo.js
+³           index-q1hs-Sd7.js
+³           PanelUsuario-3NOffg7g.js
+³           Dashboard-Dtf4K4RN.js
+³           MisServicios-BA4qQUMU.js
+³           Perfil-B12Z_lP9.js
+³           Opiniones-BaUMPyNt.js
+³           Solicitudes-CRHWXedO.js
+³           Notificaciones-C2fsCMVU.js
+³           Configuracion-D99Y6Jiq.js
+³           MiMembresia-CrRR8JUY.js
+³           AyudaSoporte-r5KnXK26.js
+³           PanelAdmin-CGHvJLqK.js
+³           DashboardAdmin-egQIpZhR.js
+³           UsuariosAdmin-DcvaOgnC.js
+³           ServiciosAdmin-B-RcogLT.js
+³           ComentariosAdmin-D7o3_l6D.js
+³           SolicitudesEliminacion-CP9DUwjx.js
+³           ReportesAdmin-D-tpuWSo.js
+³           index-B67Muka8.js
+³           iconBase-BJQpXvkP.js
+³           CodigosPromocionalesAdmin-B8FvbVWO.js
+³           CategoriasAdmin-DrRoJcyv.js
+³           MembresiasAdmin-Cev17N5N.js
+³           ConfiguracionAdmin-DbSOYclF.js
+³           GestionFAQs-C1L6vaVc.js
+³           MensajesSoporte-CN510Z8v.js
+³           GestionTutoriales-DApNrWAi.js
+³           
+ÀÄÄÄauth
+    ÀÄÄÄlogin
+            ModalCodigoPromoGoogle
+            

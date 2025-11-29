@@ -1,0 +1,559 @@
+/* =====================================================
+   AYUDA Y SOPORTE - PANEL USUARIO
+   ===================================================== */
+
+.ayuda-soporte-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+}
+
+/* Loading */
+.ayuda-soporte-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.ayuda-soporte-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #1774f6;
+  border-radius: 50%;
+  animation: ayuda-soporte-spin 1s linear infinite;
+}
+
+@keyframes ayuda-soporte-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header */
+.ayuda-soporte-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ayuda-soporte-header-icon {
+  font-size: 3rem !important;
+  color: #1774f6;
+  margin-bottom: 1rem;
+}
+
+.ayuda-soporte-titulo {
+  font-size: 2.2rem;
+  color: #1774f6;
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.ayuda-soporte-subtitulo {
+  fontSize: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Buscador */
+.ayuda-soporte-buscador-wrapper {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+}
+
+.ayuda-soporte-buscador-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.ayuda-soporte-buscador {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 3rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 50px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.ayuda-soporte-buscador:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+/* Categorías */
+.ayuda-soporte-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  justify-content: center;
+}
+
+.ayuda-soporte-btn-categoria {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 50px;
+  background: white;
+  color: #666;
+  fontSize: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.ayuda-soporte-btn-categoria:hover {
+  border-color: #1774f6;
+  color: #1774f6;
+  transform: translateY(-2px);
+}
+
+.ayuda-soporte-btn-categoria-activa {
+  background: #1774f6;
+  color: white;
+  border-color: #1774f6;
+}
+
+/* Sección */
+.ayuda-soporte-seccion {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #fafafa;
+  border-radius: 12px;
+}
+
+.ayuda-soporte-seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.ayuda-soporte-seccion-icon {
+  color: #1774f6;
+  font-size: 1.8rem !important;
+}
+
+.ayuda-soporte-seccion-titulo {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.ayuda-soporte-btn-toggle {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid #1774f6;
+  border-radius: 6px;
+  color: #1774f6;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ayuda-soporte-btn-toggle:hover {
+  background: #1774f6;
+  color: white;
+}
+
+/* No resultados */
+.ayuda-soporte-no-resultados {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 1rem;
+}
+
+/* Categoría Grupo */
+.ayuda-soporte-categoria-grupo {
+  margin-bottom: 2rem;
+}
+
+.ayuda-soporte-categoria-titulo {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ayuda-soporte-categoria-icono {
+  font-size: 1.3rem;
+}
+
+/* FAQ Item */
+.ayuda-soporte-faq-item {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  transition: box-shadow 0.3s ease;
+}
+
+.ayuda-soporte-faq-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ayuda-soporte-faq-pregunta {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.ayuda-soporte-faq-pregunta:hover {
+  background: #f8f9fa;
+}
+
+.ayuda-soporte-faq-pregunta-texto {
+  flex: 1;
+}
+
+.ayuda-soporte-faq-icono {
+  color: #1774f6;
+  transition: transform 0.3s ease;
+}
+
+.ayuda-soporte-faq-respuesta {
+  padding: 0 1.2rem 1.2rem 1.2rem;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 1rem;
+  animation: ayuda-soporte-fadeIn 0.3s ease;
+}
+
+@keyframes ayuda-soporte-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tutoriales Grid */
+.ayuda-soporte-tutoriales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.ayuda-soporte-tutorial-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.ayuda-soporte-tutorial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.ayuda-soporte-tutorial-card:hover .ayuda-soporte-tutorial-overlay {
+  opacity: 1;
+}
+
+.ayuda-soporte-tutorial-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.ayuda-soporte-tutorial-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ayuda-soporte-tutorial-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(23, 116, 246, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ayuda-soporte-play-icon {
+  font-size: 4rem !important;
+  color: white;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.ayuda-soporte-duracion {
+  margin-top: 0.5rem;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.5);
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+}
+
+.ayuda-soporte-tutorial-contenido {
+  padding: 1.2rem;
+}
+
+.ayuda-soporte-tutorial-titulo {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ayuda-soporte-tutorial-descripcion {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.ayuda-soporte-btn-ver-tutorial {
+  width: 100%;
+  padding: 0.7rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ayuda-soporte-btn-ver-tutorial:hover {
+  background: #0d5dd9;
+}
+
+/* Formulario de Contacto */
+.ayuda-soporte-contacto-intro {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.ayuda-soporte-mensaje-estado {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.ayuda-soporte-mensaje-exito {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.ayuda-soporte-mensaje-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.ayuda-soporte-mensaje-icono {
+  font-size: 1.5rem !important;
+}
+
+.ayuda-soporte-formulario {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+.ayuda-soporte-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.ayuda-soporte-form-group {
+  margin-bottom: 1.2rem;
+}
+
+.ayuda-soporte-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.ayuda-soporte-label-icon {
+  font-size: 1.2rem !important;
+  color: #1774f6;
+}
+
+.ayuda-soporte-input,
+.ayuda-soporte-textarea {
+  width: 100%;
+  padding: 0.9rem;
+  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.ayuda-soporte-input:focus,
+.ayuda-soporte-textarea:focus {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.ayuda-soporte-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.ayuda-soporte-btn-enviar {
+  width: 100%;
+  padding: 1rem;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ayuda-soporte-btn-enviar:hover {
+  background: #0d5dd9;
+}
+
+.ayuda-soporte-btn-enviando {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.ayuda-soporte-spinner-icon {
+  animation: ayuda-soporte-spin 1s linear infinite;
+}
+
+.ayuda-soporte-contacto-alternativo {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+}
+
+.ayuda-soporte-contacto-texto {
+  margin: 0 0 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.ayuda-soporte-email-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1774f6;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.ayuda-soporte-email-link:hover {
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ayuda-soporte-container {
+    padding: 1rem;
+  }
+
+  .ayuda-soporte-titulo {
+    font-size: 1.8rem;
+  }
+
+  .ayuda-soporte-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ayuda-soporte-tutoriales-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ayuda-soporte-categorias {
+    flex-direction: column;
+  }
+
+  .ayuda-soporte-btn-categoria {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .ayuda-soporte-seccion {
+    padding: 1rem;
+  }
+
+  .ayuda-soporte-formulario {
+    padding: 1rem;
+  }
+}

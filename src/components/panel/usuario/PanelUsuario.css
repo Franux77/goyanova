@@ -1,0 +1,508 @@
+/* ========================================
+   FIX GLOBAL - PREVENIR DESBORDAMIENTO
+======================================== */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* ========================================
+   LAYOUT PRINCIPAL
+======================================== */
+.panel-usuario-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* ========================================
+   HEADER MÓVIL - CORREGIDO
+======================================== */
+.panel-mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 60px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem; /* CORREGIDO: era 2.2rem 1rem */
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.panel-hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+.hamburger-line {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #1774f6;
+  border-radius: 2px;
+}
+
+.panel-hamburger-btn:hover {
+  background-color: #f0f7ff;
+}
+
+.panel-hamburger-btn:active {
+  transform: scale(0.95);
+}
+
+.panel-mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-logo-img-mobile {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+}
+
+.panel-logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1774f6;
+  letter-spacing: -0.5px;
+}
+
+.panel-mobile-spacer {
+  width: 40px;
+}
+
+/* ========================================
+   SIDEBAR
+======================================== */
+.panel-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  background-color: white;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  z-index: 1100;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5ac9 100%);
+}
+
+.panel-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.panel-brand-logo {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  flex-shrink: 0;
+}
+
+.panel-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.panel-brand-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.panel-brand-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.panel-brand-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.panel-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   BOTÓN CAMBIAR MODO (SOLO ADMIN)
+======================================== */
+.panel-modo-switch {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e3f2ff 100%);
+}
+
+.panel-cambiar-modo-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: white;
+  border: 2px solid #1774f6;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(23, 116, 246, 0.15);
+}
+
+.panel-cambiar-modo-btn:hover {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5ac9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+.panel-cambiar-modo-btn .material-icons {
+  font-size: 24px;
+  color: #1774f6;
+  transition: color 0.3s ease;
+}
+
+.panel-cambiar-modo-btn:hover .material-icons {
+  color: white;
+}
+
+.cambiar-modo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: left;
+  flex: 1;
+}
+
+.modo-label {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.panel-cambiar-modo-btn:hover .modo-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.modo-nombre {
+  font-size: 0.95rem;
+  color: #1774f6;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  transition: color 0.3s ease;
+}
+
+.panel-cambiar-modo-btn:hover .modo-nombre {
+  color: white;
+}
+
+/* ========================================
+   NAVEGACIÓN
+======================================== */
+.panel-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.panel-sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-sidebar-nav::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.panel-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}
+
+.panel-nav-section {
+  padding: 0 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-nav-section-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.panel-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.panel-nav-link:hover {
+  background-color: #f0f7ff;
+  color: #1774f6;
+}
+
+.panel-nav-icon {
+  font-size: 20px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.panel-nav-link:hover .panel-nav-icon {
+  color: #1774f6;
+}
+
+.panel-nav-text {
+  flex: 1;
+}
+
+.panel-nav-arrow {
+  font-size: 18px;
+  color: #d1d5db;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+}
+
+.panel-nav-link:hover .panel-nav-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: #1774f6;
+}
+
+.panel-nav-link.nav-link-active {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5ac9 100%);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.25);
+}
+
+.panel-nav-link.nav-link-active .panel-nav-icon {
+  color: white;
+}
+
+.panel-nav-link.nav-link-active .panel-nav-arrow {
+  opacity: 1;
+  color: white;
+}
+
+.panel-nav-link-home {
+  border: 1px solid #e5e7eb;
+}
+
+.panel-nav-link-home:hover {
+  background-color: #1774f6;
+  border-color: #1774f6;
+  color: white;
+}
+
+.panel-nav-link-home:hover .panel-nav-icon,
+.panel-nav-link-home:hover .panel-nav-arrow {
+  color: white;
+}
+
+.panel-nav-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+  margin: 1rem 1.5rem;
+}
+
+.panel-sidebar-footer {
+  padding: 1.5rem 1.25rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.panel-footer-brand {
+  display: flex;
+  justify-content: center;
+}
+
+.panel-footer-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5ac9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+
+/* ========================================
+   MAIN CONTENT - CORREGIDO
+======================================== */
+.panel-main-content {
+  flex: 1;
+  margin-left: 280px;
+  padding: 2rem;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   OVERLAY
+======================================== */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   RESPONSIVE - TABLET Y MÓVIL - CORREGIDO
+======================================== */
+@media (max-width: 1023px) {
+  .panel-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .panel-sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .panel-main-content {
+    margin-left: 0;
+    margin-top: 60px;
+    padding: 1.5rem 1rem;
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+/* ========================================
+   RESPONSIVE - DESKTOP
+======================================== */
+@media (min-width: 1024px) {
+  .panel-mobile-header {
+    display: none;
+  }
+
+  .panel-close-btn {
+    display: none;
+  }
+
+  .panel-sidebar {
+    transform: translateX(0);
+  }
+
+  .panel-main-content {
+    margin-left: 280px;
+  }
+}
+
+/* ========================================
+   DESKTOP GRANDE
+======================================== */
+@media (min-width: 1440px) {
+  .panel-sidebar {
+    width: 300px;
+  }
+
+  .panel-main-content {
+    margin-left: 300px;
+    padding: 2.5rem;
+  }
+
+  .panel-nav-link {
+    font-size: 1rem;
+    padding: 0.875rem 1.125rem;
+  }
+}

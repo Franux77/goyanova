@@ -1,0 +1,259 @@
+/* ============================================
+   GALERÍA DE TRABAJOS - Compacto y moderno
+   ============================================ */
+
+.galeria-contenedor-principal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(23, 116, 246, 0.1);
+  margin: 1rem auto;
+  max-width: 800px;
+  border: 2px solid rgba(23, 116, 246, 0.08);
+  overflow: hidden;
+}
+
+/* ============================================
+   Título
+   ============================================ */
+
+.galeria-titulo-principal {
+  margin-bottom: 1.2rem;
+  font-size: 1.4rem;
+  color: #1774f6;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.galeria-icono-titulo {
+  font-size: 1.5rem !important;
+}
+
+/* ============================================
+   Carrusel
+   ============================================ */
+
+.galeria-carrusel-scroll {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.6rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.galeria-carrusel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.galeria-item-card {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  width: 150px;
+  height: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(23, 116, 246, 0.15);
+  border: 2px solid rgba(23, 116, 246, 0.1);
+}
+
+.galeria-item-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(23, 116, 246, 0.25);
+  border-color: #1774f6;
+}
+
+.galeria-item-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.galeria-item-card:hover img {
+  transform: scale(1.08);
+}
+
+/* ============================================
+   Barra de progreso scroll
+   ============================================ */
+
+.galeria-scroll-barra {
+  height: 5px;
+  width: 100%;
+  background-color: rgba(23, 116, 246, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.8rem;
+}
+
+.galeria-scroll-indicador {
+  height: 100%;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  width: 0%;
+  transition: width 0.3s ease-out;
+  border-radius: 3px;
+}
+
+/* ============================================
+   Botón Ver más
+   ============================================ */
+
+.galeria-btn-ver-mas {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-inline: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(23, 116, 246, 0.3);
+}
+
+.galeria-btn-ver-mas:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(23, 116, 246, 0.4);
+}
+
+.galeria-icono-ver-mas {
+  font-size: 1.1rem !important;
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+
+.galeria-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: galeria-fade-in 0.3s ease;
+}
+
+@keyframes galeria-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.galeria-modal-contenido {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.galeria-modal-imagen {
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+}
+
+.galeria-modal-cerrar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  z-index: 1010;
+  box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+  transition: all 0.2s ease;
+}
+
+.galeria-modal-cerrar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(239, 83, 80, 0.6);
+}
+
+.galeria-icono-cerrar {
+  font-size: 1.8rem !important;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .galeria-contenedor-principal {
+    padding: 1.2rem;
+  }
+
+  .galeria-titulo-principal {
+    font-size: 1.25rem;
+  }
+
+  .galeria-item-card {
+    width: 130px;
+    height: 100px;
+  }
+
+  .galeria-btn-ver-mas {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .galeria-contenedor-principal {
+    padding: 1rem;
+  }
+
+  .galeria-titulo-principal {
+    font-size: 1.15rem;
+  }
+
+  .galeria-item-card {
+    width: 110px;
+    height: 90px;
+  }
+
+  .galeria-modal-contenido {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+}

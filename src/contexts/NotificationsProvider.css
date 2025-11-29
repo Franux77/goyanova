@@ -1,0 +1,92 @@
+/* === Contenedor de toasts === */
+.notificaciones-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none; /* permite clicar elementos debajo */
+}
+
+/* === Toast individual === */
+.notificacion-toast {
+  background: #1f1f1f;
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  min-width: 260px;
+  max-width: 340px;
+  font-size: 0.95rem;
+  cursor: grab;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeInUp 0.3s ease forwards;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* === Texto interno === */
+.notificacion-texto {
+  flex: 1;
+}
+
+.notificacion-titulo {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.notificacion-mensaje {
+  color: #d0d0d0;
+  font-size: 0.9rem;
+}
+
+/* === Botón cerrar === */
+.notificacion-cerrar {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.2rem;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.notificacion-cerrar:hover {
+  color: #fff;
+}
+
+/* === Animaciones === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Ajuste para pantallas pequeñas (celulares) === */
+@media (max-width: 768px) {
+  .notificaciones-toast-container {
+    top: 15px;
+    right: 50%;
+    transform: translateX(50%);
+    align-items: center;
+  }
+
+  .notificacion-toast {
+    max-width: 90vw; /* ✅ ancho flexible sin salir de pantalla */
+    width: 90vw;     /* ✅ que use la mayor parte del ancho */
+    min-width: unset;
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+}

@@ -1,0 +1,99 @@
+.mapa-home-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  margin: 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.388);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+/* El mapa adentro */
+.mapa-home {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 15px;
+}
+
+/* Responsive: en pantallas grandes (PC) hacerlo más ancho */
+@media (min-width: 768px) {
+  .mapa-home-container {
+    width: 1200px;
+    height: 300px;
+  }
+}
+
+/* Botón "Explorar" con efecto palpitar y brillo */
+.btn-explorar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, #0066ff, #004ecc);
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 110, 255, 0.6);
+  z-index: 1000;
+
+  /* Animación de palpitar */
+  animation: palpitar 2s ease-in-out infinite;
+}
+
+/* Hover clásico + más brillo */
+.btn-explorar:hover {
+  background: linear-gradient(135deg, #004ecc, #003bb5);
+  box-shadow: 0 6px 20px rgba(0, 78, 204, 0.9);
+}
+
+/* Keyframes del palpitar */
+@keyframes palpitar {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(0, 110, 255, 0.6);
+  }
+  50% {
+    transform: scale(1.08); /* crece un poquito */
+    box-shadow: 0 6px 20px rgba(0, 110, 255, 0.8); /* brillo más intenso */
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(0, 110, 255, 0.6);
+  }
+}
+
+
+/* Vista previa */
+.vista-previa {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: rgba(255, 255, 255, 0.693);
+  padding: 12px 18px;
+  border-radius: 15px;
+  width: 230px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.282);
+  color: #333;
+  user-select: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 999;
+}
+
+.vista-previa h4 {
+  margin: 0 0 6px 0;
+  font-size: 1.2rem;
+  color: #004ecc;
+  font-weight: 700;
+}
+
+.vista-previa p {
+  margin: 0;
+  color: #555;
+}

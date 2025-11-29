@@ -1,0 +1,217 @@
+.paso4-container {
+  display: flex;
+  flex-direction: column;
+  /* gap: 1.5rem; */
+  font-family: 'Segoe UI', sans-serif;
+  padding: 1.5rem 1rem;
+}
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #222;
+  text-align: center;
+}
+.paso4-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.paso4-group label {
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.paso4-group input,
+.paso4-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+
+.paso4-group input:focus,
+.paso4-group textarea:focus {
+  border-color: #00aaff;
+  outline: none;
+}
+
+.paso4-error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.paso4-whatsapp-inputs {
+  /* Ya no se usa porque react-phone-input-2 tiene su propio layout */
+  max-width: 320px;
+}
+
+/* react-phone-input-2 tiene su propio CSS, 
+pero para ajustar el input principal aquí un poco */
+
+.phone-input {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.react-tel-input .form-control {
+  border-radius: 10px !important;
+  border: 1px solid #ccc !important;
+  font-size: 1rem !important;
+  padding: 10px 12px !important;
+  transition: border 0.2s;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: #00aaff !important;
+  outline: none;
+}
+
+/* Ajustar la bandera y selector para que no quede muy grande */
+
+.react-tel-input .flag-dropdown {
+  border-radius: 10px 0 0 10px !important;
+  border: 1px solid #ccc !important;
+  border-right: none !important;
+  height: 44px !important;
+}
+
+.react-tel-input .flag-dropdown:hover {
+  border-color: #00aaff !important;
+}
+
+/* Input teléfono al lado */
+
+.react-tel-input input[type="tel"] {
+  border-radius: 0 10px 10px 0 !important;
+  border-left: none !important;
+  height: 44px !important;
+}
+
+/* Ajuste general para que quede prolijo */
+
+.paso4-container h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.react-tel-input {
+  width: 100% !important;
+}
+
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 44px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding-left: 50px !important; /* espacio para el código de país */
+}
+
+.react-tel-input .flag-dropdown {
+  border-radius: 10px 0 0 10px;
+  border: 1px solid #ccc;
+  border-right: none;
+}
+
+.react-tel-input .selected-flag {
+  padding: 0 10px;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: #00aaff;
+  outline: none;
+  box-shadow: none;
+}
+.paso4-error {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.paso4-group {
+  margin-bottom: 20px;
+}
+
+/* Estilos para el input de teléfono */
+.paso4-phone-container {
+  width: 100%;
+}
+
+.paso4-phone-input {
+  width: 100% !important;
+  height: 45px !important;
+  font-size: 16px !important;
+  padding-left: 52px !important;
+  border: 2px solid #ddd !important;
+  border-radius: 8px !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.paso4-phone-input:focus {
+  border-color: #6a11cb !important;
+  outline: none !important;
+}
+
+.paso4-phone-input.input-error {
+  border-color: #e53935 !important;
+}
+
+.paso4-phone-button {
+  border: 2px solid #ddd !important;
+  border-radius: 8px 0 0 8px !important;
+  background: #f5f5f5 !important;
+  height: 45px !important;
+}
+
+.paso4-phone-button:hover {
+  background: #e0e0e0 !important;
+}
+
+.paso4-phone-dropdown {
+  max-height: 300px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  border-radius: 8px !important;
+}
+
+/* Hint text */
+.paso4-hint {
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* Link de WhatsApp */
+.paso4-whatsapp-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white !important;
+  text-decoration: none !important;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paso4-whatsapp-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+/* Error messages */
+.paso4-error {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+/* Input general con error */
+.paso4-group input.input-error {
+  border: 2px solid #e53935 !important;
+}

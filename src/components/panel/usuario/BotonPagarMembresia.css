@@ -1,0 +1,163 @@
+.boton-pagar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.btn-pagar-premium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
+}
+
+.btn-pagar-premium:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 119, 182, 0.4);
+  background: linear-gradient(135deg, #0096d4 0%, #006ba1 100%);
+}
+
+.btn-pagar-premium:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-pagar-premium:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-pagar-premium .material-icons {
+  font-size: 1.5rem;
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-pago {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fff0f0;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  color: #c62828;
+  font-size: 0.95rem;
+}
+
+.error-pago .material-icons {
+  font-size: 1.2rem;
+}
+
+.info-pago {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  color: #1565c0;
+  font-size: 0.9rem;
+}
+
+.info-pago .material-icons {
+  font-size: 1.1rem;
+}
+
+.info-pago p {
+  margin: 0;
+}
+
+.info-membresia-activa {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #e8f5e9;
+  border: 2px solid #4caf50;
+  border-radius: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.info-membresia-activa .material-icons {
+  font-size: 1.5rem;
+  color: #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-pagar-premium {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn-pagar-premium .material-icons {
+    font-size: 1.3rem;
+  }
+}
+.info-membresia-promocional,
+.info-membresia-vip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #fff3e0;
+  border: 2px solid #ff9800;
+  border-radius: 12px;
+  color: #e65100;
+  font-weight: 600;
+}
+
+.info-membresia-vip {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-color: #ffc107;
+  color: #f57f17;
+}
+
+.info-membresia-promocional .material-icons,
+.info-membresia-vip .material-icons {
+  font-size: 1.5rem;
+  color: #ff6f00;
+}
+
+.info-membresia-vip .material-icons {
+  color: #f57f17;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error-content strong {
+  font-size: 0.95rem;
+}
+
+.error-content span {
+  font-size: 0.85rem;
+  font-weight: normal;
+}

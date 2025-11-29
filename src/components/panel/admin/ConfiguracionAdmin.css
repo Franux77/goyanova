@@ -1,0 +1,638 @@
+/* =====================================================
+   🎨 CONFIGURACIÓN ADMIN - DISEÑO PROFESIONAL
+   Colores principales: #1774f6 (azul) y #ffffff (blanco)
+   ===================================================== */
+* {
+  box-sizing: border-box;
+}
+
+.configAdmin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+}
+
+/* =====================================================
+   TÍTULO PRINCIPAL
+   ===================================================== */
+
+.configAdmin-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 2rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 10px rgba(23, 116, 246, 0.1);
+}
+
+/* =====================================================
+   LOADING STATE
+   ===================================================== */
+
+.configAdmin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1.5rem;
+}
+
+.configAdmin-loading .spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #e6f0ff;
+  border-top: 5px solid #1774f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.configAdmin-loading p {
+  color: #666;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* =====================================================
+   SECCIONES
+   ===================================================== */
+
+.configAdmin-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 30px rgba(23, 116, 246, 0.1);
+  border: 1px solid rgba(23, 116, 246, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.configAdmin-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(23, 116, 246, 0.15);
+}
+
+.configAdmin-section-destacada {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  border: none;
+}
+
+.configAdmin-sectionTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.configAdmin-section-destacada .configAdmin-sectionTitle {
+  color: white;
+}
+
+.configAdmin-sectionDesc {
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+/* =====================================================
+   MODO MANTENIMIENTO
+   ===================================================== */
+
+.configAdmin-mantenimientoInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.configAdmin-estadoChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: pulse 2s infinite;
+}
+
+.configAdmin-estadoChip.activo {
+  background: rgba(255, 76, 76, 0.2);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 76, 76, 0.4);
+}
+
+.configAdmin-estadoChip.inactivo {
+  background: rgba(46, 213, 115, 0.2);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.configAdmin-fechaActivacion {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.configAdmin-btnMantenimiento {
+  width: 100%;
+  padding: 1.2rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.configAdmin-btnMantenimiento::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.configAdmin-btnMantenimiento:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.configAdmin-btnMantenimiento.activar {
+  background: white;
+  color: #1774f6;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.configAdmin-btnMantenimiento.activar:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.4);
+}
+
+.configAdmin-btnMantenimiento.desactivar {
+  background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+}
+
+.configAdmin-btnMantenimiento.desactivar:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(255, 71, 87, 0.4);
+}
+
+.configAdmin-btnMantenimiento:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* =====================================================
+   SWITCHES (PREFERENCIAS)
+   ===================================================== */
+
+.configAdmin-switchGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.configAdmin-switch {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.configAdmin-switch:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.configAdmin-switch input[type="checkbox"] {
+  display: none;
+}
+
+.configAdmin-slider {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  background: #cbd5e0;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.configAdmin-slider::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.configAdmin-switch input[type="checkbox"]:checked + .configAdmin-slider {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+}
+
+.configAdmin-switch input[type="checkbox"]:checked + .configAdmin-slider::before {
+  transform: translateX(28px);
+}
+
+.configAdmin-switchLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  flex: 1;
+}
+
+/* =====================================================
+   FORMULARIOS (FLOATING LABELS)
+   ===================================================== */
+
+.configAdmin-formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.configAdmin-floatingInput {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.configAdmin-floatingInput input,
+.configAdmin-floatingInput textarea {
+  width: -webkit-fill-available;
+  padding: 1.2rem 1rem 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.configAdmin-floatingInput input:focus,
+.configAdmin-floatingInput textarea:focus {
+  outline: none;
+  border-color: #1774f6;
+  box-shadow: 0 0 0 4px rgba(23, 116, 246, 0.1);
+}
+
+.configAdmin-floatingInput label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: white;
+  padding: 0 0.5rem;
+}
+
+.configAdmin-floatingInput textarea + label {
+  top: 1.5rem;
+  transform: translateY(0);
+}
+
+.configAdmin-floatingInput input:not(:placeholder-shown) + label,
+.configAdmin-floatingInput input:focus + label,
+.configAdmin-floatingInput textarea:not(:placeholder-shown) + label,
+.configAdmin-floatingInput textarea:focus + label {
+  top: 0;
+  font-size: 0.75rem;
+  color: #1774f6;
+  font-weight: 600;
+}
+
+.configAdmin-error {
+  color: #ff4757;
+  font-size: 0.9rem;
+  margin: -0.5rem 0 0 0;
+  padding: 0.75rem;
+  background: #ffe5e9;
+  border-radius: 8px;
+  border-left: 4px solid #ff4757;
+}
+
+/* =====================================================
+   BOTONES
+   ===================================================== */
+
+.configAdmin-btnPrimary,
+.configAdmin-btnSecondary,
+.configAdmin-btnDanger {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.configAdmin-btnPrimary {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(23, 116, 246, 0.3);
+}
+
+.configAdmin-btnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(23, 116, 246, 0.4);
+}
+
+.configAdmin-btnSecondary {
+  background: white;
+  color: #1774f6;
+  border: 2px solid #1774f6;
+}
+
+.configAdmin-btnSecondary:hover {
+  background: #f0f4ff;
+  transform: translateY(-2px);
+}
+
+.configAdmin-btnDanger {
+  background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+}
+
+.configAdmin-btnDanger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 71, 87, 0.4);
+}
+
+.configAdmin-btnPrimary:disabled,
+.configAdmin-btnSecondary:disabled,
+.configAdmin-btnDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* =====================================================
+   ACCIONES (CERRAR SESIÓN)
+   ===================================================== */
+
+.configAdmin-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* =====================================================
+   MODAL MANTENIMIENTO
+   ===================================================== */
+
+.configAdmin-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.configAdmin-modal {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.configAdmin-modalTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.configAdmin-modalWarning {
+  background: #fff3cd;
+  border-left: 4px solid #ff9800;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #856404;
+  margin: 1rem 0;
+  font-weight: 600;
+}
+
+.configAdmin-modalActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.configAdmin-modalActions button {
+  flex: 1;
+  max-width: 200px;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .configAdmin-container {
+    padding: 0.5rem;
+  }
+
+  .configAdmin-title {
+    font-size: 2rem;
+  }
+
+  .configAdmin-section {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .configAdmin-sectionTitle {
+    font-size: 1.3rem;
+  }
+
+  .configAdmin-btnMantenimiento {
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 1rem 1.5rem;
+  }
+
+  .configAdmin-estadoChip {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .configAdmin-modal {
+    padding: 2rem;
+    border-radius: 20px;
+  }
+
+  .configAdmin-modalTitle {
+    font-size: 1.5rem;
+  }
+
+  .configAdmin-modalActions {
+    flex-direction: column;
+  }
+
+  .configAdmin-modalActions button {
+    max-width: none;
+  }
+
+  .configAdmin-switch {
+    padding: 0.75rem;
+  }
+
+  .configAdmin-switchLabel {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .configAdmin-title {
+    font-size: 1.75rem;
+  }
+
+  .configAdmin-section {
+    padding: 1.25rem;
+  }
+
+  .configAdmin-mantenimientoInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .configAdmin-estadoChip {
+    /* width: 100%; */
+    justify-content: center;
+  }
+
+  .configAdmin-fechaActivacion {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* =====================================================
+   ACCESIBILIDAD
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para teclado */
+*:focus-visible {
+  outline: 3px solid #1774f6;
+  outline-offset: 2px;
+}
+
+/* Mejora de contraste para modo alto contraste */
+@media (prefers-contrast: high) {
+  .configAdmin-section {
+    border: 2px solid #1774f6;
+  }
+
+  .configAdmin-btnPrimary,
+  .configAdmin-btnDanger {
+    border: 2px solid currentColor;
+  }
+}

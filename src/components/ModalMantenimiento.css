@@ -1,0 +1,226 @@
+/* ModalMantenimiento.css */
+
+.modal-mantenimiento-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-mantenimiento-content {
+  background: white;
+  border-radius: 24px;
+  max-width: 500px;
+  width: 100%;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-mantenimiento-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.modal-mantenimiento-icon svg {
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.modal-mantenimiento-titulo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.modal-mantenimiento-mensaje {
+  font-size: 1.1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.modal-mantenimiento-tiempo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.modal-mantenimiento-tiempo svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-mantenimiento-footer {
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal-mantenimiento-footer p {
+  color: #718096;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.modal-mantenimiento-social {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-mantenimiento-social a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7fafc;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  color: #718096;
+}
+
+.modal-mantenimiento-social a:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.modal-mantenimiento-social svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===================================
+   📱 RESPONSIVE
+=================================== */
+
+@media (max-width: 640px) {
+  .modal-mantenimiento-content {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .modal-mantenimiento-titulo {
+    font-size: 1.5rem;
+  }
+
+  .modal-mantenimiento-mensaje {
+    font-size: 1rem;
+  }
+
+  .modal-mantenimiento-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .modal-mantenimiento-icon svg {
+    width: 35px;
+    height: 35px;
+  }
+
+  .modal-mantenimiento-tiempo {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+/* Agregar al final de tu ModalMantenimiento.css existente */
+
+/* =====================================================
+   LINK PARA ADMINISTRADORES
+   ===================================================== */
+
+.modal-mantenimiento-admin-link {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-style: italic;
+  transition: opacity 0.3s ease;
+}
+
+.modal-mantenimiento-admin-link:hover {
+  opacity: 1;
+}
+
+.modal-mantenimiento-admin-link a {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 600;
+  font-style: normal;
+  transition: all 0.3s ease;
+}
+
+.modal-mantenimiento-admin-link a:hover {
+  color: #1774f6;
+  text-decoration-thickness: 2px;
+}
+
+.modal-mantenimiento-admin-link a:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-mantenimiento-admin-link {
+    font-size: 0.8rem;
+  }
+}

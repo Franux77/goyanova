@@ -1,0 +1,189 @@
+.suspension-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.suspension-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+  text-align: center;
+}
+
+.suspension-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.suspension-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.suspension-titulo {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.suspension-contenido {
+  margin-bottom: 30px;
+}
+
+.suspension-texto {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.suspension-motivo {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.suspension-motivo strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #856404;
+  font-size: 14px;
+}
+
+.suspension-motivo p {
+  color: #856404;
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.suspension-info {
+  font-size: 14px;
+  color: #666;
+  margin-top: 16px;
+}
+
+.suspension-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btn-soporte,
+.btn-cerrar-sesion {
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-soporte {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-soporte:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-cerrar-sesion {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-cerrar-sesion:hover {
+  background: #e9ecef;
+  border-color: #ccc;
+}
+
+.suspension-fecha-fin {
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.suspension-fecha-fin small {
+  color: #999;
+  font-size: 13px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 600px) {
+  .suspension-modal {
+    padding: 30px 20px;
+  }
+  
+  .suspension-titulo {
+    font-size: 24px;
+  }
+  
+  .suspension-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .suspension-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+}

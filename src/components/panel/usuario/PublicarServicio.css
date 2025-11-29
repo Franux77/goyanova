@@ -1,0 +1,33 @@
+/* src/components/panel/usuario/PublicarServicio.css */
+
+/* Ajustes para que el formulario funcione dentro del panel */
+.publicar-servicio-wrapper {
+  margin-left: 0;
+  width: 100%;
+  position: relative;
+  min-height: 100vh; /* 🔹 ASEGURAR altura mínima */
+}
+
+/* Sobrescribir estilos del navbar cuando está en el panel */
+.publicar-servicio-wrapper .psf-navbar {
+  left: 250px;
+  width: calc(100% - 250px);
+}
+
+/* 🔹 NUEVO: Ajustar primera sección dentro del panel */
+.publicar-servicio-wrapper .psf-seccion:first-child {
+  margin-top: calc(150px + 2rem);
+}
+
+/* En móvil, el navbar debe ocupar todo el ancho */
+@media (max-width: 1024px) {
+  .publicar-servicio-wrapper .psf-navbar {
+    left: 0;
+    width: 100%;
+  }
+  
+  /* 🔹 NUEVO: Ajuste móvil dentro del panel */
+  .publicar-servicio-wrapper .psf-seccion:first-child {
+    margin-top: calc(110px + 1.5rem);
+  }
+}
