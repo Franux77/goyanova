@@ -7,7 +7,6 @@ import ModalMantenimiento from './components/ModalMantenimiento';
 // ✅ Componentes normales
 import Navbar from './components/home/Navbar';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
-// import NavbarGeneral from './components/home/NavbarGeneral'; 
 import Home from './components/home/Home';
 import ProtectedRoute from './auth/ProtectedRoute';
 import RutaProtegidaAdmin from './auth/RutaProtegidaAdmin';
@@ -22,7 +21,7 @@ import ResetPassword from './auth/login/ResetPassword';
 // 🔥 LAZY LOADING
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
-const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica')); // 🆕
+const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PublicarServicioForm = lazy(() => import('./components/publicar/PublicarServicioForm'));
 const CategoryPage = lazy(() => import('./components/ListaPerfilesYDetalles/CategoryPage'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
@@ -92,35 +91,54 @@ const AppContent = () => {
   const { user, perfil, loading: authLoading } = useAuth();
   const { config, loading: mantenimientoLoading, enMantenimiento, puedeAcceder } = useMantenimiento(user?.id);
   
+  // 🆕 Estado local para controlar el loading inicial
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
   const isHome = location.pathname === '/';
   const isCategoria = location.pathname.startsWith('/categoria');
   const isAdmin = perfil?.estado === 'admin';
   
-
-  
-  
-  // Rutas que NO deben mostrar footer
-  const rutasSinFooter = ['/login', '/register', '/reset-password', '/panel', '/publicar'];
   const mostrarFooter = location.pathname === '/';
-
-  
   const rutasExceptuadas = ['/login', '/register', '/reset-password'];
   const esRutaExceptuada = rutasExceptuadas.some(ruta => location.pathname.startsWith(ruta));
 
-  const mostrarMantenimiento = !authLoading && 
-                                !mantenimientoLoading && 
+  // 🆕 Control del loading inicial
+  useEffect(() => {
+    console.log('🔍 [APP] Loading states:', { authLoading, mantenimientoLoading, initialLoadComplete });
+    
+    // Solo mostrar loading en la carga inicial, no en verificaciones posteriores
+    if (!authLoading && !mantenimientoLoading && !initialLoadComplete) {
+      console.log('✅ [APP] Carga inicial completada');
+      setInitialLoadComplete(true);
+    }
+  }, [authLoading, mantenimientoLoading, initialLoadComplete]);
+
+  // 🆕 Solo mostrar loading en carga inicial y en rutas no exceptuadas
+  const mostrarLoadingGlobal = !initialLoadComplete && 
+                                (authLoading || mantenimientoLoading) && 
+                                !esRutaExceptuada;
+
+  const mostrarMantenimiento = initialLoadComplete && 
                                 enMantenimiento && 
                                 !esRutaExceptuada && 
                                 !isAdmin && 
                                 !puedeAcceder;
 
-  const mostrarLoadingGlobal = (authLoading || mantenimientoLoading) && !esRutaExceptuada;
+  console.log('🎯 [APP] Render decision:', { 
+    mostrarLoadingGlobal, 
+    mostrarMantenimiento, 
+    initialLoadComplete,
+    authLoading,
+    mantenimientoLoading
+  });
 
   if (mostrarLoadingGlobal) {
+    console.log('⏳ [APP] Mostrando loading global');
     return <Loading message="Cargando GoyaNova..." fullScreen={true} />;
   }
 
   if (mostrarMantenimiento) {
+    console.log('🔧 [APP] Mostrando modal de mantenimiento');
     return <ModalMantenimiento config={config} />;
   }
 
@@ -191,7 +209,7 @@ const AppContent = () => {
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
-              <Route path="/ayuda" element={<AyudaPublica />} /> {/* 🆕 */}
+              <Route path="/ayuda" element={<AyudaPublica />} />
               <Route path="/explorar" element={<Explorar />} />
 
               <Route
@@ -247,7 +265,6 @@ const AppContent = () => {
         </RouteLoadingIndicator>
       </main>
 
-      {/* 🆕 FOOTER CONDICIONAL */}
       {mostrarFooter && <Footer />}
 
       <style>{`

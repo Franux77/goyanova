@@ -6,6 +6,7 @@ import { supabase } from '../../utils/supabaseClient';
 
 const CategoryList = ({ type, onSelectCategory }) => {
   const [categoriasDB, setCategoriasDB] = useState([]);
+  const [serviciosDB, setServiciosDB] = useState([]); // 🆕 Cache de servicios
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -19,10 +20,10 @@ const CategoryList = ({ type, onSelectCategory }) => {
   ];
 
   useEffect(() => {
-    fetchCategorias();
+    fetchData();
   }, [type]);
 
-  const fetchCategorias = async () => {
+  const fetchData = async () => {
     setLoading(true);
     
     try {
@@ -37,36 +38,38 @@ const CategoryList = ({ type, onSelectCategory }) => {
       if (errorCat) {
         console.error('Error cargando categorías:', errorCat);
         setCategoriasDB([]);
+        setServiciosDB([]);
         setLoading(false);
         return;
       }
 
       if (!categorias || categorias.length === 0) {
         setCategoriasDB([]);
+        setServiciosDB([]);
         setLoading(false);
         return;
       }
 
-      // 2. Obtener IDs de categorías que tienen al menos un servicio visible
       const categoriasIds = categorias.map(c => c.id);
       
-      const { data: serviciosActivos, error: errorServ } = await supabase
+      // 2. Obtener TODOS los servicios activos con sus nombres y categorías
+      const { data: servicios, error: errorServ } = await supabase
         .from('servicios')
-        .select('categoria_id')
+        .select('id, nombre, descripcion, categoria_id')
         .in('categoria_id', categoriasIds)
         .eq('estado', 'activo')
         .eq('oculto_por_reportes', false);
 
       if (errorServ) {
-        console.error('Error verificando servicios:', errorServ);
+        console.error('Error cargando servicios:', errorServ);
       }
 
       // 3. Crear Set de categorías con servicios visibles
       const categoriasConServicios = new Set(
-        serviciosActivos?.map(s => s.categoria_id) || []
+        servicios?.map(s => s.categoria_id) || []
       );
 
-      // 4. Filtrar solo categorías que tienen servicios visibles
+      // 4. Filtrar categorías con servicios y mapear
       const categoriasFiltradas = categorias
         .filter(cat => categoriasConServicios.has(cat.id))
         .map(cat => ({
@@ -76,11 +79,14 @@ const CategoryList = ({ type, onSelectCategory }) => {
         }));
 
       console.log(`Categorías con servicios visibles: ${categoriasFiltradas.length}/${categorias.length}`);
+      
       setCategoriasDB(categoriasFiltradas);
+      setServiciosDB(servicios || []); // 🆕 Guardar servicios para búsqueda
 
     } catch (err) {
       console.error('Error inesperado:', err);
       setCategoriasDB([]);
+      setServiciosDB([]);
     } finally {
       setLoading(false);
     }
@@ -88,6 +94,7 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
   // Función para normalizar texto (quitar acentos, lowercase)
   const normalizeText = (text) => {
+    if (!text) return '';
     return text
       .toLowerCase()
       .normalize("NFD")
@@ -95,28 +102,88 @@ const CategoryList = ({ type, onSelectCategory }) => {
       .trim();
   };
 
-  // Búsqueda mejorada
+  // 🆕 Búsqueda INTELIGENTE que busca en categorías Y servicios
   const categoriasFiltradas = useMemo(() => {
     const busquedaLower = normalizeText(busqueda);
+    
+    // Si no hay búsqueda, mostrar todas
     if (!busquedaLower) return categoriasDB;
     
+    const palabrasBusqueda = busquedaLower.split(' ').filter(w => w.length > 2);
+    
     return categoriasDB.filter(cat => {
-      const categoriaName = normalizeText(cat.title);
+      const categoriaNombre = normalizeText(cat.title);
       
-      // Búsqueda por coincidencia parcial
-      if (categoriaName.includes(busquedaLower)) {
+      // 1️⃣ Buscar en NOMBRE DE CATEGORÍA
+      if (categoriaNombre.includes(busquedaLower)) {
+        return true;
+      }
+      
+      // Buscar por palabras individuales en categoría
+      const categoriaWords = categoriaNombre.split(' ');
+      const coincideCategoria = palabrasBusqueda.some(searchWord =>
+        categoriaWords.some(catWord => catWord.includes(searchWord))
+      );
+      
+      if (coincideCategoria) {
         return true;
       }
 
-      // Búsqueda por palabras individuales
-      const busquedaWords = busquedaLower.split(' ').filter(w => w.length > 2);
-      const categoriaWords = categoriaName.split(' ');
-      
-      return busquedaWords.some(searchWord =>
-        categoriaWords.some(catWord => catWord.includes(searchWord))
+      // 2️⃣ Buscar en SERVICIOS de esta categoría
+      const serviciosDeCategoria = serviciosDB.filter(
+        serv => serv.categoria_id === cat.id
       );
+
+      const coincideServicio = serviciosDeCategoria.some(servicio => {
+        const servicioNombre = normalizeText(servicio.nombre);
+        const servicioDesc = normalizeText(servicio.descripcion || '');
+        
+        // Buscar en nombre del servicio
+        if (servicioNombre.includes(busquedaLower)) {
+          return true;
+        }
+        
+        // Buscar en descripción del servicio
+        if (servicioDesc.includes(busquedaLower)) {
+          return true;
+        }
+        
+        // Buscar por palabras en nombre de servicio
+        const servicioWords = servicioNombre.split(' ');
+        return palabrasBusqueda.some(searchWord =>
+          servicioWords.some(servWord => servWord.includes(searchWord))
+        );
+      });
+
+      return coincideServicio;
     });
-  }, [categoriasDB, busqueda]);
+  }, [categoriasDB, serviciosDB, busqueda]);
+
+  // 🆕 Contar servicios coincidentes por categoría (para badge)
+  const categoriasConConteo = useMemo(() => {
+    if (!busqueda.trim()) return categoriasFiltradas;
+
+    const busquedaLower = normalizeText(busqueda);
+    
+    return categoriasFiltradas.map(cat => {
+      const serviciosDeCategoria = serviciosDB.filter(
+        serv => serv.categoria_id === cat.id
+      );
+
+      const serviciosCoincidentes = serviciosDeCategoria.filter(servicio => {
+        const servicioNombre = normalizeText(servicio.nombre);
+        const servicioDesc = normalizeText(servicio.descripcion || '');
+        
+        return servicioNombre.includes(busquedaLower) || 
+               servicioDesc.includes(busquedaLower);
+      });
+
+      return {
+        ...cat,
+        serviciosCoincidentes: serviciosCoincidentes.length
+      };
+    });
+  }, [categoriasFiltradas, serviciosDB, busqueda]);
 
   const hayResultados = categoriasFiltradas.length > 0;
   const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
@@ -149,14 +216,14 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
       {!loading && (
         <>
-          {/* Buscador con placeholder animado tipo Instagram */}
+          {/* Buscador con placeholder animado */}
           <div className="search-categoria-box">
             <svg className="search-categoria-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.35-4.35"/>
             </svg>
             
-            {/* Placeholder animado - FUERA del wrapper para que sea visible */}
+            {/* Placeholder animado */}
             {busqueda === '' && (
               <div className="animated-placeholder">
                 <div className="placeholder-text">
@@ -190,13 +257,26 @@ const CategoryList = ({ type, onSelectCategory }) => {
             )}
           </div>
 
+          {/* 🆕 Mensaje de resultados encontrados */}
+          {busqueda.trim() && hayResultados && (
+            <div className="search-results-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              <span>
+                <strong>{categoriasFiltradas.length}</strong> {categoriasFiltradas.length === 1 ? 'categoría encontrada' : 'categorías encontradas'} con servicios relacionados a "<strong>{busqueda}</strong>"
+              </span>
+            </div>
+          )}
+
           {/* Sin resultados */}
           {mostrarSinResultados && (
             <div className="categoria-sin-resultados">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
               </svg>
-              <span>No se encontraron categorías</span>
+              <span>No se encontraron categorías ni servicios</span>
               <p className="categoria-sin-resultados-sugerencias">
                 Intenta con otros términos de búsqueda
               </p>
@@ -206,13 +286,20 @@ const CategoryList = ({ type, onSelectCategory }) => {
           {/* Lista de categorías */}
           {hayResultados && (
             <div className="category-list">
-              {categoriasFiltradas.map((cat) => (
-                <CategoryCard
-                  key={cat.id}
-                  title={cat.title}
-                  icon={cat.icon}
-                  onSelect={handleSelectCategory}
-                />
+              {(busqueda.trim() ? categoriasConConteo : categoriasFiltradas).map((cat) => (
+                <div key={cat.id} className="category-card-wrapper">
+                  <CategoryCard
+                    title={cat.title}
+                    icon={cat.icon}
+                    onSelect={handleSelectCategory}
+                  />
+                  {/* 🆕 Badge de servicios coincidentes */}
+                  {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
+                    <div className="category-badge">
+                      {cat.serviciosCoincidentes} {cat.serviciosCoincidentes === 1 ? 'servicio' : 'servicios'}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}

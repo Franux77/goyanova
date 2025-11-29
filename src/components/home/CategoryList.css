@@ -25,6 +25,91 @@
 }
 
 /* ============================================
+   🆕 WRAPPER PARA CARDS CON BADGE
+   ============================================ */
+.category-card-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 🆕 BADGE DE SERVICIOS COINCIDENTES */
+.category-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  pointer-events: none;
+  z-index: 10;
+  animation: badgePulse 2s ease-in-out infinite;
+  letter-spacing: 0.3px;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* ============================================
+   🆕 MENSAJE DE RESULTADOS
+   ============================================ */
+.search-results-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.125rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+  margin: 0.75rem 0 1rem 0;
+  font-size: 0.9rem;
+  color: #1e40af;
+  animation: slideIn 0.4s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-results-info svg {
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.search-results-info span {
+  line-height: 1.5;
+}
+
+.search-results-info strong {
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+/* ============================================
    LOADER MODERNO CENTRADO
    ============================================ */
 .category-loader-container {
@@ -311,7 +396,9 @@
   font-weight: 400;
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
   .category-loader {
     width: 60px;
@@ -376,5 +463,25 @@
   .search-categoria-clear svg {
     width: 13px;
     height: 13px;
+  }
+
+  /* 🆕 Badge responsive */
+  .category-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    top: 6px;
+    right: 6px;
+  }
+
+  /* 🆕 Mensaje de resultados responsive */
+  .search-results-info {
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    gap: 0.625rem;
+  }
+
+  .search-results-info svg {
+    width: 18px;
+    height: 18px;
   }
 }
