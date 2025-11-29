@@ -39,10 +39,10 @@ const SaludoUsuario = () => {
           { principal: `Buenas noches, ${nombre}`, secundario: 'O buenos días, quién sabe a esta hora' },
           { principal: `Hola ${nombre}`, secundario: 'Los búhos andan sueltos por acá' },
           { principal: `¿Trasnochando, ${nombre}?`, secundario: 'Bancá que viene el sueño' },
-          { principal: `Opa ${nombre}`, secundario: 'La madrugada es tuya' },
+          { principal: `Che ${nombre}`, secundario: '¿anda buscando algo?' },
           { principal: `Che ${nombre}`, secundario: '¿No deberías estar durmiendo?' },
-          { principal: `Hola de madrugada, ${nombre}`, secundario: 'Modo noctámbulo activado' },
-          { principal: `Mirá la hora, ${nombre}`, secundario: 'Pero bueno, acá estamos' },
+          { principal: `Es de madrugada, ${nombre}`, secundario: 'Modo noctámbulo activado' },
+          { principal: `Mirá la hora, ${nombre}`, secundario: 'Pero bueno, busca lo necesario' },
           { principal: `¿Todo bien ${nombre}?`, secundario: 'Es medio tarde para estar por acá' },
           { principal: `Buenas ${nombre}`, secundario: 'Aunque no sé qué tan buenas a esta hora' }
         ];
@@ -51,14 +51,14 @@ const SaludoUsuario = () => {
         saludos = [
           { principal: `¡Buen día, ${nombre}!`, secundario: 'Arrancamos con todo' },
           { principal: `¡Buenos días, ${nombre}!`, secundario: '¿Ya tomaste mate?' },
-          { principal: `¡Hola ${nombre}!`, secundario: 'Que sea un día genial' },
+          { principal: `¡Hola ${nombre}!`, secundario: 'Que sea un buen día' },
           { principal: `¡Qué tal, ${nombre}!`, secundario: 'Linda mañana para empezar' },
           { principal: `¡Dale ${nombre}!`, secundario: 'A romperla hoy' },
           { principal: `¡Ey ${nombre}!`, secundario: 'Arrancamos con la mejor' },
           { principal: `¡Hola de nuevo, ${nombre}!`, secundario: 'Listo para el día' },
           { principal: `¡Che ${nombre}!`, secundario: 'A darle con ganas hoy' },
           { principal: `¡Buenas ${nombre}!`, secundario: 'El día está para aprovechar' },
-          { principal: `¡Qué onda ${nombre}!`, secundario: 'Arrancó la jornada' }
+          { principal: `¿Como va ${nombre}?`, secundario: 'Arrancó la jornada' }
         ];
       } else if (hora >= 12 && hora < 19) {
         // Tarde (12:00 - 18:59)
@@ -67,12 +67,12 @@ const SaludoUsuario = () => {
           { principal: `¡Hola ${nombre}!`, secundario: 'Ya pasó medio día' },
           { principal: `¡Qué tal, ${nombre}!`, secundario: 'La tarde está tranqui' },
           { principal: `¡Ey ${nombre}!`, secundario: 'Seguimos en la lucha' },
-          { principal: `¡Che ${nombre}!`, secundario: '¿Todo piola por ahí?' },
+          { principal: `¡Che ${nombre}!`, secundario: '¿Todo bien por ahí?' },
           { principal: `¡Buenas ${nombre}!`, secundario: 'A full con la tarde' },
           { principal: `¡Hola de vuelta, ${nombre}!`, secundario: 'La tarde vuela' },
           { principal: `¡Qué onda ${nombre}!`, secundario: 'Seguimos activos' },
           { principal: `¡Dale ${nombre}!`, secundario: 'Falta poco para la noche' },
-          { principal: `¡Opa ${nombre}!`, secundario: 'La tarde está que arde' }
+          { principal: `¡Epa ${nombre}!`, secundario: 'La tarde está buena' }
         ];
       } else {
         // Noche (19:00 - 23:59)
@@ -86,7 +86,7 @@ const SaludoUsuario = () => {
           { principal: `¡Hola de nuevo, ${nombre}!`, secundario: 'La noche pinta bien' },
           { principal: `¡Qué onda ${nombre}!`, secundario: 'Momento de descansar' },
           { principal: `¡Dale ${nombre}!`, secundario: 'Termina el día tranqui' },
-          { principal: `¡Opa ${nombre}!`, secundario: 'A cerrar el día con onda' }
+          { principal: `¡Dale ${nombre}!`, secundario: 'A cerrar el día con onda' }
         ];
       }
 

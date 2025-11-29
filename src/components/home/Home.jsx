@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './Home.css';
 import SaludoUsuario from './SaludoUsuario';
 import CategoryList from './CategoryList';
@@ -195,7 +195,7 @@ const Home = () => {
           </h1>
           
           <p className="goya-hero-description">
-            Plomeros, electricistas, pintores y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
+            Plomeros, pintores, casas de comidas y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
           </p>
           
           <div className="goya-hero-benefits">
@@ -214,25 +214,30 @@ const Home = () => {
           </div>
           
           <div className="goya-hero-actions">
-            <a
-              href="#categorias"
-              className="goya-btn-hero-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                handleScrollCategorias();
-              }}
-            >
-              <span className="material-icons">search</span>
-              Buscar
-            </a>
-            <button
-              className="goya-btn-hero-secondary"
-              onClick={handlePublicarClick}
-            >
-              <span className="material-icons">add_circle</span>
-              Publicar
-            </button>
-          </div>
+  <a
+    href="#categorias"
+    className="goya-btn-hero-primary"
+    onClick={(e) => {
+      e.preventDefault();
+      handleScrollCategorias();
+    }}
+  >
+    <span className="material-icons">search</span>
+    Buscar
+  </a>
+  <button
+    className="goya-btn-hero-secondary"
+    onClick={handlePublicarClick}
+  >
+    <span className="material-icons">add_circle</span>
+    Publicar
+  </button>
+</div>
+
+{/* NUEVO: Texto informativo */}
+<p className="goya-hero-info-text">
+  ¿No entendés cómo funciona? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link> o <Link to="/contacto" className="goya-hero-link">contactanos</Link>
+</p>
         </div>
       </section>
 
@@ -311,7 +316,7 @@ const Home = () => {
           <span className="material-icons goya-local-icon">favorite</span>
           <div className="goya-local-text">
             <strong>Proyecto 100% local de Goya</strong>
-            <p>Creado por un joven correntino para conectar nuestra ciudad</p>
+            <p>Creado por un joven Goyano para conectar nuestra ciudad</p>
           </div>
         </div>
         <button className="goya-local-btn" onClick={handlePublicarClick}>

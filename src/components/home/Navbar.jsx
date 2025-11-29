@@ -71,6 +71,10 @@ const Navbar = () => {
             <li>
               <Link to="/contacto" onClick={() => setMenuOpen(false)}>Contacto</Link>
             </li>
+            {/* 🆕 LINK DE AYUDA */}
+            <li>
+              <Link to="/ayuda" onClick={() => setMenuOpen(false)}>Ayuda</Link>
+            </li>
             {tieneAccesoPanel && (
               <li>
                 <button

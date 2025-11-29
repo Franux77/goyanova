@@ -163,7 +163,27 @@
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
 }
+.goya-hero-info-text {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  line-height: 1.6;
+}
 
+.goya-hero-link {
+  color: white;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.5);
+  text-underline-offset: 3px;
+  transition: all 0.2s ease;
+}
+
+.goya-hero-link:hover {
+  text-decoration-color: white;
+  opacity: 0.9;
+}
 /* ============================================
    🆕 CÓMO FUNCIONA - Compacto (2 columnas)
    ============================================ */

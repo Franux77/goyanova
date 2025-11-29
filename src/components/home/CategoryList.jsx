@@ -9,6 +9,15 @@ const CategoryList = ({ type, onSelectCategory }) => {
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Textos rotativos para el placeholder
+  const placeholderTexts = [
+    'Busca una categoría...',
+    'Busca por nombres de servicios...',
+    'Busca por nombres de productos...',
+    'Explora opciones...',
+    'Busca lo que necesitas...',
+  ];
+
   useEffect(() => {
     fetchCategorias();
   }, [type]);
@@ -77,28 +86,46 @@ const CategoryList = ({ type, onSelectCategory }) => {
     }
   };
 
-  // Filtrado memoizado para mejor performance
+  // Función para normalizar texto (quitar acentos, lowercase)
+  const normalizeText = (text) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  };
+
+  // Búsqueda mejorada
   const categoriasFiltradas = useMemo(() => {
-    const busquedaLower = busqueda.toLowerCase().trim();
+    const busquedaLower = normalizeText(busqueda);
     if (!busquedaLower) return categoriasDB;
     
-    return categoriasDB.filter(cat =>
-      cat.title.toLowerCase().includes(busquedaLower)
-    );
+    return categoriasDB.filter(cat => {
+      const categoriaName = normalizeText(cat.title);
+      
+      // Búsqueda por coincidencia parcial
+      if (categoriaName.includes(busquedaLower)) {
+        return true;
+      }
+
+      // Búsqueda por palabras individuales
+      const busquedaWords = busquedaLower.split(' ').filter(w => w.length > 2);
+      const categoriaWords = categoriaName.split(' ');
+      
+      return busquedaWords.some(searchWord =>
+        categoriaWords.some(catWord => catWord.includes(searchWord))
+      );
+    });
   }, [categoriasDB, busqueda]);
 
   const hayResultados = categoriasFiltradas.length > 0;
   const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
 
-  // Handler mejorado para selección de categoría
   const handleSelectCategory = (categoryTitle) => {
     console.log('Categoría seleccionada:', categoryTitle);
-    
-    // Encodear el título para URLs (convierte "/" en "%2F", espacios en "%20", etc)
     const encodedTitle = encodeURIComponent(categoryTitle);
     console.log('Categoría encodeada:', encodedTitle);
     
-    // Validar que onSelectCategory sea una función
     if (typeof onSelectCategory === 'function') {
       onSelectCategory(encodedTitle);
     } else {
@@ -108,7 +135,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
   return (
     <div className="category-buscador-wrapper">
-      {/* Spinner moderno centrado */}
       {loading && (
         <div className="category-loader-container">
           <div className="category-loader">
@@ -123,19 +149,33 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
       {!loading && (
         <>
-          {/* Buscador con X */}
+          {/* Buscador con placeholder animado tipo Instagram */}
           <div className="search-categoria-box">
             <svg className="search-categoria-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.35-4.35"/>
             </svg>
+            
+            {/* Placeholder animado - FUERA del wrapper para que sea visible */}
+            {busqueda === '' && (
+              <div className="animated-placeholder">
+                <div className="placeholder-text">
+                  {placeholderTexts.map((text, index) => (
+                    <span key={index}>
+                      {text}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <input
               type="text"
               className="buscador-categorias-input"
-              placeholder="Buscar categoría..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
+
             {busqueda && (
               <button
                 className="search-categoria-clear"
@@ -157,6 +197,9 @@ const CategoryList = ({ type, onSelectCategory }) => {
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
               </svg>
               <span>No se encontraron categorías</span>
+              <p className="categoria-sin-resultados-sugerencias">
+                Intenta con otros términos de búsqueda
+              </p>
             </div>
           )}
 

@@ -4,22 +4,25 @@ import { useAuth } from './auth/useAuth';
 import { useMantenimiento } from './hooks/useMantenimiento';
 import ModalMantenimiento from './components/ModalMantenimiento';
 
-// ✅ Componentes que SIEMPRE se necesitan (importación normal)
+// ✅ Componentes normales
 import Navbar from './components/home/Navbar';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
+// import NavbarGeneral from './components/home/NavbarGeneral'; 
 import Home from './components/home/Home';
 import ProtectedRoute from './auth/ProtectedRoute';
 import RutaProtegidaAdmin from './auth/RutaProtegidaAdmin';
 import Loading from './components/loading/Loading';
+import Footer from './components/footer/Footer';
 
-// 🆕 Login/Register también normal (tienen mucho CSS)
+// Login/Register
 import Login from './auth/login/login';
 import Register from './auth/login/Register';
 import ResetPassword from './auth/login/ResetPassword';
 
-// 🔥 LAZY LOADING: Componentes que se cargan solo cuando se necesitan
+// 🔥 LAZY LOADING
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
+const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica')); // 🆕
 const PublicarServicioForm = lazy(() => import('./components/publicar/PublicarServicioForm'));
 const CategoryPage = lazy(() => import('./components/ListaPerfilesYDetalles/CategoryPage'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
@@ -27,7 +30,7 @@ const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalle
 const FinalizacionExitosa = lazy(() => import('./components/publicar/FinalizacionExitosa'));
 const Explorar = lazy(() => import('./components/mapa/ExplorarMapa'));
 
-// Panel Usuario (lazy)
+// Panel Usuario
 const PanelUsuario = lazy(() => import('./components/panel/usuario/PanelUsuario'));
 const Dashboard = lazy(() => import('./components/panel/usuario/Dashboard'));
 const MisServicios = lazy(() => import('./components/panel/usuario/MisServicios'));
@@ -39,7 +42,7 @@ const Notificaciones = lazy(() => import('./components/panel/usuario/Notificacio
 const AyudaSoporte = lazy(() => import('./components/panel/usuario/AyudaSoporte'));
 const MiMembresia = lazy(() => import('./components/panel/usuario/MiMembresia'));
 
-// Panel Admin (lazy)
+// Panel Admin
 const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
 const DashboardAdmin = lazy(() => import('./components/panel/admin/DashboardAdmin'));
 const UsuariosAdmin = lazy(() => import('./components/panel/admin/UsuariosAdmin'));
@@ -55,26 +58,18 @@ const GestionFAQs = lazy(() => import('./components/panel/admin/GestionFAQs'));
 const GestionTutoriales = lazy(() => import('./components/panel/admin/GestionTutoriales'));
 const GestionMensajesSoporte = lazy(() => import('./components/panel/admin/MensajesSoporte'));
 
-// 🆕 Hook para detectar cambio de ruta y mostrar loading
 const RouteLoadingIndicator = ({ children }) => {
   const location = useLocation();
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Muestra el loading cuando cambia la ruta
     setIsTransitioning(true);
-    
-    // Lo oculta después de un pequeño delay (para que no parpadee en cargas rápidas)
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 100);
-
+    const timer = setTimeout(() => setIsTransitioning(false), 100);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
   return (
     <>
-      {/* Barra de progreso superior cuando está cargando */}
       {isTransitioning && (
         <div style={{
           position: 'fixed',
@@ -100,6 +95,14 @@ const AppContent = () => {
   const isHome = location.pathname === '/';
   const isCategoria = location.pathname.startsWith('/categoria');
   const isAdmin = perfil?.estado === 'admin';
+  
+
+  
+  
+  // Rutas que NO deben mostrar footer
+  const rutasSinFooter = ['/login', '/register', '/reset-password', '/panel', '/publicar'];
+  const mostrarFooter = location.pathname === '/';
+
   
   const rutasExceptuadas = ['/login', '/register', '/reset-password'];
   const esRutaExceptuada = rutasExceptuadas.some(ruta => location.pathname.startsWith(ruta));
@@ -159,7 +162,6 @@ const AppContent = () => {
       )}
 
       <main style={enMantenimiento && isAdmin && !esRutaExceptuada ? { marginTop: '68px' } : {}}>
-        {/* 🔥 Suspense con Loading mejorado + indicador de transición */}
         <RouteLoadingIndicator>
           <Suspense fallback={
             <div style={{
@@ -189,6 +191,7 @@ const AppContent = () => {
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
+              <Route path="/ayuda" element={<AyudaPublica />} /> {/* 🆕 */}
               <Route path="/explorar" element={<Explorar />} />
 
               <Route
@@ -243,6 +246,9 @@ const AppContent = () => {
           </Suspense>
         </RouteLoadingIndicator>
       </main>
+
+      {/* 🆕 FOOTER CONDICIONAL */}
+      {mostrarFooter && <Footer />}
 
       <style>{`
         @keyframes bannerPulse {

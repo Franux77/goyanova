@@ -4,9 +4,20 @@
   width: 100%;
   max-width: 700px;
   margin: 0.6rem auto 0;
-  /* padding: 0 0.8rem; */
   z-index: 1004;
   box-sizing: border-box;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .search-explorar-box {
@@ -39,6 +50,7 @@
   color: #999;
   pointer-events: none;
   transition: all 0.3s ease;
+  z-index: 3;
 }
 
 .search-explorar-box:focus-within .search-explorar-icon {
@@ -47,6 +59,7 @@
 }
 
 .search-explorar-input {
+  position: relative;
   width: 100%;
   border: none;
   outline: none;
@@ -58,11 +71,62 @@
   padding: 0.9rem 3.5rem 0.9rem 3.2rem;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  z-index: 2;
 }
 
-.search-explorar-input::placeholder {
+/* ============================================
+   PLACEHOLDER ANIMADO TIPO INSTAGRAM
+   ============================================ */
+.animated-placeholder-explorar {
+  position: absolute;
+  left: 3.2rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: #999;
+  font-size: 0.95rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  pointer-events: none;
+  z-index: 1;
+  height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+  max-width: calc(100% - 7rem);
   font-weight: 400;
+}
+
+.placeholder-text-explorar {
+  animation: slidePlaceholderExplorar 15s ease-in-out infinite;
+}
+
+.placeholder-text-explorar span {
+  display: block;
+  height: 24px;
+  line-height: 24px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+/* Animación suave de deslizamiento vertical */
+@keyframes slidePlaceholderExplorar {
+  0%, 18% {
+    transform: translateY(0);
+  }
+  20%, 38% {
+    transform: translateY(-24px);
+  }
+  40%, 58% {
+    transform: translateY(-48px);
+  }
+  60%, 78% {
+    transform: translateY(-72px);
+  }
+  80%, 98% {
+    transform: translateY(-96px);
+  }
+  100% {
+    transform: translateY(-120px);
+  }
 }
 
 .search-explorar-clear {
@@ -82,6 +146,7 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  z-index: 3;
 }
 
 .search-explorar-clear svg {
@@ -105,22 +170,6 @@
   transform: translateY(-50%) scale(0.95);
 }
 
-/* Animación de entrada */
-.search-explorar-container {
-  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Responsive */
 @media (min-width: 768px) {
   .search-explorar-container {
@@ -131,6 +180,40 @@
   .search-explorar-input {
     font-size: 1.05rem;
     padding: 1rem 3.5rem 1rem 3.5rem;
+  }
+  
+  .animated-placeholder-explorar {
+    font-size: 1.05rem;
+    left: 3.5rem;
+    height: 26px;
+    line-height: 26px;
+    max-width: calc(100% - 7.5rem);
+  }
+  
+  .placeholder-text-explorar span {
+    height: 26px;
+    line-height: 26px;
+  }
+  
+  @keyframes slidePlaceholderExplorar {
+    0%, 18% {
+      transform: translateY(0);
+    }
+    20%, 38% {
+      transform: translateY(-26px);
+    }
+    40%, 58% {
+      transform: translateY(-52px);
+    }
+    60%, 78% {
+      transform: translateY(-78px);
+    }
+    80%, 98% {
+      transform: translateY(-104px);
+    }
+    100% {
+      transform: translateY(-130px);
+    }
   }
   
   .search-explorar-icon {
@@ -158,5 +241,43 @@
   
   .search-explorar-input {
     font-size: 1.1rem;
+  }
+  
+  .animated-placeholder-explorar {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile específico - textos más cortos si es necesario */
+@media (max-width: 480px) {
+  .animated-placeholder-explorar {
+    font-size: 0.9rem;
+    max-width: calc(100% - 6.5rem);
+  }
+  
+  .placeholder-text-explorar span {
+    height: 22px;
+    line-height: 22px;
+  }
+  
+  @keyframes slidePlaceholderExplorar {
+    0%, 18% {
+      transform: translateY(0);
+    }
+    20%, 38% {
+      transform: translateY(-22px);
+    }
+    40%, 58% {
+      transform: translateY(-44px);
+    }
+    60%, 78% {
+      transform: translateY(-66px);
+    }
+    80%, 98% {
+      transform: translateY(-88px);
+    }
+    100% {
+      transform: translateY(-110px);
+    }
   }
 }
