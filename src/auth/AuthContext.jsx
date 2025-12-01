@@ -16,7 +16,20 @@ export const AuthProvider = ({ children }) => {
   const refreshTimerRef = useRef(null);
   const lastVisibilityRef = useRef(Date.now());
   const isRefreshingRef = useRef(false);
-  const sessionCheckIntervalRef = useRef(null);
+  
+  // 🆕 Prevenir verificaciones excesivas
+  const lastCheckRef = useRef(0);
+  const CHECK_COOLDOWN = 5000; // 5 segundos entre verificaciones
+
+  // 🆕 Función helper con timeout
+  const withTimeout = (promise, timeoutMs = 10000) => {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+      )
+    ]);
+  };
 
   const cargarPerfil = useCallback(async (userId) => {
     if (!userId || isLoadingProfile.current) return null;
@@ -28,11 +41,15 @@ export const AuthProvider = ({ children }) => {
     isLoadingProfile.current = true;
 
     try {
-      const { data, error: perfilError } = await supabase
-        .from('perfiles_usuarios')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+      // 🆕 Agregar timeout de 8 segundos
+      const { data, error: perfilError } = await withTimeout(
+        supabase
+          .from('perfiles_usuarios')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle(),
+        8000
+      );
 
       if (perfilError) {
         if (isMounted.current) {
@@ -50,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (err) {
+      console.warn('⚠️ Error cargando perfil (timeout?):', err.message);
       if (isMounted.current) {
         setPerfil(null);
         perfilCargadoRef.current = false;
@@ -94,11 +112,14 @@ export const AuthProvider = ({ children }) => {
       while (intentos < 5 && !perfilExistente) {
         await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 500 : 800));
         
-       const { data } = await supabase
-          .from('perfiles_usuarios')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+        const { data } = await withTimeout(
+          supabase
+            .from('perfiles_usuarios')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle(),
+          8000
+        );
         
         perfilExistente = data;
         intentos++;
@@ -147,6 +168,7 @@ export const AuthProvider = ({ children }) => {
       return nuevoPerfil;
 
     } catch (err) {
+      console.warn('⚠️ Error creando perfil Google:', err.message);
       return null;
     }
   }, []);
@@ -160,10 +182,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const emailLimpio = email.toLowerCase().trim();
       
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email: emailLimpio,
-        password,
-      });
+      const { data, error: loginError } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email: emailLimpio,
+          password,
+        }),
+        15000
+      );
 
       if (loginError) throw loginError;
       
@@ -225,11 +250,6 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(refreshTimerRef.current);
       refreshTimerRef.current = null;
     }
-
-    if (sessionCheckIntervalRef.current) {
-      clearInterval(sessionCheckIntervalRef.current);
-      sessionCheckIntervalRef.current = null;
-    }
     
     await supabase.auth.signOut();
     
@@ -246,11 +266,6 @@ export const AuthProvider = ({ children }) => {
     if (refreshTimerRef.current) {
       clearTimeout(refreshTimerRef.current);
       refreshTimerRef.current = null;
-    }
-
-    if (sessionCheckIntervalRef.current) {
-      clearInterval(sessionCheckIntervalRef.current);
-      sessionCheckIntervalRef.current = null;
     }
     
     await supabase.auth.signOut();
@@ -277,38 +292,82 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ FUNCIÓN MEJORADA: Verifica y renueva la sesión
-  const verificarYRenovarSesion = useCallback(async () => {
+  const refreshSession = useCallback(async () => {
     if (isRefreshingRef.current) return false;
 
     isRefreshingRef.current = true;
 
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // 🆕 Timeout de 10 segundos para refresh
+      const { data: { session }, error } = await withTimeout(
+        supabase.auth.refreshSession(),
+        10000
+      );
       
-      if (error || !session) {
+      if (error) {
+        console.warn('⚠️ Error refresh session:', error.message);
+        // 🆕 NO cerrar sesión por timeout - mantener sesión actual
+        if (error.message !== 'Timeout') {
+          await signOut();
+        }
+        return false;
+      }
+
+      if (session?.user && isMounted.current) {
+        setUser(session.user);
+        return true;
+      }
+      
+      await signOut();
+      return false;
+    } catch (err) {
+      console.warn('⚠️ Timeout en refresh session, manteniendo sesión actual');
+      // 🆕 NO cerrar sesión por timeout
+      return false;
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [signOut]);
+
+  const verificarSesionActiva = useCallback(async () => {
+    // 🆕 Cooldown para evitar verificaciones excesivas
+    const ahora = Date.now();
+    if (ahora - lastCheckRef.current < CHECK_COOLDOWN) {
+      console.log('⏸️ Verificación en cooldown, saltando...');
+      return true; // Asumir que la sesión está bien
+    }
+    
+    lastCheckRef.current = ahora;
+
+    try {
+      // 🆕 Timeout de 8 segundos para getSession
+      const { data: { session }, error } = await withTimeout(
+        supabase.auth.getSession(),
+        8000
+      );
+      
+      if (error) {
+        console.warn('⚠️ Error verificando sesión:', error.message);
+        // 🆕 NO cerrar sesión por timeout
+        if (error.message !== 'Timeout') {
+          await signOut();
+        }
+        return false;
+      }
+
+      if (!session) {
         await signOut();
         return false;
       }
 
       const expiresAt = session.expires_at;
-      const ahora = Math.floor(Date.now() / 1000);
-      const tiempoRestante = expiresAt - ahora;
+      const ahoraSec = Math.floor(Date.now() / 1000);
+      const tiempoRestante = expiresAt - ahoraSec;
 
-      // Si quedan menos de 5 minutos, renovar
-      if (tiempoRestante < 300) {
-        const { data: { session: newSession }, error: refreshError } = 
-          await supabase.auth.refreshSession();
-        
-        if (refreshError || !newSession) {
-          await signOut();
-          return false;
-        }
-
-        if (isMounted.current) {
-          setUser(newSession.user);
-        }
-        return true;
+      // 🆕 Solo refrescar si realmente está por expirar
+      if (tiempoRestante < 60) {
+        console.log('🔄 Sesión por expirar, refrescando...');
+        return await refreshSession();
       }
 
       if (isMounted.current) {
@@ -317,47 +376,51 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (err) {
-      await signOut();
-      return false;
-    } finally {
-      isRefreshingRef.current = false;
+      console.warn('⚠️ Timeout verificando sesión, manteniendo sesión actual');
+      // 🆕 En caso de timeout, NO cerrar sesión
+      return true;
     }
-  }, [signOut]);
+  }, [refreshSession, signOut]);
 
-  // ✅ NUEVO: Verificación periódica cada 10 minutos (más eficiente)
+  // Auto-refresh cada 45 minutos
   useEffect(() => {
     if (!user) return;
 
-    const verificarPeriodicamente = async () => {
-      // Solo verificar si la pestaña está visible
-      if (document.visibilityState === 'visible') {
-        await verificarYRenovarSesion();
+    const setupAutoRefresh = () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
       }
+
+      refreshTimerRef.current = setTimeout(async () => {
+        const success = await refreshSession();
+        
+        if (success) {
+          setupAutoRefresh();
+        }
+      }, 45 * 60 * 1000);
     };
 
-    // Ejecutar inmediatamente
-    verificarPeriodicamente();
-
-    // Luego cada 10 minutos (reducido consumo)
-    sessionCheckIntervalRef.current = setInterval(verificarPeriodicamente, 10 * 60 * 1000);
+    setupAutoRefresh();
 
     return () => {
-      if (sessionCheckIntervalRef.current) {
-        clearInterval(sessionCheckIntervalRef.current);
-        sessionCheckIntervalRef.current = null;
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
       }
     };
-  }, [user, verificarYRenovarSesion]);
+  }, [user, refreshSession]);
 
-  // ✅ MEJORADO: Manejo de visibilidad de pestaña
+  // 🆕 Manejo MEJORADO de visibilidad de pestaña
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible' && user) {
         const tiempoInactivo = Date.now() - lastVisibilityRef.current;
         
-        // Si estuvo inactivo más de 1 minuto, verificar sesión
-        if (tiempoInactivo > 60000) {
-          await verificarYRenovarSesion();
+        // 🆕 Solo verificar si estuvo inactivo más de 5 minutos
+        if (tiempoInactivo > 5 * 60 * 1000) {
+          console.log('🔍 Verificando sesión tras inactividad prolongada...');
+          await verificarSesionActiva();
+        } else {
+          console.log('⏭️ Inactividad corta, no verificar sesión');
         }
       } else if (document.visibilityState === 'hidden') {
         lastVisibilityRef.current = Date.now();
@@ -368,9 +431,10 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         const tiempoInactivo = Date.now() - lastVisibilityRef.current;
         
-        // Si estuvo fuera más de 30 segundos, verificar
-        if (tiempoInactivo > 30000) {
-          await verificarYRenovarSesion();
+        // 🆕 Solo verificar si estuvo inactivo más de 5 minutos
+        if (tiempoInactivo > 5 * 60 * 1000) {
+          console.log('🔍 Verificando sesión tras cambio de ventana...');
+          await verificarSesionActiva();
         }
       }
     };
@@ -378,9 +442,6 @@ export const AuthProvider = ({ children }) => {
     const handleBeforeUnload = () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
-      }
-      if (sessionCheckIntervalRef.current) {
-        clearInterval(sessionCheckIntervalRef.current);
       }
     };
 
@@ -393,7 +454,7 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [user, verificarYRenovarSesion]);
+  }, [user, verificarSesionActiva]);
 
   // Inicialización y listener de auth
   useEffect(() => {
@@ -402,7 +463,10 @@ export const AuthProvider = ({ children }) => {
 
     const getSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(),
+          10000
+        );
         
         if (sessionError) {
           if (isMounted.current) {
@@ -479,6 +543,7 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } catch (err) {
+        console.warn('⚠️ Error en getSession:', err.message);
         if (isMounted.current) {
           setUser(null);
           setPerfil(null);
@@ -555,6 +620,7 @@ export const AuthProvider = ({ children }) => {
             lastUserIdRef.current = null;
           }
         } catch (error) {
+          console.warn('⚠️ Error en auth listener:', error.message);
           setUser(null);
           setPerfil(null);
           perfilCargadoRef.current = false;
@@ -580,16 +646,12 @@ export const AuthProvider = ({ children }) => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
       }
-
-      if (sessionCheckIntervalRef.current) {
-        clearInterval(sessionCheckIntervalRef.current);
-      }
       
       if (authSubscription) {
         authSubscription.unsubscribe();
       }
     };
-  }, [cargarPerfil, crearPerfilDesdeGoogle, verificarYRenovarSesion]);
+  }, [cargarPerfil, crearPerfilDesdeGoogle]);
 
   return (
     <AuthContext.Provider 
@@ -604,7 +666,7 @@ export const AuthProvider = ({ children }) => {
         signOut,
         resetPassword,
         cargarPerfil,
-        verificarYRenovarSesion
+        refreshSession
       }}
     >
       {children}
