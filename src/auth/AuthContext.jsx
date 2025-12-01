@@ -151,7 +151,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = useCallback(async (email, password) => {
-    console.log('🔵 [AUTH] login() llamado');
     setLoading(true);
     setError(null);
     perfilCargadoRef.current = false;
@@ -159,34 +158,24 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const emailLimpio = email.toLowerCase().trim();
-      console.log('🔐 [AUTH] Llamando a Supabase signInWithPassword');
       
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
         email: emailLimpio,
         password,
       });
 
-      if (loginError) {
-        console.error('❌ [AUTH] Error en signIn:', loginError);
-        throw loginError;
-      }
-
-      console.log('✅ [AUTH] SignIn exitoso, usuario:', data.user.id);
+      if (loginError) throw loginError;
       
       if (isMounted.current) {
-        console.log('📝 [AUTH] Seteando user en estado');
         setUser(data.user);
       }
       
       if (data.user) {
-        console.log('👤 [AUTH] Cargando perfil...');
         await cargarPerfil(data.user.id);
-        console.log('✅ [AUTH] Perfil cargado');
       }
 
       return data;
     } catch (err) {
-      console.error('❌ [AUTH] Error general en login:', err);
       if (isMounted.current) {
         setError(err.message);
         setUser(null);
@@ -196,48 +185,36 @@ export const AuthProvider = ({ children }) => {
       }
       throw err;
     } finally {
-      console.log('🏁 [AUTH] Finalizando login()');
       if (isMounted.current) setLoading(false);
     }
   }, [cargarPerfil]);
 
- // 🔧 REEMPLAZA SOLO LA FUNCIÓN loginWithGoogle (líneas 168-195 aprox)
+  const loginWithGoogle = useCallback(async () => {
+    setError(null);
 
-const loginWithGoogle = useCallback(async () => {
-  console.log('🔴 [AUTH] loginWithGoogle() llamado');
-  // 🆕 NO SETEAR LOADING AQUÍ - deja que el flujo normal lo maneje
-  setError(null);
-
-  try {
-    console.log('🌐 [AUTH] Llamando a Supabase signInWithOAuth');
-    const { data, error: loginError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      const { data, error: loginError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
+      });
+
+      if (loginError) throw loginError;
+      
+      return data;
+
+    } catch (err) {
+      if (isMounted.current) {
+        setError(err.message);
       }
-    });
-
-    if (loginError) {
-      console.error('❌ [AUTH] Error en OAuth:', loginError);
-      throw loginError;
+      throw err;
     }
-    
-    console.log('✅ [AUTH] OAuth iniciado, redirigiendo...');
-    return data;
-
-  } catch (err) {
-    console.error('❌ [AUTH] Error general en Google login:', err);
-    if (isMounted.current) {
-      setError(err.message);
-    }
-    throw err;
-  }
-  // 🆕 NO hay finally - deja que onAuthStateChange maneje el loading
-}, []);
+  }, []);
 
   const logout = useCallback(async () => {
     const confirmar = window.confirm("¿Seguro que deseas cerrar sesión?");
@@ -345,6 +322,7 @@ const loginWithGoogle = useCallback(async () => {
     }
   }, [refreshSession, signOut]);
 
+  // Auto-refresh cada 45 minutos
   useEffect(() => {
     if (!user) return;
 
@@ -371,6 +349,7 @@ const loginWithGoogle = useCallback(async () => {
     };
   }, [user, refreshSession]);
 
+  // Manejo de visibilidad de pestaña
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible' && user) {
@@ -403,6 +382,7 @@ const loginWithGoogle = useCallback(async () => {
     };
   }, [user, verificarSesionActiva]);
 
+  // Inicialización y listener de auth
   useEffect(() => {
     isMounted.current = true;
     let authSubscription = null;
@@ -500,20 +480,11 @@ const loginWithGoogle = useCallback(async () => {
       const processedSignInRef = { current: false };
       
       const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('🎯 [AUTH] onAuthStateChange:', event, 'User:', session?.user?.id);
-        
-        if (!isMounted.current) {
-          console.log('⚠️ [AUTH] Componente desmontado, ignorando');
-          return;
-        }
+        if (!isMounted.current) return;
 
-        if (event === 'INITIAL_SESSION') {
-          console.log('🟡 [AUTH] INITIAL_SESSION - ignorando');
-          return;
-        }
+        if (event === 'INITIAL_SESSION') return;
         
         if (event === 'TOKEN_REFRESHED') {
-          console.log('🔄 [AUTH] TOKEN_REFRESHED');
           if (session?.user && isMounted.current) {
             setUser(session.user);
           }
@@ -521,27 +492,20 @@ const loginWithGoogle = useCallback(async () => {
         }
 
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('✅ [AUTH] SIGNED_IN detectado');
-          
           if (processedSignInRef.current && session.user.id === lastUserIdRef.current) {
-            console.log('⚠️ [AUTH] Ya procesado, ignorando duplicado');
             return;
           }
 
           processedSignInRef.current = true;
-          console.log('📝 [AUTH] Procesando nuevo SIGNED_IN');
           
           const provider = session.user.app_metadata?.provider;
-          console.log('🔍 [AUTH] Provider:', provider);
           
           await new Promise(resolve => setTimeout(resolve, 500));
           
           if (provider === 'google') {
-            console.log('🔴 [AUTH] Creando perfil desde Google');
             await crearPerfilDesdeGoogle(session.user);
           }
           
-          console.log('📝 [AUTH] Seteando user y cargando perfil');
           setUser(session.user);
           
           if (!perfilCargadoRef.current || lastUserIdRef.current !== session.user.id) {
@@ -549,12 +513,10 @@ const loginWithGoogle = useCallback(async () => {
           }
           
           if (isMounted.current) setLoading(false);
-          console.log('✅ [AUTH] SIGNED_IN procesado completamente');
           return;
         }
 
         if (event === 'SIGNED_OUT') {
-          console.log('👋 [AUTH] SIGNED_OUT');
           processedSignInRef.current = false;
           setUser(null);
           setPerfil(null);
@@ -563,8 +525,6 @@ const loginWithGoogle = useCallback(async () => {
           setLoading(false);
           return;
         }
-
-        console.log('🔍 [AUTH] Evento no manejado específicamente:', event);
 
         try {
           if (session?.user) {

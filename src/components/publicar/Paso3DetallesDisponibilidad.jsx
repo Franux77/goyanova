@@ -69,7 +69,7 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
   const mountedRef = useRef(false);
   const prevDataRef = useRef(formData);
   const lastPayloadRef = useRef(null);
-  const updatingFromStateRef = useRef(false); // 🔹 NUEVO: Prevenir bucles
+  const updatingFromStateRef = useRef(false);
 
   const normalized = useMemo(() => {
     const hasHorariosObj = formData?.horarios && Object.keys(formData.horarios).length > 0;
@@ -130,210 +130,196 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
   const [copiarAResto, setCopiarAResto] = useState(false);
   const [errores, setErrores] = useState({});
 
- // Effect: Sincronización desde formData
-useEffect(() => {
-  if (!formData || updatingFromStateRef.current) return;
+  useEffect(() => {
+    if (!formData || updatingFromStateRef.current) return;
 
-  if (!mountedRef.current) {
-    mountedRef.current = true;
-    return;
-  }
-
-  const currentPayload = {
-    tipoDisponibilidad: formData.tipoDisponibilidad,
-    mensaje: formData.mensaje,
-    horarios: formData.horarios,
-    disponibilidades: formData.disponibilidades,
-  };
-
-  if (deepEqual(currentPayload, lastPayloadRef.current)) {
-    return;
-  }
-
-  const prevHorarios = prevDataRef.current?.horarios;
-  const prevTipo = prevDataRef.current?.tipoDisponibilidad;
-  const prevMensaje = prevDataRef.current?.mensaje;
-
-  const currentHorarios = formData.horarios;
-  const currentTipo = formData.tipoDisponibilidad;
-  const currentMensaje = formData.mensaje;
-
-  const tieneHorariosReales = currentHorarios && Object.keys(currentHorarios).length > 0;
-
-  // 🔹 CAMBIO CRÍTICO: Solo sincronizar si cambió el tipo o si es carga inicial
-  const esCambioExterno = 
-    prevTipo !== currentTipo || 
-    (!tieneHorariosReales && !deepEqual(prevHorarios, currentHorarios));
-
-  if (!esCambioExterno && prevMensaje === currentMensaje) {
-    return;
-  }
-
-  prevDataRef.current = formData;
-
-  const nuevoTipo = normalizeTipo(currentTipo || formData.tipo);
-  const nuevoMensaje = currentMensaje || "";
-  const nuevosHorarios = normalizeHorariosObj(currentHorarios || {});
-
-  const nuevoDiasActivos = {};
-  const nuevosTurnos = {};
-
-  diasSemana.forEach((dia) => {
-    const diaKey = dia.toLowerCase();
-    const horariosDia = nuevosHorarios[diaKey];
-
-    if (Array.isArray(horariosDia) && horariosDia.length > 0) {
-      nuevoDiasActivos[dia] = true;
-      nuevosTurnos[dia] = horariosDia.map((t) => ({
-        inicio: t.inicio || "",
-        fin: t.fin || "",
-      }));
-    } else {
-      nuevoDiasActivos[dia] = diasActivos[dia] || false;
-      nuevosTurnos[dia] = turnos[dia] || [{ inicio: "", fin: "" }];
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
     }
-  });
 
-  // 🔹 Solo actualizar modo si cambió el tipo
-  if (modo !== nuevoTipo) {
-    setModo(nuevoTipo);
-  }
-  
-  // 🔹 Solo actualizar mensaje si cambió y no estamos escribiendo
-  if (mensaje !== nuevoMensaje && !modalDia) {
-    setMensaje(nuevoMensaje);
-  }
-  
-  // 🔹 Solo actualizar diasActivos y turnos si hay cambios reales y no hay modal abierto
-  if (!modalDia) {
-    if (!deepEqual(diasActivos, nuevoDiasActivos)) {
-      setDiasActivos(nuevoDiasActivos);
-    }
-    
-    if (!deepEqual(turnos, nuevosTurnos)) {
-      setTurnos(nuevosTurnos);
-    }
-  }
-
-}, [formData, modalDia, modo, mensaje, diasActivos, turnos]);
-
-// Effect: Actualizar formData desde estados locales
-useEffect(() => {
-  if (!mountedRef.current) {
-    return;
-  }
-
-  // 🔹 NUEVO: No actualizar mientras el modal está abierto
-  if (modalDia) {
-    return;
-  }
-
-  let payload;
-
-  if (modo === "consultar" || modo === "nodisp") {
-    const tipoFinal = modo === "consultar" ? "whatsapp" : "no_disponible";
-    const tituloFinal = modo === "consultar" ? "Consultar disponibilidad por Whatsapp" : "Este servicio está fuera de servicio";
-
-    payload = {
-      tipoDisponibilidad: tipoFinal,
-      mensaje: null,
-      horarios: {},
-      diasActivos: {},
-      disponibilidades: [
-        {
-          dia: null,
-          inicio: null,
-          fin: null,
-          turno: null,
-          titulo: tituloFinal,
-          tipo: tipoFinal,
-        },
-      ],
+    const currentPayload = {
+      tipoDisponibilidad: formData.tipoDisponibilidad,
+      mensaje: formData.mensaje,
+      horarios: formData.horarios,
+      disponibilidades: formData.disponibilidades,
     };
-  } else {
-    const horariosLimpios = {};
+
+    if (deepEqual(currentPayload, lastPayloadRef.current)) {
+      return;
+    }
+
+    const prevHorarios = prevDataRef.current?.horarios;
+    const prevTipo = prevDataRef.current?.tipoDisponibilidad;
+    const prevMensaje = prevDataRef.current?.mensaje;
+
+    const currentHorarios = formData.horarios;
+    const currentTipo = formData.tipoDisponibilidad;
+    const currentMensaje = formData.mensaje;
+
+    const tieneHorariosReales = currentHorarios && Object.keys(currentHorarios).length > 0;
+
+    const esCambioExterno = 
+      prevTipo !== currentTipo || 
+      (!tieneHorariosReales && !deepEqual(prevHorarios, currentHorarios));
+
+    if (!esCambioExterno && prevMensaje === currentMensaje) {
+      return;
+    }
+
+    prevDataRef.current = formData;
+
+    const nuevoTipo = normalizeTipo(currentTipo || formData.tipo);
+    const nuevoMensaje = currentMensaje || "";
+    const nuevosHorarios = normalizeHorariosObj(currentHorarios || {});
+
+    const nuevoDiasActivos = {};
+    const nuevosTurnos = {};
 
     diasSemana.forEach((dia) => {
-      if (diasActivos[dia]) {
-        const bloques = (turnos[dia] || []).filter((t) => t.inicio && t.fin);
+      const diaKey = dia.toLowerCase();
+      const horariosDia = nuevosHorarios[diaKey];
 
-        if (bloques.length > 0) {
-          const diaKey = dia.toLowerCase();
-          horariosLimpios[diaKey] = bloques.map(({ inicio, fin }, idx) => ({
-            inicio: inicio.length === 5 ? `${inicio}:00` : inicio,
-            fin: fin.length === 5 ? `${fin}:00` : fin,
-            turno: modo === "turnos" ? idx + 1 : null,
-            titulo:
-              modo === "horario"
-                ? "Horario fijo"
-                : modo === "turnos"
-                ? "Se trabaja por turnos"
-                : "Disponible por pedido",
-            tipo:
-              modo === "horario"
-                ? "horarios"
-                : modo === "turnos"
-                ? "por_turnos"
-                : "por_pedido",
-          }));
-        }
+      if (Array.isArray(horariosDia) && horariosDia.length > 0) {
+        nuevoDiasActivos[dia] = true;
+        nuevosTurnos[dia] = horariosDia.map((t) => ({
+          inicio: t.inicio || "",
+          fin: t.fin || "",
+        }));
+      } else {
+        nuevoDiasActivos[dia] = diasActivos[dia] || false;
+        nuevosTurnos[dia] = turnos[dia] || [{ inicio: "", fin: "" }];
       }
     });
 
-    const tipoFinal =
-      modo === "horario"
-        ? "horarios"
-        : modo === "turnos"
-        ? "por_turnos"
-        : "por_pedido";
-
-    // 🔹 CORRECCIÓN: Solo enviar mensaje si es "turnos" o "pedido"
-    const mensajeFinal = (modo === "turnos" || modo === "pedido") ? (mensaje?.trim() || null) : null;
-
-    payload = {
-      tipoDisponibilidad: tipoFinal,
-      mensaje: mensajeFinal,
-      horarios: horariosLimpios,
-      diasActivos,
-      disponibilidades: Object.entries(horariosLimpios).flatMap(([dia, arr]) =>
-        arr.map((h) => ({ ...h, dia }))
-      ),
-    };
-  }
-
-  if (deepEqual(payload, lastPayloadRef.current)) {
-    return;
-  }
-
-  lastPayloadRef.current = payload;
-
-  if (typeof setFormData === "function") {
-    updatingFromStateRef.current = true;
+    if (modo !== nuevoTipo) {
+      setModo(nuevoTipo);
+    }
     
-    setFormData((prev) => {
-      const prevSubset = {
-        tipoDisponibilidad: prev?.tipoDisponibilidad,
-        mensaje: prev?.mensaje,
-        horarios: prev?.horarios,
-        diasActivos: prev?.diasActivos,
-        disponibilidades: prev?.disponibilidades,
-      };
-
-      if (deepEqual(prevSubset, payload)) {
-        updatingFromStateRef.current = false;
-        return prev;
+    if (mensaje !== nuevoMensaje && !modalDia) {
+      setMensaje(nuevoMensaje);
+    }
+    
+    if (!modalDia) {
+      if (!deepEqual(diasActivos, nuevoDiasActivos)) {
+        setDiasActivos(nuevoDiasActivos);
       }
+      
+      if (!deepEqual(turnos, nuevosTurnos)) {
+        setTurnos(nuevosTurnos);
+      }
+    }
 
-      const newData = { ...(prev || {}), ...payload };
+  }, [formData, modalDia, modo, mensaje, diasActivos, turnos]);
+
+  useEffect(() => {
+    if (!mountedRef.current || modalDia) return;
+
+    let payload;
+
+    if (modo === "consultar" || modo === "nodisp") {
+      const tipoFinal = modo === "consultar" ? "whatsapp" : "no_disponible";
+      const tituloFinal = modo === "consultar" ? "Consultar disponibilidad por Whatsapp" : "Este servicio está fuera de servicio";
+
+      payload = {
+        tipoDisponibilidad: tipoFinal,
+        mensaje: null,
+        horarios: {},
+        diasActivos: {},
+        disponibilidades: [
+          {
+            dia: null,
+            inicio: null,
+            fin: null,
+            turno: null,
+            titulo: tituloFinal,
+            tipo: tipoFinal,
+          },
+        ],
+      };
+    } else {
+      const horariosLimpios = {};
+
+      diasSemana.forEach((dia) => {
+        if (diasActivos[dia]) {
+          const bloques = (turnos[dia] || []).filter((t) => t.inicio && t.fin);
+
+          if (bloques.length > 0) {
+            const diaKey = dia.toLowerCase();
+            horariosLimpios[diaKey] = bloques.map(({ inicio, fin }, idx) => ({
+              inicio: inicio.length === 5 ? `${inicio}:00` : inicio,
+              fin: fin.length === 5 ? `${fin}:00` : fin,
+              turno: modo === "turnos" ? idx + 1 : null,
+              titulo:
+                modo === "horario"
+                  ? "Horario fijo"
+                  : modo === "turnos"
+                  ? "Se trabaja por turnos"
+                  : "Disponible por pedido",
+              tipo:
+                modo === "horario"
+                  ? "horarios"
+                  : modo === "turnos"
+                  ? "por_turnos"
+                  : "por_pedido",
+            }));
+          }
+        }
+      });
+
+      const tipoFinal =
+        modo === "horario"
+          ? "horarios"
+          : modo === "turnos"
+          ? "por_turnos"
+          : "por_pedido";
+
+      const mensajeFinal = (modo === "turnos" || modo === "pedido") ? (mensaje?.trim() || null) : null;
+
+      payload = {
+        tipoDisponibilidad: tipoFinal,
+        mensaje: mensajeFinal,
+        horarios: horariosLimpios,
+        diasActivos,
+        disponibilidades: Object.entries(horariosLimpios).flatMap(([dia, arr]) =>
+          arr.map((h) => ({ ...h, dia }))
+        ),
+      };
+    }
+
+    if (deepEqual(payload, lastPayloadRef.current)) {
+      return;
+    }
+
+    lastPayloadRef.current = payload;
+
+    if (typeof setFormData === "function") {
+      updatingFromStateRef.current = true;
       
-      setTimeout(() => {
-        updatingFromStateRef.current = false;
-      }, 0);
-      
-      return newData;
-    });
-  }
-}, [modo, diasActivos, turnos, mensaje, modalDia]); // 🔹 AGREGADO modalDia a dependencias
+      setFormData((prev) => {
+        const prevSubset = {
+          tipoDisponibilidad: prev?.tipoDisponibilidad,
+          mensaje: prev?.mensaje,
+          horarios: prev?.horarios,
+          diasActivos: prev?.diasActivos,
+          disponibilidades: prev?.disponibilidades,
+        };
+
+        if (deepEqual(prevSubset, payload)) {
+          updatingFromStateRef.current = false;
+          return prev;
+        }
+
+        const newData = { ...(prev || {}), ...payload };
+        
+        setTimeout(() => {
+          updatingFromStateRef.current = false;
+        }, 0);
+        
+        return newData;
+      });
+    }
+  }, [modo, diasActivos, turnos, mensaje, modalDia, setFormData]);
 
   const handleChangeTurno = (dia, i, campo, valor) => {
     const nuevos = [...(turnos[dia] || [])];

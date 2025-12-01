@@ -134,6 +134,140 @@
 }
 
 /* ============================================
+   BUSCADOR - Moderno y elegante
+   ============================================ */
+.goya-buscador-container {
+  margin-bottom: 1.5rem;
+}
+
+.goya-buscador-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 0 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.goya-buscador-input-wrapper:focus-within {
+  border-color: #1774f6;
+  box-shadow: 0 4px 16px rgba(23, 116, 246, 0.15);
+}
+
+.goya-buscador-icono {
+  color: #94a3b8;
+  font-size: 22px;
+  margin-right: 0.75rem;
+}
+
+.goya-buscador-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 14px 0;
+  font-size: 0.95rem;
+  color: #1e293b;
+  background: transparent;
+}
+
+.goya-buscador-input::placeholder {
+  color: #94a3b8;
+}
+
+.goya-buscador-limpiar {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.goya-buscador-limpiar:hover {
+  background: #e2e8f0;
+}
+
+.goya-buscador-limpiar .material-icons {
+  font-size: 18px;
+  color: #64748b;
+}
+
+.goya-buscador-resultados {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.75rem;
+  padding: 8px 12px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.goya-buscador-resultados .material-icons {
+  font-size: 18px;
+}
+
+/* Sin resultados */
+.goya-sin-resultados {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.goya-sin-resultados .material-icons {
+  font-size: 64px;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.goya-sin-resultados h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.goya-sin-resultados p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+}
+
+.goya-btn-limpiar-busqueda {
+  padding: 10px 24px;
+  background: #1774f6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.goya-btn-limpiar-busqueda:hover {
+  background: #0d5bbf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+/* ============================================
    LISTA DE SERVICIOS
    ============================================ */
 .goya-servicios-lista {
@@ -382,6 +516,21 @@
     justify-content: center;
   }
 
+  /* Buscador mobile */
+  .goya-buscador-input-wrapper {
+    padding: 0 0.75rem;
+  }
+
+  .goya-buscador-input {
+    font-size: 0.9rem;
+    padding: 12px 0;
+  }
+
+  .goya-buscador-icono {
+    font-size: 20px;
+    margin-right: 0.5rem;
+  }
+
   /* Card horizontal en mobile */
   .goya-servicio-card {
     padding: 1rem;
@@ -453,5 +602,15 @@
   .goya-badge {
     font-size: 0.7rem;
     padding: 3px 8px;
+  }
+
+  /* Buscador en móviles pequeños */
+  .goya-buscador-input {
+    font-size: 0.85rem;
+  }
+
+  .goya-buscador-resultados {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
 }

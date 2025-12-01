@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import { AuthContext } from '../../../auth/AuthContext';
+import Loading from '../../loading/Loading';
 import { 
   FiBell,
   FiAlertCircle,
@@ -195,12 +196,7 @@ const Notificaciones = () => {
   const noleidas = notificaciones.filter(n => !n.leida).length;
 
   if (loading) {
-    return (
-      <div className="notif-pro-loading">
-        <FiBell size={48} color="#1774f6" />
-        <p>Cargando notificaciones...</p>
-      </div>
-    );
+    return <Loading message="Cargando tus notificaciones..." />;
   }
 
   return (

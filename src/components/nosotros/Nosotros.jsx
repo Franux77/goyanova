@@ -132,7 +132,7 @@ const Nosotros = () => {
               <span className="hero-gradient"> Goyano</span>
             </h1>
             <p className="hero-description">
-              GoyaNova nació de la necesidad de conectar a la gente de Goya de forma directa y sin complicaciones. Un joven desarrollador con pasión por la tecnología y ganas de innovar.
+              GoyaNova nació de la necesidad de conectar a la gente de Goya de forma directa y sin complicaciones. Creado por un joven desarrollador goyano con pasión por la tecnología y ganas de innovar.
             </p>
           </div>
           <div className="hero-decoration">
@@ -167,8 +167,7 @@ const Nosotros = () => {
               </div>
               <h2>¿Por qué GoyaNova?</h2>
               <p>
-                La idea surgió pensando en algo simple: ¿querés churros? Buscás "churros" y listo. Ves si están disponibles, 
-                qué días atienden, si tienen buenas opiniones, y lo más importante: contacto directo por WhatsApp. 
+                La idea surgió pensando en algo simple: ¿querés churros? Buscás "churros" y listo, aparecen todas las opciones. Aparecerán emprendedores, negocios y todos los servicios que tengan eso en su descripción, nombres y/o categorias, ves si están disponibles, qué días atienden, sus opiniones, fotos, y lo más importante: contacto directo por WhatsApp. 
                 Sin perder tiempo con mensajes dentro de la plataforma.
               </p>
               <p>
@@ -188,8 +187,7 @@ const Nosotros = () => {
                 útil a Goya.
               </p>
               <p>
-                Mi objetivo es que cualquier persona pueda encontrar lo que necesita de forma rápida y directa, ya sean 
-                servicios o productos. Y de paso, ayudar a emprendedores locales a tener más visibilidad sin costos 
+                Mi objetivo es que cualquier persona pueda encontrar lo que necesita de forma rápida y directa, ya sea lo que necesite (es más natural, servicios/productos ya está implícito) Y de paso, ayudar a emprendedores locales a tener más visibilidad sin costos 
                 excesivos.
               </p>
             </div>
@@ -242,7 +240,7 @@ const Nosotros = () => {
               <div className="timeline-dot"></div>
               <div className="timeline-content">
                 <h3>2024 - Aprendizaje y Práctica</h3>
-                <p>Mejoré mis habilidades día a día. Creé páginas de turnos y otros proyectos pequeños para practicar y aprender nuevos lenguajes.</p>
+                <p>Mejoré mis habilidades día a día. Creé páginas de turnos y otros proyectos pequeños para practicar con nuevos lenguajes y tecnologías.</p>
               </div>
             </div>
 

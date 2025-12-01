@@ -25,12 +25,13 @@ const MembresiasAdmin = () => {
   const [modalDetalles, setModalDetalles] = useState(false);
   const [membresiaSeleccionada, setMembresiaSeleccionada] = useState(null);
 
-  // Estados para formulario
+ // Estados para formulario
   const [formCrear, setFormCrear] = useState({
     usuario_id: '',
     duracion_dias: 365,
     notas: ''
   });
+  const [busquedaUsuario, setBusquedaUsuario] = useState('');
 
 // Cargar datos
 const cargarDatos = async () => {
@@ -426,17 +427,47 @@ const membresiasFiltradas = membresias.filter(memb => {
             <form onSubmit={handleCrearMembresia}>
               <div className="form-group">
                 <label>Seleccionar Usuario</label>
+                
+                {/* Buscador de usuarios */}
+                <div className="buscador-usuario">
+                  <span className="material-icons">search</span>
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre o email..."
+                    value={busquedaUsuario}
+                    onChange={(e) => setBusquedaUsuario(e.target.value)}
+                  />
+                  {busquedaUsuario && (
+                    <button
+                      type="button"
+                      className="btn-limpiar-busqueda"
+                      onClick={() => setBusquedaUsuario('')}
+                      title="Limpiar búsqueda"
+                    >
+                      <span className="material-icons">close</span>
+                    </button>
+                  )}
+                </div>
+
                 <select
                   value={formCrear.usuario_id}
                   onChange={(e) => setFormCrear({...formCrear, usuario_id: e.target.value})}
                   required
                 >
                   <option value="">-- Selecciona un usuario --</option>
-                  {usuarios.map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.nombre} {user.apellido} ({user.email})
-                    </option>
-                  ))}
+                  {usuarios
+                    .filter(user => {
+                      if (!busquedaUsuario) return true;
+                      const searchTerm = busquedaUsuario.toLowerCase();
+                      const nombreCompleto = `${user.nombre} ${user.apellido}`.toLowerCase();
+                      const email = user.email.toLowerCase();
+                      return nombreCompleto.includes(searchTerm) || email.includes(searchTerm);
+                    })
+                    .map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.nombre} {user.apellido} ({user.email})
+                      </option>
+                    ))}
                 </select>
               </div>
 

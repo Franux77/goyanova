@@ -195,7 +195,7 @@ const Home = () => {
           </h1>
           
           <p className="goya-hero-description">
-            Plomeros, pintores, casas de comidas y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
+            Plomeros, pintores, casas de comidas, productos y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
           </p>
           
           <div className="goya-hero-benefits">

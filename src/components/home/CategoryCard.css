@@ -12,6 +12,8 @@
   justify-content: center;
   box-sizing: border-box;
   width: 100%;
+  height: 100%; /* 🔥 Ocupa todo el alto del wrapper (que se ajusta automáticamente) */
+  /* 🔥 SIN min-height fijo */
 }
 
 .category-card:hover {
@@ -23,31 +25,45 @@
   font-size: 32px;
   color: #0077ff;
   margin-bottom: 0.5rem;
+  flex-shrink: 0; /* 🔥 No se encoge */
 }
 
 .category-card p {
   font-size: 1.1rem;
   color: #333;
   margin: 0;
+  word-wrap: break-word; /* 🔥 Rompe palabras largas */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 /* Versión móvil horizontal */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .category-card {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    padding: 0.75rem;
+    padding: 1rem 0.75rem; /* 🔥 Padding vertical más uniforme */
     gap: 0.75rem;
     text-align: left;
+    min-height: 60px; /* 🔥 Altura mínima razonable en móvil */
   }
 
   .category-card .material-icons {
-    font-size: 26px;
+    font-size: 28px;
     margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .category-card p {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+}
+
+/* 🔥 Para móviles muy pequeños */
+@media (max-width: 480px) {
+  .category-card {
+    padding: 0.875rem 0.75rem;
   }
 }

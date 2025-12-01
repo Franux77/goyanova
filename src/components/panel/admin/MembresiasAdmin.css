@@ -1071,3 +1071,68 @@
     font-size: 10px;
   }
 }
+
+/* Buscador de usuarios en modal */
+.buscador-usuario {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.buscador-usuario:focus-within {
+  border-color: #1774f6;
+  box-shadow: 0 0 0 4px rgba(23, 116, 246, 0.1);
+}
+
+.buscador-usuario .material-icons:first-child {
+  color: #94a3b8;
+  font-size: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.buscador-usuario input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #1a1a2e;
+  background: transparent;
+}
+
+.buscador-usuario input::placeholder {
+  color: #94a3b8;
+}
+
+.btn-limpiar-busqueda {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.btn-limpiar-busqueda .material-icons {
+  font-size: 18px;
+}
+
+.btn-limpiar-busqueda:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: rotate(90deg);
+}

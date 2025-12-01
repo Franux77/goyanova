@@ -11,6 +11,7 @@
   overflow-x: hidden;
   padding: 1rem 0;
   animation: fadeInCategories 0.5s ease;
+  /* 🔥 SIN grid-auto-rows - deja que cada fila se ajuste automáticamente */
 }
 
 @keyframes fadeInCategories {
@@ -30,7 +31,9 @@
 .category-card-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  /* 🔥 SIN altura fija - se ajusta al contenido */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 🆕 BADGE DE SERVICIOS COINCIDENTES */
@@ -400,6 +403,11 @@
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
+  .category-list {
+    grid-template-columns: repeat(2, 1fr); /* 🔥 2 columnas fijas en móvil */
+    gap: 0.6rem;
+  }
+
   .category-loader {
     width: 60px;
     height: 60px;
@@ -483,5 +491,12 @@
   .search-results-info svg {
     width: 18px;
     height: 18px;
+  }
+}
+
+/* 🔥 Para móviles MUY pequeños (opcional: 1 columna) */
+@media (max-width: 360px) {
+  .category-list {
+    grid-template-columns: 1fr; /* 1 columna solo en pantallas muy pequeñas */
   }
 }

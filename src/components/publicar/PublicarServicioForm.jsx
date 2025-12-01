@@ -1,5 +1,5 @@
-// PublicarServicioForm.jsx
-import React, { useState, useEffect, useRef, forwardRef, useCallback, useMemo } from "react";
+// PublicarServicioForm.jsx - LIMPIO
+import React, { useState, useEffect, useRef, forwardRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../utils/supabaseClient";
 
@@ -9,7 +9,7 @@ import Paso3DetallesDisponibilidad from "./Paso3DetallesDisponibilidad";
 import Paso4ContactoOpciones from "./Paso4ContactoOpciones";
 import Paso5ResumenConfirmacion from "./Paso5ResumenConfirmacion";
 
-import { normalizarDia, actualizarDatosSeguro } from "./utils/helpers";
+import { actualizarDatosSeguro } from "./utils/helpers";
 import { validarCamposRequeridos, validarTurnos } from "./utils/validacionesServicio";
 import { cargarServicioDesdeDB, publicarServicio } from "./utils/serviciosService";
 
@@ -63,10 +63,10 @@ const PublicarServicioForm = () => {
   const [pasoActivo, setPasoActivo] = useState(0);
   const seccionesRefs = useRef([]);
   const observerRef = useRef(null);
-
-  // 🔹 NUEVO: Estados para membresía
   const [membresiaUsuario, setMembresiaUsuario] = useState(null);
   const [limiteImagenes, setLimiteImagenes] = useState(5);
+  const [cargado, setCargado] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
   // ------------------ IntersectionObserver ------------------
   useEffect(() => {
@@ -89,98 +89,98 @@ const PublicarServicioForm = () => {
     return () => observer.disconnect();
   }, [pasoActivo]);
 
-  // ------------------ Cargar servicio si existe ------------------
-  const [cargado, setCargado] = useState(false);
+  // ------------------ CARGAR SERVICIO ------------------
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     
-    let mounted = true;
-    if (id && !cargado && mounted) {
-      cargarServicioDesdeDB(id, setFormData);
-      setCargado(true);
-    }
-    return () => { mounted = false; };
-  }, [id, cargado]);
-
-  // ------------------ 🔹 OBTENER MEMBRESÍA DEL USUARIO ------------------
-useEffect(() => {
-  const obtenerMembresia = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        console.error('Error obteniendo usuario:', userError);
-        setMembresiaUsuario('Gratis');
-        setLimiteImagenes(5);
-        return;
+    const cargarServicio = async () => {
+      if (!id || cargado || cargando) return;
+      
+      setCargando(true);
+      
+      try {
+        await cargarServicioDesdeDB(id, setFormData);
+        setCargado(true);
+      } catch (error) {
+        alert(`Error al cargar el servicio: ${error.message}`);
+      } finally {
+        setCargando(false);
       }
+    };
 
-      // 🔹 Usar la vista optimizada
-      const { data: membresia, error: membresiaError } = await supabase
-        .from('vista_membresias_activas')
-        .select('tipo_membresia, limite_fotos, badge_texto')
-        .eq('usuario_id', user.id)
-        .order('fecha_fin', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    cargarServicio();
+  }, [id, cargado, cargando]);
 
-      if (membresiaError) {
-        console.error('Error obteniendo membresía:', membresiaError);
-        setMembresiaUsuario('Gratis');
-        setLimiteImagenes(5);
-        return;
-      }
-
-      if (membresia) {
-        // ✅ Usar badge_texto si existe, sino mapear tipo_membresia
-        let nombreAmigable = membresia.badge_texto || membresia.tipo_membresia;
-        
-        // 🔹 Mapeo de nombres técnicos a amigables (fallback)
-        if (!membresia.badge_texto) {
-          const mapeoNombres = {
-            'manual_admin': 'Premium VIP',
-            'codigo_gratis': 'Promoción',
-            'codigo_promocion': 'Promoción',
-            'premium_pago': 'Premium Pago',
-            'gratis': 'Gratis'
-          };
-          nombreAmigable = mapeoNombres[membresia.tipo_membresia] || membresia.tipo_membresia;
+  // ------------------ OBTENER MEMBRESÍA ------------------
+  useEffect(() => {
+    const obtenerMembresia = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          setMembresiaUsuario('Gratis');
+          setLimiteImagenes(5);
+          return;
         }
 
-        setMembresiaUsuario(nombreAmigable);
-        setLimiteImagenes(membresia.limite_fotos || 5);
-        console.log('✅ Membresía activa:', nombreAmigable, '| Límite:', membresia.limite_fotos);
-      } else {
+        const { data: membresia, error: membresiaError } = await supabase
+          .from('vista_membresias_activas')
+          .select('tipo_membresia, limite_fotos, badge_texto')
+          .eq('usuario_id', user.id)
+          .order('fecha_fin', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (membresiaError) {
+          setMembresiaUsuario('Gratis');
+          setLimiteImagenes(5);
+          return;
+        }
+
+        if (membresia) {
+          let nombreAmigable = membresia.badge_texto || membresia.tipo_membresia;
+          
+          if (!membresia.badge_texto) {
+            const mapeoNombres = {
+              'manual_admin': 'Premium VIP',
+              'codigo_gratis': 'Promoción',
+              'codigo_promocion': 'Promoción',
+              'premium_pago': 'Premium Pago',
+              'gratis': 'Gratis'
+            };
+            nombreAmigable = mapeoNombres[membresia.tipo_membresia] || membresia.tipo_membresia;
+          }
+
+          setMembresiaUsuario(nombreAmigable);
+          setLimiteImagenes(membresia.limite_fotos || 5);
+        } else {
+          setMembresiaUsuario('Gratis');
+          setLimiteImagenes(5);
+        }
+      } catch (err) {
         setMembresiaUsuario('Gratis');
         setLimiteImagenes(5);
-        console.log('ℹ️ Sin membresía activa → Plan Gratis (límite: 5)');
       }
-    } catch (err) {
-      console.error('Error:', err);
-      setMembresiaUsuario('Gratis');
-      setLimiteImagenes(5);
-    }
-  };
+    };
 
-  obtenerMembresia();
-}, []);
+    obtenerMembresia();
+  }, []);
 
-  const irAlSiguientePaso = () => {
-    if (pasoActivo < pasos.length - 1) {
-      const siguiente = pasoActivo + 1;
-      setPasoActivo(siguiente);
-      seccionesRefs.current[siguiente]?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
+  // ------------------ useMemo ------------------
   const propsPaso = useMemo(() => ({
     formData,
     setFormData: setFormDataSeguro,
     errores,
     setErrores,
-    irAlSiguientePaso,
-    limiteImagenes,       // 🔹 NUEVO
-    membresiaUsuario      // 🔹 NUEVO
-  }), [formData, setFormDataSeguro, errores, limiteImagenes, membresiaUsuario]);
+    irAlSiguientePaso: () => {
+      if (pasoActivo < pasos.length - 1) {
+        const siguiente = pasoActivo + 1;
+        setPasoActivo(siguiente);
+        seccionesRefs.current[siguiente]?.scrollIntoView({ behavior: "smooth" });
+      }
+    },
+    limiteImagenes,
+    membresiaUsuario
+  }), [formData, setFormDataSeguro, errores, limiteImagenes, membresiaUsuario, pasoActivo]);
 
   const handlePublicar = async () => {
     const { esValido, nuevosErrores } = validarCamposRequeridos(formData, setErrores);
@@ -217,6 +217,24 @@ useEffect(() => {
 
     await publicarServicio(formData, id, navigate, setErrorModal, setPublicando);
   };
+
+  if (cargando) {
+    return (
+      <div className="psf-container">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <div className="spinner"></div>
+          <p>Cargando servicio...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="psf-container">

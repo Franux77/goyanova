@@ -4,7 +4,7 @@ import { useAuth } from './auth/useAuth';
 import { useMantenimiento } from './hooks/useMantenimiento';
 import ModalMantenimiento from './components/ModalMantenimiento';
 
-// ✅ Componentes normales
+// ✅ Componentes normales (siempre cargados)
 import Navbar from './components/home/Navbar';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
 import Home from './components/home/Home';
@@ -18,7 +18,10 @@ import Login from './auth/login/login';
 import Register from './auth/login/Register';
 import ResetPassword from './auth/login/ResetPassword';
 
-// 🔥 LAZY LOADING
+// ✅ DashboardAdmin SIN lazy loading (carga inmediata)
+import DashboardAdmin from './components/panel/admin/DashboardAdmin';
+
+// 🔥 LAZY LOADING (solo se cargan cuando se necesitan)
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
@@ -41,9 +44,8 @@ const Notificaciones = lazy(() => import('./components/panel/usuario/Notificacio
 const AyudaSoporte = lazy(() => import('./components/panel/usuario/AyudaSoporte'));
 const MiMembresia = lazy(() => import('./components/panel/usuario/MiMembresia'));
 
-// Panel Admin
+// Panel Admin (otros componentes siguen con lazy)
 const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
-const DashboardAdmin = lazy(() => import('./components/panel/admin/DashboardAdmin'));
 const UsuariosAdmin = lazy(() => import('./components/panel/admin/UsuariosAdmin'));
 const ServiciosAdmin = lazy(() => import('./components/panel/admin/ServiciosAdmin'));
 const ComentariosAdmin = lazy(() => import('./components/panel/admin/ComentariosAdmin'));
@@ -63,7 +65,9 @@ const RouteLoadingIndicator = ({ children }) => {
 
   useEffect(() => {
     setIsTransitioning(true);
-    const timer = setTimeout(() => setIsTransitioning(false), 100);
+    
+    // ✅ Muestra la barra inmediatamente al cambiar de ruta
+    const timer = setTimeout(() => setIsTransitioning(false), 300);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
@@ -75,10 +79,11 @@ const RouteLoadingIndicator = ({ children }) => {
           top: 0,
           left: 0,
           right: 0,
-          height: '3px',
+          height: '4px',
           background: 'linear-gradient(90deg, #1774f6, #00d4ff)',
           zIndex: 99999,
-          animation: 'loadingBar 1s ease-in-out infinite'
+          boxShadow: '0 0 10px rgba(23, 116, 246, 0.5)',
+          animation: 'loadingBar 0.8s ease-in-out infinite'
         }} />
       )}
       {children}
@@ -91,29 +96,22 @@ const AppContent = () => {
   const { user, perfil, loading: authLoading } = useAuth();
   const { config, loading: mantenimientoLoading, enMantenimiento, puedeAcceder } = useMantenimiento(user?.id);
   
-  // 🆕 Estado local para controlar el loading inicial
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   
   const isHome = location.pathname === '/';
   const isCategoria = location.pathname.startsWith('/categoria');
-  const isAdmin = perfil?.estado === 'admin';
+  const isAdmin = perfil?.rol === 'admin';
   
   const mostrarFooter = location.pathname === '/';
   const rutasExceptuadas = ['/login', '/register', '/reset-password'];
   const esRutaExceptuada = rutasExceptuadas.some(ruta => location.pathname.startsWith(ruta));
 
-  // 🆕 Control del loading inicial
   useEffect(() => {
-    console.log('🔍 [APP] Loading states:', { authLoading, mantenimientoLoading, initialLoadComplete });
-    
-    // Solo mostrar loading en la carga inicial, no en verificaciones posteriores
     if (!authLoading && !mantenimientoLoading && !initialLoadComplete) {
-      console.log('✅ [APP] Carga inicial completada');
       setInitialLoadComplete(true);
     }
   }, [authLoading, mantenimientoLoading, initialLoadComplete]);
 
-  // 🆕 Solo mostrar loading en carga inicial y en rutas no exceptuadas
   const mostrarLoadingGlobal = !initialLoadComplete && 
                                 (authLoading || mantenimientoLoading) && 
                                 !esRutaExceptuada;
@@ -124,21 +122,11 @@ const AppContent = () => {
                                 !isAdmin && 
                                 !puedeAcceder;
 
-  console.log('🎯 [APP] Render decision:', { 
-    mostrarLoadingGlobal, 
-    mostrarMantenimiento, 
-    initialLoadComplete,
-    authLoading,
-    mantenimientoLoading
-  });
-
   if (mostrarLoadingGlobal) {
-    console.log('⏳ [APP] Mostrando loading global');
     return <Loading message="Cargando GoyaNova..." fullScreen={true} />;
   }
 
   if (mostrarMantenimiento) {
-    console.log('🔧 [APP] Mostrando modal de mantenimiento');
     return <ModalMantenimiento config={config} />;
   }
 
@@ -256,6 +244,8 @@ const AppContent = () => {
                 <Route path="tutoriales" element={<GestionTutoriales />} />
                 <Route path="mensajes-soporte" element={<GestionMensajesSoporte />} />
                 <Route path="configuracion" element={<ConfiguracionAdmin />} />
+                <Route path="publicar" element={<PublicarServicioForm />} />
+                <Route path="publicar/:id" element={<PublicarServicioForm />} />
               </Route>
 
               <Route path="/no-autorizado" element={<h2>No autorizado</h2>} />
@@ -282,6 +272,9 @@ const AppContent = () => {
         @keyframes loadingBar {
           0% {
             transform: translateX(-100%);
+          }
+          50% {
+            transform: translateX(0%);
           }
           100% {
             transform: translateX(100%);

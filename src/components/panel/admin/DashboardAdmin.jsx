@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
+import Loading from '../../loading/Loading';
 import { 
   FiBriefcase, 
   FiStar, 
@@ -15,12 +16,12 @@ import './DashboardAdmin.css';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
-  totalServicios: 0,
-  serviciosActivos: 0,
-  totalOpiniones: 0,
-  promedioRating: 0,
-  totalUsuarios: 0
-});
+    totalServicios: 0,
+    serviciosActivos: 0,
+    totalOpiniones: 0,
+    promedioRating: 0,
+    totalUsuarios: 0
+  });
 
   const [notificaciones, setNotificaciones] = useState([]);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
@@ -31,57 +32,57 @@ const Dashboard = () => {
   }, []);
 
   const cargarDatos = async () => {
-  setLoading(true);
-  try {
-    // Obtener usuario actual
-    const { data: { user } } = await supabase.auth.getUser();
+    setLoading(true);
+    try {
+      // Obtener usuario actual
+      const { data: { user } } = await supabase.auth.getUser();
 
-    // 📊 Total servicios en toda la plataforma
-    const { data: servicios } = await supabase
-      .from('servicios')
-      .select('id, estado');
+      // 📊 Total servicios en toda la plataforma
+      const { data: servicios } = await supabase
+        .from('servicios')
+        .select('id, estado');
 
-    const serviciosActivos = servicios?.filter(s => s.estado === 'activo').length || 0;
+      const serviciosActivos = servicios?.filter(s => s.estado === 'activo').length || 0;
 
-    // ⭐ Total opiniones en toda la plataforma
-    const { data: opiniones } = await supabase
-      .from('opiniones')
-      .select('puntuacion');
+      // ⭐ Total opiniones en toda la plataforma
+      const { data: opiniones } = await supabase
+        .from('opiniones')
+        .select('puntuacion');
 
-    const totalOpiniones = opiniones?.length || 0;
-    const sumaRatings = opiniones?.reduce((sum, op) => sum + (op.puntuacion || 0), 0) || 0;
+      const totalOpiniones = opiniones?.length || 0;
+      const sumaRatings = opiniones?.reduce((sum, op) => sum + (op.puntuacion || 0), 0) || 0;
 
-    // 👤 Total usuarios
-    const { data: usuarios } = await supabase
-      .from('perfiles_usuarios')
-      .select('id');
+      // 👤 Total usuarios
+      const { data: usuarios } = await supabase
+        .from('perfiles_usuarios')
+        .select('id');
 
-    // 🔔 Cargar notificaciones del admin
-    const { data: notifs } = await supabase
-      .from('notificaciones')
-      .select('*')
-      .eq('usuario_id', user.id)
-      .order('creada_en', { ascending: false });
+      // 🔔 Cargar notificaciones del admin
+      const { data: notifs } = await supabase
+        .from('notificaciones')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('creada_en', { ascending: false });
 
-    const notificacionesNoLeidas = notifs?.filter(n => !n.leida).length || 0;
+      const notificacionesNoLeidas = notifs?.filter(n => !n.leida).length || 0;
 
-    setStats({
-      totalServicios: servicios?.length || 0,
-      serviciosActivos,
-      totalOpiniones,
-      promedioRating: totalOpiniones > 0 ? (sumaRatings / totalOpiniones).toFixed(1) : 0,
-      totalUsuarios: usuarios?.length || 0,
-      notificacionesNoLeidas
-    });
+      setStats({
+        totalServicios: servicios?.length || 0,
+        serviciosActivos,
+        totalOpiniones,
+        promedioRating: totalOpiniones > 0 ? (sumaRatings / totalOpiniones).toFixed(1) : 0,
+        totalUsuarios: usuarios?.length || 0,
+        notificacionesNoLeidas
+      });
 
-    setNotificaciones(notifs || []);
+      setNotificaciones(notifs || []);
 
-  } catch (err) {
-    console.error('Error al cargar dashboard admin:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      console.error('Error al cargar dashboard admin:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const marcarComoLeida = async (notifId) => {
     try {
@@ -196,7 +197,7 @@ const Dashboard = () => {
     : notificaciones.slice(0, 5);
 
   if (loading) {
-    return <div className="dashboard-loading">Cargando...</div>;
+    return <Loading message="Cargando panel de administración..." />;
   }
 
   return (
@@ -209,38 +210,37 @@ const Dashboard = () => {
       {/* 📊 ESTADÍSTICAS */}
       <div className="stats-grid">
         <div className="stat-cardd">
-  <div className="stat-icon briefcase">
-    <FiBriefcase size={24} />
-  </div>
-  <div className="stat-content">
-    <h3>{stats.totalServicios}</h3>
-    <p>Servicios Totales</p>
-    <span className="stat-detail">{stats.serviciosActivos} activos</span>
-  </div>
-</div>
+          <div className="stat-icon briefcase">
+            <FiBriefcase size={24} />
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalServicios}</h3>
+            <p>Servicios Totales</p>
+            <span className="stat-detail">{stats.serviciosActivos} activos</span>
+          </div>
+        </div>
 
-<div className="stat-cardd">
-  <div className="stat-icon star">
-    <FiStar size={24} />
-  </div>
-  <div className="stat-content">
-    <h3>{stats.promedioRating}</h3>
-    <p>Calificación Promedio</p>
-    <span className="stat-detail">De {stats.totalOpiniones} opiniones</span>
-  </div>
-</div>
+        <div className="stat-cardd">
+          <div className="stat-icon star">
+            <FiStar size={24} />
+          </div>
+          <div className="stat-content">
+            <h3>{stats.promedioRating}</h3>
+            <p>Calificación Promedio</p>
+            <span className="stat-detail">De {stats.totalOpiniones} opiniones</span>
+          </div>
+        </div>
 
-<div className="stat-cardd">
-  <div className="stat-icon message">
-    <FiMessageSquare size={24} />
-  </div>
-  <div className="stat-content">
-    <h3>{stats.totalUsuarios}</h3>
-    <p>Usuarios Registrados</p>
-    <span className="stat-detail">En toda la plataforma</span>
-  </div>
-</div>
-
+        <div className="stat-cardd">
+          <div className="stat-icon message">
+            <FiMessageSquare size={24} />
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalUsuarios}</h3>
+            <p>Usuarios Registrados</p>
+            <span className="stat-detail">En toda la plataforma</span>
+          </div>
+        </div>
 
         <div className="stat-cardd">
           <div className="stat-icon bell">
