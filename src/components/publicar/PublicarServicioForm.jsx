@@ -8,6 +8,7 @@ import Paso2ImagenesUbicacion from "./Paso2ImagenesUbicacion";
 import Paso3DetallesDisponibilidad from "./Paso3DetallesDisponibilidad";
 import Paso4ContactoOpciones from "./Paso4ContactoOpciones";
 import Paso5ResumenConfirmacion from "./Paso5ResumenConfirmacion";
+import Loading from '../loading/Loading';
 
 import { actualizarDatosSeguro } from "./utils/helpers";
 import { validarCamposRequeridos, validarTurnos } from "./utils/validacionesServicio";
@@ -218,23 +219,10 @@ const PublicarServicioForm = () => {
     await publicarServicio(formData, id, navigate, setErrorModal, setPublicando);
   };
 
-  if (cargando) {
-    return (
-      <div className="psf-container">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh',
-          flexDirection: 'column',
-          gap: '1rem'
-        }}>
-          <div className="spinner"></div>
-          <p>Cargando servicio...</p>
-        </div>
-      </div>
-    );
-  }
+  // ✅ CÓDIGO NUEVO:
+if (cargando) {
+  return <Loading message="Cargando servicio..." fullScreen={true} />;
+}
 
   return (
     <div className="psf-container">
@@ -276,12 +264,12 @@ const PublicarServicioForm = () => {
         </div>
       </main>
 
-      {publicando && (
-        <div className="overlay-publicando">
-          <div className="spinner"></div>
-          <p>Publicando tu servicio...</p>
-        </div>
-      )}
+{publicando && (
+  <Loading 
+    message={id ? "Actualizando servicio..." : "Publicando servicio..."} 
+    fullScreen={true} 
+  />
+)}
 
       {errorModal && (
         <div className="modal-errorr show">

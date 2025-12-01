@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (err) {
-      console.warn('⚠️ Error cargando perfil (timeout?):', err.message);
+      // console.warn('⚠️ Error cargando perfil (timeout?):', err.message);
       if (isMounted.current) {
         setPerfil(null);
         perfilCargadoRef.current = false;
@@ -168,7 +168,7 @@ export const AuthProvider = ({ children }) => {
       return nuevoPerfil;
 
     } catch (err) {
-      console.warn('⚠️ Error creando perfil Google:', err.message);
+      // console.warn('⚠️ Error creando perfil Google:', err.message);
       return null;
     }
   }, []);
@@ -305,7 +305,7 @@ export const AuthProvider = ({ children }) => {
       );
       
       if (error) {
-        console.warn('⚠️ Error refresh session:', error.message);
+        // console.warn('⚠️ Error refresh session:', error.message);
         // 🆕 NO cerrar sesión por timeout - mantener sesión actual
         if (error.message !== 'Timeout') {
           await signOut();
@@ -321,7 +321,7 @@ export const AuthProvider = ({ children }) => {
       await signOut();
       return false;
     } catch (err) {
-      console.warn('⚠️ Timeout en refresh session, manteniendo sesión actual');
+      // console.warn('⚠️ Timeout en refresh session, manteniendo sesión actual');
       // 🆕 NO cerrar sesión por timeout
       return false;
     } finally {
@@ -333,7 +333,7 @@ export const AuthProvider = ({ children }) => {
     // 🆕 Cooldown para evitar verificaciones excesivas
     const ahora = Date.now();
     if (ahora - lastCheckRef.current < CHECK_COOLDOWN) {
-      console.log('⏸️ Verificación en cooldown, saltando...');
+      // console.log('⏸️ Verificación en cooldown, saltando...');
       return true; // Asumir que la sesión está bien
     }
     
@@ -347,7 +347,7 @@ export const AuthProvider = ({ children }) => {
       );
       
       if (error) {
-        console.warn('⚠️ Error verificando sesión:', error.message);
+        // console.warn('⚠️ Error verificando sesión:', error.message);
         // 🆕 NO cerrar sesión por timeout
         if (error.message !== 'Timeout') {
           await signOut();

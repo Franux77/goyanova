@@ -67,6 +67,7 @@ const Register = () => {
     try {
       setCargando(true);
 
+      // 🔹 PASO 1: Crear usuario en Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
@@ -87,29 +88,16 @@ const Register = () => {
       const userId = authData.user.id;
       const needsConfirmation = authData.user.identities?.length === 0;
 
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const { data: perfilCreado } = await supabase
-        .from('perfiles_usuarios')
-        .select('id')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      if (!perfilCreado) {
-        await supabase
-          .from('perfiles_usuarios')
-          .insert([{
-            id: userId,
-            email: email.trim().toLowerCase(),
-            nombre: nombre.trim(),
-            apellido: apellido.trim(),
-            telefono: telefono.trim(),
-            edad: edad ? Number(edad) : null,
-            estado: 'activo',
-            rol: 'usuario'
-          }]);
-      }
+      console.log('✅ Usuario creado en Auth:', userId);
+      console.log('📧 Requiere confirmación:', needsConfirmation);
 
+      // 🔹 PASO 2: Esperar a que el trigger cree el perfil automáticamente
+      // El trigger debería crear el perfil instantáneamente, pero esperamos un poco por si acaso
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      console.log('✅ Perfil creado automáticamente por trigger');
+
+      // 🔹 PASO 3: Guardar datos para modal promocional
       if (needsConfirmation) {
         const promoData = {
           email: email.trim().toLowerCase(),
@@ -121,6 +109,7 @@ const Register = () => {
         sessionStorage.setItem('mostrar_modal_promo', 'true');
       }
 
+      // 🔹 PASO 4: Mostrar mensaje de éxito
       let mensaje = '🎉 ¡Cuenta creada con éxito!';
       
       if (needsConfirmation) {
@@ -146,6 +135,8 @@ const Register = () => {
         setError('Email inválido. Verificá el formato.');
       } else if (err.message?.includes('Password') || err.message?.includes('password')) {
         setError('La contraseña debe tener al menos 8 caracteres con mayúscula, minúscula y número.');
+      } else if (err.message?.includes('Email rate limit exceeded')) {
+        setError('Demasiados intentos. Esperá unos minutos antes de intentar de nuevo.');
       } else {
         setError(err.message || 'Ocurrió un error. Intentá de nuevo.');
       }

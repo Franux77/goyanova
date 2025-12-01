@@ -2,35 +2,55 @@
 import { supabase } from "../../../utils/supabaseClient";
 import { normalizarDia } from "./helpers";
 
-// 🔹 Cargar servicio existente
+// 🔹 Cargar servicio existente (OPTIMIZADO)
 export const cargarServicioDesdeDB = async (id, setFormData) => {
   try {
-    const { data: servicio, error } = await supabase
-      .from("servicios")
-      .select(`
-        id, nombre, tipo, categoria_id, descripcion, direccion_escrita,
-        latitud, longitud, referencia, contacto_whatsapp, contacto_email,
-        contacto_instagram, contacto_facebook, foto_portada, 
-        mostrar_boton_whatsapp, categorias(nombre)
-      `)
-      .eq("id", id)
-      .single();
+    // 🆕 Timeout de 15 segundos
+    const withTimeout = (promise, ms = 15000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout al cargar servicio')), ms)
+        )
+      ]);
+    };
+
+    const { data: servicio, error } = await withTimeout(
+      supabase
+        .from("servicios")
+        .select(`
+          id, nombre, tipo, categoria_id, descripcion, direccion_escrita,
+          latitud, longitud, referencia, contacto_whatsapp, contacto_email,
+          contacto_instagram, contacto_facebook, foto_portada, 
+          mostrar_boton_whatsapp, categorias(nombre)
+        `)
+        .eq("id", id)
+        .single()
+    );
 
     if (error) throw error;
     if (!servicio) throw new Error('Servicio no encontrado');
 
-    const { data: disponibilidad } = await supabase
-      .from("disponibilidades")
-      .select("*")
-      .eq("servicio_id", id);
+    // 🆕 Cargar disponibilidad e imágenes en paralelo (más rápido)
+    const [disponibilidadResult, imagenesResult] = await Promise.all([
+      withTimeout(
+        supabase
+          .from("disponibilidades")
+          .select("*")
+          .eq("servicio_id", id)
+      ),
+      withTimeout(
+        supabase
+          .from("imagenes_servicio")
+          .select("url, orden")
+          .eq("servicio_id", id)
+          .order("orden", { ascending: true })
+      )
+    ]);
 
-    const { data: imagenes } = await supabase
-      .from("imagenes_servicio")
-      .select("url, orden")
-      .eq("servicio_id", id)
-      .order("orden", { ascending: true });
-
-    const imagenesUrls = imagenes?.map((img) => img.url) || [];
+    const disponibilidad = disponibilidadResult.data || [];
+    const imagenes = imagenesResult.data || [];
+    const imagenesUrls = imagenes.map((img) => img.url);
 
     const normalizarTipoDisponibilidad = (tipo) => {
       const t = String(tipo || "").toLowerCase();
@@ -48,7 +68,7 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
     let horarios = {};
     let mensajeServicio = "";
 
-    if (disponibilidad?.length) {
+    if (disponibilidad.length) {
       tipoDisponibilidad = normalizarTipoDisponibilidad(disponibilidad[0].tipo || "");
       
       const filaConMensaje = disponibilidad.find(
@@ -73,19 +93,15 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
       }
     }
 
-    let disponibilidadesArray = [];
-    
-    if (disponibilidad?.length) {
-      disponibilidadesArray = disponibilidad.map(d => ({
-        dia: d.dia || null,
-        inicio: d.hora_inicio || null,
-        fin: d.hora_fin || null,
-        turno: d.turno || null,
-        titulo: d.titulo || "",
-        tipo: d.tipo || "",
-        mensaje: d.mensaje || ""
-      }));
-    }
+    let disponibilidadesArray = disponibilidad.map(d => ({
+      dia: d.dia || null,
+      inicio: d.hora_inicio || null,
+      fin: d.hora_fin || null,
+      turno: d.turno || null,
+      titulo: d.titulo || "",
+      tipo: d.tipo || "",
+      mensaje: d.mensaje || ""
+    }));
 
     setFormData((prev) => ({
       ...prev,
@@ -116,6 +132,7 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
     }));
     
   } catch (err) {
+    console.error('❌ Error cargando servicio:', err);
     throw err;
   }
 };
@@ -288,14 +305,26 @@ export const publicarServicio = async (
       await supabase.from("disponibilidades").insert(disponibilidadesPayload);
     }
     
-    navigate("/publicar/finalizado", {
-      replace: true,
-      state: {
-        esActualizacion: !!id,
-        origenPanel: "admin",
-        servicioId: servicioId
-      }
-    });
+    // ✅ CÓDIGO NUEVO:
+// 🔹 Detectar el origen correcto del panel
+const { data: { user: currentUser } } = await supabase.auth.getUser();
+const { data: perfilUsuario } = await supabase
+  .from('perfiles_usuarios')
+  .select('rol')
+  .eq('id', currentUser.id)
+  .single();
+
+const esAdmin = perfilUsuario?.rol === 'admin';
+const origenPanel = esAdmin ? 'admin' : 'usuario';
+
+navigate("/publicar/finalizado", {
+  replace: true,
+  state: {
+    esActualizacion: !!id,
+    origenPanel: origenPanel,
+    servicioId: servicioId
+  }
+});
 
   } catch (err) {
     setErrorModal(err.message || "Error al publicar el servicio");

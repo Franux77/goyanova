@@ -12,6 +12,9 @@ const Paso2ImagenesUbicacion = ({
   const [subiendo, setSubiendo] = useState(false);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
 
+  // ✅ Calcular si se alcanzó el límite
+  const maximoAlcanzado = (formData.imagenesPreview?.length || 0) >= limiteImagenes;
+
   // -----------------------------
   // 📌 AGREGAR IMAGENES EN MEMORIA
   // -----------------------------
@@ -19,7 +22,7 @@ const Paso2ImagenesUbicacion = ({
     const archivos = Array.from(e.target.files);
     if (!archivos.length) return;
 
- const disponibles = limiteImagenes - (formData.imagenesFiles?.length || 0);
+    const disponibles = limiteImagenes - (formData.imagenesFiles?.length || 0);
     const seleccionados = archivos.slice(0, disponibles);
 
     setSubiendo(true);
@@ -59,7 +62,7 @@ const Paso2ImagenesUbicacion = ({
       ...formData,
       portadaFile: archivo,
       portadaPreview: URL.createObjectURL(archivo),
-      portadaAEliminar: null, // se resetea porque hay nueva portada
+      portadaAEliminar: null,
     });
 
     setSubiendoPortada(false);
@@ -68,21 +71,19 @@ const Paso2ImagenesUbicacion = ({
   // -----------------------------
   // 📌 ELIMINAR PORTADA
   // -----------------------------
- // handler para eliminar portada
-const handleEliminarPortada = () => {
-  if (formData.portadaPreview || formData.portadaDB) {
-    console.log("🗑 Marcando portada para eliminar:", formData.portadaPreview || formData.portadaDB);
+  const handleEliminarPortada = () => {
+    if (formData.portadaPreview || formData.portadaDB) {
+      console.log("🗑 Marcando portada para eliminar:", formData.portadaPreview || formData.portadaDB);
 
-    setFormData({
-      ...formData,
-      portadaAEliminar: formData.portadaDB || formData.portadaPreview,
-      portadaPreview: null,
-      portadaFile: null,
-      portadaDB: null,
-    });
-  }
-};
-
+      setFormData({
+        ...formData,
+        portadaAEliminar: formData.portadaDB || formData.portadaPreview,
+        portadaPreview: null,
+        portadaFile: null,
+        portadaDB: null,
+      });
+    }
+  };
 
   // -----------------------------
   // 📌 ELIMINAR IMAGEN NORMAL
@@ -112,7 +113,6 @@ const handleEliminarPortada = () => {
     });
   };
 
- const maximoAlcanzado = (formData.imagenesPreview?.length || 0) >= limiteImagenes;
   const imagenesListadas = useMemo(() => formData.imagenesPreview || [], [formData.imagenesPreview]);
 
   return (
@@ -143,72 +143,77 @@ const handleEliminarPortada = () => {
         />
 
         {(formData.portadaPreview || formData.portadaDB) && (
-  <div className="paso2-imagen-wrapper">
-    <img
-      src={formData.portadaPreview || formData.portadaDB}
-      alt="Portada subida"
-      className="paso2-imagen"
-    />
-    <button
-      type="button"
-      className="paso2-btn-eliminar"
-      onClick={handleEliminarPortada}
-    >
-      ×
-    </button>
-  </div>
-)}
-
+          <div className="paso2-imagen-wrapper">
+            <img
+              src={formData.portadaPreview || formData.portadaDB}
+              alt="Portada subida"
+              className="paso2-imagen"
+            />
+            <button
+              type="button"
+              className="paso2-btn-eliminar"
+              onClick={handleEliminarPortada}
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 📌 Subida imágenes normales */}
       <h3 className='h33'>Imágenes de tus trabajos</h3>
       <div className="paso2-adicionales-info">
         <div className="paso2-limite-info">
-  <p className="paso2-descripcion">
-    Podés subir hasta <strong>{limiteImagenes}</strong> imágenes adicionales para mostrar tus trabajos y generar más confianza.
-  </p>
-  <div className="paso2-contador-imagenes">
-    <span className={`paso2-contador ${(formData.imagenesPreview?.length || 0) >= limiteImagenes ? 'limite-alcanzado' : ''}`}>
-      {formData.imagenesPreview?.length || 0} / {limiteImagenes} imágenes
-    </span>
-    {membresiaUsuario && (
-      <span className="paso2-plan-badge">{membresiaUsuario}</span>
-    )}
-  </div>
-  {(formData.imagenesPreview?.length || 0) >= limiteImagenes && (
-    <p className="paso2-limite-alcanzado-msg">
-      ⚠️ Has alcanzado el límite de tu plan. 
-      {membresiaUsuario === 'Gratis' && (
-        <button 
-          type="button" 
-          className="btn-mejorar-plan"
-          onClick={() => window.open('/membresias', '_blank')}
-        >
-          Mejorar plan →
-        </button>
-      )}
-    </p>
-  )}
-</div>
-      </div>
-      <label
-        htmlFor="input-agregar-imagen"
-        className={`paso2-agregar-imagen ${maximoAlcanzado || subiendo ? 'deshabilitado' : ''}`}
-      >
-        <div className="paso2-icono-plus">+</div>
-        <div className="paso2-texto-agregar">
-          {subiendo ? 'Cargando...' : 'Agregar imágenes de trabajos'}
+          <p className="paso2-descripcion">
+            Podés subir hasta <strong>{limiteImagenes}</strong> imágenes adicionales para mostrar tus trabajos y generar más confianza.
+          </p>
+          <div className="paso2-contador-imagenes">
+            <span className={`paso2-contador ${maximoAlcanzado ? 'limite-alcanzado' : ''}`}>
+              {formData.imagenesPreview?.length || 0} / {limiteImagenes} imágenes
+            </span>
+            {membresiaUsuario && (
+              <span className="paso2-plan-badge">{membresiaUsuario}</span>
+            )}
+          </div>
+          {maximoAlcanzado && (
+            <p className="paso2-limite-alcanzado-msg">
+              ⚠️ Has alcanzado el límite de tu plan. 
+              {membresiaUsuario === 'Gratis' && (
+                <button 
+                  type="button" 
+                  className="btn-mejorar-plan"
+                  onClick={() => window.location.href = '/panel/mi-membresia'}
+                >
+                  Mejorar plan →
+                </button>
+              )}
+            </p>
+          )}
         </div>
-      </label>
-      <input
-        type="file"
-        id="input-agregar-imagen"
-        accept="image/*"
-        multiple
-        onChange={handleAgregarImagenes}
-        style={{ display: 'none' }}
-      />
+      </div>
+
+      {/* ✅ BOTÓN SE OCULTA CUANDO SE ALCANZA EL LÍMITE */}
+      {!maximoAlcanzado && (
+        <>
+          <label
+            htmlFor="input-agregar-imagen"
+            className={`paso2-agregar-imagen ${subiendo ? 'deshabilitado' : ''}`}
+          >
+            <div className="paso2-icono-plus">+</div>
+            <div className="paso2-texto-agregar">
+              {subiendo ? 'Cargando...' : 'Agregar imágenes de trabajos'}
+            </div>
+          </label>
+          <input
+            type="file"
+            id="input-agregar-imagen"
+            accept="image/*"
+            multiple
+            onChange={handleAgregarImagenes}
+            style={{ display: 'none' }}
+          />
+        </>
+      )}
 
       {errores.imagenesUrls && <p className="paso2-error">{errores.imagenesUrls}</p>}
 

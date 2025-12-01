@@ -1,24 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
-import './Configuracion.css';
+import { AuthContext } from '../../../auth/AuthContext';
+import { supabase } from '../../../utils/supabaseClient';
 
-// Simulación del contexto (en tu app real ya lo tienes)
-const AuthContext = React.createContext({ user: { id: '123', email: 'usuario@ejemplo.com' } });
+import './configuracion.css';
 
 const Configuracion = () => {
-  const { user } = useContext(AuthContext);
-  const [perfil, setPerfil] = useState({
-    nombre: 'Juan',
-    apellido: 'Pérez',
-    email: 'juan@ejemplo.com',
-    telefono: '3794123456',
-    estado: 'user'
-  });
+  const { user, perfil, signOut, cargarPerfil } = useContext(AuthContext);
   
   const [form, setForm] = useState({
-    nombre: 'Juan',
-    apellido: 'Pérez',
-    email: 'juan@ejemplo.com',
-    telefono: '3794123456',
+    nombre: '',
+    apellido: '',
+    email: '',
+    telefono: '',
     nuevaPass: '',
     confirmarPass: '',
   });
@@ -26,45 +19,235 @@ const Configuracion = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // ============================================
+  // 🔹 CARGAR DATOS DEL PERFIL AL MONTAR
+  // ============================================
+  useEffect(() => {
+    if (perfil) {
+      setForm({
+        nombre: perfil.nombre || '',
+        apellido: perfil.apellido || '',
+        email: perfil.email || user?.email || '',
+        telefono: perfil.telefono || '',
+        nuevaPass: '',
+        confirmarPass: '',
+      });
+    } else if (user) {
+      setForm(prev => ({
+        ...prev,
+        email: user.email || ''
+      }));
+    }
+  }, [perfil, user]);
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (mensaje.texto) setMensaje({ tipo: '', texto: '' });
+  };
+
+  const mostrarMensaje = (tipo, texto, duracion = 5000) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje({ tipo: '', texto: '' }), duracion);
+  };
+
+  // ============================================
+  // 💾 GUARDAR DATOS PERSONALES
+  // ============================================
   const handleGuardarDatos = async () => {
+    if (!user?.id) {
+      mostrarMensaje('error', 'No hay sesión activa');
+      return;
+    }
+
     const nombreLimpio = form.nombre.trim();
     if (!nombreLimpio || nombreLimpio.length < 2) {
-      alert('❌ El nombre debe tener al menos 2 caracteres.');
+      mostrarMensaje('error', 'El nombre debe tener al menos 2 caracteres');
       return;
     }
-    alert('✅ Datos guardados (demo)');
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('perfiles_usuarios')
+        .update({
+          nombre: nombreLimpio,
+          apellido: form.apellido.trim(),
+          telefono: form.telefono.trim(),
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Recargar el perfil en el contexto
+      await cargarPerfil(user.id);
+
+      mostrarMensaje('success', '✅ Datos guardados correctamente');
+    } catch (error) {
+      // console.error('Error guardando datos:', error);
+      mostrarMensaje('error', '❌ Error al guardar los datos: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ============================================
+  // 🔐 CAMBIAR CONTRASEÑA
+  // ============================================
   const handleCambiarPassword = async () => {
     if (!form.nuevaPass || !form.confirmarPass) {
-      alert('Completá todos los campos de contraseña');
+      mostrarMensaje('error', 'Completá todos los campos de contraseña');
       return;
     }
+
     if (form.nuevaPass !== form.confirmarPass) {
-      alert('Las contraseñas no coinciden');
+      mostrarMensaje('error', 'Las contraseñas no coinciden');
       return;
     }
-    alert('✅ Contraseña cambiada (demo)');
+
+    // Validación de seguridad
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!regex.test(form.nuevaPass)) {
+      mostrarMensaje('error', 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un símbolo especial');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: form.nuevaPass
+      });
+
+      if (error) throw error;
+
+      setForm(prev => ({ ...prev, nuevaPass: '', confirmarPass: '' }));
+      mostrarMensaje('success', '✅ Contraseña actualizada correctamente');
+    } catch (error) {
+      // console.error('Error cambiando contraseña:', error);
+      mostrarMensaje('error', '❌ Error al cambiar la contraseña: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ============================================
+  // 🚪 CERRAR SESIÓN
+  // ============================================
   const handleCerrarSesion = async () => {
-    alert('Cerrar sesión (demo)');
+    const confirmar = window.confirm('¿Estás seguro que querés cerrar sesión?');
+    if (!confirmar) return;
+
+    try {
+      await signOut();
+      window.location.href = '/';
+    } catch (error) {
+      // console.error('Error cerrando sesión:', error);
+      mostrarMensaje('error', '❌ Error al cerrar sesión');
+    }
   };
 
+  // ============================================
+  // ⚠️ ELIMINAR CUENTA
+  // ============================================
   const handleEliminarCuenta = async () => {
     const confirmar = window.confirm(
-      '⚠️ ¿Estás SEGURO que querés eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE'
+      '⚠️ ¿Estás SEGURO que querés eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE y se eliminarán:\n\n• Todos tus datos personales\n• Tus servicios publicados\n• Tu historial completo\n\n¿Continuar?'
     );
-    if (confirmar) {
-      alert('Cuenta eliminada (demo)');
+    
+    if (!confirmar) return;
+
+    const confirmar2 = window.confirm(
+      '🔴 ÚLTIMA CONFIRMACIÓN\n\n¿Realmente querés ELIMINAR tu cuenta de forma PERMANENTE?\n\nEscribí "ELIMINAR" en la siguiente ventana para confirmar'
+    );
+
+    if (!confirmar2) return;
+
+    const textoConfirmacion = prompt('Escribí "ELIMINAR" para confirmar:');
+    
+    if (textoConfirmacion !== 'ELIMINAR') {
+      mostrarMensaje('info', 'Operación cancelada');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 1. Eliminar servicios del usuario
+      const { error: errorServicios } = await supabase
+        .from('servicios')
+        .delete()
+        .eq('usuario_id', user.id);
+
+      if (errorServicios) throw errorServicios;
+
+      // 2. Eliminar perfil
+      const { error: errorPerfil } = await supabase
+        .from('perfiles_usuarios')
+        .delete()
+        .eq('id', user.id);
+
+      if (errorPerfil) throw errorPerfil;
+
+      // 3. Eliminar cuenta de Supabase Auth
+      const { error: errorAuth } = await supabase.auth.admin.deleteUser(user.id);
+
+      if (errorAuth) {
+        // Si falla la eliminación de auth, informar que contacte soporte
+        mostrarMensaje('warning', '⚠️ Datos eliminados. Contactá a soporte para eliminar la cuenta de acceso.');
+        setTimeout(() => {
+          signOut();
+          window.location.href = '/';
+        }, 3000);
+        return;
+      }
+
+      alert('✅ Cuenta eliminada correctamente');
+      await signOut();
+      window.location.href = '/';
+
+    } catch (error) {
+      // console.error('Error eliminando cuenta:', error);
+      mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // ============================================
+  // 🎨 RENDERIZADO
+  // ============================================
+  if (!user) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <h2>Debes iniciar sesión para acceder a la configuración</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="cfg-container">
+      {/* MENSAJE FLOTANTE */}
+      {mensaje.texto && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 9999,
+          padding: '16px 24px',
+          borderRadius: '8px',
+          backgroundColor: mensaje.tipo === 'success' ? '#10b981' : mensaje.tipo === 'error' ? '#ef4444' : '#3b82f6',
+          color: 'white',
+          fontWeight: '500',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          {mensaje.texto}
+        </div>
+      )}
+
       {/* Header Principal */}
       <div className="cfg-page-header">
         <div className="cfg-header-content">
@@ -133,16 +316,15 @@ const Configuracion = () => {
                   type="email" 
                   name="email" 
                   value={form.email} 
-                  onChange={handleChange}
                   className="cfg-input"
-                  placeholder="tu@email.com"
+                  disabled
+                  style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
+                  title="El email no se puede modificar"
                 />
               </div>
 
               <div className="cfg-input-group">
-                <label className="cfg-label">
-                  Teléfono <span className="cfg-asterisk">*</span>
-                </label>
+                <label className="cfg-label">Teléfono</label>
                 <input 
                   type="tel" 
                   name="telefono" 
@@ -347,6 +529,19 @@ const Configuracion = () => {
         </div>
 
       </div>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 };

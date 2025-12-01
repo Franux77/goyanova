@@ -64,6 +64,6 @@
 /* 🔥 Para móviles muy pequeños */
 @media (max-width: 480px) {
   .category-card {
-    padding: 0.875rem 0.75rem;
+    padding: 2px 0.7rem;
   }
 }
