@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
 import { supabase } from '../../../utils/supabaseClient';
 
-import './configuracion.css';
+import './Configuracion.css';
 
 const Configuracion = () => {
   const { user, perfil, signOut, cargarPerfil } = useContext(AuthContext);
