@@ -159,13 +159,45 @@ const Home = () => {
     });
   };
 
-  const handlePublicarClick = () => {
-    if (user) {
+  const handlePublicarClick = async () => {
+  if (!user) {
+    navigate('/login');
+    return;
+  }
+
+  try {
+    // Verificar límite antes de redirigir
+    const { data, error } = await supabase
+      .rpc('puede_publicar_servicio', {
+        p_usuario_id: user.id
+      });
+
+    if (error) {
+      console.error('Error al verificar límite:', error);
       navigate('/publicar');
-    } else {
-      navigate('/login');
+      return;
     }
-  };
+
+    if (!data.puede_publicar) {
+      // Mostrar modal o alerta
+      const confirmar = window.confirm(
+        `Has alcanzado tu límite de servicios (${data.servicios_actuales}/${data.limite_servicios}).\n\n` +
+        `¿Querés ir a Mi Membresía para mejorar tu plan?`
+      );
+      
+      if (confirmar) {
+        navigate('/panel/mi-membresia');
+      }
+      return;
+    }
+
+    // Si puede publicar, ir al formulario
+    navigate('/publicar');
+  } catch (err) {
+    console.error('Error inesperado:', err);
+    navigate('/publicar');
+  }
+};
 
   const handleExplorarClick = () => {
     navigate('/explorar');

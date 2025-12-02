@@ -11,6 +11,8 @@ const MiMembresia = () => {
   const [loading, setLoading] = useState(true);
   const [modalCancelar, setModalCancelar] = useState(false);
   const [cancelando, setCancelando] = useState(false);
+  const [serviciosActuales, setServiciosActuales] = useState(0);
+  const [limitesInfo, setLimitesInfo] = useState(null);
 
   // ============================================
   // CARGAR MEMBRESÍA DEL USUARIO
@@ -55,6 +57,32 @@ const MiMembresia = () => {
   useEffect(() => {
     cargarMembresia();
   }, [user]);
+
+  // ============================================
+// CARGAR SERVICIOS ACTUALES DEL USUARIO
+// ============================================
+useEffect(() => {
+  const cargarServiciosActuales = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .rpc('puede_publicar_servicio', {
+          p_usuario_id: user.id
+        });
+
+      if (error) throw error;
+
+      setServiciosActuales(data.servicios_actuales || 0);
+      setLimitesInfo(data);
+    } catch (error) {
+      console.error('❌ Error al cargar servicios:', error);
+      setServiciosActuales(0);
+    }
+  };
+
+  cargarServiciosActuales();
+}, [user]);
 
   // ============================================
 // DETECTAR RETORNO DE MERCADO PAGO
@@ -353,55 +381,117 @@ useEffect(() => {
   </div>
 )}
 
-      {/* ============================================
-          TABLA COMPARATIVA
-          ============================================ */}
-      <div className="comparativa-planes">
-        <h2>Comparación de Planes</h2>
-        <div className="tabla-responsive">
-          <table className="tabla-planes">
-            <thead>
-              <tr>
-                <th>Característica</th>
-                <th>Gratis</th>
-                <th className="plan-premium">Premium</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Publicar servicios</td>
-                <td><span className="check">✓</span></td>
-                <td><span className="check">✓</span></td>
-              </tr>
-              <tr>
-                <td>Fotos por servicio</td>
-                <td>5 fotos</td>
-                <td className="highlight">10-20 fotos</td>
-              </tr>
-              <tr>
-                <td>Prioridad en resultados</td>
-                <td><span className="cross">✗</span></td>
-                <td><span className="check premium-check">✓</span></td>
-              </tr>
-              <tr>
-                <td>Badge en publicaciones</td>
-                <td><span className="cross">✗</span></td>
-                <td><span className="check premium-check">✓</span></td>
-              </tr>
-              <tr>
-                <td>Estadísticas avanzadas</td>
-                <td><span className="cross">✗</span></td>
-                <td><span className="check premium-check">✓</span></td>
-              </tr>
-              <tr>
-                <td>Soporte prioritario</td>
-                <td><span className="cross">✗</span></td>
-                <td><span className="check premium-check">✓</span></td>
-              </tr>
-            </tbody>
-          </table>
+{/* ============================================
+    SECCIÓN DE SERVICIOS PUBLICADOS
+    ============================================ */}
+<div className="servicios-publicados-section">
+  <div className="servicios-header">
+    <h2>
+      <span className="material-icons">feed</span>
+      Servicios Publicados
+    </h2>
+    <p className="servicios-subtitle">Gestiona cuántos servicios puedes publicar</p>
+  </div>
+
+  <div className="servicios-info-card">
+    <div className="servicios-contador">
+      <div className="contador-circular">
+        <svg viewBox="0 0 36 36" className="circular-chart">
+          <path
+            className="circle-bg"
+            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+          />
+          <path
+            className="circle"
+            strokeDasharray={`${((serviciosActuales / (membresia?.limite_servicios || 2)) * 100)}, 100`}
+            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+          />
+        </svg>
+        <div className="contador-texto">
+          <span className="numero-grande">{serviciosActuales}</span>
+          <span className="numero-total">/{membresia?.limite_servicios || 2}</span>
         </div>
       </div>
+      
+      <div className="contador-detalles">
+        <div className="detalle-item">
+          <span className="material-icons">check_circle</span>
+          <div>
+            <strong>Servicios activos</strong>
+            <small>{serviciosActuales} publicados</small>
+          </div>
+        </div>
+        <div className="detalle-item">
+          <span className="material-icons">add_circle</span>
+          <div>
+            <strong>Disponibles</strong>
+            <small>{Math.max(0, (membresia?.limite_servicios || 2) - serviciosActuales)} restantes</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {serviciosActuales >= (membresia?.limite_servicios || 2) && (
+      <div className="alerta-limite-alcanzado">
+        <span className="material-icons">warning</span>
+        <div>
+          <strong>Has alcanzado tu límite</strong>
+          <p>Para publicar más servicios, mejorá tu plan a Premium</p>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+      {/* ============================================
+    TABLA COMPARATIVA
+    ============================================ */}
+<div className="comparativa-planes">
+  <h2>Comparación de Planes</h2>
+  <div className="tabla-responsive">
+    <table className="tabla-planes">
+      <thead>
+        <tr>
+          <th>Característica</th>
+          <th>Gratis</th>
+          <th className="plan-premium">Premium</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Servicios publicados</td>
+          <td>Hasta 2 servicios</td>
+          <td className="highlight">10-999 servicios</td>
+        </tr>
+        <tr>
+          <td>Fotos por servicio</td>
+          <td>5 fotos</td>
+          <td className="highlight">10-20 fotos</td>
+        </tr>
+        <tr>
+          <td>Prioridad en resultados</td>
+          <td><span className="cross">✗</span></td>
+          <td><span className="check premium-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Badge en publicaciones</td>
+          <td><span className="cross">✗</span></td>
+          <td><span className="check premium-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Estadísticas avanzadas</td>
+          <td><span className="cross">✗</span></td>
+          <td><span className="check premium-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Soporte prioritario</td>
+          <td><span className="cross">✗</span></td>
+          <td><span className="check premium-check">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
       {/* ============================================
           MODAL CANCELAR MEMBRESÍA

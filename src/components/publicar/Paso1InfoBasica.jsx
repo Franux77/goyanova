@@ -366,8 +366,12 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
       )}
 
       {modalAbierto && (
-        <ModalMapa onGuardar={guardarUbicacion} onCerrar={cerrarModalMapa} />
-      )}
+  <ModalMapa 
+    onGuardar={guardarUbicacion} 
+    onCerrar={cerrarModalMapa}
+    ubicacion={formData.ubicacion}
+  />
+)}
     </div>
   );
 };

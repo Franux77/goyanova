@@ -137,7 +137,6 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
   }
 };
 
-// 🔹 Publicar o actualizar servicio
 export const publicarServicio = async (
   formData,
   id,
@@ -153,6 +152,23 @@ export const publicarServicio = async (
     
     if (userError || !user) {
       throw new Error("No se pudo obtener el usuario logueado");
+    }
+
+    // ✅ NUEVO: Verificar límite SOLO si es inserción (no actualización)
+    if (!id) {
+      const { data: limiteData, error: limiteError } = await supabase
+        .rpc('puede_publicar_servicio', {
+          p_usuario_id: user.id
+        });
+
+      if (limiteError) {
+        console.error('Error al verificar límite:', limiteError);
+      } else if (!limiteData.puede_publicar) {
+        throw new Error(
+          `Has alcanzado tu límite de servicios (${limiteData.servicios_actuales}/${limiteData.limite_servicios}). ` +
+          `Mejorá tu plan para publicar más servicios.`
+        );
+      }
     }
 
     let usuario_id = user.id;

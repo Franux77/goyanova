@@ -338,7 +338,8 @@
 .goya-card-content {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: flex-end;
 }
 
 .goya-card-main {

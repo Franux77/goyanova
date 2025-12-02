@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Paso2ImagenesUbicacion.css';
 
 const Paso2ImagenesUbicacion = ({ 
@@ -8,6 +9,7 @@ const Paso2ImagenesUbicacion = ({
   limiteImagenes = 5,
   membresiaUsuario = 'Gratis'
 }) => {
+  const navigate = useNavigate();
   const [modalImagen, setModalImagen] = useState(null);
   const [subiendo, setSubiendo] = useState(false);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
@@ -73,8 +75,6 @@ const Paso2ImagenesUbicacion = ({
   // -----------------------------
   const handleEliminarPortada = () => {
     if (formData.portadaPreview || formData.portadaDB) {
-      console.log("🗑 Marcando portada para eliminar:", formData.portadaPreview || formData.portadaDB);
-
       setFormData({
         ...formData,
         portadaAEliminar: formData.portadaDB || formData.portadaPreview,
@@ -177,12 +177,12 @@ const Paso2ImagenesUbicacion = ({
           </div>
           {maximoAlcanzado && (
             <p className="paso2-limite-alcanzado-msg">
-              ⚠️ Has alcanzado el límite de tu plan. 
+              ⚠️ Has alcanzado el límite de fotos en tu plan free. 
               {membresiaUsuario === 'Gratis' && (
                 <button 
                   type="button" 
                   className="btn-mejorar-plan"
-                  onClick={() => window.location.href = '/panel/mi-membresia'}
+                  onClick={() => navigate('/panel/mi-membresia')}
                 >
                   Mejorar plan →
                 </button>
@@ -248,5 +248,5 @@ const Paso2ImagenesUbicacion = ({
     </div>
   );
 };
-
+ 
 export default Paso2ImagenesUbicacion;

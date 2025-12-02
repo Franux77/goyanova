@@ -1,4 +1,4 @@
-// PublicarServicioForm.jsx - LIMPIO
+// PublicarServicioForm.jsx - COMPLETO
 import React, { useState, useEffect, useRef, forwardRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../utils/supabaseClient";
@@ -219,28 +219,18 @@ const PublicarServicioForm = () => {
     await publicarServicio(formData, id, navigate, setErrorModal, setPublicando);
   };
 
-  // ✅ CÓDIGO NUEVO:
-if (cargando) {
-  return <Loading message="Cargando servicio..." fullScreen={true} />;
-}
+  if (cargando) {
+    return <Loading message="Cargando servicio..." fullScreen={true} />;
+  }
 
   return (
     <div className="psf-container">
-      <nav className="psf-navbar">
-        <button className="psf-volver" onClick={() => navigate(-1)}>← Volver</button>
-        <div className="psf-logo">GoyaNova</div>
-        <div className="psf-pasos-bar">
-          {pasos.map(({ titulo }, i) => (
-            <div
-              key={i}
-              className={`psf-paso ${pasoActivo === i ? "activo" : ""}`}
-              title={titulo}
-              onClick={() => seccionesRefs.current[i]?.scrollIntoView({ behavior: "smooth" })}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
+      {/* 🔹 NAVBAR MÓVIL - Solo botón volver */}
+      <nav className="psf-navbar-simple-mobile">
+        <button className="psf-boton-volver-mobile" onClick={() => navigate(-1)}>
+          <span className="material-icons">arrow_back</span>
+          Volver
+        </button>
       </nav>
 
       <main className="psf-main">
@@ -264,12 +254,12 @@ if (cargando) {
         </div>
       </main>
 
-{publicando && (
-  <Loading 
-    message={id ? "Actualizando servicio..." : "Publicando servicio..."} 
-    fullScreen={true} 
-  />
-)}
+      {publicando && (
+        <Loading 
+          message={id ? "Actualizando servicio..." : "Publicando servicio..."} 
+          fullScreen={true} 
+        />
+      )}
 
       {errorModal && (
         <div className="modal-errorr show">
