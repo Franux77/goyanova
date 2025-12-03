@@ -1288,3 +1288,8 @@
     font-size: 12px;
   }
 }
+
+.membresia-icono.icono-literal {
+  color: #1774f6 !important;
+  font-weight: 700;
+}

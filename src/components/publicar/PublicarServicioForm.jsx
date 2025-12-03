@@ -113,58 +113,89 @@ const PublicarServicioForm = () => {
   }, [id, cargado, cargando]);
 
   // ------------------ OBTENER MEMBRESÍA ------------------
-  useEffect(() => {
-    const obtenerMembresia = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          setMembresiaUsuario('Gratis');
-          setLimiteImagenes(5);
-          return;
-        }
-
-        const { data: membresia, error: membresiaError } = await supabase
-          .from('vista_membresias_activas')
-          .select('tipo_membresia, limite_fotos, badge_texto')
-          .eq('usuario_id', user.id)
-          .order('fecha_fin', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (membresiaError) {
-          setMembresiaUsuario('Gratis');
-          setLimiteImagenes(5);
-          return;
-        }
-
-        if (membresia) {
-          let nombreAmigable = membresia.badge_texto || membresia.tipo_membresia;
-          
-          if (!membresia.badge_texto) {
-            const mapeoNombres = {
-              'manual_admin': 'Premium VIP',
-              'codigo_gratis': 'Promoción',
-              'codigo_promocion': 'Promoción',
-              'premium_pago': 'Premium Pago',
-              'gratis': 'Gratis'
-            };
-            nombreAmigable = mapeoNombres[membresia.tipo_membresia] || membresia.tipo_membresia;
-          }
-
-          setMembresiaUsuario(nombreAmigable);
-          setLimiteImagenes(membresia.limite_fotos || 5);
-        } else {
-          setMembresiaUsuario('Gratis');
-          setLimiteImagenes(5);
-        }
-      } catch (err) {
+useEffect(() => {
+  const obtenerMembresia = async () => {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.warn('⚠️ Usuario no autenticado');
         setMembresiaUsuario('Gratis');
-        setLimiteImagenes(5);
+        setLimiteImagenes(6);
+        return;
       }
-    };
 
-    obtenerMembresia();
-  }, []);
+      console.log('🔍 Consultando membresía para usuario:', user.id);
+
+      // ✅ OPCIÓN 1: Usar la vista actualizada
+      const { data: membresia, error: membresiaError } = await supabase
+        .from('vista_membresias_activas')
+        .select('tipo_membresia, limite_fotos, limite_servicios, badge_texto')
+        .eq('usuario_id', user.id)
+        .order('fecha_fin', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      console.log('📊 Resultado de membresía:', membresia);
+
+      if (membresiaError) {
+        console.error('❌ Error al cargar membresía:', membresiaError);
+        // Si falla, usar plan gratuito por defecto
+        const { data: planGratis } = await supabase
+          .from('planes_membresia')
+          .select('limite_fotos, limite_servicios')
+          .eq('tipo', 'gratis')
+          .eq('activo', true)
+          .single();
+
+        setMembresiaUsuario('Gratis');
+        setLimiteImagenes(planGratis?.limite_fotos || 6);
+        return;
+      }
+
+      if (membresia) {
+        let nombreAmigable = membresia.badge_texto || membresia.tipo_membresia;
+        
+        if (!membresia.badge_texto) {
+          const mapeoNombres = {
+            'manual_admin': 'Premium VIP',
+            'codigo_gratis': 'Promoción',
+            'codigo_promocion': 'Promoción',
+            'pago': 'Premium Pago',
+            'gratis': 'Gratis'
+          };
+          nombreAmigable = mapeoNombres[membresia.tipo_membresia] || membresia.tipo_membresia;
+        }
+
+        console.log('✅ Membresía aplicada:', {
+          tipo: nombreAmigable,
+          limite_fotos: membresia.limite_fotos,
+          limite_servicios: membresia.limite_servicios
+        });
+
+        setMembresiaUsuario(nombreAmigable);
+        setLimiteImagenes(membresia.limite_fotos || 6);
+      } else {
+        // No tiene membresía activa, buscar plan gratuito
+        console.log('⚠️ No hay membresía activa, usando plan gratuito');
+        const { data: planGratis } = await supabase
+          .from('planes_membresia')
+          .select('limite_fotos')
+          .eq('tipo', 'gratis')
+          .eq('activo', true)
+          .single();
+
+        setMembresiaUsuario('Gratis');
+        setLimiteImagenes(planGratis?.limite_fotos || 6);
+      }
+    } catch (err) {
+      console.error('💥 Error crítico al obtener membresía:', err);
+      setMembresiaUsuario('Gratis');
+      setLimiteImagenes(6);
+    }
+  };
+
+  obtenerMembresia();
+}, []);
 
   // ------------------ useMemo ------------------
   const propsPaso = useMemo(() => ({

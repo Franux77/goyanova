@@ -197,9 +197,10 @@ useEffect(() => {
         {/* Header del Card */}
         <div className="membresia-card-header">
           <div className="membresia-tipo-info">
-            <span className="membresia-icono">
-              {membresia?.es_premium ? '⭐' : '🆓'}
-            </span>
+            <span className="material-icons membresia-icono">
+  {membresia?.es_premium ? 'diamond' : 'money_off'}
+</span>
+
             <div className="tipo-text">
               <h2 className="membresia-tipo-titulo">
                 {membresia?.tipo === 'manual_admin' ? 'Premium VIP' :
@@ -278,6 +279,16 @@ useEffect(() => {
                 <small>Hasta {membresia?.limite_fotos || 5} fotos por servicio</small>
               </div>
             </div>
+            
+            <div className="beneficio-item">
+      <span className="material-icons beneficio-icon activo">library_add</span>
+      <div className="beneficio-text">
+        <strong>Límite de servicios</strong>
+        <small>
+          {membresia?.es_premium ? 'Hasta 10 servicios' : 'Hasta 2 servicios'}
+        </small>
+      </div>
+    </div>
 
             {membresia?.badge && (
               <div className="beneficio-item">
@@ -289,7 +300,7 @@ useEffect(() => {
               </div>
             )}
 
-            <div className="beneficio-item">
+            {/* <div className="beneficio-item">
               <span className={`material-icons beneficio-icon ${membresia?.es_premium ? 'activo' : 'inactivo'}`}>
                 {membresia?.es_premium ? 'check_circle' : 'cancel'}
               </span>
@@ -299,7 +310,7 @@ useEffect(() => {
                   {membresia?.es_premium ? 'Acceso completo' : 'Solo usuarios Premium'}
                 </small>
               </div>
-            </div>
+            </div> */}
 
             <div className="beneficio-item">
               <span className={`material-icons beneficio-icon ${membresia?.es_premium ? 'activo' : 'inactivo'}`}>
@@ -346,7 +357,7 @@ useEffect(() => {
       <div className="beneficio-upgrade">
         <span className="material-icons">photo_library</span>
         <div>
-          <strong>Hasta 20 fotos</strong>
+          <strong>Hasta 25 fotos</strong>
           <small>Mostrá más de tu trabajo</small>
         </div>
       </div>
@@ -364,6 +375,13 @@ useEffect(() => {
           <small>Atención preferencial</small>
         </div>
       </div>
+      <div className="beneficio-upgrade">
+    <span className="material-icons">library_add</span>
+    <div>
+      <strong>Publicá más servicios</strong>
+      <small>Hasta 10 servicios en Premium</small>
+    </div>
+  </div>
     </div>
 
     {/* Botón de pago */}
@@ -461,12 +479,12 @@ useEffect(() => {
         <tr>
           <td>Servicios publicados</td>
           <td>Hasta 2 servicios</td>
-          <td className="highlight">10-999 servicios</td>
+          <td className="highlight">2-10 servicios</td>
         </tr>
         <tr>
           <td>Fotos por servicio</td>
           <td>5 fotos</td>
-          <td className="highlight">10-20 fotos</td>
+          <td className="highlight">5-25 fotos</td>
         </tr>
         <tr>
           <td>Prioridad en resultados</td>

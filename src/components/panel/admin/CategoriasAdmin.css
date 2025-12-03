@@ -78,8 +78,8 @@
 .ca-select,
 .ca-input-color {
   width: 100%;
-  padding: 6px 10px;
-  font-size: 0.9rem;
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
   border-radius: 6px;
   border: 1px solid #ccc;
   outline: none;
@@ -226,7 +226,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eeab9 0%, #4ba25b9f 100%);
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -247,8 +247,9 @@
   margin: 0;
   border: 2px solid #e0e0e0;
   background: #f9f9f9;
-  padding: 10px 12px;
-  font-size: 0.95rem;
+  /* width: 100%; */
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
 }
 
 .ca-icon-search .ca-input:focus {
@@ -294,27 +295,32 @@
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
   box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+  max-width: 120px;
+  text-align: center;
+  line-height: 1.3;
 }
 
-/* Grid de iconos mejorado */
 .ca-icon-grid-mejorado {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
   gap: 10px;
-  padding: 16px;
+  padding: 12px;
   border-radius: 12px;
   background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  overflow-x: hidden; /* CRÍTICO: Sin scroll horizontal */
+  overflow-x: hidden;
   min-height: 320px;
   max-height: 420px;
   scrollbar-width: thin;
   scrollbar-color: #667eea #f0f0f0;
-  box-sizing: border-box; /* CRÍTICO: Incluir padding en el ancho */
-  width: 100%; /* CRÍTICO: No exceder el ancho del contenedor */
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .ca-icon-grid-mejorado::-webkit-scrollbar {
@@ -813,8 +819,8 @@
   .ca-input,
   .ca-select {
     width: 100%;
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
     flex: 1 1 auto;
   }
 
@@ -859,7 +865,7 @@
   .ca-select,
   .ca-input-color {
     font-size: 0.85rem;
-    padding: 5px 8px;
+    padding: 0.5rem 0.75rem;
   }
 
   .ca-color-predefinidos {

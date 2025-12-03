@@ -6,13 +6,15 @@ import './PanelUsuario.css';
 
 const ADMIN_EMAIL = "12torresfranco@gmail.com";
 
+// 👇 QUITÉ 'publicar' de aquí
 const enlaces = [
   { to: 'dashboard', label: 'Inicio', icon: 'dashboard' },
+  { type: 'button', action: 'publicar' },
   { to: 'mis-servicios', label: 'Mis Servicios', icon: 'work' },
   { to: 'mi-membresia', label: 'Mi Membresía', icon: 'card_membership' },
-  { to: 'perfil', label: 'Perfil', icon: 'person' },
-  { to: 'opiniones', label: 'Opiniones', icon: 'star' },
   { to: 'notificaciones', label: 'Notificaciones', icon: 'notifications' },
+  { to: 'opiniones', label: 'Opiniones', icon: 'star' },
+  { to: 'perfil', label: 'Perfil', icon: 'person' },
   { to: 'configuracion', label: 'Configuración', icon: 'settings' },
   { to: 'ayuda', label: 'Ayuda / Soporte', icon: 'help' },
 ];
@@ -26,20 +28,17 @@ const PanelUsuario = () => {
 
   const location = useLocation();
 
-  // Estado para datos reales
   const [misServicios, setMisServicios] = useState([]);
   const [notificaciones, setNotificaciones] = useState([]);
   const [loadingServicios, setLoadingServicios] = useState(true);
   const [loadingNotificaciones, setLoadingNotificaciones] = useState(true);
 
-  // Verificar si es admin
   useEffect(() => {
     if (user) {
       setIsAdmin(user.email === ADMIN_EMAIL);
     }
   }, [user]);
 
-  // Manejo de responsive
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
@@ -56,7 +55,6 @@ const PanelUsuario = () => {
     if (isMobile) setSidebarOpen(false);
   };
 
-  // Bloquear scroll cuando sidebar está abierto en móvil
   useEffect(() => {
     if (isMobile && sidebarOpen) {
       document.body.style.overflow = 'hidden';
@@ -68,7 +66,6 @@ const PanelUsuario = () => {
     };
   }, [isMobile, sidebarOpen]);
 
-  // Cargar servicios del usuario
   useEffect(() => {
     if (!user) return;
     const fetchServicios = async () => {
@@ -86,7 +83,6 @@ const PanelUsuario = () => {
     fetchServicios();
   }, [user]);
 
-  // Cargar notificaciones del usuario
   useEffect(() => {
     if (!user) return;
     const fetchNotificaciones = async () => {
@@ -109,20 +105,47 @@ const PanelUsuario = () => {
     closeSidebar();
   };
 
+  // 👇 FUNCIÓN NUEVA PARA VALIDAR ANTES DE PUBLICAR
+  const handleIrAPublicar = async () => {
+    try {
+      if (!user) {
+        alert('Debes iniciar sesión');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .rpc('puede_publicar_servicio', {
+          p_usuario_id: user.id
+        });
+
+      if (error) throw error;
+
+      if (data.puede_publicar) {
+        navigate('/panel/publicar');
+      } else {
+        navigate('/panel/mi-membresia');
+      }
+      
+      closeSidebar();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al verificar límites');
+    }
+  };
+
   return (
     <div className="panel-usuario-layout">
-      {/* Header móvil */}
       {isMobile && (
         <header className="panel-mobile-header">
           <button
-  className="panel-hamburger-btn"
-  onClick={toggleSidebar}
-  aria-label="Abrir menú"
->
-  <span className="hamburger-line"></span>
-  <span className="hamburger-line"></span>
-  <span className="hamburger-line"></span>
-</button>
+            className="panel-hamburger-btn"
+            onClick={toggleSidebar}
+            aria-label="Abrir menú"
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
           
           <div className="panel-mobile-logo">
             <img 
@@ -137,14 +160,11 @@ const PanelUsuario = () => {
         </header>
       )}
 
-      {/* Overlay */}
       {isMobile && sidebarOpen && (
         <div className="panel-overlay" onClick={closeSidebar} />
       )}
 
-      {/* Sidebar */}
       <aside className={`panel-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        {/* Header del sidebar */}
         <div className="panel-sidebar-header">
           <div className="panel-sidebar-brand">
             <div className="panel-brand-logo">
@@ -171,7 +191,6 @@ const PanelUsuario = () => {
           )}
         </div>
 
-        {/* Botón cambiar a modo admin - SOLO para admins */}
         {isAdmin && (
           <div className="panel-modo-switch">
             <button 
@@ -187,25 +206,43 @@ const PanelUsuario = () => {
           </div>
         )}
 
-        {/* Navegación */}
         <nav className="panel-sidebar-nav">
           <div className="panel-nav-section">
-            <span className="panel-nav-section-title">MENÚ PRINCIPAL</span>
-            {enlaces.map(({ to, label, icon }) => (
-              <NavLink
-                key={to}
-                to={`/panel/${to}`}
-                className={({ isActive }) =>
-                  `panel-nav-link ${isActive ? 'nav-link-active' : ''}`
-                }
-                onClick={closeSidebar}
-              >
-                <span className="material-icons panel-nav-icon">{icon}</span>
-                <span className="panel-nav-text">{label}</span>
-                <span className="material-icons panel-nav-arrow">chevron_right</span>
-              </NavLink>
-            ))}
-          </div>
+  <span className="panel-nav-section-title">MENÚ PRINCIPAL</span>
+  {enlaces.map((item, index) => {
+    // 👇 Si es el marcador especial, renderizar el botón
+    if (item.type === 'button' && item.action === 'publicar') {
+      return (
+        <button
+          key={`button-${index}`}
+          className="panel-nav-link"
+          onClick={handleIrAPublicar}
+          style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+        >
+          <span className="material-icons panel-nav-icon">add_circle</span>
+          <span className="panel-nav-text">Publicar Servicio</span>
+          <span className="material-icons panel-nav-arrow">chevron_right</span>
+        </button>
+      );
+    }
+    
+    // 👇 Si es un enlace normal
+    return (
+      <NavLink
+        key={item.to}
+        to={`/panel/${item.to}`}
+        className={({ isActive }) =>
+          `panel-nav-link ${isActive ? 'nav-link-active' : ''}`
+        }
+        onClick={closeSidebar}
+      >
+        <span className="material-icons panel-nav-icon">{item.icon}</span>
+        <span className="panel-nav-text">{item.label}</span>
+        <span className="material-icons panel-nav-arrow">chevron_right</span>
+      </NavLink>
+    );
+  })}
+</div>
 
           <div className="panel-nav-divider"></div>
 
@@ -222,7 +259,6 @@ const PanelUsuario = () => {
           </div>
         </nav>
 
-        {/* Footer del sidebar */}
         <div className="panel-sidebar-footer">
           <div className="panel-footer-brand">
             <span className="panel-footer-logo">GoyaNova</span>
@@ -230,7 +266,6 @@ const PanelUsuario = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="panel-main-content">
         <Outlet
           context={{

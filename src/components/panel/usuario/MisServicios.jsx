@@ -12,6 +12,36 @@ const MisServicios = () => {
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
 
+  // 👇 AGREGAR ESTA FUNCIÓN COMPLETA AQUÍ
+const handleIrAPublicar = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      alert('Debes iniciar sesión para publicar');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .rpc('puede_publicar_servicio', {
+        p_usuario_id: user.id
+      });
+
+    if (error) throw error;
+
+    if (data.puede_publicar) {
+      // ✅ Puede publicar -> ir al formulario
+      navigate('/panel/publicar');
+    } else {
+      // ❌ No puede publicar -> ir a membresía
+      navigate('/panel/mi-membresia');
+    }
+  } catch (error) {
+    console.error('Error al verificar límite:', error);
+    alert('Error al verificar límites. Intenta nuevamente.');
+  }
+};
+
   useEffect(() => {
     const fetchServicios = async () => {
       setLoading(true);
@@ -138,13 +168,13 @@ const MisServicios = () => {
         </div>
         <h3>No tenés servicios publicados</h3>
         <p>Empezá a publicar tus servicios y llegá a más clientes</p>
-        <button
-          className="goya-btn-publicar-vacio"
-          onClick={() => navigate('/publicar', { state: { desde: 'panel' } })}
-        >
-          <span className="material-icons">add_circle</span>
-          Publicar mi primer servicio
-        </button>
+<button
+  className="goya-btn-publicar-vacio"
+  onClick={handleIrAPublicar}
+>
+  <span className="material-icons">add_circle</span>
+  Publicar mi primer servicio
+</button>
       </div>
     );
   }
@@ -157,13 +187,13 @@ const MisServicios = () => {
           <h2>Mis Servicios</h2>
           <span className="goya-contador-badge">{servicios.length}</span>
         </div>
-        <button
-          className="goya-btn-nuevo"
-          onClick={() => navigate('/publicar', { state: { desde: 'panel' } })}
-        >
-          <span className="material-icons">add</span>
-          Nuevo
-        </button>
+<button
+  className="goya-btn-nuevo"
+  onClick={handleIrAPublicar}
+>
+  <span className="material-icons">add</span>
+  Nuevo
+</button>
       </div>
 
       {/* Buscador */}

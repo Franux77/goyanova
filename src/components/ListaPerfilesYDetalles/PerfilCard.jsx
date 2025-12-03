@@ -93,7 +93,7 @@ const PerfilCard = ({
 
           {descripcionServicio && descripcionServicio.length > 100 && (
             <button
-              className="btn-ver-mas"
+              className="btn-ver-masc"
               onClick={() => setMostrarMas(!mostrarMas)}
             >
               {mostrarMas ? 'Ver menos' : 'Ver más'}

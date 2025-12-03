@@ -179,7 +179,7 @@
   display: block;
 }
 
-.btn-ver-mas {
+.btn-ver-masc {
   background: none;
   border: none;
   color: #1774f6;
@@ -192,7 +192,7 @@
   text-align: left;
 }
 
-.btn-ver-mas:hover {
+.btn-ver-masc:hover {
   color: #0d5bbf;
 }
 
