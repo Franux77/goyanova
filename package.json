@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "comentar-consoles": "find src -type f \\( -name '*.js' -o -name '*.jsx' \\) -exec sed -i '' -E 's/^([[:space:]]*)console\\./\\1\\/\\/ console./' {} +"
+
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",

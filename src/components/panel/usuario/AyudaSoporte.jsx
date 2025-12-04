@@ -61,7 +61,7 @@ const AyudaSoporte = () => {
       setTutoriales(tutData || []);
 
     } catch (error) {
-      console.error('Error al cargar datos:', error);
+      // console.error('Error al cargar datos:', error);
       setMensajeEstado({
         tipo: 'error',
         mensaje: 'Error al cargar la información. Por favor, recarga la página.'

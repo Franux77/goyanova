@@ -118,13 +118,13 @@ useEffect(() => {
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
-        console.warn('⚠️ Usuario no autenticado');
+        // console.warn('⚠️ Usuario no autenticado');
         setMembresiaUsuario('Gratis');
         setLimiteImagenes(6);
         return;
       }
 
-      console.log('🔍 Consultando membresía para usuario:', user.id);
+      // console.log('🔍 Consultando membresía para usuario:', user.id);
 
       // ✅ OPCIÓN 1: Usar la vista actualizada
       const { data: membresia, error: membresiaError } = await supabase
@@ -135,10 +135,10 @@ useEffect(() => {
         .limit(1)
         .maybeSingle();
 
-      console.log('📊 Resultado de membresía:', membresia);
+      // console.log('📊 Resultado de membresía:', membresia);
 
       if (membresiaError) {
-        console.error('❌ Error al cargar membresía:', membresiaError);
+        // console.error('❌ Error al cargar membresía:', membresiaError);
         // Si falla, usar plan gratuito por defecto
         const { data: planGratis } = await supabase
           .from('planes_membresia')
@@ -166,17 +166,17 @@ useEffect(() => {
           nombreAmigable = mapeoNombres[membresia.tipo_membresia] || membresia.tipo_membresia;
         }
 
-        console.log('✅ Membresía aplicada:', {
-          tipo: nombreAmigable,
-          limite_fotos: membresia.limite_fotos,
-          limite_servicios: membresia.limite_servicios
-        });
+        // console.log('✅ Membresía aplicada:', {
+        //   tipo: nombreAmigable,
+        //   limite_fotos: membresia.limite_fotos,
+        //   limite_servicios: membresia.limite_servicios
+        // });
 
         setMembresiaUsuario(nombreAmigable);
         setLimiteImagenes(membresia.limite_fotos || 6);
       } else {
         // No tiene membresía activa, buscar plan gratuito
-        console.log('⚠️ No hay membresía activa, usando plan gratuito');
+        // console.log('⚠️ No hay membresía activa, usando plan gratuito');
         const { data: planGratis } = await supabase
           .from('planes_membresia')
           .select('limite_fotos')
@@ -188,7 +188,7 @@ useEffect(() => {
         setLimiteImagenes(planGratis?.limite_fotos || 6);
       }
     } catch (err) {
-      console.error('💥 Error crítico al obtener membresía:', err);
+      // console.error('💥 Error crítico al obtener membresía:', err);
       setMembresiaUsuario('Gratis');
       setLimiteImagenes(6);
     }

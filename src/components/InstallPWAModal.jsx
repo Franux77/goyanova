@@ -63,7 +63,7 @@ const InstallPWAModal = () => {
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
-      console.log('✅ App instalada');
+      // console.log('✅ App instalada');
       localStorage.setItem('pwa-installed', 'true');
     }
     

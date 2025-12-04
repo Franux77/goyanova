@@ -22,7 +22,7 @@ const MiMembresia = () => {
 
     try {
       setLoading(true);
-      console.log('📊 Cargando membresía del usuario:', user.id);
+      // console.log('📊 Cargando membresía del usuario:', user.id);
       
       const { data, error } = await supabase
         .rpc('obtener_membresia_usuario', {
@@ -30,14 +30,14 @@ const MiMembresia = () => {
         });
 
       if (error) {
-        console.error('❌ Error al cargar membresía:', error);
+        // console.error('❌ Error al cargar membresía:', error);
         throw error;
       }
 
       setMembresia(data);
-      console.log('✅ Membresía cargada:', data);
+      // console.log('✅ Membresía cargada:', data);
     } catch (error) {
-      console.error('❌ Error crítico al cargar membresía:', error);
+      // console.error('❌ Error crítico al cargar membresía:', error);
       // Si falla, poner valores por defecto
       setMembresia({
         tiene_membresia: false,
@@ -76,7 +76,7 @@ useEffect(() => {
       setServiciosActuales(data.servicios_actuales || 0);
       setLimitesInfo(data);
     } catch (error) {
-      console.error('❌ Error al cargar servicios:', error);
+      // console.error('❌ Error al cargar servicios:', error);
       setServiciosActuales(0);
     }
   };
@@ -126,7 +126,7 @@ useEffect(() => {
 
     try {
       setCancelando(true);
-      console.log('🚫 Cancelando membresía...');
+      // console.log('🚫 Cancelando membresía...');
 
       const { error } = await supabase
         .from('membresias')
@@ -141,14 +141,14 @@ useEffect(() => {
 
       if (error) throw error;
 
-      console.log('✅ Membresía cancelada exitosamente');
+      // console.log('✅ Membresía cancelada exitosamente');
       alert('✅ Membresía cancelada con éxito.\n\nTus beneficios Premium finalizarán al vencer el período actual.');
       
       setModalCancelar(false);
       cargarMembresia();
 
     } catch (error) {
-      console.error('❌ Error al cancelar membresía:', error);
+      // console.error('❌ Error al cancelar membresía:', error);
       alert('❌ Error al cancelar la membresía. Intenta nuevamente.');
     } finally {
       setCancelando(false);
@@ -388,7 +388,7 @@ useEffect(() => {
     <BotonPagarMembresia 
       membresia={membresia} 
       onPagoIniciado={() => {
-        console.log('🚀 Redirigiendo a Mercado Pago...');
+        // console.log('🚀 Redirigiendo a Mercado Pago...');
       }}
     />
 

@@ -17,10 +17,10 @@ export const suspenderServiciosUsuario = async (usuarioId, motivo = 'Usuario sus
 
     if (error) throw error;
 
-    console.log(`Servicios suspendidos para usuario ${usuarioId}:`, data);
+    // console.log(`Servicios suspendidos para usuario ${usuarioId}:`, data);
     return { success: true, data };
   } catch (error) {
-    console.error('Error al suspender servicios:', error);
+    // console.error('Error al suspender servicios:', error);
     return { success: false, error };
   }
 };
@@ -42,10 +42,10 @@ export const reactivarServiciosUsuario = async (usuarioId) => {
 
     if (error) throw error;
 
-    console.log(`Servicios reactivados para usuario ${usuarioId}:`, data);
+    // console.log(`Servicios reactivados para usuario ${usuarioId}:`, data);
     return { success: true, data };
   } catch (error) {
-    console.error('Error al reactivar servicios:', error);
+    // console.error('Error al reactivar servicios:', error);
     return { success: false, error };
   }
 };
@@ -104,7 +104,7 @@ export const crearSuspensionCompleta = async ({
       message: `Usuario suspendido ${tipoSuspension === 'temporal' ? `por ${dias} días` : 'permanentemente'}`
     };
   } catch (error) {
-    console.error('Error al crear suspensión completa:', error);
+    // console.error('Error al crear suspensión completa:', error);
     return {
       success: false,
       error: error.message
@@ -141,7 +141,7 @@ export const levantarSuspension = async (usuarioId) => {
       message: 'Suspensión levantada exitosamente'
     };
   } catch (error) {
-    console.error('Error al levantar suspensión:', error);
+    // console.error('Error al levantar suspensión:', error);
     return {
       success: false,
       error: error.message

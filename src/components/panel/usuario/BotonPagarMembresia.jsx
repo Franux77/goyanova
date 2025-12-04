@@ -110,22 +110,44 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
 
   return (
     <div className="boton-pagar-container">
+      {/* Badge de descuento */}
+      <div className="promo-badge">
+        <span className="material-icons">local_fire_department</span>
+        <div className="promo-text">
+          <strong>¡OFERTA DE LANZAMIENTO!</strong>
+          <span>20% OFF - Precio exclusivo hasta agotar stock</span>
+        </div>
+      </div>
+
+      {/* Botón principal */}
       <button 
         className="btn-pagar-premium"
         onClick={handlePagar}
         disabled={procesando}
       >
-        {procesando ? (
-          <>
-            <span className="spinner-small"></span>
-            Procesando...
-          </>
-        ) : (
-          <>
-            <span className="material-icons">payment</span>
-            Obtener Premium - $50/mes
-          </>
-        )}
+        <div className="btn-content">
+          {procesando ? (
+            <>
+              <span className="spinner-small"></span>
+              <span>Procesando pago...</span>
+            </>
+          ) : (
+            <>
+              <div className="precio-section">
+                <span className="precio-anterior">$3.125</span>
+                <div className="precio-actual-wrapper">
+                  <span className="material-icons">workspace_premium</span>
+                  <span className="precio-actual">$2.500/mes</span>
+                </div>
+              </div>
+              <div className="btn-cta-wrapper">
+                <span className="material-icons btn-icon">shopping_cart</span>
+                <span className="btn-cta">ADQUIRIR PREMIUM AHORA</span>
+                <span className="material-icons btn-arrow">arrow_forward</span>
+              </div>
+            </>
+          )}
+        </div>
       </button>
 
       {error && (
@@ -138,9 +160,25 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
         </div>
       )}
 
-      <div className="info-pago">
+      {/* Información adicional */}
+      <div className="info-promocion">
+        <div className="info-item">
+          <span className="material-icons">schedule</span>
+          <span>Oferta por tiempo limitado</span>
+        </div>
+        <div className="info-item">
+          <span className="material-icons">lock</span>
+          <span>Pago seguro con Mercado Pago</span>
+        </div>
+        <div className="info-item">
+          <span className="material-icons">trending_up</span>
+          <span>Precio aumentará próximamente</span>
+        </div>
+      </div>
+
+      <div className="aviso-precio">
         <span className="material-icons">info</span>
-        <p>Pagá de forma segura con Mercado Pago</p>
+        <p>Este precio especial es solo para los primeros usuarios. Los nuevos miembros pagarán el precio regular de $3.125/mes.</p>
       </div>
     </div>
   );
