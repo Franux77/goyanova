@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
 import { useMantenimiento } from './hooks/useMantenimiento';
 import ModalMantenimiento from './components/ModalMantenimiento';
+import InstallPWAModal from './components/InstallPWAModal'; // 👈 NUEVO
 
 // ✅ Componentes normales (siempre cargados)
 import Navbar from './components/home/Navbar';
@@ -132,6 +133,9 @@ const AppContent = () => {
 
   return (
     <>
+      {/* 👇 MODAL PWA AGREGADO AQUÍ */}
+      <InstallPWAModal />
+      
       {isHome && <Navbar />}
       {isCategoria && <NavbarCategory />}
 

@@ -2,31 +2,40 @@
 <html lang="es" translate="no">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/GoyaNova_20250918_144009_0000.png" />
+    <link rel="icon" type="image/png" href="/assets/GoyaNova_20250918_144009_0000.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GoyaNova - Innovación y conexión</title>
 
-    <!-- Íconos de Material Icons -->
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1774f6">
+    
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GoyaNova">
+    <link rel="apple-touch-icon" href="/assets/GoyaNova_20250918_144009_0000.png">
+    
+    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-
   </head>
+  
   <style>
     /* 🔒 Evita seleccionar texto o imágenes */
-* {
-  -webkit-user-select: none; /* Safari / Chrome */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE / Edge */
-  user-select: none;         /* Estándar */
-}
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
 
-/* 🔒 Bloquea arrastrar imágenes (útil en móvil) */
-img, a img {
-  -webkit-user-drag: none;
-  pointer-events: none;
-}
-
+    /* 🔒 Bloquea arrastrar imágenes */
+    img, a img {
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
   </style>
+  
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

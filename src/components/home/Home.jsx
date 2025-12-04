@@ -18,6 +18,8 @@ const Home = () => {
   const [mostrarModalCodigo, setMostrarModalCodigo] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(null);
   const [esPremium, setEsPremium] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [mostrarBotonInstalar, setMostrarBotonInstalar] = useState(false);
   
   const verificacionRealizada = useRef(false);
   const intervaloCuentaRegresiva = useRef(null);
@@ -27,6 +29,34 @@ const Home = () => {
     : 999;
   
   const esUsuarioNuevo = diasDesdeRegistro <= 5;
+
+  // Capturar evento de instalación PWA
+  useEffect(() => {
+    // Verificar si ya está instalada
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches 
+                      || window.navigator.standalone
+                      || localStorage.getItem('pwa-installed') === 'true';
+    
+    if (isInstalled) {
+      setMostrarBotonInstalar(false);
+      return;
+    }
+
+    // Si no está instalada, mostrar el botón y capturar el evento
+    setMostrarBotonInstalar(true);
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setMostrarBotonInstalar(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user?.id || verificacionRealizada.current) {
@@ -159,45 +189,67 @@ const Home = () => {
     });
   };
 
-  const handlePublicarClick = async () => {
-  if (!user) {
-    navigate('/login');
-    return;
-  }
-
-  try {
-    // Verificar límite antes de redirigir
-    const { data, error } = await supabase
-      .rpc('puede_publicar_servicio', {
-        p_usuario_id: user.id
-      });
-
-    if (error) {
-      console.error('Error al verificar límite:', error);
-      navigate('/publicar');
-      return;
-    }
-
-    if (!data.puede_publicar) {
-      // Mostrar modal o alerta
-      const confirmar = window.confirm(
-        `Has alcanzado tu límite de servicios (${data.servicios_actuales}/${data.limite_servicios}).\n\n` +
-        `¿Querés ir a Mi Membresía para mejorar tu plan?`
-      );
+  // Función para instalar la app
+  const handleInstalarApp = async () => {
+    if (!deferredPrompt) {
+      const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
       
-      if (confirmar) {
-        navigate('/panel/mi-membresia');
+      if (isIOSDevice) {
+        alert('📱 Para instalar en iPhone/iPad:\n\n1. Tocá el botón "Compartir" ⎙ (abajo)\n2. Desplazate y tocá "Agregar a pantalla de inicio"\n3. Tocá "Agregar"');
+      } else {
+        alert('💻 Para instalar GoyaNova:\n\n1. Abrí el menú de Chrome (⋮)\n2. Seleccioná "Instalar aplicación" o "Agregar a pantalla de inicio"\n\n¡Es gratis y accedés más rápido!');
       }
       return;
     }
 
-    // Si puede publicar, ir al formulario
-    navigate('/publicar');
-  } catch (err) {
-    console.error('Error inesperado:', err);
-    navigate('/publicar');
-  }
-};
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      console.log('✅ App instalada desde el Hero');
+      localStorage.setItem('pwa-installed', 'true');
+      setMostrarBotonInstalar(false);
+    }
+    
+    setDeferredPrompt(null);
+  };
+
+  const handlePublicarClick = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .rpc('puede_publicar_servicio', {
+          p_usuario_id: user.id
+        });
+
+      if (error) {
+        console.error('Error al verificar límite:', error);
+        navigate('/publicar');
+        return;
+      }
+
+      if (!data.puede_publicar) {
+        const confirmar = window.confirm(
+          `Has alcanzado tu límite de servicios (${data.servicios_actuales}/${data.limite_servicios}).\n\n` +
+          `¿Querés ir a Mi Membresía para mejorar tu plan?`
+        );
+        
+        if (confirmar) {
+          navigate('/panel/mi-membresia');
+        }
+        return;
+      }
+
+      navigate('/publicar');
+    } catch (err) {
+      console.error('Error inesperado:', err);
+      navigate('/publicar');
+    }
+  };
 
   const handleExplorarClick = () => {
     navigate('/explorar');
@@ -214,7 +266,7 @@ const Home = () => {
     <div className="home">
       <SaludoUsuario />
 
-      {/* 🆕 HERO MEJORADO */}
+      {/* HERO MEJORADO */}
       <section className="goya-hero-section">
         <div className="goya-hero-content">
           <div className="goya-hero-badge">
@@ -246,39 +298,47 @@ const Home = () => {
           </div>
           
           <div className="goya-hero-actions">
-  <a
-    href="#categorias"
-    className="goya-btn-hero-primary"
-    onClick={(e) => {
-      e.preventDefault();
-      handleScrollCategorias();
-    }}
-  >
-    <span className="material-icons">search</span>
-    Buscar
-  </a>
-  <button
-    className="goya-btn-hero-secondary"
-    onClick={handlePublicarClick}
-  >
-    <span className="material-icons">add_circle</span>
-    Publicar
-  </button>
-</div>
+            <a
+              href="#categorias"
+              className="goya-btn-hero-primary"
+              onClick={(e) => {
+                e.preventDefault();
+                handleScrollCategorias();
+              }}
+            >
+              <span className="material-icons">search</span>
+              Buscar
+            </a>
+            <button
+              className="goya-btn-hero-secondary"
+              onClick={handlePublicarClick}
+            >
+              <span className="material-icons">add_circle</span>
+              Publicar
+            </button>
+          </div>
 
-{/* NUEVO: Texto informativo */}
-<p className="goya-hero-info-text">
-  ¿No entendés cómo funciona? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link> o <Link to="/contacto" className="goya-hero-link">contactanos</Link>
-</p>
+          <div className="goya-hero-footer">
+            <p className="goya-hero-info-text">
+              ¿No entendés cómo funciona? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link> o <Link to="/contacto" className="goya-hero-link">contactanos</Link>
+            </p>
+            
+            {/* BOTÓN INSTALAR - Solo si NO está instalada */}
+            {mostrarBotonInstalar && (
+              <button className="goya-hero-install-btn" onClick={handleInstalarApp}>
+                <span className="material-icons">get_app</span>
+                Instalar como app
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* 🆕 CÓMO FUNCIONA - Compacto */}
+      {/* CÓMO FUNCIONA */}
       <section className="goya-howworks-section">
         <h2 className="goya-section-title">¿Cómo funciona?</h2>
         
         <div className="goya-howworks-grid">
-          {/* Para Clientes */}
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-client">person_search</span>
@@ -309,7 +369,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Para Profesionales */}
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-professional">engineering</span>
@@ -342,7 +401,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 🆕 BANNER PROYECTO LOCAL - Compacto */}
+      {/* BANNER PROYECTO LOCAL */}
       <section className="goya-local-banner">
         <div className="goya-local-content">
           <span className="material-icons goya-local-icon">favorite</span>

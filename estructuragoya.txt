@@ -10,10 +10,11 @@ D:.
 ³   .env
 ³   package-lock.json
 ³   estructuragoya.txt
-³   estructuragoya
+³   manifest.json
 ³   
 ÃÄÄÄpublic
 ³   ³   _redirects
+³   ³   GoyaNova_20250918_144009_0000.png
 ³   ³   
 ³   ÀÄÄÄassets
 ³           GoyaNova_20250918_144009_0000.png
@@ -35,6 +36,8 @@ D:.
 ³   ÃÄÄÄcomponents
 ³   ³   ³   ModalMantenimiento.jsx
 ³   ³   ³   ModalMantenimiento.css
+³   ³   ³   InstallPWAModal.jsx
+³   ³   ³   InstallPWAModal.css
 ³   ³   ³   
 ³   ³   ÃÄÄÄpublicar
 ³   ³   ³   ³   Paso1InfoBasica.jsx
@@ -138,6 +141,8 @@ D:.
 ³   ³   ³       MapaHome.jsx
 ³   ³   ³       MapaHome.css
 ³   ³   ³       BuscadorCategorias.jsx
+³   ³   ³       NavbarGeneral.jsx
+³   ³   ³       NavbarGeneral.css
 ³   ³   ³       
 ³   ³   ÃÄÄÄListaPerfilesYDetalles
 ³   ³   ³   ³   NavbarCategory.jsx
@@ -207,9 +212,17 @@ D:.
 ³   ³   ³       ComentariosProyecto.jsx
 ³   ³   ³       ComentariosProyecto.css
 ³   ³   ³       
-³   ³   ÀÄÄÄloading
-³   ³           Loading.css
-³   ³           Loading.jsx
+³   ³   ÃÄÄÄloading
+³   ³   ³       Loading.css
+³   ³   ³       Loading.jsx
+³   ³   ³       
+³   ³   ÃÄÄÄfooter
+³   ³   ³       Footer.jsx
+³   ³   ³       Footer.css
+³   ³   ³       
+³   ³   ÀÄÄÄayuda
+³   ³           AyudaPublica.jsx
+³   ³           AyudaPublica.css
 ³   ³           
 ³   ÃÄÄÄauth
 ³   ³   ³   AuthContext.jsx
