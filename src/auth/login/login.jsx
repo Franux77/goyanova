@@ -26,13 +26,13 @@ const Login = () => {
   const navegacionRealizada = useRef(false);
 
   useEffect(() => {
-    console.log('🔵 [LOGIN] Componente montado');
+    // console.log('🔵 [LOGIN] Componente montado');
     return () => console.log('🔵 [LOGIN] Componente desmontado');
   }, []);
 
  useEffect(() => {
   if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
-    console.log('⚠️ [LOGIN] No verificar:', { 
+    // console.log('⚠️ [LOGIN] No verificar:', { 
       user: !!user, 
       perfil: !!perfil, 
       loading, 
@@ -42,7 +42,7 @@ const Login = () => {
     return;
   }
 
-  console.log('✅ [LOGIN] Iniciando verificación de acceso');
+  // console.log('✅ [LOGIN] Iniciando verificación de acceso');
   
   // 🆕 Mantener el loading activo mientras verifica
   setLoadingAction(true);
@@ -52,35 +52,35 @@ const Login = () => {
 
   useEffect(() => {
     if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
-      console.log('⚠️ [LOGIN] No verificar:', { user: !!user, perfil: !!perfil, loading, yaVerificado: yaVerificado.current, navegacionRealizada: navegacionRealizada.current });
+      // console.log('⚠️ [LOGIN] No verificar:', { user: !!user, perfil: !!perfil, loading, yaVerificado: yaVerificado.current, navegacionRealizada: navegacionRealizada.current });
       return;
     }
 
-    console.log('✅ [LOGIN] Iniciando verificación de acceso');
+    // console.log('✅ [LOGIN] Iniciando verificación de acceso');
     verificarAccesoUsuario();
   }, [user, perfil, loading]);
 
   const verificarAccesoUsuario = async () => {
-    console.log('🟢 [VERIFICAR] Iniciando verificación');
+    // console.log('🟢 [VERIFICAR] Iniciando verificación');
     
     if (verificacionEnProceso.current || navegacionRealizada.current) {
-      console.log('⚠️ [VERIFICAR] Bloqueado - ya en proceso o navegado');
+      // console.log('⚠️ [VERIFICAR] Bloqueado - ya en proceso o navegado');
       return;
     }
 
     verificacionEnProceso.current = true;
     yaVerificado.current = true;
-    console.log('✅ [VERIFICAR] Proceso iniciado');
+    // console.log('✅ [VERIFICAR] Proceso iniciado');
 
     try {
       if (perfil.estado === 'admin' || perfil.rol === 'admin') {
-        console.log('👑 [VERIFICAR] Admin detectado - navegando');
+        // console.log('👑 [VERIFICAR] Admin detectado - navegando');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
 
-      console.log('🔍 [VERIFICAR] Buscando suspensiones');
+      // console.log('🔍 [VERIFICAR] Buscando suspensiones');
       const { data: suspension } = await supabase
         .from('suspensiones')
         .select('*')
@@ -92,20 +92,20 @@ const Login = () => {
         .maybeSingle();
 
       if (!suspension) {
-        console.log('✨ [VERIFICAR] Sin suspensiones - navegando al home');
+        // console.log('✨ [VERIFICAR] Sin suspensiones - navegando al home');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
 
-      console.log('⛔ [VERIFICAR] Usuario suspendido');
+      // console.log('⛔ [VERIFICAR] Usuario suspendido');
 
       if (suspension.tipo_suspension === 'temporal' && suspension.fecha_fin) {
         const ahora = new Date();
         const fechaFin = new Date(suspension.fecha_fin);
 
         if (ahora >= fechaFin) {
-          console.log('⏰ [VERIFICAR] Suspensión expirada - desactivando');
+          // console.log('⏰ [VERIFICAR] Suspensión expirada - desactivando');
           await supabase
             .from('suspensiones')
             .update({ activa: false })
@@ -135,29 +135,29 @@ const Login = () => {
       navegacionRealizada.current = true;
       navigate('/', { replace: true });
     } finally {
-      console.log('🏁 [VERIFICAR] Proceso finalizado');
+      // console.log('🏁 [VERIFICAR] Proceso finalizado');
       verificacionEnProceso.current = false;
     }
   };
 
 const manejarSubmit = async (e) => {
   e.preventDefault();
-  console.log('📧 [SUBMIT] Iniciando login con email');
+  // console.log('📧 [SUBMIT] Iniciando login con email');
   
   setFormError('');
   setLoadingAction(true);
 
   if (!email.trim() || !password.trim()) {
-    console.log('⚠️ [SUBMIT] Campos vacíos');
+    // console.log('⚠️ [SUBMIT] Campos vacíos');
     setFormError('Por favor completa todos los campos.');
     setLoadingAction(false);
     return;
   }
 
   try {
-    console.log('🔐 [SUBMIT] Llamando a login()');
+    // console.log('🔐 [SUBMIT] Llamando a login()');
     await login(email.trim(), password);
-    console.log('✅ [SUBMIT] Login exitoso - esperando verificación automática');
+    // console.log('✅ [SUBMIT] Login exitoso - esperando verificación automática');
     
     // 🔴 NO NAVEGAR AQUÍ - dejar que useEffect lo haga
     // 🔴 NO setear navegacionRealizada.current = true
@@ -171,7 +171,7 @@ const manejarSubmit = async (e) => {
 };
 
 const manejarGoogleLogin = async () => {
-  console.log('🔴 [GOOGLE] Iniciando login con Google');
+  // console.log('🔴 [GOOGLE] Iniciando login con Google');
   
   // 🆕 Setear PRIMERO el estado de redirección
   setIsRedirectingToGoogle(true);
@@ -179,9 +179,9 @@ const manejarGoogleLogin = async () => {
   setFormError('');
   
   try {
-    console.log('🌐 [GOOGLE] Llamando a loginWithGoogle()');
+    // console.log('🌐 [GOOGLE] Llamando a loginWithGoogle()');
     await loginWithGoogle();
-    console.log('✅ [GOOGLE] Redirigiendo a Google...');
+    // console.log('✅ [GOOGLE] Redirigiendo a Google...');
     
     // 🆕 NO resetear nada - dejar el spinner activo
     // La página va a redirigir, no importa si el componente se desmonta

@@ -35,7 +35,7 @@ const SolicitudesEliminacion = () => {
       if (error) throw error;
       setSolicitudes(data || []);
     } catch (err) {
-      // console.error('Error al cargar solicitudes:', err);
+      console.error('Error al cargar solicitudes:', err);
     } finally {
       setLoading(false);
     }
@@ -141,7 +141,7 @@ const SolicitudesEliminacion = () => {
       setModalAbierto(null);
       fetchSolicitudes();
     } catch (err) {
-      // console.error('Error:', err);
+      console.error('Error:', err);
       alert(`Error: ${err.message}`);
     } finally {
       setProcesando(false);

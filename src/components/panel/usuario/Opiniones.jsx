@@ -83,7 +83,7 @@ const Opiniones = () => {
 
       setOpiniones(ordenarPorFecha(opinionesConSolicitud));
     } catch (err) {
-      // console.error('Error al cargar opiniones:', err);
+      console.error('Error al cargar opiniones:', err);
     } finally {
       setLoading(false);
     }
@@ -215,7 +215,7 @@ const Opiniones = () => {
       await cargarOpiniones();
       setEliminacionForm((prev) => ({ ...prev, [opinionId]: undefined }));
     } catch (err) {
-      // console.error('Error al enviar solicitud:', err);
+      console.error('Error al enviar solicitud:', err);
       alert('❌ Hubo un error al enviar la solicitud.');
     }
   };
@@ -238,7 +238,7 @@ const Opiniones = () => {
       // Forzar recarga inmediata
       await cargarOpiniones();
     } catch (err) {
-      // console.error('Error al cancelar solicitud:', err);
+      console.error('Error al cancelar solicitud:', err);
       alert('❌ No se pudo cancelar la solicitud');
     }
   };

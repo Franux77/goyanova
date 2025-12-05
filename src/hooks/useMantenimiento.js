@@ -47,7 +47,7 @@ export const useMantenimiento = (userId = null) => {
       if (error) throw error;
       setConfig(data);
     } catch (err) {
-      // console.error('Error al obtener configuración:', err);
+      console.error('Error al obtener configuración:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ export const useMantenimiento = (userId = null) => {
       await fetchConfig();
       return { success: true, data };
     } catch (err) {
-      // console.error('Error al activar mantenimiento:', err);
+      console.error('Error al activar mantenimiento:', err);
       return { success: false, error: err.message };
     }
   };
@@ -115,7 +115,7 @@ export const useMantenimiento = (userId = null) => {
       await fetchConfig();
       return { success: true, data };
     } catch (err) {
-      // console.error('Error al desactivar mantenimiento:', err);
+      console.error('Error al desactivar mantenimiento:', err);
       return { success: false, error: err.message };
     }
   };

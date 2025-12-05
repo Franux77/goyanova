@@ -50,7 +50,7 @@ const ResumenPerfil = ({ perfil }) => {
           url: url
         });
       } catch (err) {
-        console.log('Error al compartir:', err);
+        // console.log('Error al compartir:', err);
       }
     } else {
       navigator.clipboard.writeText(url);

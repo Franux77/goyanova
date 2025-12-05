@@ -30,14 +30,14 @@ const MiMembresia = () => {
         });
 
       if (error) {
-        // console.error('❌ Error al cargar membresía:', error);
+        console.error('❌ Error al cargar membresía:', error);
         throw error;
       }
 
       setMembresia(data);
       // console.log('✅ Membresía cargada:', data);
     } catch (error) {
-      // console.error('❌ Error crítico al cargar membresía:', error);
+      console.error('❌ Error crítico al cargar membresía:', error);
       // Si falla, poner valores por defecto
       setMembresia({
         tiene_membresia: false,
@@ -76,7 +76,7 @@ useEffect(() => {
       setServiciosActuales(data.servicios_actuales || 0);
       setLimitesInfo(data);
     } catch (error) {
-      // console.error('❌ Error al cargar servicios:', error);
+      console.error('❌ Error al cargar servicios:', error);
       setServiciosActuales(0);
     }
   };
@@ -148,7 +148,7 @@ useEffect(() => {
       cargarMembresia();
 
     } catch (error) {
-      // console.error('❌ Error al cancelar membresía:', error);
+      console.error('❌ Error al cancelar membresía:', error);
       alert('❌ Error al cancelar la membresía. Intenta nuevamente.');
     } finally {
       setCancelando(false);

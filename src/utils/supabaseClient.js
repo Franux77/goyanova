@@ -4,7 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // console.error('❌ ERROR: Variables de entorno de Supabase no configuradas correctamente')
+  console.error('❌ ERROR: Variables de entorno de Supabase no configuradas correctamente')
 }
 
 // ============================================
@@ -63,7 +63,7 @@ export const executeWithRetry = async (queryFn, maxRetries = 1) => {
           result.error.code === '401';
 
         if (isAuthError && attempt < maxRetries) {
-          // console.warn(`⚠️ Error de autenticación detectado, refrescando token (intento ${attempt + 1}/${maxRetries})`);
+          console.warn(`⚠️ Error de autenticación detectado, refrescando token (intento ${attempt + 1}/${maxRetries})`);
           
           // Evitar múltiples refreshes simultáneos
           if (!isRefreshingToken) {
@@ -79,7 +79,7 @@ export const executeWithRetry = async (queryFn, maxRetries = 1) => {
             attempt++;
             continue; // Reintentar query
           } else {
-            // console.error('❌ No se pudo refrescar el token');
+            console.error('❌ No se pudo refrescar el token');
             return result; // Devolver error original
           }
         }
@@ -87,7 +87,7 @@ export const executeWithRetry = async (queryFn, maxRetries = 1) => {
 
       return result;
     } catch (err) {
-      // console.error('❌ Error ejecutando query:', err.message);
+      console.error('❌ Error ejecutando query:', err.message);
       if (attempt >= maxRetries) {
         throw err;
       }
@@ -106,14 +106,14 @@ const refreshToken = async () => {
     const { data, error } = await supabase.auth.refreshSession();
 
     if (error || !data.session) {
-      // console.error('❌ Error al refrescar token:', error?.message);
+      console.error('❌ Error al refrescar token:', error?.message);
       return false;
     }
 
     // console.log('✅ Token refrescado exitosamente');
     return true;
   } catch (err) {
-    // console.error('❌ Error crítico al refrescar token:', err.message);
+    console.error('❌ Error crítico al refrescar token:', err.message);
     return false;
   }
 };
@@ -172,7 +172,7 @@ export const rpcWithRetry = async (functionName, params = {}) => {
  */
 export const getPublicUrl = (path, bucket = 'imagenes') => {
   if (!path || typeof path !== 'string') {
-    // console.warn('⚠️ Path inválido para getPublicUrl:', path);
+    console.warn('⚠️ Path inválido para getPublicUrl:', path);
     return null;
   }
 
@@ -180,7 +180,7 @@ export const getPublicUrl = (path, bucket = 'imagenes') => {
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return data?.publicUrl || null;
   } catch (err) {
-    // console.error('❌ Error obteniendo URL pública:', err.message);
+    console.error('❌ Error obteniendo URL pública:', err.message);
     return null;
   }
 };
@@ -231,12 +231,12 @@ export const getCurrentUser = async () => {
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
-      // console.error('❌ Error obteniendo usuario:', error.message);
+      console.error('❌ Error obteniendo usuario:', error.message);
       return null;
     }
     return user;
   } catch (err) {
-    // console.error('❌ Error crítico obteniendo usuario:', err.message);
+    console.error('❌ Error crítico obteniendo usuario:', err.message);
     return null;
   }
 };

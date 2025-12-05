@@ -75,7 +75,7 @@ const UsuariosAdmin = () => {
 
       setUsuarios(usuariosConRol);
     } catch (err) {
-      //console.error('Error al cargar datos admin usuarios:', err);
+      console.error('Error al cargar datos admin usuarios:', err);
       alert('Error al cargar usuarios.');
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ const UsuariosAdmin = () => {
       setUsuarioEditar(null);
       alert('Usuario actualizado correctamente.');
     } catch (err) {
-      //console.error('Error editando usuario:', err);
+      console.error('Error editando usuario:', err);
       alert('Error al editar usuario.');
     }
   };
@@ -198,7 +198,7 @@ const UsuariosAdmin = () => {
       setUsuarioSuspender(null);
       alert('Usuario suspendido correctamente.');
     } catch (err) {
-      //console.error('Error al suspender usuario:', err);
+      console.error('Error al suspender usuario:', err);
       alert('Error al suspender usuario.');
     }
   };
@@ -233,7 +233,7 @@ const UsuariosAdmin = () => {
       await fetchAll();
       alert('Usuario reactivado correctamente.');
     } catch (err) {
-      //console.error('Error reactivando usuario:', err);
+      console.error('Error reactivando usuario:', err);
       alert('Error al reactivar usuario.');
     }
   };
@@ -260,7 +260,7 @@ const handleEliminar = async (usuario) => {
     });
 
     if (error) {
-      //console.error('❌ Error RPC:', error);
+      console.error('❌ Error RPC:', error);
       throw error;
     }
 
@@ -281,7 +281,7 @@ const handleEliminar = async (usuario) => {
       throw new Error(data.error || 'Error desconocido');
     }
   } catch (err) {
-    //console.error('❌ Error eliminando usuario:', err);
+    console.error('❌ Error eliminando usuario:', err);
     alert(`Error al eliminar usuario: ${err.message}`);
   } finally {
     setLoading(false);

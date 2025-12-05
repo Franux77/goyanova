@@ -35,12 +35,12 @@ const GestionFAQs = () => {
   }, []);
 
   const cargarDatos = async () => {
-    console.log('🔵 [FAQs] Iniciando carga de datos...');
+    // console.log('🔵 [FAQs] Iniciando carga de datos...');
     try {
       setCargando(true);
 
       // 🆕 Cargar categorías con retry
-      console.log('🔵 [FAQs] Cargando categorías...');
+      // console.log('🔵 [FAQs] Cargando categorías...');
       const resultCats = await selectWithRetry(
         supabase
           .from('categorias_faqs')
@@ -48,18 +48,18 @@ const GestionFAQs = () => {
           .order('orden', { ascending: true })
       );
 
-      console.log('🔵 [FAQs] Resultado categorías:', resultCats);
+      // console.log('🔵 [FAQs] Resultado categorías:', resultCats);
 
       if (resultCats.error) {
         console.error('❌ [FAQs] Error al cargar categorías:', resultCats.error);
         setCategorias([]);
       } else {
-        console.log('✅ [FAQs] Categorías cargadas:', resultCats.data?.length || 0);
+        // console.log('✅ [FAQs] Categorías cargadas:', resultCats.data?.length || 0);
         setCategorias(resultCats.data || []);
       }
 
       // 🆕 Cargar FAQs con retry
-      console.log('🔵 [FAQs] Cargando FAQs...');
+      // console.log('🔵 [FAQs] Cargando FAQs...');
       const resultFaqs = await selectWithRetry(
         supabase
           .from('faqs')
@@ -73,13 +73,13 @@ const GestionFAQs = () => {
           .order('orden', { ascending: true })
       );
 
-      console.log('🔵 [FAQs] Resultado FAQs:', resultFaqs);
+      // console.log('🔵 [FAQs] Resultado FAQs:', resultFaqs);
 
       if (resultFaqs.error) {
         console.error('❌ [FAQs] Error al cargar FAQs:', resultFaqs.error);
         setFaqs([]);
       } else {
-        console.log('✅ [FAQs] FAQs cargadas:', resultFaqs.data?.length || 0);
+        // console.log('✅ [FAQs] FAQs cargadas:', resultFaqs.data?.length || 0);
         setFaqs(resultFaqs.data || []);
       }
 
@@ -87,7 +87,7 @@ const GestionFAQs = () => {
       console.error('❌ [FAQs] Error crítico al cargar datos:', error);
       alert('Error al cargar datos');
     } finally {
-      console.log('🔵 [FAQs] Finalizando carga, setCargando(false)');
+      // console.log('🔵 [FAQs] Finalizando carga, setCargando(false)');
       setCargando(false);
     }
   };

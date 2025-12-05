@@ -132,7 +132,7 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
     }));
     
   } catch (err) {
-    // console.error('❌ Error cargando servicio:', err);
+    console.error('❌ Error cargando servicio:', err);
     throw err;
   }
 };
@@ -162,7 +162,7 @@ export const publicarServicio = async (
         });
 
       if (limiteError) {
-        // console.error('Error al verificar límite:', limiteError);
+        console.error('Error al verificar límite:', limiteError);
       } else if (!limiteData.puede_publicar) {
         throw new Error(
           `Has alcanzado tu límite de servicios (${limiteData.servicios_actuales}/${limiteData.limite_servicios}). ` +

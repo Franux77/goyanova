@@ -11,8 +11,8 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
       setProcesando(true);
       setError(null);
 
-      console.log('💳 Iniciando proceso de pago...');
-      console.log('📊 Estado actual de membresía:', membresia);
+      // console.log('💳 Iniciando proceso de pago...');
+      // console.log('📊 Estado actual de membresía:', membresia);
 
       // Obtener token de sesión actual
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -21,7 +21,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
         throw new Error('No estás autenticado. Por favor, iniciá sesión nuevamente.');
       }
 
-      console.log('🔑 Sesión obtenida, llamando a Edge Function...');
+      // console.log('🔑 Sesión obtenida, llamando a Edge Function...');
 
       // Llamar a la Edge Function para crear preferencia de pago
       const { data, error: functionError } = await supabase.functions.invoke(
@@ -33,7 +33,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
         }
       );
 
-      console.log('📡 Respuesta de Edge Function:', { data, error: functionError });
+      // console.log('📡 Respuesta de Edge Function:', { data, error: functionError });
 
       if (functionError) {
         console.error('❌ Error de la función:', functionError);
@@ -56,7 +56,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
         throw new Error(data.error);
       }
 
-      console.log('✅ Preferencia creada exitosamente:', data);
+      // console.log('✅ Preferencia creada exitosamente:', data);
 
       // Notificar al componente padre que el pago se inició
       if (onPagoIniciado) {
@@ -65,7 +65,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
 
       // Redirigir a Mercado Pago
       if (data.init_point) {
-        console.log('🚀 Redirigiendo a Mercado Pago...');
+        // console.log('🚀 Redirigiendo a Mercado Pago...');
         window.location.href = data.init_point;
       } else {
         throw new Error('No se recibió URL de pago de Mercado Pago');

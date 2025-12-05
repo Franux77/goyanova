@@ -86,7 +86,7 @@ const Configuracion = () => {
 
       mostrarMensaje('success', '✅ Datos guardados correctamente');
     } catch (error) {
-      // console.error('Error guardando datos:', error);
+      console.error('Error guardando datos:', error);
       mostrarMensaje('error', '❌ Error al guardar los datos: ' + error.message);
     } finally {
       setLoading(false);
@@ -126,7 +126,7 @@ const Configuracion = () => {
       setForm(prev => ({ ...prev, nuevaPass: '', confirmarPass: '' }));
       mostrarMensaje('success', '✅ Contraseña actualizada correctamente');
     } catch (error) {
-      // console.error('Error cambiando contraseña:', error);
+      console.error('Error cambiando contraseña:', error);
       mostrarMensaje('error', '❌ Error al cambiar la contraseña: ' + error.message);
     } finally {
       setLoading(false);
@@ -144,7 +144,7 @@ const Configuracion = () => {
       await signOut();
       window.location.href = '/';
     } catch (error) {
-      // console.error('Error cerrando sesión:', error);
+      console.error('Error cerrando sesión:', error);
       mostrarMensaje('error', '❌ Error al cerrar sesión');
     }
   };
@@ -184,7 +184,7 @@ const handleEliminarCuenta = async () => {
     });
 
     if (error) {
-      //console.error('❌ Error eliminando cuenta:', error);
+      console.error('❌ Error eliminando cuenta:', error);
       throw error;
     }
 
@@ -199,7 +199,7 @@ const handleEliminarCuenta = async () => {
     }
 
   } catch (error) {
-    //console.error('❌ Error eliminando cuenta:', error);
+    console.error('❌ Error eliminando cuenta:', error);
     mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + (error.message || JSON.stringify(error)));
   } finally {
     setLoading(false);

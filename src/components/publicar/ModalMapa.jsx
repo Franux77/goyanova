@@ -72,7 +72,7 @@ const ModalMapa = ({ onGuardar, onCerrar, ubicacion }) => {
           mapaInstanciaRef.current.remove();
           mapaInstanciaRef.current = null;
         } catch (error) {
-          // console.warn('Error al limpiar el mapa:', error);
+          console.warn('Error al limpiar el mapa:', error);
         }
       }
     };

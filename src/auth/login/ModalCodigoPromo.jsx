@@ -30,7 +30,7 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
 
     try {
       setVerificandoCodigo(true);
-      console.log('🔍 Verificando código:', codigo);
+      // console.log('🔍 Verificando código:', codigo);
       
       const { data, error } = await supabase
         .from('codigos_promocionales')
@@ -48,21 +48,21 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
       if (!data) {
         setCodigoValido(false);
         setInfoCodigo({ mensaje: 'Código no encontrado' });
-        console.log('❌ Código no existe:', codigo);
+        // console.log('❌ Código no existe:', codigo);
         return;
       }
 
       if (!data.activo) {
         setCodigoValido(false);
         setInfoCodigo({ mensaje: 'Código desactivado' });
-        console.log('⚠️ Código desactivado:', codigo);
+        // console.log('⚠️ Código desactivado:', codigo);
         return;
       }
 
       if (data.usos_actuales >= data.usos_maximos) {
         setCodigoValido(false);
         setInfoCodigo({ mensaje: 'Código agotado' });
-        console.log('⚠️ Código sin usos disponibles:', data);
+        // console.log('⚠️ Código sin usos disponibles:', data);
         return;
       }
 
@@ -72,7 +72,7 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
         dias: data.duracion_dias,
         descripcion: data.descripcion
       });
-      console.log('✅ Código válido:', data);
+      // console.log('✅ Código válido:', data);
       
     } catch (err) {
       console.error('❌ Error inesperado verificando código:', err);
@@ -116,9 +116,9 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
 
     try {
       setAplicando(true);
-      console.log('🎁 Aplicando código:', codigoInput.toUpperCase());
-      console.log('   - Usuario ID:', user.id);
-      console.log('   - Días:', infoCodigo.dias);
+      // console.log('🎁 Aplicando código:', codigoInput.toUpperCase());
+      // console.log('   - Usuario ID:', user.id);
+      // console.log('   - Días:', infoCodigo.dias);
 
       const { data, error } = await supabase.rpc('aplicar_codigo_promocional', {
         p_codigo: codigoInput.toUpperCase(),
@@ -135,17 +135,17 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
         throw new Error('No se recibió respuesta del servidor');
       }
 
-      console.log('📊 Respuesta del servidor:', data);
+      // console.log('📊 Respuesta del servidor:', data);
 
       if (data.success) {
-        console.log('✅ Código aplicado exitosamente');
-        console.log('   - Días otorgados:', infoCodigo.dias);
-        console.log('   - Nueva fecha vencimiento:', data.nueva_fecha_vencimiento || 'N/A');
+        // console.log('✅ Código aplicado exitosamente');
+        // console.log('   - Días otorgados:', infoCodigo.dias);
+        // console.log('   - Nueva fecha vencimiento:', data.nueva_fecha_vencimiento || 'N/A');
         
         alert(`✅ ¡Código aplicado con éxito!\n\n🎉 Recibiste ${infoCodigo.dias} días Premium gratis\n\n¡Disfrutá de todos los beneficios!`);
         
         // Limpiar TODAS las flags de storage
-        console.log('🧹 Limpiando flags de storage...');
+        // console.log('🧹 Limpiando flags de storage...');
         sessionStorage.removeItem('nuevo_usuario_google');
         sessionStorage.removeItem('mostrar_modal_promo');
         localStorage.removeItem('pendiente_modal_promo');
@@ -174,7 +174,7 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
       alert('❌ ' + mensajeError);
     } finally {
       setAplicando(false);
-      console.log('🏁 Proceso de aplicación finalizado');
+      // console.log('🏁 Proceso de aplicación finalizado');
     }
   };
 
@@ -182,10 +182,10 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
   // OMITIR CÓDIGO
   // ============================================
   const handleOmitir = () => {
-    console.log('⏭️  Usuario omitió el código promocional');
+    // console.log('⏭️  Usuario omitió el código promocional');
     
     // Limpiar TODAS las flags de storage
-    console.log('🧹 Limpiando flags de storage...');
+    // console.log('🧹 Limpiando flags de storage...');
     sessionStorage.removeItem('nuevo_usuario_google');
     sessionStorage.removeItem('mostrar_modal_promo');
     localStorage.removeItem('pendiente_modal_promo');

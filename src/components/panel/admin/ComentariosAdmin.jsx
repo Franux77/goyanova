@@ -86,7 +86,7 @@ const ComentariosAdmin = () => {
           table: 'comentarios_proyecto'
         },
         (payload) => {
-          console.log('Cambio detectado:', payload);
+          // console.log('Cambio detectado:', payload);
           cargarDatos();
         }
       )

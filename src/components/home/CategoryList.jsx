@@ -78,7 +78,7 @@ const CategoryList = ({ type, onSelectCategory }) => {
           icon: cat.icon || 'category',
         }));
 
-      console.log(`Categorías con servicios visibles: ${categoriasFiltradas.length}/${categorias.length}`);
+      // console.log(`Categorías con servicios visibles: ${categoriasFiltradas.length}/${categorias.length}`);
       
       setCategoriasDB(categoriasFiltradas);
       setServiciosDB(servicios || []); // 🆕 Guardar servicios para búsqueda
@@ -189,9 +189,9 @@ const CategoryList = ({ type, onSelectCategory }) => {
   const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
 
   const handleSelectCategory = (categoryTitle) => {
-    console.log('Categoría seleccionada:', categoryTitle);
+    // console.log('Categoría seleccionada:', categoryTitle);
     const encodedTitle = encodeURIComponent(categoryTitle);
-    console.log('Categoría encodeada:', encodedTitle);
+    // console.log('Categoría encodeada:', encodedTitle);
     
     if (typeof onSelectCategory === 'function') {
       onSelectCategory(encodedTitle);

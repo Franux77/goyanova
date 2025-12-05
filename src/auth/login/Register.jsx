@@ -40,7 +40,7 @@ const Register = () => {
     e.preventDefault();
     setError('');
     
-    console.log('🚀 INICIANDO PROCESO DE REGISTRO');
+    // console.log('🚀 INICIANDO PROCESO DE REGISTRO');
 
     const { nombre, apellido, telefono, email, edad, password, passwordConfirm } = formData;
     
@@ -88,14 +88,14 @@ const Register = () => {
       const userId = authData.user.id;
       const needsConfirmation = authData.user.identities?.length === 0;
 
-      console.log('✅ Usuario creado en Auth:', userId);
-      console.log('📧 Requiere confirmación:', needsConfirmation);
+      // console.log('✅ Usuario creado en Auth:', userId);
+      // console.log('📧 Requiere confirmación:', needsConfirmation);
 
       // 🔹 PASO 2: Esperar a que el trigger cree el perfil automáticamente
       // El trigger debería crear el perfil instantáneamente, pero esperamos un poco por si acaso
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      console.log('✅ Perfil creado automáticamente por trigger');
+      // console.log('✅ Perfil creado automáticamente por trigger');
 
       // 🔹 PASO 3: Guardar datos para modal promocional
       if (needsConfirmation) {
@@ -151,7 +151,7 @@ catch (err) {
   const handleGoogleRegister = async () => {
     try {
       setError('');
-      console.log('🔐 Iniciando registro con Google OAuth...');
+      // console.log('🔐 Iniciando registro con Google OAuth...');
       await loginWithGoogle();
     } catch (err) {
       console.error('❌ Error con Google OAuth:', err.message);
