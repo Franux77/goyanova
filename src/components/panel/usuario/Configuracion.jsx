@@ -152,7 +152,6 @@ const Configuracion = () => {
   // ============================================
   // ⚠️ ELIMINAR CUENTA
   // ============================================
-  // 🔥 BUSCAR ESTA FUNCIÓN Y REEMPLAZARLA COMPLETA:
 
 const handleEliminarCuenta = async () => {
   const confirmar = window.confirm(
@@ -177,29 +176,31 @@ const handleEliminarCuenta = async () => {
   setLoading(true);
 
   try {
-    console.log('🗑️ Usuario eliminando su propia cuenta:', user.id);
+    //console.log('🗑️ Usuario eliminando su propia cuenta:', user.id);
 
-    // Llamar a la función que elimina TODO
+    // ✅ CORRECCIÓN: Cambiar "usuario_id" por "p_usuario_id"
     const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
-      usuario_id: user.id
+      p_usuario_id: user.id  // ← ESTE ERA EL PROBLEMA
     });
 
     if (error) {
-      console.error('❌ Error eliminando cuenta:', error);
+      //console.error('❌ Error eliminando cuenta:', error);
       throw error;
     }
 
-    if (data.success) {
+    //console.log('✅ Respuesta de la función:', data);
+
+    if (data && data.success) {
       alert('✅ Cuenta eliminada correctamente. Serás redirigido al inicio.');
       await signOut();
       window.location.href = '/';
     } else {
-      throw new Error(data.error || 'Error desconocido');
+      throw new Error(data?.error || 'Error desconocido al eliminar la cuenta');
     }
 
   } catch (error) {
-    console.error('❌ Error eliminando cuenta:', error);
-    mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + error.message);
+    //console.error('❌ Error eliminando cuenta:', error);
+    mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + (error.message || JSON.stringify(error)));
   } finally {
     setLoading(false);
   }

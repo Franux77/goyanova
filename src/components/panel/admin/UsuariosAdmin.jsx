@@ -75,7 +75,7 @@ const UsuariosAdmin = () => {
 
       setUsuarios(usuariosConRol);
     } catch (err) {
-      console.error('Error al cargar datos admin usuarios:', err);
+      //console.error('Error al cargar datos admin usuarios:', err);
       alert('Error al cargar usuarios.');
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ const UsuariosAdmin = () => {
       setUsuarioEditar(null);
       alert('Usuario actualizado correctamente.');
     } catch (err) {
-      console.error('Error editando usuario:', err);
+      //console.error('Error editando usuario:', err);
       alert('Error al editar usuario.');
     }
   };
@@ -198,7 +198,7 @@ const UsuariosAdmin = () => {
       setUsuarioSuspender(null);
       alert('Usuario suspendido correctamente.');
     } catch (err) {
-      console.error('Error al suspender usuario:', err);
+      //console.error('Error al suspender usuario:', err);
       alert('Error al suspender usuario.');
     }
   };
@@ -233,12 +233,11 @@ const UsuariosAdmin = () => {
       await fetchAll();
       alert('Usuario reactivado correctamente.');
     } catch (err) {
-      console.error('Error reactivando usuario:', err);
+      //console.error('Error reactivando usuario:', err);
       alert('Error al reactivar usuario.');
     }
   };
 
-/** 🔥 NUEVA FUNCIÓN - USA supabase NORMAL **/
 const handleEliminar = async (usuario) => {
   if (!window.confirm(
     `⚠️ ELIMINAR A ${usuario.nombreCompleto}\n\n` +
@@ -253,19 +252,19 @@ const handleEliminar = async (usuario) => {
 
   setLoading(true);
   try {
-    console.log('🗑️ Eliminando usuario:', usuario.id);
+    //console.log('🗑️ Eliminando usuario:', usuario.id);
 
-    // 👇 USA supabase NORMAL (sin Admin)
+    // ✅ CORRECCIÓN: Cambiar "usuario_id" por "p_usuario_id"
     const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
-      usuario_id: usuario.id
+      p_usuario_id: usuario.id  // ← ESTE ERA EL PROBLEMA
     });
 
     if (error) {
-      console.error('❌ Error RPC:', error);
+      //console.error('❌ Error RPC:', error);
       throw error;
     }
 
-    console.log('📊 Resultado:', data);
+    //console.log('📊 Resultado:', data);
 
     if (data.success) {
       alert(
@@ -282,7 +281,7 @@ const handleEliminar = async (usuario) => {
       throw new Error(data.error || 'Error desconocido');
     }
   } catch (err) {
-    console.error('❌ Error eliminando usuario:', err);
+    //console.error('❌ Error eliminando usuario:', err);
     alert(`Error al eliminar usuario: ${err.message}`);
   } finally {
     setLoading(false);
