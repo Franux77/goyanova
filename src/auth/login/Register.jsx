@@ -126,21 +126,24 @@ const Register = () => {
       alert(mensaje);
       navigate('/login');
 
-    } catch (err) {
-      console.error('❌ ERROR EN REGISTRO:', err);
-      
-      if (err.message?.includes('already registered') || err.message?.includes('User already registered')) {
-        setError('Este email ya está registrado. ¿Querés iniciar sesión?');
-      } else if (err.message?.includes('invalid email')) {
-        setError('Email inválido. Verificá el formato.');
-      } else if (err.message?.includes('Password') || err.message?.includes('password')) {
-        setError('La contraseña debe tener al menos 8 caracteres con mayúscula, minúscula y número.');
-      } else if (err.message?.includes('Email rate limit exceeded')) {
-        setError('Demasiados intentos. Esperá unos minutos antes de intentar de nuevo.');
-      } else {
-        setError(err.message || 'Ocurrió un error. Intentá de nuevo.');
-      }
-    } finally {
+    } // 🔥 BUSCAR ESTE CATCH Y REEMPLAZARLO:
+
+catch (err) {
+  console.error('❌ ERROR EN REGISTRO:', err);
+  
+  if (err.message?.includes('already registered') || 
+      err.message?.includes('User already registered')) {
+    setError('⚠️ Este correo ya está registrado.\n\nProbá iniciar sesión o usar "Continuar con Google".');
+  } else if (err.message?.includes('invalid email')) {
+    setError('❌ Email inválido. Verificá el formato.');
+  } else if (err.message?.includes('Password') || err.message?.includes('password')) {
+    setError('❌ La contraseña debe tener al menos 8 caracteres con mayúscula, minúscula y número.');
+  } else if (err.message?.includes('Email rate limit exceeded')) {
+    setError('⏱️ Demasiados intentos. Esperá unos minutos antes de intentar de nuevo.');
+  } else {
+    setError(err.message || 'Ocurrió un error. Intentá de nuevo.');
+  }
+} finally {
       setCargando(false);
     }
   };

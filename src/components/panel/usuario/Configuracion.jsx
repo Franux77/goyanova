@@ -152,69 +152,58 @@ const Configuracion = () => {
   // ============================================
   // ⚠️ ELIMINAR CUENTA
   // ============================================
-  const handleEliminarCuenta = async () => {
-    const confirmar = window.confirm(
-      '⚠️ ¿Estás SEGURO que querés eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE y se eliminarán:\n\n• Todos tus datos personales\n• Tus servicios publicados\n• Tu historial completo\n\n¿Continuar?'
-    );
-    
-    if (!confirmar) return;
+  // 🔥 BUSCAR ESTA FUNCIÓN Y REEMPLAZARLA COMPLETA:
 
-    const confirmar2 = window.confirm(
-      '🔴 ÚLTIMA CONFIRMACIÓN\n\n¿Realmente querés ELIMINAR tu cuenta de forma PERMANENTE?\n\nEscribí "ELIMINAR" en la siguiente ventana para confirmar'
-    );
+const handleEliminarCuenta = async () => {
+  const confirmar = window.confirm(
+    '⚠️ ¿Estás SEGURO que querés eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE y se eliminarán:\n\n• Todos tus datos personales\n• Tus servicios publicados\n• Tu historial completo\n\n¿Continuar?'
+  );
+  
+  if (!confirmar) return;
 
-    if (!confirmar2) return;
+  const confirmar2 = window.confirm(
+    '🔴 ÚLTIMA CONFIRMACIÓN\n\n¿Realmente querés ELIMINAR tu cuenta de forma PERMANENTE?\n\nEscribí "ELIMINAR" en la siguiente ventana para confirmar'
+  );
 
-    const textoConfirmacion = prompt('Escribí "ELIMINAR" para confirmar:');
-    
-    if (textoConfirmacion !== 'ELIMINAR') {
-      mostrarMensaje('info', 'Operación cancelada');
-      return;
+  if (!confirmar2) return;
+
+  const textoConfirmacion = prompt('Escribí "ELIMINAR" para confirmar:');
+  
+  if (textoConfirmacion !== 'ELIMINAR') {
+    mostrarMensaje('info', 'Operación cancelada');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    console.log('🗑️ Usuario eliminando su propia cuenta:', user.id);
+
+    // Llamar a la función que elimina TODO
+    const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
+      usuario_id: user.id
+    });
+
+    if (error) {
+      console.error('❌ Error eliminando cuenta:', error);
+      throw error;
     }
 
-    setLoading(true);
-
-    try {
-      // 1. Eliminar servicios del usuario
-      const { error: errorServicios } = await supabase
-        .from('servicios')
-        .delete()
-        .eq('usuario_id', user.id);
-
-      if (errorServicios) throw errorServicios;
-
-      // 2. Eliminar perfil
-      const { error: errorPerfil } = await supabase
-        .from('perfiles_usuarios')
-        .delete()
-        .eq('id', user.id);
-
-      if (errorPerfil) throw errorPerfil;
-
-      // 3. Eliminar cuenta de Supabase Auth
-      const { error: errorAuth } = await supabase.auth.admin.deleteUser(user.id);
-
-      if (errorAuth) {
-        // Si falla la eliminación de auth, informar que contacte soporte
-        mostrarMensaje('warning', '⚠️ Datos eliminados. Contactá a soporte para eliminar la cuenta de acceso.');
-        setTimeout(() => {
-          signOut();
-          window.location.href = '/';
-        }, 3000);
-        return;
-      }
-
-      alert('✅ Cuenta eliminada correctamente');
+    if (data.success) {
+      alert('✅ Cuenta eliminada correctamente. Serás redirigido al inicio.');
       await signOut();
       window.location.href = '/';
-
-    } catch (error) {
-      // console.error('Error eliminando cuenta:', error);
-      mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + error.message);
-    } finally {
-      setLoading(false);
+    } else {
+      throw new Error(data.error || 'Error desconocido');
     }
-  };
+
+  } catch (error) {
+    console.error('❌ Error eliminando cuenta:', error);
+    mostrarMensaje('error', '❌ Error al eliminar la cuenta: ' + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ============================================
   // 🎨 RENDERIZADO

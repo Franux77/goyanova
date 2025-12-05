@@ -19,7 +19,6 @@ const UsuariosAdmin = () => {
   const [usuarioEditar, setUsuarioEditar] = useState(null);
   const [formData, setFormData] = useState({ nombre: '', apellido: '', email: '', telefono: '' });
   
-  // Modal de suspensión
   const [mostrarModalSuspension, setMostrarModalSuspension] = useState(false);
   const [usuarioSuspender, setUsuarioSuspender] = useState(null);
   const [tipoSuspension, setTipoSuspension] = useState('permanente');
@@ -60,7 +59,6 @@ const UsuariosAdmin = () => {
         const tieneServicios = (serviciosData || []).some(s => s.usuario_id === u.id);
         const rol = u.email === ADMIN_EMAIL ? 'admin' : (tieneServicios ? 'prestador' : 'cliente');
         
-        // Buscar suspensión activa de este usuario
         const suspensionActiva = (suspData || []).find(
           s => s.entidad === 'usuario' && s.entidad_id?.toString() === u.id?.toString() && s.activa
         );
@@ -111,7 +109,6 @@ const UsuariosAdmin = () => {
     prestador: usuarios.filter((u) => u.rol === 'prestador').length,
   };
 
-  /** EDITAR USUARIO **/
   const handleEditar = (usuario) => {
     setUsuarioEditar(usuario);
     setFormData({
@@ -142,7 +139,6 @@ const UsuariosAdmin = () => {
     }
   };
 
-  /** SUSPENDER USUARIO - Abrir modal **/
   const abrirModalSuspension = (usuario) => {
     setUsuarioSuspender(usuario);
     setTipoSuspension('permanente');
@@ -151,7 +147,6 @@ const UsuariosAdmin = () => {
     setMostrarModalSuspension(true);
   };
 
-  /** CONFIRMAR SUSPENSIÓN **/
   const handleConfirmarSuspension = async () => {
     if (!usuarioSuspender) return;
 
@@ -170,7 +165,6 @@ const UsuariosAdmin = () => {
         fechaFin = new Date(ahora.getTime() + diasSusp * 24 * 60 * 60 * 1000);
       }
 
-      // Insertar suspensión
       const { error: suspErr } = await supabase.from('suspensiones').insert([{
         entidad: 'usuario',
         entidad_id: usuarioSuspender.id,
@@ -185,7 +179,6 @@ const UsuariosAdmin = () => {
 
       if (suspErr) throw suspErr;
 
-      // Actualizar estado del perfil
       const { error: perfilErr } = await supabase
         .from('perfiles_usuarios')
         .update({ estado: 'suspendido' })
@@ -193,7 +186,6 @@ const UsuariosAdmin = () => {
 
       if (perfilErr) throw perfilErr;
 
-      // Suspender todos sus servicios
       const { error: servErr } = await supabase
         .from('servicios')
         .update({ estado: 'suspendido', suspendido_por: 'admin' })
@@ -211,12 +203,10 @@ const UsuariosAdmin = () => {
     }
   };
 
-  /** REACTIVAR USUARIO **/
   const handleReactivar = async (usuario) => {
     if (!window.confirm(`¿Confirmas reactivar a ${usuario.nombreCompleto}?`)) return;
 
     try {
-      // Desactivar todas las suspensiones activas
       const { error: suspErr } = await supabase
         .from('suspensiones')
         .update({ activa: false })
@@ -226,7 +216,6 @@ const UsuariosAdmin = () => {
 
       if (suspErr) throw suspErr;
 
-      // Actualizar estado del perfil
       const { error: perfilErr } = await supabase
         .from('perfiles_usuarios')
         .update({ estado: 'activo' })
@@ -234,7 +223,6 @@ const UsuariosAdmin = () => {
 
       if (perfilErr) throw perfilErr;
 
-      // Reactivar servicios
       const { error: servErr } = await supabase
         .from('servicios')
         .update({ estado: 'activo', suspendido_por: null })
@@ -250,54 +238,61 @@ const UsuariosAdmin = () => {
     }
   };
 
-  /** ELIMINAR USUARIO **/
-  const handleEliminar = async (usuario) => {
-    if (!window.confirm(`Eliminar a ${usuario.nombreCompleto} y TODOS sus datos es irreversible. ¿Confirmas?`)) return;
+/** 🔥 NUEVA FUNCIÓN - USA supabase NORMAL **/
+const handleEliminar = async (usuario) => {
+  if (!window.confirm(
+    `⚠️ ELIMINAR A ${usuario.nombreCompleto}\n\n` +
+    `Esto eliminará:\n` +
+    `• Su cuenta de autenticación\n` +
+    `• Todos sus servicios (${servicios.filter(s => s.usuario_id === usuario.id).length})\n` +
+    `• Sus membresías\n` +
+    `• Sus opiniones\n` +
+    `• Sus notificaciones\n\n` +
+    `¿Confirmas esta acción IRREVERSIBLE?`
+  )) return;
 
-    setLoading(true);
-    try {
-      const { data: serviciosUser, error: servErr } = await supabase
-        .from('servicios')
-        .select('id')
-        .eq('usuario_id', usuario.id);
+  setLoading(true);
+  try {
+    console.log('🗑️ Eliminando usuario:', usuario.id);
 
-      if (servErr) throw servErr;
+    // 👇 USA supabase NORMAL (sin Admin)
+    const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
+      usuario_id: usuario.id
+    });
 
-      const servicioIds = (serviciosUser || []).map(s => s.id).filter(Boolean);
-
-      if (servicioIds.length > 0) {
-        await supabase.from('imagenes_servicio').delete().in('servicio_id', servicioIds);
-        await supabase.from('disponibilidades').delete().in('servicio_id', servicioIds);
-        await supabase.from('opiniones').delete().in('servicio_id', servicioIds);
-        await supabase.from('servicios').delete().eq('usuario_id', usuario.id);
-      }
-
-      await supabase.from('opiniones').delete().eq('usuario_id', usuario.id);
-      await supabase.from('notificaciones').delete().eq('usuario_id', usuario.id);
-      await supabase.from('suspensiones').delete().eq('entidad', 'usuario').eq('entidad_id', usuario.id);
-
-      const { error: delUserErr } = await supabase
-        .from('perfiles_usuarios')
-        .delete()
-        .eq('id', usuario.id);
-
-      if (delUserErr) throw delUserErr;
-
-      await fetchAll();
-      alert('Usuario y sus datos fueron eliminados correctamente.');
-    } catch (err) {
-      console.error('Error eliminando usuario:', err);
-      alert('Error al eliminar usuario.');
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error('❌ Error RPC:', error);
+      throw error;
     }
-  };
+
+    console.log('📊 Resultado:', data);
+
+    if (data.success) {
+      alert(
+        `✅ Usuario eliminado completamente\n\n` +
+        `Datos eliminados:\n` +
+        `• Servicios: ${data.datos_eliminados.servicios}\n` +
+        `• Membresías: ${data.datos_eliminados.membresias}\n` +
+        `• Opiniones: ${data.datos_eliminados.opiniones}\n` +
+        `• Notificaciones: ${data.datos_eliminados.notificaciones}\n` +
+        `• Suspensiones: ${data.datos_eliminados.suspensiones}`
+      );
+      await fetchAll();
+    } else {
+      throw new Error(data.error || 'Error desconocido');
+    }
+  } catch (err) {
+    console.error('❌ Error eliminando usuario:', err);
+    alert(`Error al eliminar usuario: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="ua-usuarios-admin">
       <h2 className="ua-usuarios-admin__titulo">Gestión de Usuarios</h2>
 
-      {/* Resumen */}
       <div className="ua-usuarios-admin__resumen">
         <div className="ua-resumen-card">Total:<br /><strong>{resumenUsuarios.total}</strong></div>
         <div className="ua-resumen-card">Admins:<br /><strong>{resumenUsuarios.admin}</strong></div>
@@ -305,7 +300,6 @@ const UsuariosAdmin = () => {
         <div className="ua-resumen-card">Prestadores:<br /><strong>{resumenUsuarios.prestador}</strong></div>
       </div>
 
-      {/* Controles */}
       <div className="ua-usuarios-admin__controles">
         <input
           type="search"
@@ -326,11 +320,10 @@ const UsuariosAdmin = () => {
         </select>
       </div>
 
-      {/* Lista */}
       <div className="ua-usuarios-admin__lista">
         {loading ? (
-  <Loading message="Cargando usuarios..." />
-) : usuariosPaginados.length === 0 ? (
+          <Loading message="Cargando usuarios..." />
+        ) : usuariosPaginados.length === 0 ? (
           <p className="ua-sin-resultados">No se encontraron usuarios.</p>
         ) : (
           usuariosPaginados.map((usuario) => (
@@ -371,7 +364,6 @@ const UsuariosAdmin = () => {
         )}
       </div>
 
-      {/* Modal Editar */}
       {usuarioEditar && (
         <div className="ua-form-editar-backdrop">
           <div className="ua-form-editar">
@@ -408,7 +400,6 @@ const UsuariosAdmin = () => {
         </div>
       )}
 
-      {/* Modal Suspensión */}
       {mostrarModalSuspension && usuarioSuspender && (
         <div className="ua-form-editar-backdrop">
           <div className="ua-form-editar">
@@ -468,7 +459,6 @@ const UsuariosAdmin = () => {
         </div>
       )}
 
-      {/* Paginación */}
       {totalPaginas > 1 && (
         <nav className="ua-usuarios-admin__paginacion">
           {Array.from({ length: totalPaginas }, (_, i) => (
