@@ -943,3 +943,17 @@
     grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
   }
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ca-icon-sugerencia strong {
+  color: #4ECDC4;
+  cursor: pointer;
+}
+
+.ca-icon-sugerencia strong:hover {
+  text-decoration: underline;
+}

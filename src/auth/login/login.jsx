@@ -33,12 +33,12 @@ const Login = () => {
  useEffect(() => {
   if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
     // console.log('⚠️ [LOGIN] No verificar:', { 
-      user: !!user, 
-      perfil: !!perfil, 
-      loading, 
-      yaVerificado: yaVerificado.current, 
-      navegacionRealizada: navegacionRealizada.current 
-    });
+//   user: !!user, 
+//   perfil: !!perfil, 
+//   loading, 
+//   yaVerificado: yaVerificado.current, 
+//   navegacionRealizada: navegacionRealizada.current 
+// });
     return;
   }
 

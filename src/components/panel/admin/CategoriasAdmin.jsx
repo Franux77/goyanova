@@ -5,6 +5,224 @@ import "./CategoriasAdmin.css";
 import { materialIconsList } from "../../../utils/materialIconsList";
 import Loading from '../../loading/Loading';
 
+// Función para normalizar texto (quitar acentos, minúsculas, etc)
+const normalizarTexto = (texto) => {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
+// Función para calcular similitud entre strings (Levenshtein simplificado)
+const similitudTexto = (a, b) => {
+  a = normalizarTexto(a);
+  b = normalizarTexto(b);
+  
+  if (a === b) return 1;
+  if (a.includes(b) || b.includes(a)) return 0.8;
+  
+  let matches = 0;
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    if (a[i] === b[i]) matches++;
+  }
+  return matches / Math.max(a.length, b.length);
+};
+
+// Función para buscar iconos en múltiples fuentes online
+const buscarIconosOnline = async (query) => {
+  try {
+    const queryNorm = normalizarTexto(query);
+    let resultados = new Set();
+
+    // ==========================================
+    // FUENTE 1: materialIconsList (local/importado)
+    // ==========================================
+    if (materialIconsList && materialIconsList.length > 0) {
+      materialIconsList.forEach(icon => {
+        const iconNorm = normalizarTexto(icon);
+        if (iconNorm.includes(queryNorm) || similitudTexto(icon, query) > 0.6) {
+          resultados.add(icon);
+        }
+      });
+    }
+
+    // ==========================================
+    // FUENTE 2: Material Icons desde GitHub (JSON estático)
+    // ==========================================
+    try {
+      const responseMaterial = await fetch(
+        'https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints'
+      );
+      
+      if (responseMaterial.ok) {
+        const texto = await responseMaterial.text();
+        const lineas = texto.split('\n');
+        
+        lineas.forEach(linea => {
+          const [nombre] = linea.split(' ');
+          if (nombre) {
+            const nombreNorm = normalizarTexto(nombre);
+            if (nombreNorm.includes(queryNorm) || similitudTexto(nombre, query) > 0.6) {
+              resultados.add(nombre);
+            }
+          }
+        });
+      }
+    } catch (err) {
+      //console.log('Material Icons GitHub no disponible');
+    }
+
+    // ==========================================
+    // FUENTE 3: Iconify API (busca en múltiples librerías)
+    // ==========================================
+    try {
+      const responseIconify = await fetch(
+        `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=50&prefix=ic,material-icons`
+      );
+      
+      if (responseIconify.ok) {
+        const data = await responseIconify.json();
+        if (data.icons) {
+          data.icons.forEach(icon => {
+            // Extraer solo el nombre del icono (después de ":")
+            const nombre = icon.split(':')[1] || icon;
+            resultados.add(nombre);
+          });
+        }
+      }
+    } catch (err) {
+      //console.log('Iconify API no disponible');
+    }
+
+    // ==========================================
+    // FUENTE 4: Material Design Icons (MDI) Community
+    // ==========================================
+    try {
+      const responseMDI = await fetch(
+        `https://raw.githubusercontent.com/Templarian/MaterialDesign/master/meta.json`
+      );
+      
+      if (responseMDI.ok) {
+        const dataMDI = await responseMDI.json();
+        dataMDI.forEach(icon => {
+          const nombre = icon.name;
+          const nombreNorm = normalizarTexto(nombre);
+          
+          // Buscar en nombre y aliases/tags
+          const enNombre = nombreNorm.includes(queryNorm);
+          const enTags = icon.tags?.some(tag => 
+            normalizarTexto(tag).includes(queryNorm)
+          );
+          
+          if (enNombre || enTags || similitudTexto(nombre, query) > 0.6) {
+            // Convertir formato MDI a Material Icons (quitar guiones)
+            const nombreMaterial = nombre.replace(/-/g, '_');
+            resultados.add(nombreMaterial);
+          }
+        });
+      }
+    } catch (err) {
+      //console.log('MDI no disponible');
+    }
+
+    // ==========================================
+    // FUENTE 5: Búsqueda en traducción español-inglés (API)
+    // ==========================================
+    try {
+      // Intentar traducir la query al inglés para mejor búsqueda
+      const terminosRelacionados = obtenerTerminosRelacionados(query);
+      
+      for (const termino of terminosRelacionados) {
+        // Buscar iconos relacionados con términos en inglés
+        const responseTranslate = await fetch(
+          `https://api.iconify.design/search?query=${encodeURIComponent(termino)}&limit=30&prefix=material-icons`
+        );
+        
+        if (responseTranslate.ok) {
+          const data = await responseTranslate.json();
+          if (data.icons) {
+            data.icons.forEach(icon => {
+              const nombre = icon.split(':')[1] || icon;
+              resultados.add(nombre);
+            });
+          }
+        }
+      }
+    } catch (err) {
+      //console.log('Búsqueda por términos relacionados no disponible');
+    }
+
+    // ==========================================
+    // FALLBACK: Lista expandida local
+    // ==========================================
+    if (resultados.size === 0) {
+      const iconosComplementarios = [
+        // Bebidas y comida
+        'wine_bar', 'liquor', 'sports_bar', 'local_drink', 'emoji_food_beverage',
+        'local_cafe', 'coffee', 'coffee_maker', 'free_breakfast', 'local_bar',
+        'tapas', 'brunch_dining', 'lunch_dining', 'dinner_dining', 'breakfast_dining',
+        'ramen_dining', 'rice_bowl', 'bakery_dining', 'local_pizza', 'restaurant',
+        'flatware', 'kitchen', 'microwave', 'blender', 'cake', 'icecream',
+        // Rostro y emociones
+        'face', 'sentiment_satisfied', 'sentiment_very_satisfied', 'mood', 'emoji_emotions',
+        'sentiment_neutral', 'sentiment_dissatisfied', 'face_retouching_natural',
+        'face_2', 'face_3', 'face_4', 'face_5', 'face_6', 'mask_face',
+        // Copa y vasos específicos
+        'wine_bar', 'local_bar', 'liquor', 'sports_bar', 'local_drink',
+        // Más iconos útiles
+        'celebration', 'party_mode', 'nightlife', 'festival', 'volunteer_activism'
+      ];
+      
+      iconosComplementarios.forEach(icon => {
+        const iconNorm = normalizarTexto(icon);
+        if (iconNorm.includes(queryNorm) || similitudTexto(icon, query) > 0.6) {
+          resultados.add(icon);
+        }
+      });
+    }
+
+    return Array.from(resultados).slice(0, 80); // Aumentar límite a 80
+    
+  } catch (error) {
+    //console.log('Búsqueda online no disponible, usando búsqueda local');
+    return [];
+  }
+};
+
+// Función auxiliar para obtener términos relacionados en inglés
+const obtenerTerminosRelacionados = (query) => {
+  const mapa = {
+    'copa': ['cup', 'wine', 'glass', 'drink', 'bar'],
+    'vaso': ['glass', 'cup', 'drink', 'beverage'],
+    'vino': ['wine', 'bar', 'drink', 'liquor'],
+    'cerveza': ['beer', 'bar', 'drink', 'pub'],
+    'bebida': ['drink', 'beverage', 'bar', 'liquid'],
+    'cara': ['face', 'head', 'emoji', 'mood', 'sentiment'],
+    'rostro': ['face', 'portrait', 'head', 'avatar'],
+    'comida': ['food', 'meal', 'dining', 'restaurant', 'eat'],
+    'casa': ['home', 'house', 'building', 'residential'],
+    'auto': ['car', 'vehicle', 'automobile', 'drive'],
+    'telefono': ['phone', 'mobile', 'call', 'smartphone'],
+    'musica': ['music', 'audio', 'sound', 'song'],
+    'libro': ['book', 'read', 'library', 'literature'],
+    'tienda': ['store', 'shop', 'market', 'retail'],
+    'reloj': ['clock', 'time', 'watch', 'schedule'],
+  };
+  
+  const queryNorm = normalizarTexto(query);
+  
+  // Buscar coincidencias exactas o parciales
+  for (const [espanol, ingles] of Object.entries(mapa)) {
+    if (normalizarTexto(espanol).includes(queryNorm) || 
+        queryNorm.includes(normalizarTexto(espanol))) {
+      return ingles;
+    }
+  }
+  
+  return [query]; // Devolver la query original si no hay mapeo
+};
+
 const CategoriasAdmin = () => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +233,9 @@ const CategoriasAdmin = () => {
   const [reasignarId, setReasignarId] = useState(null);
   const [busquedaIcono, setBusquedaIcono] = useState("");
   const [iconosAPI, setIconosAPI] = useState([]);
-  const [cargandoIconos, setCargandoIconos] = useState(false);
+const [cargandoIconos, setCargandoIconos] = useState(false);
+const [busquedaOnline, setBusquedaOnline] = useState(false);
+const [sugerenciaTermino, setSugerenciaTermino] = useState('');
   const categoriasPorPagina = 10;
 
   // Colores predefinidos modernos
@@ -149,74 +369,303 @@ const CategoriasAdmin = () => {
 
   // Mapeo español-inglés para búsqueda inteligente
   const terminosEspanol = {
-    'pollo': ['restaurant', 'fastfood', 'egg', 'dining', 'restaurant_menu', 'lunch_dining'],
-    'comida': ['restaurant', 'fastfood', 'dining', 'local_dining', 'restaurant_menu', 'lunch_dining', 'dinner_dining'],
-    'pizza': ['local_pizza', 'restaurant', 'fastfood', 'dining', 'restaurant_menu'],
-    'cafe': ['local_cafe', 'coffee', 'coffee_maker', 'emoji_food_beverage'],
-    'auto': ['directions_car', 'local_taxi', 'drive_eta', 'car_rental', 'electric_car'],
-    'coche': ['directions_car', 'local_taxi', 'drive_eta', 'car_rental'],
-    'moto': ['two_wheeler', 'motorcycle', 'moped', 'electric_bike', 'sports_motorsports'],
-    'bicicleta': ['pedal_bike', 'directions_bike', 'electric_bike'],
-    'bici': ['pedal_bike', 'directions_bike', 'electric_bike'],
-    'avion': ['flight', 'flight_takeoff', 'flight_land', 'local_airport', 'airplanemode_active'],
-    'casa': ['home', 'house', 'cottage', 'apartment', 'villa'],
-    'tienda': ['store', 'storefront', 'local_mall', 'shopping_cart'],
-    'compras': ['shopping_cart', 'shopping_bag', 'local_mall', 'storefront'],
-    'paquete': ['inventory_2', 'package_2', 'local_shipping', 'inbox', 'inventory'],
-    'calendario': ['calendar_month', 'event', 'today', 'date_range', 'schedule'],
-    'reloj': ['access_time', 'watch', 'timer', 'schedule', 'alarm'],
-    'telefono': ['phone', 'smartphone', 'call', 'phone_android', 'phone_iphone'],
-    'email': ['email', 'mail', 'send', 'alternate_email'],
-    'correo': ['email', 'mail', 'send', 'alternate_email'],
-    'musica': ['music_note', 'audiotrack', 'album', 'library_music', 'piano'],
-    'libro': ['book', 'menu_book', 'library_books', 'auto_stories', 'import_contacts'],
-    'salud': ['local_hospital', 'medical_services', 'health_and_safety', 'vaccines', 'medications'],
-    'hospital': ['local_hospital', 'medical_services', 'emergency'],
-    'gimnasio': ['fitness_center', 'sports_gymnastics', 'self_improvement'],
-    'herramienta': ['build', 'construction', 'handyman', 'hardware', 'engineering'],
-    'construccion': ['construction', 'engineering', 'architecture', 'carpenter', 'roofing'],
-    'limpieza': ['cleaning_services', 'dry_cleaning', 'local_laundry_service'],
-    'dinero': ['attach_money', 'payment', 'credit_card', 'account_balance_wallet', 'monetization_on'],
-    'pago': ['payment', 'credit_card', 'point_of_sale', 'account_balance_wallet'],
-    'seguridad': ['security', 'lock', 'shield', 'verified_user', 'gpp_good'],
-    'configuracion': ['settings', 'tune', 'build_circle', 'manage_accounts'],
+    // Comida
+    'pollo': ['restaurant', 'fastfood', 'egg', 'dining', 'lunch_dining'],
+    'comida': ['restaurant', 'fastfood', 'dining', 'local_dining', 'restaurant_menu'],
+    'pizza': ['local_pizza', 'restaurant', 'fastfood'],
+    'cafe': ['local_cafe', 'coffee', 'coffee_maker'],
+    'desayuno': ['breakfast_dining', 'local_cafe', 'coffee'],
+    'almuerzo': ['lunch_dining', 'restaurant', 'local_dining'],
+    'cena': ['dinner_dining', 'restaurant', 'local_dining'],
+    'hamburguesa': ['fastfood', 'lunch_dining'],
+    'pastel': ['cake', 'bakery_dining'],
+    'panaderia': ['bakery_dining', 'storefront'],
+    'heladeria': ['icecream', 'store'],
+    'bar': ['local_bar', 'nightlife', 'wine_bar'],
+    'restaurante': ['restaurant', 'local_dining', 'restaurant_menu'],
+    
+    // Transporte
+    'auto': ['directions_car', 'local_taxi', 'drive_eta', 'car_rental'],
+    'coche': ['directions_car', 'local_taxi', 'drive_eta'],
+    'taxi': ['local_taxi', 'drive_eta'],
+    'moto': ['two_wheeler', 'motorcycle', 'moped'],
+    'motocicleta': ['motorcycle', 'two_wheeler'],
+    'bicicleta': ['pedal_bike', 'directions_bike'],
+    'bici': ['pedal_bike', 'directions_bike'],
+    'avion': ['flight', 'flight_takeoff', 'local_airport'],
+    'vuelo': ['flight', 'flight_takeoff', 'flight_land'],
+    'aeropuerto': ['local_airport', 'flight'],
+    'tren': ['train', 'tram', 'subway'],
+    'colectivo': ['directions_bus', 'airport_shuttle'],
+    'autobus': ['directions_bus', 'airport_shuttle'],
+    'barco': ['directions_boat', 'sailing', 'ferry'],
+    'delivery': ['delivery_dining', 'local_shipping'],
+    'envio': ['local_shipping', 'delivery_dining'],
+    
+    // Lugares
+    'casa': ['home', 'house', 'cottage', 'apartment'],
+    'hogar': ['home', 'house'],
+    'edificio': ['apartment', 'business', 'domain'],
+    'departamento': ['apartment', 'house'],
+    'tienda': ['store', 'storefront', 'local_mall'],
+    'negocio': ['business', 'storefront', 'store'],
+    'supermercado': ['local_grocery_store', 'shopping_cart'],
+    'mercado': ['store', 'local_grocery_store'],
+    'compras': ['shopping_cart', 'shopping_bag', 'local_mall'],
+    'farmacia': ['local_pharmacy', 'medical_services'],
+    'hospital': ['local_hospital', 'medical_services'],
+    'hotel': ['hotel', 'local_hotel'],
+    'oficina': ['business', 'work', 'business_center'],
+    'escuela': ['school', 'local_library'],
+    'universidad': ['school', 'account_balance'],
+    'banco': ['account_balance', 'local_atm'],
+    'iglesia': ['church', 'temple_buddhist'],
+    'museo': ['museum', 'account_balance'],
+    'parque': ['park', 'nature', 'landscape'],
+    'playa': ['beach_access', 'waves'],
+    
+    // Servicios
+    'herramienta': ['build', 'construction', 'handyman'],
+    'construccion': ['construction', 'engineering', 'architecture'],
+    'electricidad': ['electrical_services', 'flash_on'],
+    'electricista': ['electrical_services', 'build'],
+    'plomeria': ['plumbing', 'water_drop'],
+    'plomero': ['plumbing', 'handyman'],
+    'carpinteria': ['carpenter', 'construction'],
+    'carpintero': ['carpenter', 'handyman'],
+    'limpieza': ['cleaning_services', 'dry_cleaning'],
+    'lavanderia': ['local_laundry_service', 'dry_cleaning'],
+    'tintoreria': ['dry_cleaning', 'local_laundry_service'],
+    'reparacion': ['build', 'handyman', 'construction'],
+    'mantenimiento': ['handyman', 'build', 'settings'],
+    'pintura': ['format_paint', 'brush', 'palette'],
+    'pintor': ['format_paint', 'brush'],
+
+    // Bebidas y recipientes (NUEVO)
+    'copa': ['wine_bar', 'local_bar', 'liquor', 'emoji_food_beverage'],
+    'vaso': ['local_bar', 'local_drink', 'emoji_food_beverage', 'liquor'],
+    'vino': ['wine_bar', 'liquor', 'local_bar'],
+    'cerveza': ['sports_bar', 'local_bar', 'liquor'],
+    'bebida': ['local_drink', 'local_bar', 'emoji_food_beverage', 'liquor'],
+    'trago': ['local_bar', 'liquor', 'wine_bar'],
+    'cocktail': ['local_bar', 'liquor', 'nightlife'],
+    'taza': ['local_cafe', 'coffee', 'emoji_food_beverage'],
+    'jarra': ['local_bar', 'liquor', 'local_drink'],
+    
+    // Salud y Fitness
+    'gimnasio': ['fitness_center', 'sports_gymnastics'],
+    'deporte': ['fitness_center', 'sports_soccer'],
+    'natacion': ['pool', 'waves'],
+    'piscina': ['pool', 'hot_tub'],
+    'spa': ['spa', 'hot_tub', 'self_improvement'],
+    'yoga': ['self_improvement', 'spa'],
+    'futbol': ['sports_soccer', 'sports_football'],
+    'tenis': ['sports_tennis'],
+    'basquet': ['sports_basketball'],
+    'basketball': ['sports_basketball'],
+    'medico': ['medical_services', 'local_hospital'],
+    'doctor': ['medical_services', 'local_hospital'],
+    'enfermero': ['medical_services', 'health_and_safety'],
+    'medicamento': ['medications', 'local_pharmacy'],
+    'pastilla': ['medications', 'local_pharmacy'],
+    
+    // Tecnología
+    'computadora': ['computer', 'laptop'],
+    'ordenador': ['computer', 'laptop'],
+    'celular': ['smartphone', 'phone_android'],
+    'telefono': ['phone', 'smartphone', 'call'],
+    'tablet': ['tablet', 'phone_android'],
+    'internet': ['wifi', 'router', 'signal_wifi_4_bar'],
+    'wifi': ['wifi', 'router', 'signal_wifi_4_bar'],
+    'bluetooth': ['bluetooth', 'headset'],
+    'auriculares': ['headphones', 'headset', 'earbuds'],
+    'television': ['tv', 'live_tv'],
+    'tele': ['tv', 'live_tv'],
+    
+    // Comunicación
+    'email': ['email', 'mail', 'send'],
+    'correo': ['email', 'mail', 'send'],
+    'mensaje': ['message', 'textsms', 'chat'],
+    'chat': ['chat', 'message', 'forum'],
+    'llamada': ['call', 'phone', 'video_call'],
+    
+    // Entretenimiento
+    'pelicula': ['movie', 'theaters', 'live_tv'],
+    'cine': ['theaters', 'movie'],
+    'musica': ['music_note', 'audiotrack', 'library_music'],
+    'cancion': ['music_note', 'audiotrack'],
+    'radio': ['radio', 'podcasts'],
+    'fiesta': ['celebration', 'party_mode', 'cake'],
+    'juego': ['games', 'sports_esports', 'casino'],
+    'videojuego': ['sports_esports', 'videogame_asset'],
+    
+    // Documentos
+    'documento': ['description', 'article', 'assignment'],
+    'archivo': ['folder', 'insert_drive_file'],
+    'carpeta': ['folder', 'folder_open'],
+    'pdf': ['picture_as_pdf', 'description'],
+    
+    // Seguridad
+    'seguridad': ['security', 'lock', 'shield'],
+    'candado': ['lock', 'vpn_key'],
+    'llave': ['vpn_key', 'key'],
+    'alarma': ['alarm', 'notification_important'],
+    
+    // Otros comunes
+    'paquete': ['inventory_2', 'package_2', 'local_shipping'],
+    'caja': ['inventory_2', 'archive'],
+    'calendario': ['calendar_month', 'event', 'today'],
+    'reloj': ['access_time', 'watch', 'schedule'],
+    'tiempo': ['access_time', 'schedule', 'timer'],
+    'dinero': ['attach_money', 'payment', 'monetization_on'],
+    'pago': ['payment', 'credit_card', 'account_balance_wallet'],
+    'tarjeta': ['credit_card', 'card_membership'],
+    'efectivo': ['attach_money', 'local_atm'],
+    'configuracion': ['settings', 'tune', 'build_circle'],
+    'ajustes': ['settings', 'tune'],
+    'buscar': ['search', 'manage_search'],
+    'usuario': ['person', 'account_circle'],
+    'perfil': ['person', 'account_circle'],
+    'grupo': ['group', 'people'],
+    'favorito': ['favorite', 'star'],
+    'estrella': ['star', 'grade'],
+    'like': ['thumb_up', 'favorite'],
+    'compartir': ['share', 'ios_share'],
+    'descarga': ['download', 'cloud_download'],
+    'subir': ['upload', 'cloud_upload'],
+    'foto': ['photo', 'camera_alt', 'image'],
+    'camara': ['photo_camera', 'camera_alt'],
+    'imagen': ['image', 'photo', 'collections'],
+    'video': ['videocam', 'movie', 'video_library'],
+    'ubicacion': ['location_on', 'place', 'map'],
+    'mapa': ['map', 'explore'],
+    'notificacion': ['notifications', 'notification_important'],
+    'campana': ['notifications', 'notification_add'],
+    'luz': ['lightbulb', 'wb_incandescent', 'flash_on'],
+    'lampara': ['lightbulb', 'wb_incandescent'],
+    'bateria': ['battery_full', 'battery_charging_full'],
+    'energia': ['bolt', 'flash_on', 'power'],
+    'clima': ['wb_sunny', 'wb_cloudy', 'ac_unit'],
+    'sol': ['wb_sunny', 'light_mode'],
+    'lluvia': ['weather_snowy', 'thunderstorm'],
+    'nube': ['cloud', 'wb_cloudy'],
+    'mascota': ['pets', 'cruelty_free'],
+    'perro': ['pets'],
+    'gato': ['pets'],
+    'animal': ['pets', 'cruelty_free'],
+    
+    // Armas y seguridad (ejemplos solicitados)
+    'arma': ['security', 'shield', 'gpp_good'],
+    'pistola': ['security', 'shield'],
+    'proteccion': ['shield', 'security', 'verified_user'],
+    
+    // Cara y rostro (AGREGAR)
+    'cara': ['face', 'sentiment_satisfied', 'mood', 'emoji_emotions', 'face_retouching_natural'],
+    'rostro': ['face', 'sentiment_satisfied', 'mood', 'portrait', 'face_2'],
+    'emoji': ['emoji_emotions', 'sentiment_satisfied', 'mood', 'face'],
+    'sonrisa': ['sentiment_satisfied', 'sentiment_very_satisfied', 'mood_good'],
+    
+    // Oficios
+    'oficio': ['work', 'engineering', 'handyman', 'construction'],
+    'trabajo': ['work', 'business_center', 'badge'],
+    'profesion': ['work', 'school', 'badge'],
+    'obrero': ['construction', 'engineering'],
+    'mecanico': ['build', 'construction', 'engineering'],
+    
+    // Limpieza específica
+    'trapeador': ['cleaning_services', 'dry_cleaning'],
+    'escoba': ['cleaning_services'],
+    'trapo': ['cleaning_services', 'dry_cleaning'],
+    'limpiar': ['cleaning_services'],
   };
 
-  // Buscar iconos con términos en español e inglés
-  const buscarIconosInteligente = (query) => {
+  const buscarIconosInteligente = async (query) => {
     if (!query || query.length < 2) {
+      setBusquedaOnline(false);
+      setSugerenciaTermino('');
       return iconosExtendidos;
     }
 
-    const queryLower = query.toLowerCase();
+    const queryNormalizado = normalizarTexto(query);
     let resultados = new Set();
+    let mejorSugerencia = '';
+    let mejorSimilitud = 0;
 
-    // Buscar en términos en español
+    // 1. Buscar coincidencias exactas en términos españoles
     Object.keys(terminosEspanol).forEach(termino => {
-      if (termino.includes(queryLower) || queryLower.includes(termino)) {
+      const terminoNorm = normalizarTexto(termino);
+      const similitud = similitudTexto(termino, query);
+      
+      if (terminoNorm === queryNormalizado || terminoNorm.includes(queryNormalizado)) {
         terminosEspanol[termino].forEach(icono => resultados.add(icono));
+      }
+      
+      // Guardar mejor sugerencia
+      if (similitud > mejorSimilitud && similitud > 0.5) {
+        mejorSimilitud = similitud;
+        mejorSugerencia = termino;
       }
     });
 
-    // Buscar directamente en nombres de iconos (inglés)
+    // 2. Buscar directamente en nombres de iconos (inglés)
     iconosExtendidos.forEach(icono => {
-      if (icono.toLowerCase().includes(queryLower)) {
+      if (normalizarTexto(icono).includes(queryNormalizado)) {
         resultados.add(icono);
       }
     });
 
-    // Si hay resultados, retornarlos, sino retornar búsqueda simple
-    return resultados.size > 0 
-      ? Array.from(resultados)
-      : iconosExtendidos.filter(icon => 
-          icon.toLowerCase().includes(queryLower)
-        );
+    // 3. Búsqueda difusa si hay pocos resultados
+    if (resultados.size < 3) {
+      Object.keys(terminosEspanol).forEach(termino => {
+        const similitud = similitudTexto(termino, query);
+        if (similitud > 0.6) {
+          terminosEspanol[termino].forEach(icono => resultados.add(icono));
+        }
+      });
+      
+      iconosExtendidos.forEach(icono => {
+        const similitud = similitudTexto(icono, query);
+        if (similitud > 0.7) {
+          resultados.add(icono);
+        }
+      });
+    }
+
+    // 4. Si no hay resultados, buscar online
+    if (resultados.size === 0) {
+      setBusquedaOnline(true);
+      setCargandoIconos(true);
+      
+      const iconosOnline = await buscarIconosOnline(query);
+      setCargandoIconos(false);
+      
+      if (iconosOnline.length > 0) {
+        setSugerenciaTermino('');
+        return iconosOnline;
+      } else if (mejorSugerencia) {
+        setSugerenciaTermino(mejorSugerencia);
+      }
+    } else {
+      setBusquedaOnline(false);
+      setSugerenciaTermino('');
+    }
+
+    return Array.from(resultados);
   };
 
   // Actualizar búsqueda en tiempo real
-  useEffect(() => {
-    const resultados = buscarIconosInteligente(busquedaIcono);
-    setIconosAPI(resultados);
+ useEffect(() => {
+    const buscar = async () => {
+      const resultados = await buscarIconosInteligente(busquedaIcono);
+      setIconosAPI(resultados);
+    };
+    
+    // Debounce para no hacer requests constantemente
+    const timer = setTimeout(() => {
+      buscar();
+    }, 400);
+    
+    return () => clearTimeout(timer);
   }, [busquedaIcono]);
 
   // Lista filtrada de iconos para mostrar
@@ -624,10 +1073,28 @@ const CategoriasAdmin = () => {
                     </div>
                   )}
                   {busquedaIcono && (
-                    <div className="ca-icon-contador">
-                      {iconosFiltrados.length} iconos encontrados
-                    </div>
-                  )}
+  <div className="ca-icon-contador">
+    {cargandoIconos ? (
+      <span>🔍 Buscando iconos online...</span>
+    ) : busquedaOnline ? (
+      <span>🌐 {iconosFiltrados.length} iconos encontrados online</span>
+    ) : (
+      <span>{iconosFiltrados.length} iconos encontrados</span>
+    )}
+  </div>
+)}
+{sugerenciaTermino && (
+  <div className="ca-icon-sugerencia" style={{ 
+    fontSize: '12px', 
+    color: '#666', 
+    marginTop: '4px' 
+  }}>
+    💡 ¿Quisiste decir "<strong 
+      onClick={() => setBusquedaIcono(sugerenciaTermino)}
+      style={{ cursor: 'pointer' }}
+    >{sugerenciaTermino}</strong>"?
+  </div>
+)}
                 </div>
               </div>
 
@@ -655,13 +1122,38 @@ const CategoriasAdmin = () => {
                     </div>
                   ))
                 ) : busquedaIcono ? (
-                  <div className="ca-sin-iconos">
-<span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
-search_off
-</span>
-<p>No se encontraron iconos para "{busquedaIcono}"</p>
-<small>Intenta con: pollo, pizza, auto, casa, teléfono, música, comida, tienda</small>
-</div>
+  <div className="ca-sin-iconos">
+    {cargandoIconos ? (
+      <>
+        <span className="material-icons" style={{ fontSize: '48px', color: '#4ECDC4', animation: 'spin 1s linear infinite' }}>
+          refresh
+        </span>
+        <p>Buscando "{busquedaIcono}" en Material Icons...</p>
+      </>
+    ) : (
+      <>
+        <span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
+          search_off
+        </span>
+        <p>No se encontraron iconos para "{busquedaIcono}"</p>
+        {sugerenciaTermino && (
+  <p style={{ color: '#4ECDC4', marginTop: '8px' }}>
+    💡 ¿Quisiste decir "<strong 
+      onClick={() => setBusquedaIcono(sugerenciaTermino)}
+      style={{ cursor: 'pointer' }}
+    >{sugerenciaTermino}</strong>"?
+  </p>
+)}
+        <small>
+          Ejemplos: copa, vino, bebida, taza, vaso, pollo, pizza, edificio, 
+          limpieza, herramienta, oficina, trabajo
+        </small>
+        <small style={{ display: 'block', marginTop: '8px', color: '#888' }}>
+          ✨ La búsqueda incluye Material Icons completo online
+        </small>
+      </>
+    )}
+  </div>
 ) : null}
 </div>
         <div className="ca-modal-acciones">
