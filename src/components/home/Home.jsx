@@ -372,7 +372,7 @@ const Home = () => {
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-professional">engineering</span>
-              <h3>Profesionales</h3>
+              <h3>Prestadores</h3>
             </div>
             <div className="goya-steps-list">
               <div className="goya-step-item">

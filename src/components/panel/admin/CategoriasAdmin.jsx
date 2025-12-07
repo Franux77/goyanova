@@ -233,9 +233,9 @@ const CategoriasAdmin = () => {
   const [reasignarId, setReasignarId] = useState(null);
   const [busquedaIcono, setBusquedaIcono] = useState("");
   const [iconosAPI, setIconosAPI] = useState([]);
-const [cargandoIconos, setCargandoIconos] = useState(false);
-const [busquedaOnline, setBusquedaOnline] = useState(false);
-const [sugerenciaTermino, setSugerenciaTermino] = useState('');
+  const [cargandoIconos, setCargandoIconos] = useState(false);
+  const [busquedaOnline, setBusquedaOnline] = useState(false);
+  const [sugerenciaTermino, setSugerenciaTermino] = useState('');
   const categoriasPorPagina = 10;
 
   // Colores predefinidos modernos
@@ -654,7 +654,7 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
   };
 
   // Actualizar búsqueda en tiempo real
- useEffect(() => {
+  useEffect(() => {
     const buscar = async () => {
       const resultados = await buscarIconosInteligente(busquedaIcono);
       setIconosAPI(resultados);
@@ -904,42 +904,74 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
           <p className="ca-sin-resultados">No se encontraron categorías.</p>
         ) : (
           categoriasPaginadas.map((cat) => (
-            <article key={cat.id} className="ca-categoria-card">
-              <div className="ca-categoria-info">
-                <strong className="ca-categoria-nombre">{cat.nombre}</strong>
-                <p className="ca-categoria-desc">{cat.descripcion}</p>
-                <p
-                  className={`ca-categoria-estado ${
-                    cat.activa ? "ca-activa" : "ca-suspendida"
-                  }`}
-                >
-                  {cat.activa ? "Activa" : "Suspendida"}
-                </p>
-                <p className="ca-categoria-tipo">Tipo: {cat.tipo}</p>
+            <article 
+              key={cat.id} 
+              className="ca-categoria-card"
+              style={{
+                '--card-color': cat.color || '#1774f6',
+                '--card-color-light': cat.color ? `${cat.color}99` : '#45B7D1'
+              }}
+            >
+              <div className="ca-categoria-header">
+                <div className="ca-categoria-icono">
+                  {cat.icon ? (
+                    <span className="material-icons">{cat.icon}</span>
+                  ) : (
+                    <span className="material-icons">category</span>
+                  )}
+                </div>
+                <div className="ca-categoria-info">
+                  <h3 className="ca-categoria-nombre">{cat.nombre}</h3>
+                  <div className="ca-categoria-meta">
+                    <span
+                      className={`ca-categoria-estado ${
+                        cat.activa ? "ca-activa" : "ca-suspendida"
+                      }`}
+                    >
+                      <span className="material-icons" style={{ fontSize: '14px' }}>
+                        {cat.activa ? "check_circle" : "cancel"}
+                      </span>
+                      {cat.activa ? "Activa" : "Suspendida"}
+                    </span>
+                    <span className="ca-categoria-tipo">
+                      {cat.tipo === 'servicio' ? 'Servicio' : 'Producto'}
+                    </span>
+                  </div>
+                </div>
               </div>
+              
+              {cat.descripcion && (
+                <p className="ca-categoria-desc">{cat.descripcion}</p>
+              )}
+              
               <div className="ca-categoria-acciones">
                 <button
-                  className={`ca-btn-toggle ${
+                  className={`ca-btn-icon ${
                     cat.activa ? "ca-btn-suspender" : "ca-btn-habilitar"
                   }`}
                   onClick={() => toggleEstado(cat.id, cat.activa, cat.nombre)}
+                  title={cat.activa ? "Suspender" : "Habilitar"}
                 >
-                  {cat.activa ? "Suspender" : "Habilitar"}
+                  <span className="material-icons">
+                    {cat.activa ? "block" : "check_circle"}
+                  </span>
                 </button>
                 <button
-                  className="ca-btn-editar"
+                  className="ca-btn-icon ca-btn-editar"
                   onClick={() => {
                     setEditando({ ...cat });
                     setBusquedaIcono("");
                   }}
+                  title="Editar"
                 >
-                  Editar
+                  <span className="material-icons">edit</span>
                 </button>
                 <button
-                  className="ca-btn-eliminar"
+                  className="ca-btn-icon ca-btn-eliminar"
                   onClick={() => eliminarCategoria(cat.id, cat.nombre)}
+                  title="Eliminar"
                 >
-                  Eliminar
+                  <span className="material-icons">delete</span>
                 </button>
               </div>
             </article>
@@ -984,7 +1016,7 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
                 c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
                 c.id !== editando.id
             ) && (
-              <p className="ca-error">⚠ Ya existe una categoría con este nombre.</p>
+              <p className="ca-error">Ya existe una categoría con este nombre.</p>
             )}
 
             <label>Descripción</label>
@@ -1055,7 +1087,7 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
               <div className="ca-icon-search">
                 <input
                   type="text"
-                  placeholder="🔍 Buscar: pollo, pizza, auto, casa, teléfono, música..."
+                  placeholder="Buscar: pollo, pizza, auto, casa, teléfono, música..."
                   value={busquedaIcono}
                   onChange={(e) => setBusquedaIcono(e.target.value)}
                   className="ca-input"
@@ -1073,29 +1105,29 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
                     </div>
                   )}
                   {busquedaIcono && (
-  <div className="ca-icon-contador">
-    {cargandoIconos ? (
-      <span>🔍 Buscando iconos online...</span>
-    ) : busquedaOnline ? (
-      <span>🌐 {iconosFiltrados.length} iconos encontrados online</span>
-    ) : (
-      <span>{iconosFiltrados.length} iconos encontrados</span>
-    )}
-  </div>
-)}
-{sugerenciaTermino && (
-  <div className="ca-icon-sugerencia" style={{ 
-    fontSize: '12px', 
-    color: '#666', 
-    marginTop: '4px' 
-  }}>
-    💡 ¿Quisiste decir "<strong 
-      onClick={() => setBusquedaIcono(sugerenciaTermino)}
-      style={{ cursor: 'pointer' }}
-    >{sugerenciaTermino}</strong>"?
-  </div>
-)}
+                    <div className="ca-icon-contador">
+                      {cargandoIconos ? (
+                        <span>Buscando iconos online...</span>
+                      ) : busquedaOnline ? (
+                        <span>{iconosFiltrados.length} iconos encontrados online</span>
+                      ) : (
+                        <span>{iconosFiltrados.length} iconos encontrados</span>
+                      )}
+                    </div>
+                  )}
                 </div>
+                {sugerenciaTermino && (
+                  <div className="ca-icon-sugerencia" style={{ 
+                    fontSize: '12px', 
+                    color: '#666', 
+                    marginTop: '4px' 
+                  }}>
+                    ¿Quisiste decir "<strong 
+                      onClick={() => setBusquedaIcono(sugerenciaTermino)}
+                      style={{ cursor: 'pointer' }}
+                    >{sugerenciaTermino}</strong>"?
+                  </div>
+                )}
               </div>
 
               {/* Grid de íconos mejorado */}
@@ -1122,109 +1154,111 @@ const [sugerenciaTermino, setSugerenciaTermino] = useState('');
                     </div>
                   ))
                 ) : busquedaIcono ? (
-  <div className="ca-sin-iconos">
-    {cargandoIconos ? (
-      <>
-        <span className="material-icons" style={{ fontSize: '48px', color: '#4ECDC4', animation: 'spin 1s linear infinite' }}>
-          refresh
-        </span>
-        <p>Buscando "{busquedaIcono}" en Material Icons...</p>
-      </>
-    ) : (
-      <>
-        <span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
-          search_off
-        </span>
-        <p>No se encontraron iconos para "{busquedaIcono}"</p>
-        {sugerenciaTermino && (
-  <p style={{ color: '#4ECDC4', marginTop: '8px' }}>
-    💡 ¿Quisiste decir "<strong 
-      onClick={() => setBusquedaIcono(sugerenciaTermino)}
-      style={{ cursor: 'pointer' }}
-    >{sugerenciaTermino}</strong>"?
-  </p>
-)}
-        <small>
-          Ejemplos: copa, vino, bebida, taza, vaso, pollo, pizza, edificio, 
-          limpieza, herramienta, oficina, trabajo
-        </small>
-        <small style={{ display: 'block', marginTop: '8px', color: '#888' }}>
-          ✨ La búsqueda incluye Material Icons completo online
-        </small>
-      </>
-    )}
-  </div>
-) : null}
-</div>
-        <div className="ca-modal-acciones">
-          <button
-            onClick={() => {
-              const nombreRepetido = categorias.some(
-                (c) =>
-                  c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
-                  c.id !== editando.id
-              );
+                  <div className="ca-sin-iconos">
+                    {cargandoIconos ? (
+                      <>
+                        <span className="material-icons" style={{ fontSize: '48px', color: '#4ECDC4', animation: 'spin 1s linear infinite' }}>
+                          refresh
+                        </span>
+                        <p>Buscando "{busquedaIcono}" en Material Icons...</p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
+                          search_off
+                        </span>
+                        <p>No se encontraron iconos para "{busquedaIcono}"</p>
+                        {sugerenciaTermino && (
+                          <p style={{ color: '#4ECDC4', marginTop: '8px' }}>
+                            ¿Quisiste decir "<strong 
+                              onClick={() => setBusquedaIcono(sugerenciaTermino)}
+                              style={{ cursor: 'pointer' }}
+                            >{sugerenciaTermino}</strong>"?
+                          </p>
+                        )}
+                        <small>
+                          Ejemplos: copa, vino, bebida, taza, vaso, pollo, pizza, edificio, 
+                          limpieza, herramienta, oficina, trabajo
+                        </small>
+                        <small style={{ display: 'block', marginTop: '8px', color: '#888' }}>
+                          La búsqueda incluye Material Icons completo online
+                        </small>
+                      </>
+                    )}
+                  </div>
+                ) : null}
+              </div>
 
-              if (nombreRepetido) {
-                alert("No se puede guardar: nombre ya en uso.");
-                return;
-              }
-              guardarEdicion();
-            }}
-            className="ca-btn-submit"
-          >
-            Guardar
-          </button>
-          <button onClick={() => setEditando(null)} className="ca-btn-cancelar">
-            Cancelar
-          </button>
+              <div className="ca-modal-acciones">
+                <button
+                  onClick={() => {
+                    const nombreRepetido = categorias.some(
+                      (c) =>
+                        c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
+                        c.id !== editando.id
+                    );
+
+                    if (nombreRepetido) {
+                      alert("No se puede guardar: nombre ya en uso.");
+                      return;
+                    }
+                    guardarEdicion();
+                  }}
+                  className="ca-btn-submit"
+                >
+                  Guardar
+                </button>
+                <button onClick={() => setEditando(null)} className="ca-btn-cancelar">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      </div>
-    </div>
-  )}
+      )}
 
-  {/* Modal reasignación */}
-  {reasignarId && (
-    <div className="ca-modal">
-      <div className="ca-modal-content">
-        <h3>Reasignar servicios</h3>
-        <p>
-          Seleccioná una categoría destino para mover los servicios antes de
-          eliminar la categoría.
-        </p>
-        <select
-          onChange={async (e) => {
-            const nuevaCat = e.target.value;
-            if (!nuevaCat) return;
+      {/* Modal reasignación */}
+      {reasignarId && (
+        <div className="ca-modal">
+          <div className="ca-modal-content">
+            <h3>Reasignar servicios</h3>
+            <p>
+              Seleccioná una categoría destino para mover los servicios antes de
+              eliminar la categoría.
+            </p>
+            <select
+              onChange={async (e) => {
+                const nuevaCat = e.target.value;
+                if (!nuevaCat) return;
 
-            await supabase
-              .from("servicios")
-              .update({ categoria_id: nuevaCat })
-              .eq("categoria_id", reasignarId);
+                await supabase
+                  .from("servicios")
+                  .update({ categoria_id: nuevaCat })
+                  .eq("categoria_id", reasignarId);
 
-            await supabase.from("categorias").delete().eq("id", reasignarId);
+                await supabase.from("categorias").delete().eq("id", reasignarId);
 
-            setCategorias((prev) =>
-              prev.filter((cat) => cat.id !== reasignarId)
-            );
-            setReasignarId(null);
-          }}
-        >
-          <option value="">-- Seleccionar categoría --</option>
-          {categorias
-            .filter((c) => c.id !== reasignarId)
-            .map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-        </select>
-        <button onClick={() => setReasignarId(null)}>Cancelar</button>
-      </div>
-    </div>
-  )}
-</section>
-);
+                setCategorias((prev) =>
+                  prev.filter((cat) => cat.id !== reasignarId)
+                );
+                setReasignarId(null);
+              }}
+            >
+              <option value="">-- Seleccionar categoría --</option>
+              {categorias
+                .filter((c) => c.id !== reasignarId)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nombre}
+                  </option>
+                ))}
+            </select>
+            <button onClick={() => setReasignarId(null)}>Cancelar</button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 };
+
 export default CategoriasAdmin;

@@ -14,73 +14,46 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
-  
-  // 🆕 Estado para bloquear durante OAuth
   const [isRedirectingToGoogle, setIsRedirectingToGoogle] = useState(false);
   
   const [suspensionInfo, setSuspensionInfo] = useState(null);
   const [mostrarModalSuspension, setMostrarModalSuspension] = useState(false);
+
+  // 🆕 Estados para modales
+  const [modalInfo, setModalInfo] = useState(null); // { tipo: 'success'|'error'|'warning', titulo, mensaje }
 
   const verificacionEnProceso = useRef(false);
   const yaVerificado = useRef(false);
   const navegacionRealizada = useRef(false);
 
   useEffect(() => {
-    // console.log('🔵 [LOGIN] Componente montado');
     return () => console.log('🔵 [LOGIN] Componente desmontado');
   }, []);
 
- useEffect(() => {
-  if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
-    // console.log('⚠️ [LOGIN] No verificar:', { 
-//   user: !!user, 
-//   perfil: !!perfil, 
-//   loading, 
-//   yaVerificado: yaVerificado.current, 
-//   navegacionRealizada: navegacionRealizada.current 
-// });
-    return;
-  }
-
-  // console.log('✅ [LOGIN] Iniciando verificación de acceso');
-  
-  // 🆕 Mantener el loading activo mientras verifica
-  setLoadingAction(true);
-  
-  verificarAccesoUsuario();
-}, [user, perfil, loading]);
-
   useEffect(() => {
     if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
-      // console.log('⚠️ [LOGIN] No verificar:', { user: !!user, perfil: !!perfil, loading, yaVerificado: yaVerificado.current, navegacionRealizada: navegacionRealizada.current });
       return;
     }
-
-    // console.log('✅ [LOGIN] Iniciando verificación de acceso');
+    
+    setLoadingAction(true);
     verificarAccesoUsuario();
   }, [user, perfil, loading]);
 
   const verificarAccesoUsuario = async () => {
-    // console.log('🟢 [VERIFICAR] Iniciando verificación');
-    
     if (verificacionEnProceso.current || navegacionRealizada.current) {
-      // console.log('⚠️ [VERIFICAR] Bloqueado - ya en proceso o navegado');
       return;
     }
 
     verificacionEnProceso.current = true;
     yaVerificado.current = true;
-    // console.log('✅ [VERIFICAR] Proceso iniciado');
 
     try {
       if (perfil.estado === 'admin' || perfil.rol === 'admin') {
-        // console.log('👑 [VERIFICAR] Admin detectado - navegando');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
 
-      // console.log('🔍 [VERIFICAR] Buscando suspensiones');
       const { data: suspension } = await supabase
         .from('suspensiones')
         .select('*')
@@ -92,20 +65,16 @@ const Login = () => {
         .maybeSingle();
 
       if (!suspension) {
-        // console.log('✨ [VERIFICAR] Sin suspensiones - navegando al home');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
-
-      // console.log('⛔ [VERIFICAR] Usuario suspendido');
 
       if (suspension.tipo_suspension === 'temporal' && suspension.fecha_fin) {
         const ahora = new Date();
         const fechaFin = new Date(suspension.fecha_fin);
 
         if (ahora >= fechaFin) {
-          // console.log('⏰ [VERIFICAR] Suspensión expirada - desactivando');
           await supabase
             .from('suspensiones')
             .update({ activa: false })
@@ -135,80 +104,90 @@ const Login = () => {
       navegacionRealizada.current = true;
       navigate('/', { replace: true });
     } finally {
-      // console.log('🏁 [VERIFICAR] Proceso finalizado');
       verificacionEnProceso.current = false;
     }
   };
 
-const manejarSubmit = async (e) => {
-  e.preventDefault();
-  // console.log('📧 [SUBMIT] Iniciando login con email');
-  
-  setFormError('');
-  setLoadingAction(true);
-
-  if (!email.trim() || !password.trim()) {
-    // console.log('⚠️ [SUBMIT] Campos vacíos');
-    setFormError('Por favor completa todos los campos.');
-    setLoadingAction(false);
-    return;
-  }
-
-  try {
-    // console.log('🔐 [SUBMIT] Llamando a login()');
-    await login(email.trim(), password);
-    // console.log('✅ [SUBMIT] Login exitoso - esperando verificación automática');
+  const manejarSubmit = async (e) => {
+    e.preventDefault();
     
-    // 🔴 NO NAVEGAR AQUÍ - dejar que useEffect lo haga
-    // 🔴 NO setear navegacionRealizada.current = true
-    // Solo mantener loadingAction = true para que muestre "Cargando..."
-    
-  } catch (err) {
-    console.error('❌ [SUBMIT] Error en login:', err);
-    setFormError('Error al iniciar sesión. Verifica tus credenciales.');
-    setLoadingAction(false);
-  }
-};
+    setFormError('');
+    setLoadingAction(true);
 
-const manejarGoogleLogin = async () => {
-  // console.log('🔴 [GOOGLE] Iniciando login con Google');
-  
-  // 🆕 Setear PRIMERO el estado de redirección
-  setIsRedirectingToGoogle(true);
-  setLoadingAction(true);
-  setFormError('');
-  
-  try {
-    // console.log('🌐 [GOOGLE] Llamando a loginWithGoogle()');
-    await loginWithGoogle();
-    // console.log('✅ [GOOGLE] Redirigiendo a Google...');
+    if (!email.trim() || !password.trim()) {
+      setFormError('Por favor completa todos los campos.');
+      setLoadingAction(false);
+      return;
+    }
+
+    try {
+      await login(email.trim(), password);
+    } catch (err) {
+      console.error('❌ [SUBMIT] Error en login:', err);
+      
+      let mensajeError = '';
+      
+      if (err.message?.includes('Invalid login credentials')) {
+        mensajeError = '❌ Correo o contraseña incorrectos.\n\n¿Posibles causas?\n• El correo no está registrado\n• La contraseña es incorrecta\n• Tu cuenta aún no fue confirmada (revisa tu email)\n\n💡 Si recién te registraste, confirma tu correo primero';
+      } else if (err.message?.includes('Email not confirmed')) {
+        mensajeError = '⚠️ Tu correo aún no está confirmado.\n\nRevisa tu bandeja de entrada y spam.\nSi no recibiste el correo, usa el botón "Reenviar confirmación" abajo.';
+      } else {
+        mensajeError = '❌ Error al iniciar sesión. Intenta de nuevo.';
+      }
+      
+      setFormError(mensajeError);
+      setLoadingAction(false);
+    }
+  };
+
+  const manejarGoogleLogin = async () => {
+    setIsRedirectingToGoogle(true);
+    setLoadingAction(true);
+    setFormError('');
     
-    // 🆕 NO resetear nada - dejar el spinner activo
-    // La página va a redirigir, no importa si el componente se desmonta
-  } catch (err) {
-    console.error('❌ [GOOGLE] Error:', err);
-    setFormError('Error al conectar con Google. Intenta de nuevo.');
-    setLoadingAction(false);
-    setIsRedirectingToGoogle(false);
-  }
-};
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      console.error('❌ [GOOGLE] Error:', err);
+      setFormError('Error al conectar con Google. Intenta de nuevo.');
+      setLoadingAction(false);
+      setIsRedirectingToGoogle(false);
+    }
+  };
 
   const manejarOlvideContrasena = async () => {
     if (!email.trim()) {
-      alert('Por favor ingresa tu correo primero.');
+      setModalInfo({
+        tipo: 'warning',
+        titulo: '⚠️ Correo requerido',
+        mensaje: 'Por favor ingresa tu correo electrónico en el campo de arriba antes de solicitar la recuperación de contraseña.'
+      });
       return;
     }
+
     try {
       await resetPassword(email.trim());
-      alert('Te enviamos un correo para restablecer tu contraseña.');
+      setModalInfo({
+        tipo: 'success',
+        titulo: '✅ Correo enviado',
+        mensaje: `Te enviamos un enlace de recuperación a:\n\n${email.trim()}\n\nRevisa tu bandeja de entrada y también la carpeta de spam.\n\nEl enlace expira en 1 hora.`
+      });
     } catch (err) {
-      alert('Hubo un error al enviar el correo. Intenta de nuevo.');
+      setModalInfo({
+        tipo: 'error',
+        titulo: '❌ Error',
+        mensaje: 'Hubo un error al enviar el correo de recuperación.\n\nVerifica que tu correo sea correcto e intenta nuevamente.'
+      });
     }
   };
 
   const reenviarEmailConfirmacion = async () => {
     if (!email.trim()) {
-      alert('Por favor ingresa tu correo primero.');
+      setModalInfo({
+        tipo: 'warning',
+        titulo: '⚠️ Correo requerido',
+        mensaje: 'Por favor ingresa tu correo electrónico primero.'
+      });
       return;
     }
     
@@ -220,9 +199,30 @@ const manejarGoogleLogin = async () => {
 
       if (error) throw error;
 
-      alert('✅ Email de confirmación reenviado.\n\nRevisá tu bandeja de entrada y spam.');
+      setModalInfo({
+        tipo: 'success',
+        titulo: '✅ Email de confirmación reenviado',
+        mensaje: `Enviamos un nuevo correo a:\n${email.trim()}\n\n📬 Revisa tu bandeja de entrada\n📂 Si no lo ves, revisa spam\n⏰ Puede tardar hasta 2 minutos\n\n💡 Después de confirmar, actualiza esta página (F5) para iniciar sesión.`
+      });
     } catch (err) {
-      alert('❌ Error: ' + err.message);
+      let mensajeError = 'Error al reenviar el correo de confirmación.';
+      
+      if (err.message?.includes('Email rate limit exceeded')) {
+        mensajeError = 'Has solicitado demasiados correos.\n\nEspera 60 segundos antes de intentar nuevamente.';
+      } else if (err.message?.includes('already confirmed')) {
+        setModalInfo({
+          tipo: 'success',
+          titulo: '✅ Ya confirmado',
+          mensaje: 'Tu correo ya está confirmado.\n\nPuedes iniciar sesión directamente.'
+        });
+        return;
+      }
+      
+      setModalInfo({
+        tipo: 'error',
+        titulo: '❌ Error',
+        mensaje: mensajeError
+      });
     }
   };
 
@@ -230,7 +230,6 @@ const manejarGoogleLogin = async () => {
     navigate('/');
   };
 
-  // 🆕 Si está redirigiendo a Google, mostrar pantalla de carga
   if (isRedirectingToGoogle) {
     return (
       <div className="login-goya-container">
@@ -286,6 +285,93 @@ Gracias.
 
   return (
     <div className="login-goya-container">
+      {/* 🆕 Modal de información */}
+      {modalInfo && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            maxWidth: '420px',
+            width: '100%',
+            padding: '24px',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            animation: 'slideUp 0.3s ease'
+          }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              margin: '0 auto 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              backgroundColor: modalInfo.tipo === 'success' ? '#dcfce7' :
+                               modalInfo.tipo === 'error' ? '#fee2e2' :
+                               '#fef3c7',
+              color: modalInfo.tipo === 'success' ? '#16a34a' :
+                     modalInfo.tipo === 'error' ? '#dc2626' :
+                     '#d97706'
+            }}>
+              {modalInfo.tipo === 'success' ? '✓' : modalInfo.tipo === 'error' ? '✕' : '!'}
+            </div>
+            
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a1a1a',
+              textAlign: 'center',
+              marginBottom: '12px'
+            }}>
+              {modalInfo.titulo}
+            </h3>
+            
+            <p style={{
+              fontSize: '14px',
+              lineHeight: '1.6',
+              color: '#666',
+              textAlign: 'center',
+              whiteSpace: 'pre-line',
+              marginBottom: '20px'
+            }}>
+              {modalInfo.mensaje}
+            </p>
+            
+            <button
+              onClick={() => setModalInfo(null)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1774f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#0d5abf'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#1774f6'}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="login-goya-box">
         <div className="login-goya-logo">
           <img src="/assets/GoyaNova_20250918_144009_0000.png" alt="GoyaNova" />
@@ -295,8 +381,11 @@ Gracias.
         
         <p className="login-goya-title">Inicia sesión para continuar</p>
 
-        {formError && <div className="login-goya-error">{formError}</div>}
-        {error && <div className="login-goya-error">{error}</div>}
+        {(formError || error) && (
+          <div className="login-goya-error" style={{ whiteSpace: 'pre-line' }}>
+            {formError || error}
+          </div>
+        )}
 
         <button 
           className="login-goya-google" 

@@ -496,11 +496,11 @@ useEffect(() => {
           <td><span className="cross">✗</span></td>
           <td><span className="check premium-check">✓</span></td>
         </tr>
-        <tr>
+        {/* <tr>
           <td>Estadísticas avanzadas</td>
           <td><span className="cross">✗</span></td>
           <td><span className="check premium-check">✓</span></td>
-        </tr>
+        </tr> */}
         <tr>
           <td>Soporte prioritario</td>
           <td><span className="cross">✗</span></td>

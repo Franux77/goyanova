@@ -48,9 +48,15 @@ const Perfil = () => {
   };
 
   const handleGuardar = async () => {
-    try {
-      setGuardando(true);
-      let foto_url = perfil.foto_url;
+  try {
+    // ✅ Validación de edad mínima
+    if (perfil.edad && Number(perfil.edad) < 12) {
+      alert('⚠️ La edad mínima permitida es 12 años');
+      return;
+    }
+
+    setGuardando(true);
+    let foto_url = perfil.foto_url;
       
       if (perfil.foto_file) {
         const { data: fotoData, error: uploadError } = await supabase.storage
@@ -152,7 +158,8 @@ const Perfil = () => {
       name: 'edad', 
       type: 'number', 
       icon: 'cake',
-      placeholder: 'Tu edad'
+      placeholder: 'Tu edad (mínimo 12 años)',
+      min: 12
     },
   ];
 
@@ -237,6 +244,7 @@ const Perfil = () => {
                     onChange={handleChange}
                     placeholder={campo.placeholder}
                     className="goya-perfil-input"
+                    min={campo.min || undefined}
                   />
                 ) : (
                   <div className="goya-perfil-value">

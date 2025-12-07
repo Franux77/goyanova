@@ -14,13 +14,15 @@ const Register = () => {
     telefono: '',
     email: '',
     edad: '',
-    password: '',
-    passwordConfirm: ''
+    password: ''
   });
   
   const [mostrarPass, setMostrarPass] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
+  
+  // 🆕 Estado para modal
+  const [modalInfo, setModalInfo] = useState(null); // { tipo, titulo, mensaje, onClose }
 
   const validarPassword = (pass) => {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(pass);
@@ -39,23 +41,16 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // console.log('🚀 INICIANDO PROCESO DE REGISTRO');
 
-    const { nombre, apellido, telefono, email, edad, password, passwordConfirm } = formData;
+    const { nombre, apellido, telefono, email, edad, password } = formData;
     
-    if (!nombre.trim() || !apellido.trim() || !telefono.trim() || !email.trim() || !password || !passwordConfirm) {
+    if (!nombre.trim() || !apellido.trim() || !telefono.trim() || !email.trim() || !password) {
       setError('Completá todos los campos obligatorios.');
       return;
     }
 
     if (edad && Number(edad) < 12) {
       setError('Debes tener al menos 12 años para registrarte.');
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      setError('Las contraseñas no coinciden.');
       return;
     }
 
@@ -67,7 +62,6 @@ const Register = () => {
     try {
       setCargando(true);
 
-      // 🔹 PASO 1: Crear usuario en Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
@@ -88,16 +82,8 @@ const Register = () => {
       const userId = authData.user.id;
       const needsConfirmation = authData.user.identities?.length === 0;
 
-      // console.log('✅ Usuario creado en Auth:', userId);
-      // console.log('📧 Requiere confirmación:', needsConfirmation);
-
-      // 🔹 PASO 2: Esperar a que el trigger cree el perfil automáticamente
-      // El trigger debería crear el perfil instantáneamente, pero esperamos un poco por si acaso
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // console.log('✅ Perfil creado automáticamente por trigger');
-
-      // 🔹 PASO 3: Guardar datos para modal promocional
       if (needsConfirmation) {
         const promoData = {
           email: email.trim().toLowerCase(),
@@ -109,41 +95,51 @@ const Register = () => {
         sessionStorage.setItem('mostrar_modal_promo', 'true');
       }
 
-      // 🔹 PASO 4: Mostrar mensaje de éxito
-      let mensaje = '🎉 ¡Cuenta creada con éxito!';
+      // 🆕 Mostrar modal - SIEMPRE necesita confirmación de email
+      setModalInfo({
+        tipo: 'success',
+        titulo: '🎉 ¡Cuenta creada exitosamente!',
+        mensaje: `📧 Enviamos un correo de confirmación a:\n${email.trim()}\n\n📋 PASOS PARA ACTIVAR TU CUENTA:\n\n1️⃣ Revisa tu bandeja de entrada\n2️⃣ Busca el correo de GoyaNova\n3️⃣ Haz clic en "Confirmar correo electrónico"\n4️⃣ Vuelve aquí y actualiza la página (F5)\n5️⃣ Inicia sesión con tu correo y contraseña\n\n⏰ El correo puede tardar hasta 2 minutos\n📂 Si no lo ves, REVISA LA CARPETA DE SPAM\n\n⚠️ NO podrás iniciar sesión hasta confirmar tu correo\n\n💡 Después de confirmar podrás usar códigos promocionales`,
+        onClose: () => {
+          setModalInfo(null);
+          navigate('/login');
+        }
+      });
+
+    } catch (err) {
+      console.error('❌ ERROR EN REGISTRO:', err);
       
-      if (needsConfirmation) {
-        mensaje += `\n\n📧 Enviamos un email a:\n${email}`;
-        mensaje += '\n\n✅ Hacé click en el link para activar tu cuenta';
-        mensaje += '\n\n💡 Podrás ingresar un código promocional después de confirmar';
-        mensaje += '\n\n⏰ Revisá spam si no lo ves en 2 minutos';
+      let mensajeError = '';
+      let tituloError = '❌ Error al crear cuenta';
+      
+      if (err.message?.includes('already registered') || 
+          err.message?.includes('User already registered')) {
+        tituloError = '⚠️ Correo ya registrado';
+        mensajeError = `El correo ${email.trim()} ya tiene una cuenta.\n\n🔑 OPCIONES:\n\n✅ Si YA CONFIRMASTE tu correo:\n   → Inicia sesión con tu contraseña\n   → Usa "Continuar con Google"\n   → Usa "¿Olvidaste tu contraseña?"\n\n📧 Si NO CONFIRMASTE tu correo:\n   → Puedes registrarte de nuevo\n   → Te llegará un nuevo email de confirmación\n   → Revisa spam si no lo ves en 2 minutos`;
+        setError('Este correo ya está registrado.');
+      } else if (err.message?.includes('invalid email')) {
+        mensajeError = 'El formato del correo no es válido.\n\nVerifica que sea correcto.\nEjemplo: tu@email.com';
+        setError('Email inválido. Verificá el formato.');
+      } else if (err.message?.includes('Password') || err.message?.includes('password')) {
+        tituloError = '❌ Contraseña inválida';
+        mensajeError = 'La contraseña debe cumplir:\n\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)\n\nEjemplo válido: Goya2024';
+        setError('Contraseña no cumple los requisitos.');
+      } else if (err.message?.includes('Email rate limit exceeded')) {
+        tituloError = '⏱️ Demasiados intentos';
+        mensajeError = 'Has realizado muchas solicitudes.\n\n⏰ Espera 60 segundos antes de intentar nuevamente.';
+        setError('Demasiados intentos. Espera un minuto.');
       } else {
-        mensaje += '\n\n✅ Tu cuenta está lista';
-        mensaje += '\n\n👉 Ya podés iniciar sesión';
-        mensaje += '\n\n💡 Podrás ingresar un código promocional en el siguiente paso';
+        mensajeError = err.message || 'Ocurrió un error inesperado.\n\nIntenta de nuevo en unos momentos.\n\nSi el problema persiste, contacta a soporte.';
+        setError('Error al crear la cuenta. Intenta de nuevo.');
       }
-
-      alert(mensaje);
-      navigate('/login');
-
-    } // 🔥 BUSCAR ESTE CATCH Y REEMPLAZARLO:
-
-catch (err) {
-  console.error('❌ ERROR EN REGISTRO:', err);
-  
-  if (err.message?.includes('already registered') || 
-      err.message?.includes('User already registered')) {
-    setError('⚠️ Este correo ya está registrado.\n\nProbá iniciar sesión o usar "Continuar con Google".');
-  } else if (err.message?.includes('invalid email')) {
-    setError('❌ Email inválido. Verificá el formato.');
-  } else if (err.message?.includes('Password') || err.message?.includes('password')) {
-    setError('❌ La contraseña debe tener al menos 8 caracteres con mayúscula, minúscula y número.');
-  } else if (err.message?.includes('Email rate limit exceeded')) {
-    setError('⏱️ Demasiados intentos. Esperá unos minutos antes de intentar de nuevo.');
-  } else {
-    setError(err.message || 'Ocurrió un error. Intentá de nuevo.');
-  }
-} finally {
+      
+      setModalInfo({
+        tipo: 'error',
+        titulo: tituloError,
+        mensaje: mensajeError,
+        onClose: () => setModalInfo(null)
+      });
+    } finally {
       setCargando(false);
     }
   };
@@ -151,16 +147,108 @@ catch (err) {
   const handleGoogleRegister = async () => {
     try {
       setError('');
-      // console.log('🔐 Iniciando registro con Google OAuth...');
       await loginWithGoogle();
     } catch (err) {
       console.error('❌ Error con Google OAuth:', err.message);
-      setError('Error al conectar con Google. Intentá de nuevo.');
+      setModalInfo({
+        tipo: 'error',
+        titulo: '❌ Error con Google',
+        mensaje: 'No se pudo completar el registro con Google.\n\n💡 Intenta:\n• Usar registro con correo\n• Verificar tu conexión\n• Intentar en unos segundos',
+        onClose: () => setModalInfo(null)
+      });
+      setError('Error al conectar con Google. Intenta de nuevo.');
     }
   };
 
   return (
     <div className="register-container">
+      {/* 🆕 Modal integrado */}
+      {modalInfo && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
+          animation: 'fadeIn 0.2s ease'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            maxWidth: '440px',
+            width: '100%',
+            padding: '28px',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            animation: 'slideUp 0.3s ease',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              margin: '0 auto 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '28px',
+              backgroundColor: modalInfo.tipo === 'success' ? '#dcfce7' : '#fee2e2',
+              color: modalInfo.tipo === 'success' ? '#16a34a' : '#dc2626'
+            }}>
+              {modalInfo.tipo === 'success' ? '✓' : '✕'}
+            </div>
+            
+            <h3 style={{
+              fontSize: '19px',
+              fontWeight: '600',
+              color: '#1a1a1a',
+              textAlign: 'center',
+              marginBottom: '16px',
+              lineHeight: '1.3'
+            }}>
+              {modalInfo.titulo}
+            </h3>
+            
+            <p style={{
+              fontSize: '14px',
+              lineHeight: '1.7',
+              color: '#666',
+              textAlign: 'left',
+              whiteSpace: 'pre-line',
+              marginBottom: '24px'
+            }}>
+              {modalInfo.mensaje}
+            </p>
+            
+            <button
+              onClick={modalInfo.onClose}
+              style={{
+                width: '100%',
+                padding: '13px',
+                backgroundColor: '#1774f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#0d5abf'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#1774f6'}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="register-box">
         
         {/* Logo */}
@@ -171,6 +259,21 @@ catch (err) {
 
         {/* Título */}
         <p className="register-title">Crear cuenta nueva</p>
+
+        {/* Info sobre re-registro */}
+        <div style={{
+          fontSize: '12px',
+          color: '#666',
+          background: '#f0f9ff',
+          border: '1px solid #bae6fd',
+          borderRadius: '8px',
+          padding: '10px 12px',
+          marginBottom: '16px',
+          lineHeight: '1.5'
+        }}>
+          💡 <strong>¿No recibiste el email de confirmación?</strong><br/>
+          Puedes registrarte nuevamente con el mismo correo para recibir un nuevo email.
+        </div>
 
         {/* Error */}
         {error && (
@@ -261,24 +364,6 @@ catch (err) {
               name="password"
               placeholder="Contraseña *"
               value={formData.password}
-              onChange={handleChange}
-              disabled={cargando}
-              required
-            />
-            <span
-              className="material-icons register-icon-toggle"
-              onClick={() => setMostrarPass(!mostrarPass)}
-            >
-              {mostrarPass ? 'visibility' : 'visibility_off'}
-            </span>
-          </div>
-
-          <div className="register-input-icon">
-            <input
-              type={mostrarPass ? 'text' : 'password'}
-              name="passwordConfirm"
-              placeholder="Confirmar contraseña *"
-              value={formData.passwordConfirm}
               onChange={handleChange}
               disabled={cargando}
               required
