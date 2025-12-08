@@ -1,3 +1,7 @@
+// ============================================
+// UsuariosAdmin.jsx - Versión Compacta con Iconos
+// ============================================
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../auth/useAuth';
@@ -14,7 +18,7 @@ const UsuariosAdmin = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroRol, setFiltroRol] = useState('todos');
   const [paginaActual, setPaginaActual] = useState(1);
-  const usuariosPorPagina = 5;
+  const usuariosPorPagina = 15;
   const [loading, setLoading] = useState(false);
   const [usuarioEditar, setUsuarioEditar] = useState(null);
   const [formData, setFormData] = useState({ nombre: '', apellido: '', email: '', telefono: '' });
@@ -238,71 +242,82 @@ const UsuariosAdmin = () => {
     }
   };
 
-const handleEliminar = async (usuario) => {
-  if (!window.confirm(
-    `⚠️ ELIMINAR A ${usuario.nombreCompleto}\n\n` +
-    `Esto eliminará:\n` +
-    `• Su cuenta de autenticación\n` +
-    `• Todos sus servicios (${servicios.filter(s => s.usuario_id === usuario.id).length})\n` +
-    `• Sus membresías\n` +
-    `• Sus opiniones\n` +
-    `• Sus notificaciones\n\n` +
-    `¿Confirmas esta acción IRREVERSIBLE?`
-  )) return;
+  const handleEliminar = async (usuario) => {
+    if (!window.confirm(
+      `⚠️ ELIMINAR A ${usuario.nombreCompleto}\n\n` +
+      `Esto eliminará:\n` +
+      `• Su cuenta de autenticación\n` +
+      `• Todos sus servicios (${servicios.filter(s => s.usuario_id === usuario.id).length})\n` +
+      `• Sus membresías\n` +
+      `• Sus opiniones\n` +
+      `• Sus notificaciones\n\n` +
+      `¿Confirmas esta acción IRREVERSIBLE?`
+    )) return;
 
-  setLoading(true);
-  try {
-    //console.log('🗑️ Eliminando usuario:', usuario.id);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
+        p_usuario_id: usuario.id
+      });
 
-    // ✅ CORRECCIÓN: Cambiar "usuario_id" por "p_usuario_id"
-    const { data, error } = await supabase.rpc('eliminar_usuario_completo', {
-      p_usuario_id: usuario.id  // ← ESTE ERA EL PROBLEMA
-    });
+      if (error) {
+        console.error('❌ Error RPC:', error);
+        throw error;
+      }
 
-    if (error) {
-      console.error('❌ Error RPC:', error);
-      throw error;
+      if (data.success) {
+        alert(
+          `✅ Usuario eliminado completamente\n\n` +
+          `Datos eliminados:\n` +
+          `• Servicios: ${data.datos_eliminados.servicios}\n` +
+          `• Membresías: ${data.datos_eliminados.membresias}\n` +
+          `• Opiniones: ${data.datos_eliminados.opiniones}\n` +
+          `• Notificaciones: ${data.datos_eliminados.notificaciones}\n` +
+          `• Suspensiones: ${data.datos_eliminados.suspensiones}`
+        );
+        await fetchAll();
+      } else {
+        throw new Error(data.error || 'Error desconocido');
+      }
+    } catch (err) {
+      console.error('❌ Error eliminando usuario:', err);
+      alert(`Error al eliminar usuario: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    //console.log('📊 Resultado:', data);
-
-    if (data.success) {
-      alert(
-        `✅ Usuario eliminado completamente\n\n` +
-        `Datos eliminados:\n` +
-        `• Servicios: ${data.datos_eliminados.servicios}\n` +
-        `• Membresías: ${data.datos_eliminados.membresias}\n` +
-        `• Opiniones: ${data.datos_eliminados.opiniones}\n` +
-        `• Notificaciones: ${data.datos_eliminados.notificaciones}\n` +
-        `• Suspensiones: ${data.datos_eliminados.suspensiones}`
-      );
-      await fetchAll();
-    } else {
-      throw new Error(data.error || 'Error desconocido');
-    }
-  } catch (err) {
-    console.error('❌ Error eliminando usuario:', err);
-    alert(`Error al eliminar usuario: ${err.message}`);
-  } finally {
-    setLoading(false);
+  if (!usuarios.length && busqueda === '') {
+    return <Loading message="Cargando usuarios..." />;
   }
-};
 
   return (
     <section className="ua-usuarios-admin">
       <h2 className="ua-usuarios-admin__titulo">Gestión de Usuarios</h2>
 
       <div className="ua-usuarios-admin__resumen">
-        <div className="ua-resumen-card">Total:<br /><strong>{resumenUsuarios.total}</strong></div>
-        <div className="ua-resumen-card">Admins:<br /><strong>{resumenUsuarios.admin}</strong></div>
-        <div className="ua-resumen-card">Clientes:<br /><strong>{resumenUsuarios.cliente}</strong></div>
-        <div className="ua-resumen-card">Prestadores:<br /><strong>{resumenUsuarios.prestador}</strong></div>
+        <div className="ua-resumen-card">
+          <span className="ua-resumen-card__label">Total</span>
+          <strong className="ua-resumen-card__value">{resumenUsuarios.total}</strong>
+        </div>
+        <div className="ua-resumen-card ua-resumen-card--admin">
+          <span className="ua-resumen-card__label">Admins</span>
+          <strong className="ua-resumen-card__value">{resumenUsuarios.admin}</strong>
+        </div>
+        <div className="ua-resumen-card ua-resumen-card--cliente">
+          <span className="ua-resumen-card__label">Clientes</span>
+          <strong className="ua-resumen-card__value">{resumenUsuarios.cliente}</strong>
+        </div>
+        <div className="ua-resumen-card ua-resumen-card--prestador">
+          <span className="ua-resumen-card__label">Prestadores</span>
+          <strong className="ua-resumen-card__value">{resumenUsuarios.prestador}</strong>
+        </div>
       </div>
 
       <div className="ua-usuarios-admin__controles">
         <input
           type="search"
-          placeholder="Buscar por nombre o email..."
+          placeholder="Buscar usuario..."
           value={busqueda}
           onChange={(e) => { setBusqueda(e.target.value); setPaginaActual(1); }}
           className="ua-input"
@@ -312,10 +327,10 @@ const handleEliminar = async (usuario) => {
           onChange={(e) => { setFiltroRol(e.target.value); setPaginaActual(1); }}
           className="ua-select"
         >
-          <option value="todos">Todos los roles</option>
-          <option value="admin">Admins</option>
-          <option value="cliente">Clientes</option>
-          <option value="prestador">Prestadores</option>
+          <option value="todos">Todos</option>
+          <option value="admin">Admin</option>
+          <option value="cliente">Cliente</option>
+          <option value="prestador">Prestador</option>
         </select>
       </div>
 
@@ -326,36 +341,63 @@ const handleEliminar = async (usuario) => {
           <p className="ua-sin-resultados">No se encontraron usuarios.</p>
         ) : (
           usuariosPaginados.map((usuario) => (
-            <article key={usuario.id} className="ua-usuario-card">
-              <div className="ua-detalle-usuario">
-                <strong>{usuario.nombreCompleto}</strong>{' '}
-                <span className={`ua-rol ua-rol--${usuario.rol}`}>({usuario.rol})</span>
-                {usuario.suspendido && (
-                  <span style={{ color: 'red', marginLeft: 8 }}>
-                    (suspendido {usuario.suspensionActiva?.tipo_suspension === 'temporal' 
-                      ? `- ${usuario.suspensionActiva.dias_suspension} días` 
-                      : '- permanente'})
+            <article key={usuario.id} className="ua-card">
+              <div className="ua-card__info">
+                <div className="ua-card__header">
+                  <h3 className="ua-card__nombre">{usuario.nombreCompleto}</h3>
+                  <span className={`ua-badge ua-badge--${usuario.rol}`}>
+                    {usuario.rol}
                   </span>
+                  {usuario.suspendido && (
+                    <span className="ua-badge ua-badge--suspendido">
+                      suspendido
+                    </span>
+                  )}
+                </div>
+                <p className="ua-card__email">
+                  <span className="material-icons ua-card__icon">email</span>
+                  {usuario.email}
+                </p>
+                {usuario.suspendido && usuario.suspensionActiva && (
+                  <p className="ua-card__suspension">
+                    <span className="material-icons ua-card__icon">info</span>
+                    {usuario.suspensionActiva.tipo_suspension === 'temporal' 
+                      ? `Suspensión temporal - ${usuario.suspensionActiva.dias_suspension} días` 
+                      : 'Suspensión permanente'}
+                  </p>
                 )}
-                <p className="ua-email">{usuario.email}</p>
               </div>
-              <div className="ua-acciones">
-                <button className="ua-btn-editarr" onClick={() => handleEditar(usuario)}>
-                  Editar
+              <div className="ua-card__acciones">
+                <button 
+                  className="ua-btn ua-btn--editar" 
+                  onClick={() => handleEditar(usuario)}
+                  title="Editar"
+                >
+                  <span className="material-icons">edit</span>
                 </button>
-
                 {usuario.suspendido ? (
-                  <button className="ua-btn-suspender" onClick={() => handleReactivar(usuario)}>
-                    Habilitar
+                  <button 
+                    className="ua-btn ua-btn--habilitar" 
+                    onClick={() => handleReactivar(usuario)}
+                    title="Habilitar"
+                  >
+                    <span className="material-icons">check_circle</span>
                   </button>
                 ) : (
-                  <button className="ua-btn-suspender" onClick={() => abrirModalSuspension(usuario)}>
-                    Suspender
+                  <button 
+                    className="ua-btn ua-btn--suspender" 
+                    onClick={() => abrirModalSuspension(usuario)}
+                    title="Suspender"
+                  >
+                    <span className="material-icons">block</span>
                   </button>
                 )}
-
-                <button className="ua-btn-eliminar" onClick={() => handleEliminar(usuario)}>
-                  Eliminar
+                <button 
+                  className="ua-btn ua-btn--eliminar" 
+                  onClick={() => handleEliminar(usuario)}
+                  title="Eliminar"
+                >
+                  <span className="material-icons">delete</span>
                 </button>
               </div>
             </article>
@@ -364,8 +406,8 @@ const handleEliminar = async (usuario) => {
       </div>
 
       {usuarioEditar && (
-        <div className="ua-form-editar-backdrop">
-          <div className="ua-form-editar">
+        <div className="ua-modal-backdrop">
+          <div className="ua-modal">
             <h3>Editar Usuario</h3>
             <input
               type="text"
@@ -391,7 +433,7 @@ const handleEliminar = async (usuario) => {
               value={formData.telefono}
               onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
             />
-            <div className="ua-form-actions">
+            <div className="ua-modal-actions">
               <button className="ua-btn-guardar" onClick={handleGuardarEdicion}>Guardar</button>
               <button className="ua-btn-cancelar" onClick={() => setUsuarioEditar(null)}>Cancelar</button>
             </div>
@@ -400,17 +442,14 @@ const handleEliminar = async (usuario) => {
       )}
 
       {mostrarModalSuspension && usuarioSuspender && (
-        <div className="ua-form-editar-backdrop">
-          <div className="ua-form-editar">
+        <div className="ua-modal-backdrop">
+          <div className="ua-modal">
             <h3>Suspender Usuario: {usuarioSuspender.nombreCompleto}</h3>
             
-            <label style={{ marginTop: '15px', display: 'block', fontWeight: 'bold' }}>
-              Tipo de Suspensión:
-            </label>
+            <label>Tipo de Suspensión:</label>
             <select 
               value={tipoSuspension} 
               onChange={(e) => setTipoSuspension(e.target.value)}
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
             >
               <option value="permanente">Permanente</option>
               <option value="temporal">Temporal</option>
@@ -418,32 +457,26 @@ const handleEliminar = async (usuario) => {
 
             {tipoSuspension === 'temporal' && (
               <>
-                <label style={{ marginTop: '15px', display: 'block', fontWeight: 'bold' }}>
-                  Días de Suspensión:
-                </label>
+                <label>Días de Suspensión:</label>
                 <input
                   type="number"
                   min="1"
                   max="365"
                   value={diasSuspension}
                   onChange={(e) => setDiasSuspension(e.target.value)}
-                  style={{ width: '100%', padding: '8px', marginTop: '5px' }}
                 />
               </>
             )}
 
-            <label style={{ marginTop: '15px', display: 'block', fontWeight: 'bold' }}>
-              Motivo (obligatorio):
-            </label>
+            <label>Motivo (obligatorio):</label>
             <textarea
               placeholder="Escribe el motivo de la suspensión..."
               value={motivoSuspension}
               onChange={(e) => setMotivoSuspension(e.target.value)}
               rows="4"
-              style={{ width: '100%', padding: '8px', marginTop: '5px', resize: 'vertical' }}
             />
 
-            <div className="ua-form-actions" style={{ marginTop: '20px' }}>
+            <div className="ua-modal-actions">
               <button className="ua-btn-guardar" onClick={handleConfirmarSuspension}>
                 Confirmar Suspensión
               </button>
@@ -459,11 +492,11 @@ const handleEliminar = async (usuario) => {
       )}
 
       {totalPaginas > 1 && (
-        <nav className="ua-usuarios-admin__paginacion">
+        <nav className="ua-paginacion">
           {Array.from({ length: totalPaginas }, (_, i) => (
             <button
               key={i}
-              className={`ua-btn-paginacion ${paginaActual === i + 1 ? 'ua-activo' : ''}`}
+              className={`ua-paginacion__btn ${paginaActual === i + 1 ? 'ua-paginacion__btn--activo' : ''}`}
               onClick={() => setPaginaActual(i + 1)}
             >
               {i + 1}

@@ -131,7 +131,6 @@ const ServiciosAdmin = () => {
     if (!motivo)
       motivo = 'Motivo de suspensión de su servicio fue por incumplimiento de normativas de la web y servicios a la comunidad.';
 
-    // 🔹 Actualiza estado y marca quién suspendió
     await supabase
       .from('servicios')
       .update({ estado: 'suspendido', suspendido_por: 'admin' })
@@ -147,7 +146,6 @@ const ServiciosAdmin = () => {
   const habilitarServicio = async (id) => {
     if (!window.confirm('¿Deseas habilitar este servicio?')) return;
 
-    // 🔹 Restaura el estado y borra la marca de suspensión
     await supabase
       .from('servicios')
       .update({ estado: 'activo', suspendido_por: null })
@@ -165,62 +163,109 @@ const ServiciosAdmin = () => {
   const editarServicio = (id) => {
     navigate(`/panel/admin/publicar/${id}`);
   };
-if (!servicios.length && busqueda === '') {
+
+  if (!servicios.length && busqueda === '') {
     return <Loading message="Cargando servicios..." />;
   }
-  return (
-    <section className="sa-servicios-admin">
-      <h2>Gestión de Servicios</h2>
 
-      <div className="sa-servicios-admin__resumen">
-        <div className="sa-resumen-card">Total:<br /><strong>{resumen.total}</strong></div>
-        <div className="sa-resumen-card">Suspendidos:<br /><strong>{resumen.suspendidos}</strong></div>
-        <div className="sa-resumen-card">Activos:<br /><strong>{resumen.activos}</strong></div>
+  return (
+    <section className="sadmin-servicios">
+      <h2 className="sadmin-servicios__titulo">Gestión de Servicios</h2>
+
+      <div className="sadmin-servicios__resumen">
+        <div className="sadmin-resumen-card">
+          <span className="sadmin-resumen-card__label">Total</span>
+          <strong className="sadmin-resumen-card__value">{resumen.total}</strong>
+        </div>
+        <div className="sadmin-resumen-card sadmin-resumen-card--suspendidos">
+          <span className="sadmin-resumen-card__label">Suspendidos</span>
+          <strong className="sadmin-resumen-card__value">{resumen.suspendidos}</strong>
+        </div>
+        <div className="sadmin-resumen-card sadmin-resumen-card--activos">
+          <span className="sadmin-resumen-card__label">Activos</span>
+          <strong className="sadmin-resumen-card__value">{resumen.activos}</strong>
+        </div>
       </div>
 
-      <div className="sa-servicios-admin__controles">
+      <div className="sadmin-servicios__controles">
         <input
           type="search"
-          placeholder="Buscar por título..."
+          placeholder="Buscar servicio..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
-          className="sa-input"
+          className="sadmin-input"
         />
         <select
           value={filtroEstado}
           onChange={e => setFiltroEstado(e.target.value)}
-          className="sa-select"
+          className="sadmin-select"
         >
-          <option value="todos">Todos los estados</option>
+          <option value="todos">Todos</option>
           <option value="activo">Activo</option>
           <option value="suspendido">Suspendido</option>
         </select>
       </div>
 
-      <div className="sa-servicios-admin__lista">
+      <div className="sadmin-servicios__lista">
         {serviciosPaginados.length === 0 ? (
-          <p>No se encontraron servicios.</p>
+          <p className="sadmin-sin-resultados">No se encontraron servicios.</p>
         ) : (
           serviciosPaginados.map(s => (
-            <article key={s.id} className="sa-servicio-card">
-              <div className="sa-detalle-servicio">
-                <strong>{s.nombre}</strong>{' '}
-                <span className={`sa-estado sa-estado--${s.estado}`}>({s.estado})</span>
-                <p>Categoría: {s.categoria}</p>
+            <article key={s.id} className="sadmin-card">
+              <div className="sadmin-card__info">
+                <div className="sadmin-card__header">
+                  <h3 className="sadmin-card__nombre">{s.nombre}</h3>
+                  <span className={`sadmin-badge sadmin-badge--${s.estado}`}>
+                    {s.estado}
+                  </span>
+                </div>
+                <p className="sadmin-card__categoria">
+                  <span className="material-icons sadmin-card__icon">category</span>
+                  {s.categoria}
+                </p>
                 {s.estado === 'suspendido' && s.motivoSuspension && (
-                  <p className="sa-motivo">Motivo: {s.motivoSuspension}</p>
+                  <p className="sadmin-card__motivo">
+                    <span className="material-icons sadmin-card__icon">info</span>
+                    {s.motivoSuspension}
+                  </p>
                 )}
                 {s.suspendido_por && (
-                  <p className="sa-motivo"><em>Suspensión por: {s.suspendido_por}</em></p>
+                  <p className="sadmin-card__suspendido-por">
+                    Suspendido por: <strong>{s.suspendido_por}</strong>
+                  </p>
                 )}
               </div>
-              <div className="sa-acciones">
-                <button className="sa-btn-editar" onClick={() => editarServicio(s.id)}>Editar</button>
-                <button className="sa-btn-eliminar" onClick={() => eliminarServicio(s.id)}>Eliminar</button>
+              <div className="sadmin-card__acciones">
+                <button 
+                  className="sadmin-btn sadmin-btn--editar" 
+                  onClick={() => editarServicio(s.id)}
+                  title="Editar"
+                >
+                  <span className="material-icons">edit</span>
+                </button>
+                <button 
+                  className="sadmin-btn sadmin-btn--eliminar" 
+                  onClick={() => eliminarServicio(s.id)}
+                  title="Eliminar"
+                >
+                  <span className="material-icons">delete</span>
+                </button>
                 {s.estado === 'activo' ? (
-                  <button className="sa-btn-suspender" onClick={() => suspenderServicio(s.id)}>Suspender</button>
+                  <button 
+                    className="sadmin-btn sadmin-btn--suspender" 
+                    onClick={() => suspenderServicio(s.id)}
+                    title="Suspender"
+                  >
+                    <span className="material-icons">block</span>
+                  </button>
                 ) : (
-                  <button className="sa-btn-habilitar" onClick={() => habilitarServicio(s.id)}>Habilitar</button>
+                  <button 
+                    className="sadmin-btn sadmin-btn--habilitar" 
+                    onClick={() => habilitarServicio(s.id)}
+                    title="Habilitar"
+                  >
+                    <span className="material-icons">check_circle</span>
+                  </button>
                 )}
               </div>
             </article>
@@ -229,11 +274,11 @@ if (!servicios.length && busqueda === '') {
       </div>
 
       {totalPaginas > 1 && (
-        <nav className="sa-servicios-admin__paginacion">
+        <nav className="sadmin-paginacion">
           {Array.from({ length: totalPaginas }, (_, i) => (
             <button
               key={i}
-              className={`sa-btn-paginacion ${paginaActual === i + 1 ? 'sa-activo' : ''}`}
+              className={`sadmin-paginacion__btn ${paginaActual === i + 1 ? 'sadmin-paginacion__btn--activo' : ''}`}
               onClick={() => setPaginaActual(i + 1)}
             >
               {i + 1}
