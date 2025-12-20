@@ -8,11 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
-
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
     "axios": "^1.13.2",
+    "browser-image-compression": "^2.0.2",
     "esbuild": "^0.25.9",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.544.0",

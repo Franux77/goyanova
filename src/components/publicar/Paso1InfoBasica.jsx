@@ -257,12 +257,12 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
         Completa todos los campos que sean obligatorios para continuar.
       </p> */}
 
-      <label>Nombre del servicio o producto *</label>
+      <label>Nombre del servicio/producto o tu nombre</label>
       <input
         type="text"
         value={nombreLocal}
         onChange={handleNombreChange}
-        placeholder="Ej: Clases de guitarra, Venta de ropa artesanal"
+        placeholder="Ej: Delicias Jessi, Roberto Gómez"
         maxLength={50}
       />
       <div className="char-counter">{nombreLocal.length}/50</div>
@@ -324,7 +324,7 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
         ) : null}
       </div>
 
-      <label>Descripción *</label>
+      <label>Descripción de tu servicio/producto *</label>
       <textarea
         value={descripcionLocal}
         onChange={handleDescripcionChange}

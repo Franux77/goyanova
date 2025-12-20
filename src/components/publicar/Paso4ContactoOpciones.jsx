@@ -47,9 +47,13 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
   return (
     <div className="paso4-container">
       <h3>Paso 4: Contacto</h3>
+      
 
       <div className="paso4-group">
         <label>WhatsApp (Obligatorio) *</label>
+        <p className="paso4-hint">
+          Escribe tu número de celular sin espacios ni guiones.
+        </p>
         <PhoneInput
           country={"ar"}
           value={formData.whatsapp || ""}

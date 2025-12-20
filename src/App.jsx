@@ -22,15 +22,15 @@ import DashboardAdmin from './components/panel/admin/DashboardAdmin';
 // 👇 NUEVO: Cargar CategoryPage y ExplorarMapa sin lazy
 import CategoryPage from './components/ListaPerfilesYDetalles/CategoryPage';
 import ExplorarMapa from './components/mapa/ExplorarMapa';
+import PublicarServicioForm from './components/publicar/PublicarServicioForm';
+import FinalizacionExitosa from './components/publicar/FinalizacionExitosa';
 
 // 🔥 LAZY LOADING (solo componentes secundarios)
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
-const PublicarServicioForm = lazy(() => import('./components/publicar/PublicarServicioForm'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
-const FinalizacionExitosa = lazy(() => import('./components/publicar/FinalizacionExitosa'));
 
 // Panel Usuario (lazy - solo se accede tras login)
 const PanelUsuario = lazy(() => import('./components/panel/usuario/PanelUsuario'));

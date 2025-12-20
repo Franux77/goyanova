@@ -34,7 +34,7 @@ const CategoryPage = () => {
   const debouncedBusqueda = useDebounce(busqueda, 300);
   const [orden, setOrden] = useState('default');
   const [pagina, setPagina] = useState(1);
-  const porPagina = 6;
+  const porPagina = 30;
 
   const [perfiles, setPerfiles] = useState([]);
   const [loading, setLoading] = useState(true);
