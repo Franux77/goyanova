@@ -1,3 +1,4 @@
+// src/auth/AuthContext.jsx
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
@@ -17,12 +18,13 @@ export const AuthProvider = ({ children }) => {
   const lastVisibilityRef = useRef(Date.now());
   const isRefreshingRef = useRef(false);
   
-  // 🆕 Prevenir verificaciones excesivas
+  // 🆕 MEJORAS CRÍTICAS
   const lastCheckRef = useRef(0);
-  const CHECK_COOLDOWN = 5000; // 5 segundos entre verificaciones
+  const CHECK_COOLDOWN = 30000; // 👈 30 segundos (antes 5s)
+  const isCheckingRef = useRef(false); // 👈 Prevenir checks simultáneos
 
-  // 🆕 Función helper con timeout
-  const withTimeout = (promise, timeoutMs = 10000) => {
+  // 🆕 Timeout más agresivo
+  const withTimeout = (promise, timeoutMs = 5000) => { // 👈 5s (antes 10s)
     return Promise.race([
       promise,
       new Promise((_, reject) =>
@@ -41,14 +43,14 @@ export const AuthProvider = ({ children }) => {
     isLoadingProfile.current = true;
 
     try {
-      // 🆕 Agregar timeout de 8 segundos
+      // 👈 Timeout de 5s (antes 8s)
       const { data, error: perfilError } = await withTimeout(
         supabase
           .from('perfiles_usuarios')
           .select('*')
           .eq('id', userId)
           .maybeSingle(),
-        8000
+        5000
       );
 
       if (perfilError) {
@@ -67,8 +69,8 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (err) {
-      console.warn('⚠️ Error cargando perfil (timeout?):', err.message);
-      if (isMounted.current) {
+      // 👈 Silenciar timeout - no es crítico
+      if (isMounted.current && err.message !== 'Timeout') {
         setPerfil(null);
         perfilCargadoRef.current = false;
         lastUserIdRef.current = null;
@@ -109,8 +111,8 @@ export const AuthProvider = ({ children }) => {
       let intentos = 0;
       let perfilExistente = null;
       
-      while (intentos < 5 && !perfilExistente) {
-        await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 500 : 800));
+      while (intentos < 3 && !perfilExistente) { // 👈 3 intentos (antes 5)
+        await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 300 : 500)); // 👈 Delays más cortos
         
         const { data } = await withTimeout(
           supabase
@@ -118,7 +120,7 @@ export const AuthProvider = ({ children }) => {
             .select('*')
             .eq('id', user.id)
             .maybeSingle(),
-          8000
+          5000 // 👈 5s (antes 8s)
         );
         
         perfilExistente = data;
@@ -168,7 +170,6 @@ export const AuthProvider = ({ children }) => {
       return nuevoPerfil;
 
     } catch (err) {
-      console.warn('⚠️ Error creando perfil Google:', err.message);
       return null;
     }
   }, []);
@@ -187,7 +188,7 @@ export const AuthProvider = ({ children }) => {
           email: emailLimpio,
           password,
         }),
-        15000
+        10000 // 👈 Login puede tomar más tiempo
       );
 
       if (loginError) throw loginError;
@@ -298,18 +299,17 @@ export const AuthProvider = ({ children }) => {
     isRefreshingRef.current = true;
 
     try {
-      // 🆕 Timeout de 10 segundos para refresh
       const { data: { session }, error } = await withTimeout(
         supabase.auth.refreshSession(),
-        10000
+        8000 // 👈 8s para refresh
       );
       
       if (error) {
-        console.warn('⚠️ Error refresh session:', error.message);
-        // 🆕 NO cerrar sesión por timeout - mantener sesión actual
-        if (error.message !== 'Timeout') {
-          await signOut();
+        // 👈 NO cerrar sesión por timeout
+        if (error.message === 'Timeout') {
+          return true; // Asumir que está bien
         }
+        await signOut();
         return false;
       }
 
@@ -321,37 +321,42 @@ export const AuthProvider = ({ children }) => {
       await signOut();
       return false;
     } catch (err) {
-      console.warn('⚠️ Timeout en refresh session, manteniendo sesión actual');
-      // 🆕 NO cerrar sesión por timeout
-      return false;
+      // 👈 Timeout no es crítico
+      return true;
     } finally {
       isRefreshingRef.current = false;
     }
   }, [signOut]);
 
+  // 🆕 VERIFICACIÓN OPTIMIZADA
   const verificarSesionActiva = useCallback(async () => {
-    // 🆕 Cooldown para evitar verificaciones excesivas
+    // 👇 Prevenir verificaciones simultáneas
+    if (isCheckingRef.current) {
+      return true;
+    }
+
+    // 👇 Cooldown de 30 segundos
     const ahora = Date.now();
     if (ahora - lastCheckRef.current < CHECK_COOLDOWN) {
-      // console.log('⏸️ Verificación en cooldown, saltando...');
-      return true; // Asumir que la sesión está bien
+      return true;
     }
     
     lastCheckRef.current = ahora;
+    isCheckingRef.current = true;
 
     try {
-      // 🆕 Timeout de 8 segundos para getSession
+      // 👇 Timeout de 3 segundos (muy agresivo)
       const { data: { session }, error } = await withTimeout(
         supabase.auth.getSession(),
-        8000
+        3000
       );
       
       if (error) {
-        console.warn('⚠️ Error verificando sesión:', error.message);
-        // 🆕 NO cerrar sesión por timeout
-        if (error.message !== 'Timeout') {
-          await signOut();
+        // 👈 Timeout NO es crítico - mantener sesión
+        if (error.message === 'Timeout') {
+          return true;
         }
+        await signOut();
         return false;
       }
 
@@ -364,9 +369,8 @@ export const AuthProvider = ({ children }) => {
       const ahoraSec = Math.floor(Date.now() / 1000);
       const tiempoRestante = expiresAt - ahoraSec;
 
-      // 🆕 Solo refrescar si realmente está por expirar
-      if (tiempoRestante < 60) {
-        // console.log('🔄 Sesión por expirar, refrescando...');
+      // 👇 Solo refrescar si expira en menos de 5 minutos
+      if (tiempoRestante < 300) {
         return await refreshSession();
       }
 
@@ -376,13 +380,14 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (err) {
-      console.warn('⚠️ Timeout verificando sesión, manteniendo sesión actual');
-      // 🆕 En caso de timeout, NO cerrar sesión
+      // 👈 Error de red/timeout - NO es crítico
       return true;
+    } finally {
+      isCheckingRef.current = false;
     }
   }, [refreshSession, signOut]);
 
-  // Auto-refresh cada 45 minutos
+  // Auto-refresh cada 50 minutos (antes 45)
   useEffect(() => {
     if (!user) return;
 
@@ -397,7 +402,7 @@ export const AuthProvider = ({ children }) => {
         if (success) {
           setupAutoRefresh();
         }
-      }, 45 * 60 * 1000);
+      }, 50 * 60 * 1000); // 👈 50 minutos
     };
 
     setupAutoRefresh();
@@ -409,36 +414,23 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user, refreshSession]);
 
-  // 🆕 Manejo MEJORADO de visibilidad de pestaña
+  // 🆕 MANEJO OPTIMIZADO DE VISIBILIDAD
   useEffect(() => {
     const handleVisibilityChange = async () => {
+      // 👇 Solo verificar cuando REGRESA después de 10 minutos
       if (document.visibilityState === 'visible' && user) {
         const tiempoInactivo = Date.now() - lastVisibilityRef.current;
         
-        // 🆕 Solo verificar si estuvo inactivo más de 5 minutos
-        if (tiempoInactivo > 5 * 60 * 1000) {
-          // console.log('🔍 Verificando sesión tras inactividad prolongada...');
+        // 👈 10 minutos (antes 5)
+        if (tiempoInactivo > 10 * 60 * 1000) {
           await verificarSesionActiva();
-        } else {
-          // console.log('⏭️ Inactividad corta, no verificar sesión');
         }
       } else if (document.visibilityState === 'hidden') {
         lastVisibilityRef.current = Date.now();
       }
     };
 
-    const handleFocus = async () => {
-      if (user) {
-        const tiempoInactivo = Date.now() - lastVisibilityRef.current;
-        
-        // 🆕 Solo verificar si estuvo inactivo más de 5 minutos
-        if (tiempoInactivo > 5 * 60 * 1000) {
-          // console.log('🔍 Verificando sesión tras cambio de ventana...');
-          await verificarSesionActiva();
-        }
-      }
-    };
-
+    // 👇 ELIMINAR handleFocus - Es redundante con visibilitychange
     const handleBeforeUnload = () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
@@ -446,12 +438,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [user, verificarSesionActiva]);
@@ -465,7 +455,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data: { session }, error: sessionError } = await withTimeout(
           supabase.auth.getSession(),
-          10000
+          8000 // 👈 8s inicial
         );
         
         if (sessionError) {
@@ -543,7 +533,6 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } catch (err) {
-        console.warn('⚠️ Error en getSession:', err.message);
         if (isMounted.current) {
           setUser(null);
           setPerfil(null);
@@ -578,7 +567,7 @@ export const AuthProvider = ({ children }) => {
           
           const provider = session.user.app_metadata?.provider;
           
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 300)); // 👈 300ms (antes 500ms)
           
           if (provider === 'google') {
             await crearPerfilDesdeGoogle(session.user);
@@ -620,7 +609,6 @@ export const AuthProvider = ({ children }) => {
             lastUserIdRef.current = null;
           }
         } catch (error) {
-          console.warn('⚠️ Error en auth listener:', error.message);
           setUser(null);
           setPerfil(null);
           perfilCargadoRef.current = false;

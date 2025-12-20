@@ -21,6 +21,7 @@ import { useAuth } from '../../auth/useAuth';
 import UbicacionActual from './UbicacionActual';
 
 const ADMIN_EMAIL = "12torresfranco@gmail.com";
+const SERVICIOS_POR_PAGINA = 50; // 👈 Cargar de a 50
 
 const ExplorarMapa = () => {
   const navigate = useNavigate();
@@ -42,6 +43,12 @@ const ExplorarMapa = () => {
   const [servicios, setServicios] = useState([]);
   const [categoriasMap, setCategoriasMap] = useState({});
   const [cargando, setCargando] = useState(true);
+  const [totalServicios, setTotalServicios] = useState(0);
+  
+  // 👇 NUEVOS ESTADOS PARA PAGINACIÓN
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [cargandoMas, setCargandoMas] = useState(false);
+  const [hayMasServicios, setHayMasServicios] = useState(true);
   
   const location = useLocation();
 
@@ -67,37 +74,46 @@ const ExplorarMapa = () => {
 
   useEffect(() => setPanelVisible(query.trim().length > 0), [query]);
 
-  // Fetch optimizado - Solo categorías y servicios en paralelo
+  // ✅ FETCH INICIAL - Primera carga de servicios
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInicial = async () => {
       setCargando(true);
       
       try {
-        // Ejecutar ambas queries en paralelo
-        const [categoriasRes, serviciosRes] = await Promise.all([
+        const [categoriasRes, serviciosRes, countRes] = await Promise.all([
+          // Query 1: Categorías
           supabase
             .from('categorias')
             .select('id, nombre, tipo, icon, color')
             .eq('estado', 'activa'),
-         supabase
-  .from('servicios')
-  .select(`
-    id, nombre, descripcion, tipo, categoria_id, latitud, longitud,
-    direccion_escrita, referencia,
-    foto_portada, 
-    contacto_whatsapp, 
-    contacto_email, 
-    contacto_instagram, 
-    contacto_facebook,
-    es_premium, badge_texto,
-    prioridad, rating_promedio, creado_en,
-    opiniones(puntuacion)
-  `)
-  .eq('estado', 'activo')
-  .eq('oculto_por_reportes', false)
-  .order('prioridad', { ascending: false })
-  .order('rating_promedio', { ascending: false })
-  .order('creado_en', { ascending: true })
+          
+          // Query 2: Primeros 50 servicios
+          supabase
+            .from('servicios')
+            .select(`
+              id, nombre, descripcion, tipo, categoria_id, latitud, longitud,
+              direccion_escrita, referencia,
+              foto_portada, 
+              contacto_whatsapp, 
+              contacto_email, 
+              contacto_instagram, 
+              contacto_facebook,
+              es_premium, badge_texto,
+              prioridad, rating_promedio, creado_en
+            `)
+            .eq('estado', 'activo')
+            .eq('oculto_por_reportes', false)
+            .order('prioridad', { ascending: false })
+            .order('rating_promedio', { ascending: false })
+            .order('creado_en', { ascending: true })
+            .range(0, SERVICIOS_POR_PAGINA - 1), // 0-49
+          
+          // Query 3: Contar total
+          supabase
+            .from('servicios')
+            .select('*', { count: 'exact', head: true })
+            .eq('estado', 'activo')
+            .eq('oculto_por_reportes', false)
         ]);
 
         // Procesar categorías
@@ -107,19 +123,21 @@ const ExplorarMapa = () => {
           setCategoriasMap(catMap);
         }
 
-        // Procesar servicios con rating
-if (!serviciosRes.error && serviciosRes.data) {
-  const serviciosConRating = serviciosRes.data.map(serv => {
-    const opiniones = serv.opiniones || [];
-    const totalOpiniones = opiniones.length;
-    return { 
-      ...serv, 
-      ratingPromedio: Number(serv.rating_promedio) || 0,
-      totalOpiniones
-    };
-  });
-  setServicios(serviciosConRating);
-}
+        // Procesar servicios
+        if (!serviciosRes.error && serviciosRes.data) {
+          const serviciosConRating = serviciosRes.data.map(serv => ({
+            ...serv,
+            ratingPromedio: Number(serv.rating_promedio) || 0
+          }));
+          setServicios(serviciosConRating);
+          setHayMasServicios(serviciosConRating.length === SERVICIOS_POR_PAGINA);
+        }
+
+        // Guardar total
+        if (countRes.count !== null) {
+          setTotalServicios(countRes.count);
+        }
+
       } catch (error) {
         console.error('Error cargando datos:', error);
       } finally {
@@ -127,8 +145,50 @@ if (!serviciosRes.error && serviciosRes.data) {
       }
     };
 
-    fetchData();
+    fetchInicial();
   }, []);
+
+  // ✅ CARGAR MÁS SERVICIOS
+  const cargarMasServicios = async () => {
+    if (cargandoMas || !hayMasServicios) return;
+
+    setCargandoMas(true);
+    
+    try {
+      const inicio = paginaActual * SERVICIOS_POR_PAGINA;
+      const fin = inicio + SERVICIOS_POR_PAGINA - 1;
+
+      const { data, error } = await supabase
+        .from('servicios')
+        .select(`
+          id, nombre, descripcion, tipo, categoria_id, latitud, longitud,
+          direccion_escrita, referencia, foto_portada, 
+          contacto_whatsapp, contacto_email, contacto_instagram, contacto_facebook,
+          es_premium, badge_texto, prioridad, rating_promedio, creado_en
+        `)
+        .eq('estado', 'activo')
+        .eq('oculto_por_reportes', false)
+        .order('prioridad', { ascending: false })
+        .order('rating_promedio', { ascending: false })
+        .order('creado_en', { ascending: true })
+        .range(inicio, fin);
+
+      if (!error && data) {
+        const nuevosServicios = data.map(serv => ({
+          ...serv,
+          ratingPromedio: Number(serv.rating_promedio) || 0
+        }));
+
+        setServicios(prev => [...prev, ...nuevosServicios]);
+        setPaginaActual(prev => prev + 1);
+        setHayMasServicios(nuevosServicios.length === SERVICIOS_POR_PAGINA);
+      }
+    } catch (error) {
+      console.error('Error cargando más:', error);
+    } finally {
+      setCargandoMas(false);
+    }
+  };
 
   // Manejar navegación desde otros componentes
   useEffect(() => {
@@ -155,7 +215,7 @@ if (!serviciosRes.error && serviciosRes.data) {
     }
   }, [location.state, navigate, location.pathname]);
 
-  // Búsqueda optimizada con useMemo
+  // Búsqueda optimizada
   const buscarEnPerfil = (perfil, query, categoriasMap) => {
     if (!query || query.trim() === '') return true;
     
@@ -216,7 +276,7 @@ if (!serviciosRes.error && serviciosRes.data) {
     }
   };
 
-  // Iconos memoizados para mejor performance
+  // Iconos memoizados
   const getCategoriaIcono = useMemo(() => {
     return (categoriaId, zoom = 13) => {
       const categoria = categoriasMap[categoriaId];
@@ -434,6 +494,7 @@ if (!serviciosRes.error && serviciosRes.data) {
         </MapContainer>
       )}
       
+      {/* 👇 PANEL CON NUEVAS PROPS */}
       <ListaPerfilesExplorar
         perfiles={perfilesFiltrados}
         visible={panelVisible}
@@ -442,6 +503,11 @@ if (!serviciosRes.error && serviciosRes.data) {
         onLocalizar={handleLocalizar}
         cargando={cargando}
         mensajeVacio={!perfilesFiltrados.length ? 'No hay resultados' : ''}
+        hayMasServicios={hayMasServicios}
+        cargandoMas={cargandoMas}
+        onCargarMas={cargarMasServicios}
+        totalServicios={totalServicios}
+        serviciosCargados={servicios.length}
       />
 
       {hayResultados && (

@@ -1,11 +1,12 @@
+// src/App.jsx - VERSIÓN OPTIMIZADA
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
 import { useMantenimiento } from './hooks/useMantenimiento';
 import ModalMantenimiento from './components/ModalMantenimiento';
-import InstallPWAModal from './components/InstallPWAModal'; // 👈 NUEVO
+import InstallPWAModal from './components/InstallPWAModal';
 
-// ✅ Componentes normales (siempre cargados)
+// ✅ CARGA INMEDIATA (componentes críticos del flujo principal)
 import Navbar from './components/home/Navbar';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
 import Home from './components/home/Home';
@@ -13,27 +14,25 @@ import ProtectedRoute from './auth/ProtectedRoute';
 import RutaProtegidaAdmin from './auth/RutaProtegidaAdmin';
 import Loading from './components/loading/Loading';
 import Footer from './components/footer/Footer';
-
-// Login/Register
 import Login from './auth/login/login';
 import Register from './auth/login/Register';
 import ResetPassword from './auth/login/ResetPassword';
-
-// ✅ DashboardAdmin SIN lazy loading (carga inmediata)
 import DashboardAdmin from './components/panel/admin/DashboardAdmin';
 
-// 🔥 LAZY LOADING (solo se cargan cuando se necesitan)
+// 👇 NUEVO: Cargar CategoryPage y ExplorarMapa sin lazy
+import CategoryPage from './components/ListaPerfilesYDetalles/CategoryPage';
+import ExplorarMapa from './components/mapa/ExplorarMapa';
+
+// 🔥 LAZY LOADING (solo componentes secundarios)
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PublicarServicioForm = lazy(() => import('./components/publicar/PublicarServicioForm'));
-const CategoryPage = lazy(() => import('./components/ListaPerfilesYDetalles/CategoryPage'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
 const FinalizacionExitosa = lazy(() => import('./components/publicar/FinalizacionExitosa'));
-const Explorar = lazy(() => import('./components/mapa/ExplorarMapa'));
 
-// Panel Usuario
+// Panel Usuario (lazy - solo se accede tras login)
 const PanelUsuario = lazy(() => import('./components/panel/usuario/PanelUsuario'));
 const Dashboard = lazy(() => import('./components/panel/usuario/Dashboard'));
 const MisServicios = lazy(() => import('./components/panel/usuario/MisServicios'));
@@ -45,7 +44,7 @@ const Notificaciones = lazy(() => import('./components/panel/usuario/Notificacio
 const AyudaSoporte = lazy(() => import('./components/panel/usuario/AyudaSoporte'));
 const MiMembresia = lazy(() => import('./components/panel/usuario/MiMembresia'));
 
-// Panel Admin (otros componentes siguen con lazy)
+// Panel Admin (lazy - solo admins)
 const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
 const UsuariosAdmin = lazy(() => import('./components/panel/admin/UsuariosAdmin'));
 const ServiciosAdmin = lazy(() => import('./components/panel/admin/ServiciosAdmin'));
@@ -202,7 +201,7 @@ const AppContent = () => {
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
               <Route path="/ayuda" element={<AyudaPublica />} />
-              <Route path="/explorar" element={<Explorar />} />
+              <Route path="/explorar" element={<ExplorarMapa />} />
 
               <Route
                 path="/panel/*"
