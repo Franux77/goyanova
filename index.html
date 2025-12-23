@@ -1,24 +1,136 @@
 <!doctype html>
-<html lang="es" translate="no">
+<html lang="es-AR" translate="no">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/assets/GoyaNova_20250918_144009_0000.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GoyaNova - Innovación y conexión</title>
-
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1774f6">
     
-    <!-- iOS & Mobile -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GoyaNova">
-    <link rel="apple-touch-icon" href="/assets/GoyaNova_20251204_134056_0000.png">
+    <!-- 🎯 SEO BÁSICO -->
+    <title>GoyaNova - Plataforma de Servicios Locales en Goya, Corrientes</title>
+    <meta name="description" content="Encontrá plomeros, electricistas, pintores, casas de comidas y más en Goya. Contacto directo por WhatsApp. Gratis, sin comisiones. La primera plataforma 100% Goyana." />
+    <meta name="keywords" content="servicios goya, plomeros goya, electricistas goya, pintores goya, profesionales goya, emprendimientos goya, goya corrientes, servicios locales goya, productos goya, casas de comidas goya" />
+    <meta name="author" content="GoyaNova" />
+    
+    <!-- 🌍 IDIOMA Y LOCALIZACIÓN -->
+    <meta name="language" content="Spanish" />
+    <meta name="geo.region" content="AR-W" />
+    <meta name="geo.placename" content="Goya, Corrientes, Argentina" />
+    <meta name="geo.position" content="-29.1407;-59.2654" />
+    <meta name="ICBM" content="-29.1407, -59.2654" />
+    
+    <!-- 📱 VIEWPORT Y PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1774f6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GoyaNova" />
+    
+    <!-- 🔗 OPEN GRAPH (Facebook, WhatsApp) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://goyanova.com.ar" />
+    <meta property="og:title" content="GoyaNova - Servicios y Productos Locales en Goya" />
+    <meta property="og:description" content="Encontrá plomeros, electricistas, pintores, casas de comidas y más en Goya. Contacto directo por WhatsApp sin comisiones. Plataforma 100% local." />
+    <meta property="og:image" content="https://goyanova.com.ar/assets/GoyaNova_20250918_144009_0000.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="GoyaNova" />
+    <meta property="og:locale" content="es_AR" />
+    
+    <!-- 🐦 TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://goyanova.com.ar" />
+    <meta name="twitter:title" content="GoyaNova - Servicios Locales en Goya" />
+    <meta name="twitter:description" content="Encontrá plomeros, electricistas, pintores y más en Goya. Contacto directo por WhatsApp. Gratis y sin comisiones." />
+    <meta name="twitter:image" content="https://goyanova.com.ar/assets/GoyaNova_20250918_144009_0000.png" />
+    
+    <!-- 🤖 ROBOTS -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    
+    <!-- 🔗 CANONICAL -->
+    <link rel="canonical" href="https://goyanova.com.ar" />
+    
+    <!-- 🎨 FAVICONS -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/GoyaNova_20250918_144009_0000.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/GoyaNova_20250918_144009_0000.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/GoyaNova_20251204_134056_0000.png" />
+    
+    <!-- 📱 PWA MANIFEST -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- 🔗 PRECONNECT (optimización) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
     <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    
+    <!-- 🎨 STRUCTURED DATA (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "GoyaNova",
+      "alternateName": "GoyaNova - Servicios Locales",
+      "url": "https://goyanova.com.ar",
+      "description": "Plataforma de servicios y productos locales en Goya, Corrientes. Conectá con plomeros, electricistas, pintores y emprendedores de forma directa.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://goyanova.com.ar/explorar?query={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "GoyaNova",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://goyanova.com.ar/assets/GoyaNova_20250918_144009_0000.png"
+        }
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Goya",
+        "addressRegion": "Corrientes",
+        "addressCountry": "AR"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Goya",
+        "containedInPlace": {
+          "@type": "AdministrativeArea",
+          "name": "Corrientes"
+        }
+      }
+    }
+    </script>
+    
+    <!-- 🎨 ORGANIZATION SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "GoyaNova",
+      "url": "https://goyanova.com.ar",
+      "logo": "https://goyanova.com.ar/assets/GoyaNova_20250918_144009_0000.png",
+      "description": "Primera plataforma digital de servicios locales en Goya, Corrientes",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Goya",
+        "addressRegion": "Corrientes",
+        "addressCountry": "AR"
+      },
+      "sameAs": [
+        "https://www.instagram.com/goyanova",
+        "https://www.facebook.com/goyanova"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "areaServed": "AR",
+        "availableLanguage": ["Spanish"]
+      }
+    }
+    </script>
   </head>
   
   <style>
@@ -35,10 +147,65 @@
       -webkit-user-drag: none;
       pointer-events: none;
     }
+    
+    /* ✅ Permitir seleccionar texto en inputs y textareas */
+    input, textarea, [contenteditable="true"] {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
   </style>
   
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+ <body>
+  <!-- 🎨 Splash Screen personalizada -->
+  <div id="splash-screen" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1774f6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+  ">
+    <img 
+      src="/assets/GoyaNova_Blanco.png" 
+      alt="GoyaNova" 
+      style="width: 150px; height: 150px; margin-bottom: 20px;"
+    />
+    <h1 style="
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    ">GoyaNova</h1>
+    <p style="
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      margin-top: 8px;
+    ">Cargando...</p>
+  </div>
+
+  <div id="root"></div>
+  
+  <script>
+    // Ocultar splash screen cuando React cargue
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        if (splash) {
+          splash.style.opacity = '0';
+          splash.style.transition = 'opacity 0.3s';
+          setTimeout(() => splash.remove(), 300);
+        }
+      }, 500);
+    });
+  </script>
+  
+  <script type="module" src="/src/main.jsx"></script>
+</body>
 </html>

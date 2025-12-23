@@ -117,9 +117,9 @@ const SaludoUsuario = () => {
 
   // Saludo para usuarios sin login
   const saludosSinLogin = [
-    { principal: '¡Hola!', secundario: 'Iniciá sesión para empezar' },
     { principal: '¡Bienvenido!', secundario: 'Unite a GoyaNova' },
-    { principal: '¡Qué tal!', secundario: 'Entrá para ver más' }
+    { principal: '¡Hola!', secundario: 'Iniciá sesión para mejorar tu experiencia' },
+    { principal: '¡Qué tal!', secundario: 'Entrá para poder disfrutar de más funciones' }
   ];
 
   const saludoSinLogin = saludosSinLogin[Math.floor(Math.random() * saludosSinLogin.length)];

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /panel/
+Disallow: /panel/admin/
+
+Sitemap: https://goyanova.com.ar/sitemap.xml

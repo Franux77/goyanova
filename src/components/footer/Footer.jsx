@@ -48,7 +48,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a 
-                href="https://instagram.com/graficoemprendedor" 
+                href="https://instagram.com/goyanova.com.ar" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 aria-label="Instagram"
@@ -87,7 +87,7 @@ const Footer = () => {
               </li>
               <li>
                 <span className="material-icons">phone</span>
-                <a href="https://wa.me/5493777209955">+54 3777 209955</a>
+                <a href="https://wa.me/5493777209955">+54 3777 20-9955</a>
               </li>
             </ul>
           </div>
