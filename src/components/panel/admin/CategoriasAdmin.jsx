@@ -42,13 +42,13 @@ const buscarIconosOnline = async (query) => {
       materialIconsList.forEach(icon => {
         const iconNorm = normalizarTexto(icon);
         if (iconNorm.includes(queryNorm) || similitudTexto(icon, query) > 0.6) {
-          resultados.add(icon);
+          resultados.add({ name: icon, type: 'icons' }); // Tipo: Material Icons
         }
       });
     }
 
     // ==========================================
-    // FUENTE 2: Material Icons desde GitHub (JSON estático)
+    // FUENTE 2: Material Icons desde GitHub
     // ==========================================
     try {
       const responseMaterial = await fetch(
@@ -64,128 +64,152 @@ const buscarIconosOnline = async (query) => {
           if (nombre) {
             const nombreNorm = normalizarTexto(nombre);
             if (nombreNorm.includes(queryNorm) || similitudTexto(nombre, query) > 0.6) {
-              resultados.add(nombre);
+              resultados.add({ name: nombre, type: 'icons' });
             }
           }
         });
       }
     } catch (err) {
-      //console.log('Material Icons GitHub no disponible');
+      console.log('Material Icons GitHub no disponible');
     }
 
     // ==========================================
-    // FUENTE 3: Iconify API (busca en múltiples librerías)
+    // FUENTE 3: Material Symbols desde Google Fonts API
     // ==========================================
     try {
+      // Google Fonts tiene una API para Material Symbols
+      const responseSymbols = await fetch(
+        `https://fonts.google.com/metadata/icons?key=material_symbols&incomplete=true`
+      );
+      
+      if (responseSymbols.ok) {
+        const data = await responseSymbols.json();
+        
+        // La API devuelve un array de iconos
+        if (data.icons) {
+          data.icons.forEach(icon => {
+            const nombre = icon.name;
+            const nombreNorm = normalizarTexto(nombre);
+            
+            if (nombreNorm.includes(queryNorm) || similitudTexto(nombre, query) > 0.6) {
+              resultados.add({ name: nombre, type: 'symbols' }); // Tipo: Material Symbols
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.log('Material Symbols API no disponible');
+    }
+
+    // ==========================================
+    // FUENTE 4: Iconify API (busca en ambas librerías)
+    // ==========================================
+    try {
+      // Buscar en Material Icons
       const responseIconify = await fetch(
-        `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=50&prefix=ic,material-icons`
+        `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=50&prefix=material-icons`
       );
       
       if (responseIconify.ok) {
         const data = await responseIconify.json();
         if (data.icons) {
           data.icons.forEach(icon => {
-            // Extraer solo el nombre del icono (después de ":")
             const nombre = icon.split(':')[1] || icon;
-            resultados.add(nombre);
+            resultados.add({ name: nombre, type: 'icons' });
+          });
+        }
+      }
+
+      // Buscar en Material Symbols
+      const responseSymbols = await fetch(
+        `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=50&prefix=material-symbols`
+      );
+      
+      if (responseSymbols.ok) {
+        const data = await responseSymbols.json();
+        if (data.icons) {
+          data.icons.forEach(icon => {
+            const nombre = icon.split(':')[1] || icon;
+            resultados.add({ name: nombre, type: 'symbols' });
           });
         }
       }
     } catch (err) {
-      //console.log('Iconify API no disponible');
+      console.log('Iconify API no disponible');
     }
 
     // ==========================================
-    // FUENTE 4: Material Design Icons (MDI) Community
+    // FUENTE 5: Búsqueda por términos relacionados
     // ==========================================
     try {
-      const responseMDI = await fetch(
-        `https://raw.githubusercontent.com/Templarian/MaterialDesign/master/meta.json`
-      );
-      
-      if (responseMDI.ok) {
-        const dataMDI = await responseMDI.json();
-        dataMDI.forEach(icon => {
-          const nombre = icon.name;
-          const nombreNorm = normalizarTexto(nombre);
-          
-          // Buscar en nombre y aliases/tags
-          const enNombre = nombreNorm.includes(queryNorm);
-          const enTags = icon.tags?.some(tag => 
-            normalizarTexto(tag).includes(queryNorm)
-          );
-          
-          if (enNombre || enTags || similitudTexto(nombre, query) > 0.6) {
-            // Convertir formato MDI a Material Icons (quitar guiones)
-            const nombreMaterial = nombre.replace(/-/g, '_');
-            resultados.add(nombreMaterial);
-          }
-        });
-      }
-    } catch (err) {
-      //console.log('MDI no disponible');
-    }
-
-    // ==========================================
-    // FUENTE 5: Búsqueda en traducción español-inglés (API)
-    // ==========================================
-    try {
-      // Intentar traducir la query al inglés para mejor búsqueda
       const terminosRelacionados = obtenerTerminosRelacionados(query);
       
       for (const termino of terminosRelacionados) {
-        // Buscar iconos relacionados con términos en inglés
-        const responseTranslate = await fetch(
+        // Buscar en Material Icons
+        const responseMI = await fetch(
           `https://api.iconify.design/search?query=${encodeURIComponent(termino)}&limit=30&prefix=material-icons`
         );
         
-        if (responseTranslate.ok) {
-          const data = await responseTranslate.json();
+        if (responseMI.ok) {
+          const data = await responseMI.json();
           if (data.icons) {
             data.icons.forEach(icon => {
               const nombre = icon.split(':')[1] || icon;
-              resultados.add(nombre);
+              resultados.add({ name: nombre, type: 'icons' });
+            });
+          }
+        }
+
+        // Buscar en Material Symbols
+        const responseMS = await fetch(
+          `https://api.iconify.design/search?query=${encodeURIComponent(termino)}&limit=30&prefix=material-symbols`
+        );
+        
+        if (responseMS.ok) {
+          const data = await responseMS.json();
+          if (data.icons) {
+            data.icons.forEach(icon => {
+              const nombre = icon.split(':')[1] || icon;
+              resultados.add({ name: nombre, type: 'symbols' });
             });
           }
         }
       }
     } catch (err) {
-      //console.log('Búsqueda por términos relacionados no disponible');
+      console.log('Búsqueda por términos relacionados no disponible');
     }
 
     // ==========================================
-    // FALLBACK: Lista expandida local
+    // FALLBACK: Lista local
     // ==========================================
     if (resultados.size === 0) {
       const iconosComplementarios = [
-        // Bebidas y comida
-        'wine_bar', 'liquor', 'sports_bar', 'local_drink', 'emoji_food_beverage',
-        'local_cafe', 'coffee', 'coffee_maker', 'free_breakfast', 'local_bar',
-        'tapas', 'brunch_dining', 'lunch_dining', 'dinner_dining', 'breakfast_dining',
-        'ramen_dining', 'rice_bowl', 'bakery_dining', 'local_pizza', 'restaurant',
-        'flatware', 'kitchen', 'microwave', 'blender', 'cake', 'icecream',
-        // Rostro y emociones
-        'face', 'sentiment_satisfied', 'sentiment_very_satisfied', 'mood', 'emoji_emotions',
-        'sentiment_neutral', 'sentiment_dissatisfied', 'face_retouching_natural',
-        'face_2', 'face_3', 'face_4', 'face_5', 'face_6', 'mask_face',
-        // Copa y vasos específicos
-        'wine_bar', 'local_bar', 'liquor', 'sports_bar', 'local_drink',
-        // Más iconos útiles
-        'celebration', 'party_mode', 'nightlife', 'festival', 'volunteer_activism'
+        'wine_bar', 'liquor', 'sports_bar', 'local_drink', 'restaurant',
+        'celebration', 'party_mode', 'nightlife', 'air', 'fragrance'
       ];
       
       iconosComplementarios.forEach(icon => {
         const iconNorm = normalizarTexto(icon);
         if (iconNorm.includes(queryNorm) || similitudTexto(icon, query) > 0.6) {
-          resultados.add(icon);
+          // Determinar si es Symbol o Icon basándose en nombres comunes
+          const isSymbol = ['air', 'fragrance', 'humidity'].includes(icon);
+          resultados.add({ name: icon, type: isSymbol ? 'symbols' : 'icons' });
         }
       });
     }
 
-    return Array.from(resultados).slice(0, 80); // Aumentar límite a 80
+    // ✅ RETORNAR ARRAY DE OBJETOS
+    return Array.from(resultados)
+      .filter(icon => {
+        return icon.name && 
+               typeof icon.name === 'string' && 
+               icon.name.trim().length > 0 &&
+               /^[a-z0-9_]+$/.test(icon.name);
+      })
+      .slice(0, 100); // Aumentar límite
     
   } catch (error) {
-    //console.log('Búsqueda online no disponible, usando búsqueda local');
+    console.error('Error en búsqueda:', error);
     return [];
   }
 };
@@ -236,7 +260,7 @@ const CategoriasAdmin = () => {
   const [cargandoIconos, setCargandoIconos] = useState(false);
   const [busquedaOnline, setBusquedaOnline] = useState(false);
   const [sugerenciaTermino, setSugerenciaTermino] = useState('');
-  const categoriasPorPagina = 10;
+  const categoriasPorPagina = 15;
 
   // Colores predefinidos modernos
   const coloresPredefinidos = [
@@ -249,6 +273,10 @@ const CategoriasAdmin = () => {
     "#EC4899", "#10B981", "#F59E0B", "#3B82F6",
     "#EF4444", "#8B5A00", "#059669", "#7C3AED"
   ];
+// Estado para grupos dinámicos
+const [gruposPorTipo, setGruposPorTipo] = useState({ producto: [], servicio: [] });
+const [modalGrupos, setModalGrupos] = useState(false);
+const [grupoEditando, setGrupoEditando] = useState(null);
 
   // Lista extendida de iconos de Material Icons (400+)
   const iconosExtendidos = [
@@ -364,7 +392,13 @@ const CategoriasAdmin = () => {
     'lightbulb', 'wb_incandescent', 'flash_on', 'category', 'label', 'local_offer',
     'style', 'palette', 'brush', 'format_paint', 'photo_camera', 'camera_alt',
     'photo', 'image', 'collections', 'photo_library', 'burst_mode', 'panorama',
-    'print', 'qr_code', 'qr_code_scanner', 'code', 'terminal', 'bug_report'
+    'print', 'qr_code', 'qr_code_scanner', 'code', 'terminal', 'bug_report',
+
+  // Íconos adicionales de Material Icons (sin Material Symbols)
+'local_florist', 'spa', 'shower', 'local_mall', 'storefront',
+'inventory', 'inventory_2', 'package', 'cleaning_services',
+'home_repair_service', 'window', 'garage', 'fence', 'park',
+'cottage', 'cabin', 'apartment', 'warehouse', 'factory'
   ];
 
   // Mapeo español-inglés para búsqueda inteligente
@@ -401,6 +435,11 @@ const CategoriasAdmin = () => {
     'barco': ['directions_boat', 'sailing', 'ferry'],
     'delivery': ['delivery_dining', 'local_shipping'],
     'envio': ['local_shipping', 'delivery_dining'],
+
+    'perfume': ['local_florist', 'spa', 'local_mall', 'storefront'],
+'fragancia': ['local_florist', 'spa', 'local_mall'],
+'aroma': ['local_florist', 'spa'],
+'esencia': ['local_florist', 'spa'],
     
     // Lugares
     'casa': ['home', 'house', 'cottage', 'apartment'],
@@ -674,28 +713,49 @@ const CategoriasAdmin = () => {
     return [...new Set(iconosBase)];
   }, [busquedaIcono, iconosAPI]);
 
-  // Cargar categorías
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("categorias")
-        .select("id, nombre, descripcion, tipo, estado, color, icon");
+useEffect(() => {
+  const fetchCategorias = async () => {
+    setLoading(true);
+    // ✅ Cambiar iconType → icontype
+    const { data, error } = await supabase
+      .from("categorias")
+      .select("id, nombre, descripcion, tipo, estado, color, icon, icontype, grupo");
 
-      if (error) {
-        console.error("Error cargando categorías:", error.message);
-      } else {
-        const adaptadas = data.map((cat) => ({
-          ...cat,
-          activa: cat.estado === "activa",
-        }));
-        setCategorias(adaptadas);
-      }
-      setLoading(false);
-    };
+    if (error) {
+      console.error("Error cargando categorías:", error.message);
+    } else {
+      const adaptadas = data.map((cat) => ({
+        ...cat,
+        activa: cat.estado === "activa",
+        grupo: cat.grupo || null,
+        // ✅ Mapear icontype → iconType para usar en React
+        iconType: cat.icontype || 'icons',
+      }));
+      setCategorias(adaptadas);
+      
+      // Extraer grupos únicos por tipo
+      const gruposProducto = [...new Set(
+        data
+          .filter(cat => cat.tipo === 'producto' && cat.grupo && cat.grupo.trim() !== '')
+          .map(cat => cat.grupo.trim())
+      )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-    fetchCategorias();
-  }, []);
+      const gruposServicio = [...new Set(
+        data
+          .filter(cat => cat.tipo === 'servicio' && cat.grupo && cat.grupo.trim() !== '')
+          .map(cat => cat.grupo.trim())
+      )].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+      setGruposPorTipo({
+        producto: gruposProducto,
+        servicio: gruposServicio
+      });
+    }
+    setLoading(false);
+  };
+
+  fetchCategorias();
+}, []);
 
   const resumen = {
     activas: categorias.filter((c) => c.activa).length,
@@ -785,54 +845,104 @@ const CategoriasAdmin = () => {
     setCategorias((prev) => prev.filter((cat) => cat.id !== id));
   };
 
-  // Guardar cambios en edición
-  const guardarEdicion = async () => {
-    const { id, nombre, descripcion, tipo, color, icon } = editando;
+ const guardarEdicion = async () => {
+  const { id, nombre, descripcion, tipo, grupo, color, icon, iconType } = editando;
 
-    if (!nombre.trim()) {
-      alert("El nombre no puede estar vacío.");
+  if (!nombre.trim()) {
+    alert("El nombre no puede estar vacío.");
+    return;
+  }
+  
+  if (!grupo?.trim()) {
+    alert("Debes seleccionar un grupo.");
+    return;
+  }
+
+  const grupoNormalizado = grupo.trim();
+
+  if (id) {
+    // ✅ Cambiar iconType → icontype
+    const { error } = await supabase
+      .from("categorias")
+      .update({ 
+        nombre: nombre.trim(), 
+        descripcion: descripcion?.trim() || null, 
+        tipo, 
+        grupo: grupoNormalizado, 
+        color, 
+        icon,
+        icontype: iconType || 'icons' // ✅ icontype en minúsculas
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error guardando cambios:", error.message);
+      alert("❌ Error al guardar los cambios");
       return;
     }
 
-    if (id) {
-      const { error } = await supabase
-        .from("categorias")
-        .update({ nombre, descripcion, tipo, color, icon })
-        .eq("id", id);
+    setCategorias((prev) =>
+      prev.map((cat) => (cat.id === id ? { 
+        ...editando, 
+        grupo: grupoNormalizado,
+        iconType: iconType || 'icons'
+      } : cat))
+    );
 
-      if (error) {
-        console.error("Error guardando cambios:", error.message);
-        return;
-      }
-
-      setCategorias((prev) =>
-        prev.map((cat) => (cat.id === id ? { ...editando } : cat))
-      );
-    } else {
-      const { data, error } = await supabase
-        .from("categorias")
-        .insert([
-          {
-            nombre,
-            descripcion,
-            tipo,
-            color,
-            icon,
-            estado: "activa",
-          },
-        ])
-        .select();
-
-      if (error) {
-        console.error("Error creando categoría:", error.message);
-        return;
-      }
-
-      setCategorias((prev) => [...prev, { ...data[0], activa: true }]);
+    if (!gruposPorTipo[tipo].includes(grupoNormalizado)) {
+      setGruposPorTipo(prev => ({
+        ...prev,
+        [tipo]: [...prev[tipo], grupoNormalizado].sort((a, b) => 
+          a.localeCompare(b, 'es', { sensitivity: 'base' })
+        )
+      }));
     }
 
-    setEditando(null);
-  };
+  } else {
+    // ✅ Cambiar iconType → icontype
+    const { data, error } = await supabase
+      .from("categorias")
+      .insert([
+        {
+          nombre: nombre.trim(),
+          descripcion: descripcion?.trim() || null,
+          tipo,
+          grupo: grupoNormalizado,
+          color,
+          icon,
+          icontype: iconType || 'icons', // ✅ icontype en minúsculas
+          estado: "activa",
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error creando categoría:", error.message);
+      alert("❌ Error al crear la categoría");
+      return;
+    }
+
+    const nuevaCategoria = {
+      ...data[0],
+      activa: true,
+      iconType: data[0].icontype || 'icons' // ✅ Mapear icontype → iconType
+    };
+
+    setCategorias((prev) => [...prev, nuevaCategoria]);
+
+    if (!gruposPorTipo[tipo].includes(grupoNormalizado)) {
+      setGruposPorTipo(prev => ({
+        ...prev,
+        [tipo]: [...prev[tipo], grupoNormalizado].sort((a, b) => 
+          a.localeCompare(b, 'es', { sensitivity: 'base' })
+        )
+      }));
+    }
+  }
+
+  alert("✅ Categoría guardada exitosamente");
+  setEditando(null);
+};
 
   return (
     <section className="ca-categorias-admin">
@@ -881,14 +991,15 @@ const CategoriasAdmin = () => {
           className="ca-btn-agregar"
           onClick={() => {
             setEditando({
-              id: null,
-              nombre: "",
-              descripcion: "",
-              tipo: "servicio",
-              color: "#FF6B6B",
-              icon: "",
-              activa: true,
-            });
+  id: null,
+  nombre: "",
+  descripcion: "",
+  tipo: "servicio",
+  grupo: null,
+  color: "#FF6B6B",
+  icon: "",
+  activa: true,
+});
             setBusquedaIcono("");
           }}
         >
@@ -899,7 +1010,9 @@ const CategoriasAdmin = () => {
       {/* Lista */}
       <div className="ca-categorias-admin__lista">
         {loading ? (
-          <Loading message="Cargando categorías..." />
+          <div className="ca-loader-wrapper">
+            <Loading message="Cargando categorías..." />
+          </div>
         ) : categoriasFiltradas.length === 0 ? (
           <p className="ca-sin-resultados">No se encontraron categorías.</p>
         ) : (
@@ -913,13 +1026,15 @@ const CategoriasAdmin = () => {
               }}
             >
               <div className="ca-categoria-header">
-                <div className="ca-categoria-icono">
-                  {cat.icon ? (
-                    <span className="material-icons">{cat.icon}</span>
-                  ) : (
-                    <span className="material-icons">category</span>
-                  )}
-                </div>
+              <div className="ca-categoria-icono">
+  {cat.icon ? (
+    <span className={cat.iconType === 'symbols' ? 'material-symbols-outlined' : 'material-icons'}>
+      {cat.icon}
+    </span>
+  ) : (
+    <span className="material-icons">category</span>
+  )}
+</div>
                 <div className="ca-categoria-info">
                   <h3 className="ca-categoria-nombre">{cat.nombre}</h3>
                   <div className="ca-categoria-meta">
@@ -936,6 +1051,11 @@ const CategoriasAdmin = () => {
                     <span className="ca-categoria-tipo">
                       {cat.tipo === 'servicio' ? 'Servicio' : 'Producto'}
                     </span>
+                    {cat.grupo && (
+  <span className="ca-categoria-grupo">
+    {cat.grupo}
+  </span>
+)}
                   </div>
                 </div>
               </div>
@@ -997,225 +1117,453 @@ const CategoriasAdmin = () => {
       )}
 
       {/* Modal edición - MEJORADO */}
-      {editando && (
-        <div className="ca-modal" onClick={() => setEditando(null)}>
-          <div className="ca-modal-content ca-form-avanzado" onClick={(e) => e.stopPropagation()}>
-            <h3>{editando.id ? "Editar Categoría" : "Nueva Categoría"}</h3>
+      {/* Modal edición - CORREGIDO */}
+{editando && (
+  <div className="ca-modal" onClick={() => setEditando(null)}>
+    <div className="ca-modal-content ca-form-avanzado" onClick={(e) => e.stopPropagation()}>
+      <h3>{editando.id ? "Editar Categoría" : "Nueva Categoría"}</h3>
 
-            <label>Nombre</label>
-            <input
-              value={editando.nombre}
-              onChange={(e) =>
-                setEditando({ ...editando, nombre: e.target.value })
-              }
-              placeholder="Nombre de la categoría"
-              className="ca-input"
+      <label>Nombre</label>
+      <input
+        value={editando.nombre}
+        onChange={(e) =>
+          setEditando({ ...editando, nombre: e.target.value })
+        }
+        placeholder="Nombre de la categoría"
+        className="ca-input"
+      />
+      {categorias.some(
+        (c) =>
+          c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
+          c.id !== editando.id
+      ) && (
+        <p className="ca-error">Ya existe una categoría con este nombre.</p>
+      )}
+
+      <label>Descripción</label>
+      <textarea
+        value={editando.descripcion || ""}
+        onChange={(e) =>
+          setEditando({ ...editando, descripcion: e.target.value })
+        }
+        placeholder="Breve descripción"
+        className="ca-textarea"
+      />
+
+      <label>Tipo</label>
+      <select
+        value={editando.tipo}
+        onChange={(e) =>
+          setEditando({ ...editando, tipo: e.target.value })
+        }
+        className="ca-select"
+      >
+        <option value="servicio">Servicio</option>
+        <option value="producto">Producto</option>
+      </select>
+
+      <label>Grupo *</label>
+<div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+  <button
+    type="button"
+    className="ca-input"
+    style={{ 
+      flex: 1, 
+      textAlign: 'left',
+      cursor: 'pointer',
+      background: editando.grupo ? 'white' : '#f9f9f9',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    }}
+    onClick={() => setGrupoEditando({ modo: 'seleccionar', tipo: editando.tipo })}
+  >
+    <span>{editando.grupo || '-- Seleccionar grupo --'}</span>
+    <span className="material-icons" style={{ fontSize: '20px', color: '#666' }}>
+      arrow_drop_down
+    </span>
+  </button>
+  
+  <button
+    type="button"
+    className="ca-btn-icon ca-btn-editar"
+    onClick={() => setModalGrupos(true)}
+    title="Gestionar grupos"
+    style={{ flexShrink: 0, width: '44px', height: '44px' }}
+  >
+    <span className="material-icons">settings</span>
+  </button>
+</div>
+
+      {/* Modal inline para crear grupo */}
+      {/* MODAL POPUP PARA SELECCIONAR/CREAR GRUPO */}
+{grupoEditando && grupoEditando.modo === 'seleccionar' && (
+  <div className="ca-modal" onClick={() => setGrupoEditando(null)}>
+    <div 
+      className="ca-modal-content"
+      onClick={(e) => e.stopPropagation()}
+      style={{ maxWidth: '450px', maxHeight: '80vh', overflowY: 'auto' }}
+    >
+      <h3 style={{ marginBottom: '16px' }}>Seleccionar grupo</h3>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {[...new Set(gruposPorTipo[editando.tipo] || [])]
+          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+          .map((grupo) => (
+            <button
+              key={grupo}
+              type="button"
+              onClick={() => {
+                setEditando({ ...editando, grupo });
+                setGrupoEditando(null);
+              }}
+              style={{
+                padding: '12px 16px',
+                background: editando.grupo === grupo 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                  : '#f8f9fa',
+                color: editando.grupo === grupo ? 'white' : '#333',
+                border: editando.grupo === grupo ? '2px solid #667eea' : '2px solid #e0e0e0',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontWeight: editando.grupo === grupo ? '600' : '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (editando.grupo !== grupo) {
+                  e.target.style.background = '#e9ecef';
+                  e.target.style.borderColor = '#667eea';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (editando.grupo !== grupo) {
+                  e.target.style.background = '#f8f9fa';
+                  e.target.style.borderColor = '#e0e0e0';
+                }
+              }}
+            >
+              {grupo}
+              {editando.grupo === grupo && (
+                <span className="material-icons" style={{ 
+                  float: 'right', 
+                  fontSize: '20px' 
+                }}>
+                  check_circle
+                </span>
+              )}
+            </button>
+          ))
+        }
+        
+        <button
+          type="button"
+          onClick={() => setGrupoEditando({ modo: 'crear', tipo: editando.tipo, nombre: '' })}
+          style={{
+            padding: '12px 16px',
+            background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+            border: '2px dashed #667eea',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            color: '#667eea',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            justifyContent: 'center'
+          }}
+        >
+          <span className="material-icons">add_circle</span>
+          Crear nuevo grupo
+        </button>
+      </div>
+      
+      <div className="ca-modal-acciones" style={{ marginTop: '16px' }}>
+        <button 
+          type="button"
+          onClick={() => setGrupoEditando(null)} 
+          className="ca-btn-cancelar"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* MODAL PARA CREAR NUEVO GRUPO */}
+{grupoEditando && grupoEditando.modo === 'crear' && (
+  <div className="ca-modal" onClick={() => setGrupoEditando(null)}>
+    <div 
+      className="ca-modal-content"
+      onClick={(e) => e.stopPropagation()}
+      style={{ maxWidth: '400px' }}
+    >
+      <h3 style={{ marginBottom: '16px' }}>Crear nuevo grupo</h3>
+      
+      <label>Nombre del grupo</label>
+      <input
+        type="text"
+        value={grupoEditando.nombre}
+        onChange={(e) => setGrupoEditando({ ...grupoEditando, nombre: e.target.value })}
+        placeholder="Ej: Deportes, Tecnología Avanzada..."
+        className="ca-input"
+        autoFocus
+      />
+      
+      <div className="ca-modal-acciones" style={{ marginTop: '16px' }}>
+        <button
+          type="button"
+          className="ca-btn-submit"
+          onClick={() => {
+            const nuevoGrupo = grupoEditando.nombre.trim();
+            
+            if (!nuevoGrupo) {
+              alert('El nombre del grupo no puede estar vacío');
+              return;
+            }
+            
+            const gruposActuales = gruposPorTipo[grupoEditando.tipo] || [];
+            const existe = gruposActuales.some(g => 
+              g.toLowerCase() === nuevoGrupo.toLowerCase()
+            );
+            
+            if (existe) {
+              alert(`❌ Ya existe un grupo llamado "${nuevoGrupo}"`);
+              return;
+            }
+            
+            setGruposPorTipo(prev => ({
+              ...prev,
+              [grupoEditando.tipo]: [...prev[grupoEditando.tipo], nuevoGrupo].sort((a, b) => 
+                a.localeCompare(b, 'es', { sensitivity: 'base' })
+              )
+            }));
+            
+            setEditando({ ...editando, grupo: nuevoGrupo });
+            setGrupoEditando(null);
+            
+            alert(`✅ Grupo "${nuevoGrupo}" creado. Guardá la categoría para aplicar cambios.`);
+          }}
+        >
+          Crear
+        </button>
+        <button
+          type="button"
+          className="ca-btn-cancelar"
+          onClick={() => setGrupoEditando({ modo: 'seleccionar', tipo: editando.tipo })}
+        >
+          Volver
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+      <label>Color</label>
+      <div className="ca-color-section">
+        <div className="ca-color-predefinidos">
+          {coloresPredefinidos.map((color, idx) => (
+            <button
+              key={idx}
+              className={`ca-color-swatch ${editando.color === color ? 'ca-color-seleccionado' : ''}`}
+              style={{ backgroundColor: color }}
+              onClick={() => setEditando({ ...editando, color })}
+              title={color}
             />
-            {categorias.some(
+          ))}
+        </div>
+        <div className="ca-color-personalizado">
+          <label>Color personalizado</label>
+          <div className="ca-color-picker">
+            <input
+              type="color"
+              value={editando.color || "#FF6B6B"}
+              onChange={(e) =>
+                setEditando({ ...editando, color: e.target.value })
+              }
+              className="ca-input-color-picker"
+            />
+            <input
+              type="text"
+              value={editando.color || ""}
+              onChange={(e) =>
+                setEditando({ ...editando, color: e.target.value })
+              }
+              placeholder="#FF6B6B"
+              className="ca-input-color"
+            />
+            <div 
+              className="ca-color-previeww" 
+              style={{ backgroundColor: editando.color }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <label>Ícono</label>
+      <div className="ca-icon-section">
+        <div className="ca-icon-search">
+          <input
+            type="text"
+            placeholder="Buscar: pollo, pizza, auto, casa, teléfono, música..."
+            value={busquedaIcono}
+            onChange={(e) => setBusquedaIcono(e.target.value)}
+            className="ca-input"
+          />
+          <div className="ca-icon-previeww-header">
+     {editando.icon && (
+  <div className="ca-icon-seleccionado-previeww">
+    <span 
+      className={editando.iconType === 'symbols' ? 'material-symbols-outlined' : 'material-icons'}
+      style={{ 
+        color: editando.color, 
+        fontSize: '32px',
+        fontFamily: editando.iconType === 'symbols' ? 'Material Symbols Outlined' : 'Material Icons'
+      }}
+    >
+      {editando.icon}
+    </span>
+    <small>
+      {editando.icon}
+      {editando.iconType === 'symbols' && 
+        <span style={{ color: '#667eea' }}> (Symbol)</span>
+      }
+    </small>
+  </div>
+)}
+            {busquedaIcono && (
+              <div className="ca-icon-contador">
+                {cargandoIconos ? (
+                  <span>Buscando iconos online...</span>
+                ) : busquedaOnline ? (
+                  <span>{iconosFiltrados.length} iconos encontrados online</span>
+                ) : (
+                  <span>{iconosFiltrados.length} iconos encontrados</span>
+                )}
+              </div>
+            )}
+          </div>
+          {sugerenciaTermino && (
+            <div className="ca-icon-sugerencia" style={{ 
+              fontSize: '12px', 
+              color: '#666', 
+              marginTop: '4px' 
+            }}>
+              ¿Quisiste decir "<strong 
+                onClick={() => setBusquedaIcono(sugerenciaTermino)}
+                style={{ cursor: 'pointer' }}
+              >{sugerenciaTermino}</strong>"?
+            </div>
+          )}
+        </div>
+
+        {/* Grid de íconos */}
+      {/* Grid de íconos */}
+<div className="ca-icon-grid-mejorado">
+  {iconosFiltrados.length > 0 ? (
+    iconosFiltrados.map((iconData, idx) => {
+      // Si es un string (local), convertir a objeto
+      const icon = typeof iconData === 'string' 
+        ? { name: iconData, type: 'icons' } 
+        : iconData;
+      
+      const isSymbol = icon.type === 'symbols';
+      
+      return (
+        <div
+          key={`${icon.name}-${idx}`}
+          className={`ca-icon-card ${
+            editando.icon === icon.name ? "ca-icon-card-activo" : ""
+          }`}
+          onClick={() => setEditando({ 
+            ...editando, 
+            icon: icon.name,
+            iconType: icon.type // Guardar el tipo también
+          })}
+          title={`${icon.name} (${isSymbol ? 'Symbol' : 'Icon'})`}
+        >
+          {/* ✅ RENDERIZADO DUAL: Icons vs Symbols */}
+          <span
+            className={isSymbol ? 'material-symbols-outlined ca-icon-item-mejorado' : 'material-icons ca-icon-item-mejorado'}
+            style={{
+              color: editando.icon === icon.name ? editando.color : '#555',
+              fontFamily: isSymbol ? 'Material Symbols Outlined' : 'Material Icons',
+              fontSize: '32px',
+              lineHeight: '1'
+            }}
+          >
+            {icon.name}
+          </span>
+          <small className="ca-icon-nombre">
+            {icon.name}
+            {isSymbol && <span style={{ color: '#667eea', fontSize: '0.7em' }}> ●</span>}
+          </small>
+        </div>
+      );
+    })
+  ) : busquedaIcono ? (
+            <div className="ca-sin-iconos">
+              {cargandoIconos ? (
+                <>
+                  <span className="material-icons" style={{ fontSize: '48px', color: '#4ECDC4', animation: 'spin 1s linear infinite' }}>
+                    refresh
+                  </span>
+                  <p>Buscando "{busquedaIcono}" en Material Icons...</p>
+                </>
+              ) : (
+                <>
+                  <span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
+                    search_off
+                  </span>
+                  <p>No se encontraron iconos para "{busquedaIcono}"</p>
+                  {sugerenciaTermino && (
+                    <p style={{ color: '#4ECDC4', marginTop: '8px' }}>
+                      ¿Quisiste decir "<strong 
+                        onClick={() => setBusquedaIcono(sugerenciaTermino)}
+                        style={{ cursor: 'pointer' }}
+                      >{sugerenciaTermino}</strong>"?
+                    </p>
+                  )}
+                  <small>
+                    Ejemplos: copa, vino, bebida, taza, vaso, pollo, pizza, edificio, 
+                    limpieza, herramienta, oficina, trabajo
+                  </small>
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* ✅ BOTONES FUERA DE ca-icon-section */}
+      <div className="ca-modal-acciones">
+        <button
+          onClick={() => {
+            const nombreRepetido = categorias.some(
               (c) =>
                 c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
                 c.id !== editando.id
-            ) && (
-              <p className="ca-error">Ya existe una categoría con este nombre.</p>
-            )}
+            );
 
-            <label>Descripción</label>
-            <textarea
-              value={editando.descripcion || ""}
-              onChange={(e) =>
-                setEditando({ ...editando, descripcion: e.target.value })
-              }
-              placeholder="Breve descripción"
-              className="ca-textarea"
-            />
+            if (nombreRepetido) {
+              alert("No se puede guardar: nombre ya en uso.");
+              return;
+            }
+            guardarEdicion();
+          }}
+          className="ca-btn-submit"
+        >
+          Guardar
+        </button>
+        <button onClick={() => setEditando(null)} className="ca-btn-cancelar">
+          Cancelar
+        </button>
+      </div>
 
-            <label>Tipo</label>
-            <select
-              value={editando.tipo}
-              onChange={(e) =>
-                setEditando({ ...editando, tipo: e.target.value })
-              }
-              className="ca-select"
-            >
-              <option value="servicio">Servicio</option>
-              <option value="producto">Producto</option>
-            </select>
-
-            <label>Color</label>
-            <div className="ca-color-section">
-              <div className="ca-color-predefinidos">
-                {coloresPredefinidos.map((color, idx) => (
-                  <button
-                    key={idx}
-                    className={`ca-color-swatch ${editando.color === color ? 'ca-color-seleccionado' : ''}`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setEditando({ ...editando, color })}
-                    title={color}
-                  />
-                ))}
-              </div>
-              <div className="ca-color-personalizado">
-                <label>Color personalizado</label>
-                <div className="ca-color-picker">
-                  <input
-                    type="color"
-                    value={editando.color || "#FF6B6B"}
-                    onChange={(e) =>
-                      setEditando({ ...editando, color: e.target.value })
-                    }
-                    className="ca-input-color-picker"
-                  />
-                  <input
-                    type="text"
-                    value={editando.color || ""}
-                    onChange={(e) =>
-                      setEditando({ ...editando, color: e.target.value })
-                    }
-                    placeholder="#FF6B6B"
-                    className="ca-input-color"
-                  />
-                  <div 
-                    className="ca-color-preview" 
-                    style={{ backgroundColor: editando.color }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <label>Ícono</label>
-            <div className="ca-icon-section">
-              <div className="ca-icon-search">
-                <input
-                  type="text"
-                  placeholder="Buscar: pollo, pizza, auto, casa, teléfono, música..."
-                  value={busquedaIcono}
-                  onChange={(e) => setBusquedaIcono(e.target.value)}
-                  className="ca-input"
-                />
-                <div className="ca-icon-preview-header">
-                  {editando.icon && (
-                    <div className="ca-icon-seleccionado-preview">
-                      <span 
-                        className="material-icons"
-                        style={{ color: editando.color, fontSize: '32px' }}
-                      >
-                        {editando.icon}
-                      </span>
-                      <small>{editando.icon}</small>
-                    </div>
-                  )}
-                  {busquedaIcono && (
-                    <div className="ca-icon-contador">
-                      {cargandoIconos ? (
-                        <span>Buscando iconos online...</span>
-                      ) : busquedaOnline ? (
-                        <span>{iconosFiltrados.length} iconos encontrados online</span>
-                      ) : (
-                        <span>{iconosFiltrados.length} iconos encontrados</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {sugerenciaTermino && (
-                  <div className="ca-icon-sugerencia" style={{ 
-                    fontSize: '12px', 
-                    color: '#666', 
-                    marginTop: '4px' 
-                  }}>
-                    ¿Quisiste decir "<strong 
-                      onClick={() => setBusquedaIcono(sugerenciaTermino)}
-                      style={{ cursor: 'pointer' }}
-                    >{sugerenciaTermino}</strong>"?
-                  </div>
-                )}
-              </div>
-
-              {/* Grid de íconos mejorado */}
-              <div className="ca-icon-grid-mejorado">
-                {iconosFiltrados.length > 0 ? (
-                  iconosFiltrados.map((iconName) => (
-                    <div
-                      key={iconName}
-                      className={`ca-icon-card ${
-                        editando.icon === iconName ? "ca-icon-card-activo" : ""
-                      }`}
-                      onClick={() => setEditando({ ...editando, icon: iconName })}
-                      title={iconName}
-                    >
-                      <span
-                        className="material-icons ca-icon-item-mejorado"
-                        style={{
-                          color: editando.icon === iconName ? editando.color : '#555'
-                        }}
-                      >
-                        {iconName}
-                      </span>
-                      <small className="ca-icon-nombre">{iconName}</small>
-                    </div>
-                  ))
-                ) : busquedaIcono ? (
-                  <div className="ca-sin-iconos">
-                    {cargandoIconos ? (
-                      <>
-                        <span className="material-icons" style={{ fontSize: '48px', color: '#4ECDC4', animation: 'spin 1s linear infinite' }}>
-                          refresh
-                        </span>
-                        <p>Buscando "{busquedaIcono}" en Material Icons...</p>
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-icons" style={{ fontSize: '48px', color: '#ccc' }}>
-                          search_off
-                        </span>
-                        <p>No se encontraron iconos para "{busquedaIcono}"</p>
-                        {sugerenciaTermino && (
-                          <p style={{ color: '#4ECDC4', marginTop: '8px' }}>
-                            ¿Quisiste decir "<strong 
-                              onClick={() => setBusquedaIcono(sugerenciaTermino)}
-                              style={{ cursor: 'pointer' }}
-                            >{sugerenciaTermino}</strong>"?
-                          </p>
-                        )}
-                        <small>
-                          Ejemplos: copa, vino, bebida, taza, vaso, pollo, pizza, edificio, 
-                          limpieza, herramienta, oficina, trabajo
-                        </small>
-                        <small style={{ display: 'block', marginTop: '8px', color: '#888' }}>
-                          La búsqueda incluye Material Icons completo online
-                        </small>
-                      </>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="ca-modal-acciones">
-                <button
-                  onClick={() => {
-                    const nombreRepetido = categorias.some(
-                      (c) =>
-                        c.nombre.toLowerCase() === editando.nombre.toLowerCase() &&
-                        c.id !== editando.id
-                    );
-
-                    if (nombreRepetido) {
-                      alert("No se puede guardar: nombre ya en uso.");
-                      return;
-                    }
-                    guardarEdicion();
-                  }}
-                  className="ca-btn-submit"
-                >
-                  Guardar
-                </button>
-                <button onClick={() => setEditando(null)} className="ca-btn-cancelar">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    </div>
+  </div>
+)}
 
       {/* Modal reasignación */}
       {reasignarId && (
@@ -1257,6 +1605,310 @@ const CategoriasAdmin = () => {
           </div>
         </div>
       )}
+      {/* Modal gestión de grupos */}
+{modalGrupos && (
+  <div className="ca-modal" onClick={() => setModalGrupos(false)}>
+    <div 
+      className="ca-modal-content ca-modal-grupos"
+      onClick={(e) => e.stopPropagation()} 
+      style={{ maxWidth: '600px' }}
+    >
+      <h3>📂 Gestionar grupos</h3>
+      
+      {/* GRUPOS DE PRODUCTOS */}
+      <div style={{ marginBottom: '20px' }}>
+        <h4>Grupos de Productos ({gruposPorTipo.producto.length})</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {gruposPorTipo.producto.length === 0 ? (
+            <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>
+              No hay grupos de productos creados
+            </p>
+          ) : (
+            gruposPorTipo.producto.map(grupo => {
+              const categoriasConGrupo = categorias.filter(
+                cat => cat.tipo === 'producto' && cat.grupo === grupo
+              );
+              
+              return (
+                <div key={grupo} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px',
+                  background: '#f8f9fa',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: '500' }}>{grupo}</span>
+                    <small style={{ display: 'block', color: '#666', fontSize: '0.85rem' }}>
+                      {categoriasConGrupo.length} categoría{categoriasConGrupo.length !== 1 ? 's' : ''}
+                    </small>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {/* BOTÓN RENOMBRAR */}
+                    <button
+                      className="ca-btn-icon ca-btn-editar"
+                      style={{ width: '32px', height: '32px', padding: '4px' }}
+                      onClick={async () => {
+  const nuevoNombre = prompt(`Renombrar grupo "${grupo}":`, grupo);
+  
+  if (!nuevoNombre || !nuevoNombre.trim()) {
+    return;
+  }
+  
+  const nuevoNombreNormalizado = nuevoNombre.trim();
+  
+  if (nuevoNombreNormalizado === grupo) {
+    return; // No cambió nada
+  }
+  
+  // ✅ VERIFICAR que no exista (case-insensitive)
+  const existe = gruposPorTipo.producto.some(g => 
+    g.toLowerCase() === nuevoNombreNormalizado.toLowerCase() && g !== grupo
+  );
+  
+  if (existe) {
+    alert(`❌ Ya existe un grupo llamado "${nuevoNombreNormalizado}"`);
+    return;
+  }
+                        
+                        if (categoriasConGrupo.length > 0) {
+                          if (!window.confirm(
+                            `¿Renombrar "${grupo}" a "${nuevoNombre}"?\n\n` +
+                            `Se actualizarán ${categoriasConGrupo.length} categoría(s).`
+                          )) {
+                            return;
+                          }
+                          
+                          // Update masivo en Supabase
+                          const { error } = await supabase
+                            .from('categorias')
+                            .update({ grupo: nuevoNombre.trim() })
+                            .eq('tipo', 'producto')
+                            .eq('grupo', grupo);
+                          
+                          if (error) {
+                            console.error('Error renombrando grupo:', error);
+                            alert('❌ Error al renombrar grupo');
+                            return;
+                          }
+                          
+                          // Actualizar estado local
+                          setCategorias(prev => prev.map(cat => 
+                            cat.tipo === 'producto' && cat.grupo === grupo 
+                              ? { ...cat, grupo: nuevoNombre.trim() }
+                              : cat
+                          ));
+                          
+                          setGruposPorTipo(prev => ({
+                            ...prev,
+                            producto: prev.producto
+                              .map(g => g === grupo ? nuevoNombre.trim() : g)
+                              .sort()
+                          }));
+                          
+                          alert(`✅ Grupo renombrado exitosamente`);
+                        } else {
+                          // No tiene categorías, solo cambiar en lista local
+                          setGruposPorTipo(prev => ({
+                            ...prev,
+                            producto: prev.producto
+                              .map(g => g === grupo ? nuevoNombre.trim() : g)
+                              .sort()
+                          }));
+                          
+                          alert(`✅ Grupo renombrado`);
+                        }
+                      }}
+                      title="Renombrar grupo"
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>edit</span>
+                    </button>
+                    
+                    {/* BOTÓN ELIMINAR */}
+                    <button
+                      className="ca-btn-icon ca-btn-eliminar"
+                      style={{ width: '32px', height: '32px', padding: '4px' }}
+                      onClick={async () => {
+                        if (categoriasConGrupo.length > 0) {
+                          alert(
+                            `❌ No se puede eliminar "${grupo}"\n\n` +
+                            `Tiene ${categoriasConGrupo.length} categoría(s) asignada(s):\n` +
+                            categoriasConGrupo.map(c => `• ${c.nombre}`).join('\n')
+                          );
+                          return;
+                        }
+                        
+                        if (!window.confirm(`¿Eliminar grupo "${grupo}"?`)) {
+                          return;
+                        }
+                        
+                        setGruposPorTipo(prev => ({
+                          ...prev,
+                          producto: prev.producto.filter(g => g !== grupo)
+                        }));
+                        
+                        alert(`✅ Grupo "${grupo}" eliminado`);
+                      }}
+                      title="Eliminar grupo"
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* GRUPOS DE SERVICIOS */}
+      <div style={{ marginBottom: '20px' }}>
+        <h4>Grupos de Servicios ({gruposPorTipo.servicio.length})</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {gruposPorTipo.servicio.length === 0 ? (
+            <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>
+              No hay grupos de servicios creados
+            </p>
+          ) : (
+            gruposPorTipo.servicio.map(grupo => {
+              const categoriasConGrupo = categorias.filter(
+                cat => cat.tipo === 'servicio' && cat.grupo === grupo
+              );
+              
+              return (
+                <div key={grupo} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px',
+                  background: '#f8f9fa',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: '500' }}>{grupo}</span>
+                    <small style={{ display: 'block', color: '#666', fontSize: '0.85rem' }}>
+                      {categoriasConGrupo.length} categoría{categoriasConGrupo.length !== 1 ? 's' : ''}
+                    </small>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {/* BOTÓN RENOMBRAR */}
+                    <button
+                      className="ca-btn-icon ca-btn-editar"
+                      style={{ width: '32px', height: '32px', padding: '4px' }}
+                      onClick={async () => {
+                        const nuevoNombre = prompt(`Renombrar grupo "${grupo}":`, grupo);
+                        
+                        if (!nuevoNombre || !nuevoNombre.trim()) {
+                          return;
+                        }
+                        
+                        if (nuevoNombre.trim() === grupo) {
+                          return;
+                        }
+                        
+                        if (gruposPorTipo.servicio.includes(nuevoNombre.trim())) {
+                          alert(`Ya existe un grupo llamado "${nuevoNombre}"`);
+                          return;
+                        }
+                        
+                        if (categoriasConGrupo.length > 0) {
+                          if (!window.confirm(
+                            `¿Renombrar "${grupo}" a "${nuevoNombre}"?\n\n` +
+                            `Se actualizarán ${categoriasConGrupo.length} categoría(s).`
+                          )) {
+                            return;
+                          }
+                          
+                          const { error } = await supabase
+                            .from('categorias')
+                            .update({ grupo: nuevoNombre.trim() })
+                            .eq('tipo', 'servicio')
+                            .eq('grupo', grupo);
+                          
+                          if (error) {
+                            console.error('Error renombrando grupo:', error);
+                            alert('❌ Error al renombrar grupo');
+                            return;
+                          }
+                          
+                          setCategorias(prev => prev.map(cat => 
+                            cat.tipo === 'servicio' && cat.grupo === grupo 
+                              ? { ...cat, grupo: nuevoNombre.trim() }
+                              : cat
+                          ));
+                          
+                          setGruposPorTipo(prev => ({
+                            ...prev,
+                            servicio: prev.servicio
+                              .map(g => g === grupo ? nuevoNombre.trim() : g)
+                              .sort()
+                          }));
+                          
+                          alert(`✅ Grupo renombrado exitosamente`);
+                        } else {
+                          setGruposPorTipo(prev => ({
+                            ...prev,
+                            servicio: prev.servicio
+                              .map(g => g === grupo ? nuevoNombre.trim() : g)
+                              .sort()
+                          }));
+                          
+                          alert(`✅ Grupo renombrado`);
+                        }
+                      }}
+                      title="Renombrar grupo"
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>edit</span>
+                    </button>
+                    
+                    {/* BOTÓN ELIMINAR */}
+                    <button
+                      className="ca-btn-icon ca-btn-eliminar"
+                      style={{ width: '32px', height: '32px', padding: '4px' }}
+                      onClick={async () => {
+                        if (categoriasConGrupo.length > 0) {
+                          alert(
+                            `❌ No se puede eliminar "${grupo}"\n\n` +
+                            `Tiene ${categoriasConGrupo.length} categoría(s) asignada(s):\n` +
+                            categoriasConGrupo.map(c => `• ${c.nombre}`).join('\n')
+                          );
+                          return;
+                        }
+                        
+                        if (!window.confirm(`¿Eliminar grupo "${grupo}"?`)) {
+                          return;
+                        }
+                        
+                        setGruposPorTipo(prev => ({
+                          ...prev,
+                          servicio: prev.servicio.filter(g => g !== grupo)
+                        }));
+                        
+                        alert(`✅ Grupo "${grupo}" eliminado`);
+                      }}
+                      title="Eliminar grupo"
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px' }}>delete</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      <div className="ca-modal-acciones">
+        <button onClick={() => setModalGrupos(false)} className="ca-btn-cancelar">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </section>
   );
 };

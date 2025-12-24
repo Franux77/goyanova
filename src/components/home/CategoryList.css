@@ -1,5 +1,121 @@
-/* CategoryList.css */
+/* CategoryList.css - CON EMPTY STATE */
 
+/* ============================================
+   🆕 EMPTY STATE - Sin servicios/productos
+   ============================================ */
+.category-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem 1rem;
+  animation: fadeInEmpty 0.6s ease;
+}
+
+@keyframes fadeInEmpty {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-empty-content {
+  text-align: center;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.category-empty-icon {
+  font-size: 120px !important;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: floatIcon 3s ease-in-out infinite;
+  font-variation-settings: 
+    'FILL' 1,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.category-empty-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.category-empty-description {
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 380px;
+}
+
+.category-empty-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #1774f6 0%, #0d4fa3 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 12px rgba(23, 116, 246, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+.category-empty-button .material-symbols-outlined {
+  font-size: 24px !important;
+  font-variation-settings: 
+    'FILL' 1,
+    'wght' 600,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+.category-empty-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(23, 116, 246, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.category-empty-button:active {
+  transform: translateY(0px);
+  box-shadow: 
+    0 2px 8px rgba(23, 116, 246, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   CATEGORY LIST
+   ============================================ */
 .category-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -11,7 +127,6 @@
   overflow-x: hidden;
   padding: 1rem 0;
   animation: fadeInCategories 0.5s ease;
-  /* 🔥 SIN grid-auto-rows - deja que cada fila se ajuste automáticamente */
 }
 
 @keyframes fadeInCategories {
@@ -25,18 +140,14 @@
   }
 }
 
-/* ============================================
-   🆕 WRAPPER PARA CARDS CON BADGE
-   ============================================ */
 .category-card-wrapper {
   position: relative;
   width: 100%;
-  /* 🔥 SIN altura fija - se ajusta al contenido */
   display: flex;
   flex-direction: column;
 }
 
-/* 🆕 BADGE DE SERVICIOS COINCIDENTES */
+/* BADGE DE SERVICIOS COINCIDENTES */
 .category-badge {
   position: absolute;
   top: 8px;
@@ -68,7 +179,7 @@
 }
 
 /* ============================================
-   🆕 MENSAJE DE RESULTADOS
+   MENSAJE DE RESULTADOS
    ============================================ */
 .search-results-info {
   display: flex;
@@ -217,7 +328,7 @@
 }
 
 /* ============================================
-   BUSCADOR CON PLACEHOLDER ANIMADO TIPO INSTAGRAM
+   BUSCADOR CON PLACEHOLDER ANIMADO
    ============================================ */
 .search-categoria-box {
   position: relative;
@@ -269,7 +380,6 @@
   transform: translateY(-1px);
 }
 
-/* Placeholder animado tipo Instagram - Slide suave */
 .animated-placeholder {
   position: absolute;
   left: 3rem;
@@ -299,7 +409,6 @@
   transition: opacity 0.4s ease;
 }
 
-/* Animación suave de deslizamiento vertical */
 @keyframes slidePlaceholder {
   0%, 16% {
     transform: translateY(0);
@@ -363,7 +472,7 @@
 }
 
 /* ============================================
-   SIN RESULTADOS (MEJORADO)
+   SIN RESULTADOS DE BÚSQUEDA
    ============================================ */
 .categoria-sin-resultados {
   display: flex;
@@ -404,7 +513,7 @@
    ============================================ */
 @media (max-width: 768px) {
   .category-list {
-    grid-template-columns: repeat(2, 1fr); /* 🔥 2 columnas fijas en móvil */
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.6rem;
   }
 
@@ -415,6 +524,33 @@
   
   .category-loader-text {
     font-size: 0.95rem;
+  }
+
+  /* 🆕 Empty State Responsive */
+  .category-empty-state {
+    min-height: 350px;
+    padding: 1.5rem 1rem;
+  }
+
+  .category-empty-icon {
+    font-size: 90px !important;
+  }
+
+  .category-empty-title {
+    font-size: 1.4rem;
+  }
+
+  .category-empty-description {
+    font-size: 0.95rem;
+  }
+
+  .category-empty-button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .category-empty-button .material-symbols-outlined {
+    font-size: 22px !important;
   }
   
   .buscador-categorias-input {
@@ -473,7 +609,6 @@
     height: 13px;
   }
 
-  /* 🆕 Badge responsive */
   .category-badge {
     font-size: 10px;
     padding: 3px 8px;
@@ -481,7 +616,6 @@
     right: 6px;
   }
 
-  /* 🆕 Mensaje de resultados responsive */
   .search-results-info {
     font-size: 0.85rem;
     padding: 0.75rem 1rem;
@@ -494,9 +628,20 @@
   }
 }
 
-/* 🔥 Para móviles MUY pequeños (opcional: 1 columna) */
 @media (max-width: 360px) {
   .category-list {
-    grid-template-columns: 1fr; /* 1 columna solo en pantallas muy pequeñas */
+    grid-template-columns: 1fr;
+  }
+
+  .category-empty-icon {
+    font-size: 80px !important;
+  }
+
+  .category-empty-title {
+    font-size: 1.25rem;
+  }
+
+  .category-empty-description {
+    font-size: 0.9rem;
   }
 }

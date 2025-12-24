@@ -6,13 +6,11 @@ import './Paso1InfoBasica.css';
 const caracteresPermitidos = (texto) =>
   /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.,;:()¡!?"' -]+$/.test(texto);
 
-// 🔹 Función auxiliar para limpiar espacios
 const normalizarTexto = (t) => t?.trim().replace(/\s+/g, ' ') || '';
 
 export const validarPaso1 = (formData) => {
   const errores = {};
 
-  // --- Nombre ---
   const nombre = normalizarTexto(formData.nombre);
   if (!nombre) errores.nombre = 'El nombre es obligatorio';
   else if (nombre.length < 3)
@@ -24,14 +22,11 @@ export const validarPaso1 = (formData) => {
   else if (/^\d+$/.test(nombre))
     errores.nombre = 'El nombre no puede ser solo números';
 
-  // --- Tipo ---
   if (!formData.tipo?.trim()) errores.tipo = 'Selecciona un tipo';
 
-  // --- Categoría ---
   if (!formData.categoria?.toString()?.trim())
     errores.categoria = 'Selecciona una categoría válida';
 
-  // --- Descripción ---
   const descripcion = normalizarTexto(formData.descripcion);
   if (!descripcion)
     errores.descripcion = 'La descripción es obligatoria';
@@ -42,7 +37,6 @@ export const validarPaso1 = (formData) => {
   else if (!caracteresPermitidos(descripcion))
     errores.descripcion = 'La descripción contiene caracteres no permitidos';
 
-  // --- Dirección escrita ---
   const direccion = normalizarTexto(formData.direccion_escrita);
   if (!direccion)
     errores.direccion_escrita = 'La dirección escrita es obligatoria';
@@ -53,7 +47,6 @@ export const validarPaso1 = (formData) => {
   else if (!caracteresPermitidos(direccion))
     errores.direccion_escrita = 'La dirección contiene caracteres no permitidos';
 
-  // --- Referencia (opcional, pero se valida si tiene contenido) ---
   const referencia = normalizarTexto(formData.ubicacion?.referencia);
   if (referencia) {
     if (referencia.length > 150)
@@ -62,7 +55,6 @@ export const validarPaso1 = (formData) => {
       errores.referencia = 'La referencia contiene caracteres no permitidos';
   }
 
-  // --- Ubicación (lat/lng) ---
   if (
     !formData.ubicacion ||
     typeof formData.ubicacion.lat !== 'number' ||
@@ -74,6 +66,191 @@ export const validarPaso1 = (formData) => {
   return errores;
 };
 
+// 🔥 FUZZY SEARCH - Distancia Levenshtein
+const calcularDistanciaLevenshtein = (a, b) => {
+  const matriz = [];
+  for (let i = 0; i <= b.length; i++) {
+    matriz[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matriz[0][j] = j;
+  }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matriz[i][j] = matriz[i - 1][j - 1];
+      } else {
+        matriz[i][j] = Math.min(
+          matriz[i - 1][j - 1] + 1,
+          matriz[i][j - 1] + 1,
+          matriz[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matriz[b.length][a.length];
+};
+
+// 🔥 Buscar categorías similares
+const buscarSimilares = (busqueda, categorias, limite = 50) => {
+  if (!busqueda || busqueda.length < 2) return categorias;
+  
+  const busquedaLower = busqueda.toLowerCase();
+  
+  const resultados = categorias
+    .map(cat => {
+      const nombreLower = cat.nombre.toLowerCase();
+      const distancia = calcularDistanciaLevenshtein(busquedaLower, nombreLower);
+      const porcentajeSimilitud = 1 - distancia / Math.max(busquedaLower.length, nombreLower.length);
+      
+      return {
+        ...cat,
+        distancia,
+        similitud: porcentajeSimilitud,
+        coincideExacto: nombreLower.includes(busquedaLower),
+        empiezaCon: nombreLower.startsWith(busquedaLower)
+      };
+    })
+    .filter(cat => cat.similitud > 0.4 || cat.coincideExacto)
+    .sort((a, b) => {
+      if (a.coincideExacto && !b.coincideExacto) return -1;
+      if (!a.coincideExacto && b.coincideExacto) return 1;
+      if (a.empiezaCon && !b.empiezaCon) return -1;
+      if (!a.empiezaCon && b.empiezaCon) return 1;
+      return b.similitud - a.similitud;
+    })
+    .slice(0, limite);
+  
+  return resultados;
+};
+
+// 🆕 Modal para ver todas las categorías CON FUZZY SEARCH (SIN AGRUPACIONES)
+// 🆕 Modal para ver todas las categorías POR GRUPO CON FUZZY SEARCH
+const ModalCategorias = ({ categorias, categoriaSeleccionada, onSeleccionar, onCerrar }) => {
+  const [busquedaModal, setBusquedaModal] = useState('');
+  const [grupoExpandido, setGrupoExpandido] = useState(null);
+
+  // Agrupar categorías
+  const categoriasPorGrupo = useMemo(() => {
+    const grupos = {};
+    categorias.forEach(cat => {
+      const grupo = cat.grupo || 'Sin grupo';
+      if (!grupos[grupo]) grupos[grupo] = [];
+      grupos[grupo].push(cat);
+    });
+    return grupos;
+  }, [categorias]);
+
+  // Filtrar con fuzzy search
+  const resultadosBusqueda = useMemo(() => {
+    if (!busquedaModal || busquedaModal.length < 2) return null;
+    return buscarSimilares(busquedaModal, categorias, 20);
+  }, [busquedaModal, categorias]);
+
+  const handleSeleccionar = (cat) => {
+    onSeleccionar(cat);
+    onCerrar();
+  };
+
+  const toggleGrupo = (grupo) => {
+    setGrupoExpandido(prev => prev === grupo ? null : grupo);
+  };
+
+  return (
+    <div className="modal-categorias-overlay" onClick={onCerrar}>
+      <div className="modal-categorias-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-categorias-header">
+          <h3>Seleccionar categoría</h3>
+          <button className="modal-categorias-close" onClick={onCerrar}>✕</button>
+        </div>
+
+        <div className="modal-categorias-busqueda">
+          <input
+            type="text"
+            value={busquedaModal}
+            onChange={(e) => setBusquedaModal(e.target.value)}
+            placeholder="🔍 Buscar categoría... (Ej: remis, comida, plomero)"
+            autoFocus
+          />
+        </div>
+
+        <div className="modal-categorias-lista">
+          {resultadosBusqueda ? (
+            // MOSTRAR RESULTADOS DE BÚSQUEDA
+            resultadosBusqueda.length > 0 ? (
+              <div>
+                <p className="modal-resultados-info">
+                  {resultadosBusqueda.length} {resultadosBusqueda.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+                </p>
+                {resultadosBusqueda.map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`modal-categoria-item ${categoriaSeleccionada === cat.id ? 'selected' : ''}`}
+                    onClick={() => handleSeleccionar(cat)}
+                  >
+                    <span className="modal-categoria-nombre">
+                      {cat.nombre}
+                      {cat.grupo && (
+                        <span className="modal-categoria-grupo-badge">{cat.grupo}</span>
+                      )}
+                    </span>
+                    {categoriaSeleccionada === cat.id && <span className="modal-categoria-check">✓</span>}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="modal-sin-resultados">
+                <p>❌ No se encontró "{busquedaModal}"</p>
+                <p className="modal-sugerencia-texto">Intenta con otra palabra o navega por grupos</p>
+              </div>
+            )
+          ) : (
+            // MOSTRAR GRUPOS COLAPSABLES
+            Object.entries(categoriasPorGrupo)
+              .sort(([a], [b]) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+              .map(([grupo, cats]) => (
+                <div key={grupo} className="modal-grupo-contenedor">
+                  <button
+                    className="modal-grupo-header"
+                    onClick={() => toggleGrupo(grupo)}
+                  >
+                    <span className="modal-grupo-titulo">
+                      {grupo} <span className="modal-grupo-count">({cats.length})</span>
+                    </span>
+                    <span className={`modal-grupo-icono ${grupoExpandido === grupo ? 'expandido' : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  
+                  {grupoExpandido === grupo && (
+                    <div className="modal-grupo-categorias">
+                      {cats.map((cat) => (
+                        <button
+                          key={cat.id}
+                          className={`modal-categoria-item ${categoriaSeleccionada === cat.id ? 'selected' : ''}`}
+                          onClick={() => handleSeleccionar(cat)}
+                        >
+                          <span className="modal-categoria-nombre">{cat.nombre}</span>
+                          {categoriaSeleccionada === cat.id && <span className="modal-categoria-check">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+          )}
+        </div>
+
+        <div className="modal-categorias-footer">
+          <p className="modal-categorias-count">
+            {categorias.length} categorías disponibles
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Paso1InfoBasica = ({ formData, setFormData }) => {
   const [nombreLocal, setNombreLocal] = useState('');
   const [descripcionLocal, setDescripcionLocal] = useState('');
@@ -82,11 +259,13 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalCategoriasAbierto, setModalCategoriasAbierto] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [loadingCategorias, setLoadingCategorias] = useState(false);
   const [coordenadasMostrar, setCoordenadasMostrar] = useState({ lat: null, lng: null });
 
-  // ✅ Cargar datos cuando llega formData (nuevo o editado)
+  const LIMITE_ACCESO_RAPIDO = 6;
+
   useEffect(() => {
     if (!formData) return;
 
@@ -102,7 +281,6 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     });
   }, [formData]);
 
-  // --- Inicializar categoría al cargar ---
   useEffect(() => {
     if (formData?.categoria && categorias.length > 0) {
       const cat = categorias.find(c => c.id === formData.categoria);
@@ -112,7 +290,6 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     }
   }, [formData?.categoria, categorias]);
 
-  // --- Inicializar coordenadas ---
   useEffect(() => {
     if (formData?.ubicacion) {
       setCoordenadasMostrar({
@@ -123,7 +300,6 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     }
   }, [formData?.ubicacion]);
 
-  // --- Cargar categorías según tipo ---
   useEffect(() => {
     const fetchCategorias = async () => {
       if (!tipoSeleccionado) {
@@ -137,7 +313,8 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
           .from('categorias')
           .select('*')
           .eq('tipo', tipoSeleccionado)
-          .eq('estado', 'activa');
+          .eq('estado', 'activa')
+          .order('nombre', { ascending: true });
 
         if (error) throw error;
 
@@ -158,22 +335,22 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     fetchCategorias();
   }, [tipoSeleccionado, formData?.categoria]);
 
-  const categoriasFiltradas = useMemo(() => {
-    if (!categorias) return [];
-
-    // Si hay categoría seleccionada, mostrar solo esa
+  // 🔥 Categorías de acceso rápido con fuzzy search
+  const categoriasAccesoRapido = useMemo(() => {
+    if (!categorias || categorias.length === 0) return [];
+    
     if (formData.categoria) {
       const catSeleccionada = categorias.find(c => c.id === formData.categoria);
       if (catSeleccionada) return [catSeleccionada];
     }
 
-    // Si no hay selección, filtrar por búsqueda
-    return categorias.filter((cat) =>
-      cat.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    );
+    if (busqueda) {
+      return buscarSimilares(busqueda, categorias, LIMITE_ACCESO_RAPIDO);
+    }
+
+    return categorias.slice(0, LIMITE_ACCESO_RAPIDO);
   }, [categorias, busqueda, formData.categoria]);
 
-  // --- Handlers (guardan automáticamente en formData) ---
   const handleNombreChange = (e) => {
     const value = e.target.value;
     if (value.length <= 50) {
@@ -185,11 +362,8 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
   const handleTipoChange = (e) => {
     const value = e.target.value;
     setTipoSeleccionado(value);
-
-    // 🔹 Limpiar categoría y búsqueda si cambiamos de tipo
     setFormData(prev => ({ ...prev, categoria: '' }));
     setBusqueda('');
-
     setFormData(prev => ({ ...prev, tipo: value }));
   };
 
@@ -237,7 +411,6 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     setFormData((prev) => ({ ...prev, categoria: '' }));
   };
 
-  // --- Modal mapa ---
   const abrirModalMapa = () => setModalAbierto(true);
   const cerrarModalMapa = () => setModalAbierto(false);
   const guardarUbicacion = (lat, lng) => {
@@ -249,13 +422,9 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
   const mostrarCoordenada = (coord) =>
     typeof coord === 'number' ? coord.toFixed(6) : 'No definido';
 
-  // --- JSX ---
   return (
     <div className="paso1-container">
       <h2 className="titulo-paso">Información básica</h2>
-      {/* <p className="subtitulo-paso">
-        Completa todos los campos que sean obligatorios para continuar.
-      </p> */}
 
       <label>Nombre del servicio/producto o tu nombre</label>
       <input
@@ -282,14 +451,12 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
           onChange={(e) => {
             const value = e.target.value.slice(0, 50);
             setBusqueda(value);
-
-            // 🔹 Si borramos todo, también limpiamos la categoría seleccionada
             if (!value) {
               setFormData(prev => ({ ...prev, categoria: '' }));
             }
           }}
           disabled={!tipoSeleccionado}
-          placeholder="Escribí o seleccioná una categoría"
+          placeholder="Escribí para buscar... (Ej: remis, comida, plomero)"
           maxLength={50}
         />
 
@@ -306,18 +473,42 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
             <p className="mg-spinner-text">Cargando categorías...</p>
             <div className="mg-mini-spinner" role="status" aria-label="Cargando"></div>
           </div>
-        ) : categoriasFiltradas.length > 0 ? (
-          <div className="mg-categoria-grid">
-            {categoriasFiltradas.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                className={`mg-categoria-item ${formData.categoria === cat.id ? 'mg-categoria-selected' : ''}`}
-                onClick={() => handleCategoriaClick(cat)}
-              >
-                {cat.nombre}
-              </button>
-            ))}
+        ) : categoriasAccesoRapido.length > 0 ? (
+          <>
+            {busqueda && !formData.categoria && (
+              <p className="mg-sugerencias-titulo">💡 Sugerencias para "{busqueda}":</p>
+            )}
+            <div className="mg-categoria-grid">
+              {categoriasAccesoRapido.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`mg-categoria-item ${formData.categoria === cat.id ? 'mg-categoria-selected' : ''}`}
+                  onClick={() => handleCategoriaClick(cat)}
+                >
+                  {cat.nombre}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              type="button"
+              className="btn-ver-todas-categorias"
+              onClick={() => setModalCategoriasAbierto(true)}
+            >
+              {busqueda ? '🔍 Buscar en todas las categorías' : `📂 Ver todas las categorías (${categorias.length})`}
+            </button>
+          </>
+        ) : tipoSeleccionado && busqueda ? (
+          <div className="sin-resultados-container">
+            <p className="sin-resultados">❌ No se encontró "{busqueda}"</p>
+            <button
+              type="button"
+              className="btn-ver-todas-categorias"
+              onClick={() => setModalCategoriasAbierto(true)}
+            >
+              📂 Ver todas las categorías ({categorias.length})
+            </button>
           </div>
         ) : tipoSeleccionado ? (
           <p className="sin-resultados">No se encontraron categorías</p>
@@ -366,12 +557,21 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
       )}
 
       {modalAbierto && (
-  <ModalMapa 
-    onGuardar={guardarUbicacion} 
-    onCerrar={cerrarModalMapa}
-    ubicacion={formData.ubicacion}
-  />
-)}
+        <ModalMapa 
+          onGuardar={guardarUbicacion} 
+          onCerrar={cerrarModalMapa}
+          ubicacion={formData.ubicacion}
+        />
+      )}
+
+      {modalCategoriasAbierto && (
+        <ModalCategorias
+          categorias={categorias}
+          categoriaSeleccionada={formData.categoria}
+          onSeleccionar={handleCategoriaClick}
+          onCerrar={() => setModalCategoriasAbierto(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,16 +1,17 @@
-// src/components/categorias/CategoryList.jsx
+// src/components/categorias/CategoryList.jsx - CON EMPTY STATE
 import React, { useState, useEffect, useMemo } from 'react';
 import CategoryCard from '../home/CategoryCard';
 import './CategoryList.css';
 import { supabase } from '../../utils/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const CategoryList = ({ type, onSelectCategory }) => {
+  const navigate = useNavigate();
   const [categoriasDB, setCategoriasDB] = useState([]);
-  const [serviciosDB, setServiciosDB] = useState([]); // 🆕 Cache de servicios
+  const [serviciosDB, setServiciosDB] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Textos rotativos para el placeholder
   const placeholderTexts = [
     'Busca una categoría...',
     'Busca por nombres de servicios...',
@@ -27,7 +28,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
     setLoading(true);
     
     try {
-      // 1. Obtener todas las categorías activas del tipo solicitado
       const { data: categorias, error: errorCat } = await supabase
         .from('categorias')
         .select('id, nombre, icon')
@@ -52,7 +52,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
       const categoriasIds = categorias.map(c => c.id);
       
-      // 2. Obtener TODOS los servicios activos con sus nombres y categorías
       const { data: servicios, error: errorServ } = await supabase
         .from('servicios')
         .select('id, nombre, descripcion, categoria_id')
@@ -64,12 +63,10 @@ const CategoryList = ({ type, onSelectCategory }) => {
         console.error('Error cargando servicios:', errorServ);
       }
 
-      // 3. Crear Set de categorías con servicios visibles
       const categoriasConServicios = new Set(
         servicios?.map(s => s.categoria_id) || []
       );
 
-      // 4. Filtrar categorías con servicios y mapear
       const categoriasFiltradas = categorias
         .filter(cat => categoriasConServicios.has(cat.id))
         .map(cat => ({
@@ -77,11 +74,9 @@ const CategoryList = ({ type, onSelectCategory }) => {
           title: cat.nombre,
           icon: cat.icon || 'category',
         }));
-
-      // console.log(`Categorías con servicios visibles: ${categoriasFiltradas.length}/${categorias.length}`);
       
       setCategoriasDB(categoriasFiltradas);
-      setServiciosDB(servicios || []); // 🆕 Guardar servicios para búsqueda
+      setServiciosDB(servicios || []);
 
     } catch (err) {
       console.error('Error inesperado:', err);
@@ -92,7 +87,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
     }
   };
 
-  // Función para normalizar texto (quitar acentos, lowercase)
   const normalizeText = (text) => {
     if (!text) return '';
     return text
@@ -102,11 +96,9 @@ const CategoryList = ({ type, onSelectCategory }) => {
       .trim();
   };
 
-  // 🆕 Búsqueda INTELIGENTE que busca en categorías Y servicios
   const categoriasFiltradas = useMemo(() => {
     const busquedaLower = normalizeText(busqueda);
     
-    // Si no hay búsqueda, mostrar todas
     if (!busquedaLower) return categoriasDB;
     
     const palabrasBusqueda = busquedaLower.split(' ').filter(w => w.length > 2);
@@ -114,12 +106,10 @@ const CategoryList = ({ type, onSelectCategory }) => {
     return categoriasDB.filter(cat => {
       const categoriaNombre = normalizeText(cat.title);
       
-      // 1️⃣ Buscar en NOMBRE DE CATEGORÍA
       if (categoriaNombre.includes(busquedaLower)) {
         return true;
       }
       
-      // Buscar por palabras individuales en categoría
       const categoriaWords = categoriaNombre.split(' ');
       const coincideCategoria = palabrasBusqueda.some(searchWord =>
         categoriaWords.some(catWord => catWord.includes(searchWord))
@@ -129,7 +119,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
         return true;
       }
 
-      // 2️⃣ Buscar en SERVICIOS de esta categoría
       const serviciosDeCategoria = serviciosDB.filter(
         serv => serv.categoria_id === cat.id
       );
@@ -138,17 +127,14 @@ const CategoryList = ({ type, onSelectCategory }) => {
         const servicioNombre = normalizeText(servicio.nombre);
         const servicioDesc = normalizeText(servicio.descripcion || '');
         
-        // Buscar en nombre del servicio
         if (servicioNombre.includes(busquedaLower)) {
           return true;
         }
         
-        // Buscar en descripción del servicio
         if (servicioDesc.includes(busquedaLower)) {
           return true;
         }
         
-        // Buscar por palabras en nombre de servicio
         const servicioWords = servicioNombre.split(' ');
         return palabrasBusqueda.some(searchWord =>
           servicioWords.some(servWord => servWord.includes(searchWord))
@@ -159,7 +145,6 @@ const CategoryList = ({ type, onSelectCategory }) => {
     });
   }, [categoriasDB, serviciosDB, busqueda]);
 
-  // 🆕 Contar servicios coincidentes por categoría (para badge)
   const categoriasConConteo = useMemo(() => {
     if (!busqueda.trim()) return categoriasFiltradas;
 
@@ -187,11 +172,10 @@ const CategoryList = ({ type, onSelectCategory }) => {
 
   const hayResultados = categoriasFiltradas.length > 0;
   const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
+  const sinServiciosEnAbsoluto = !loading && categoriasDB.length === 0 && busqueda.trim() === '';
 
   const handleSelectCategory = (categoryTitle) => {
-    // console.log('Categoría seleccionada:', categoryTitle);
     const encodedTitle = encodeURIComponent(categoryTitle);
-    // console.log('Categoría encodeada:', encodedTitle);
     
     if (typeof onSelectCategory === 'function') {
       onSelectCategory(encodedTitle);
@@ -214,16 +198,43 @@ const CategoryList = ({ type, onSelectCategory }) => {
         </div>
       )}
 
-      {!loading && (
+      {/* 🆕 EMPTY STATE - Sin servicios/productos */}
+      {sinServiciosEnAbsoluto && (
+        <div className="category-empty-state">
+          <div className="category-empty-content">
+            <span className="material-symbols-outlined category-empty-icon">
+              {type === 'servicio' ? 'work_off' : 'inventory_2'}
+            </span>
+            <h3 className="category-empty-title">
+              {type === 'servicio' 
+                ? 'No hay servicios disponibles' 
+                : 'No hay productos disponibles'}
+            </h3>
+            <p className="category-empty-description">
+              {type === 'servicio'
+                ? 'Aún no se han publicado servicios en la plataforma.'
+                : 'Aún no se han publicado productos en la plataforma.'}
+            </p>
+            <button 
+              className="category-empty-button"
+              onClick={() => navigate('/publicar')}
+            >
+              <span className="material-symbols-outlined">add_circle</span>
+              Publicar {type === 'servicio' ? 'Servicio' : 'Producto'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!loading && !sinServiciosEnAbsoluto && (
         <>
-          {/* Buscador con placeholder animado */}
+          {/* Buscador */}
           <div className="search-categoria-box">
             <svg className="search-categoria-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.35-4.35"/>
             </svg>
             
-            {/* Placeholder animado */}
             {busqueda === '' && (
               <div className="animated-placeholder">
                 <div className="placeholder-text">
@@ -257,7 +268,7 @@ const CategoryList = ({ type, onSelectCategory }) => {
             )}
           </div>
 
-          {/* 🆕 Mensaje de resultados encontrados */}
+          {/* Mensaje de resultados encontrados */}
           {busqueda.trim() && hayResultados && (
             <div className="search-results-info">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -265,18 +276,18 @@ const CategoryList = ({ type, onSelectCategory }) => {
                 <path d="M12 16v-4M12 8h.01"/>
               </svg>
               <span>
-                <strong>{categoriasFiltradas.length}</strong> {categoriasFiltradas.length === 1 ? 'categoría encontrada' : 'categorías encontradas'} con servicios relacionados a "<strong>{busqueda}</strong>"
+                <strong>{categoriasFiltradas.length}</strong> {categoriasFiltradas.length === 1 ? 'categoría encontrada' : 'categorías encontradas'} con {type === 'servicio' ? 'servicios' : 'productos'} relacionados a "<strong>{busqueda}</strong>"
               </span>
             </div>
           )}
 
-          {/* Sin resultados */}
+          {/* Sin resultados de búsqueda */}
           {mostrarSinResultados && (
             <div className="categoria-sin-resultados">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
               </svg>
-              <span>No se encontraron categorías ni servicios</span>
+              <span>No se encontraron categorías ni {type === 'servicio' ? 'servicios' : 'productos'}</span>
               <p className="categoria-sin-resultados-sugerencias">
                 Intenta con otros términos de búsqueda
               </p>
@@ -293,10 +304,9 @@ const CategoryList = ({ type, onSelectCategory }) => {
                     icon={cat.icon}
                     onSelect={handleSelectCategory}
                   />
-                  {/* 🆕 Badge de servicios coincidentes */}
                   {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
                     <div className="category-badge">
-                      {cat.serviciosCoincidentes} {cat.serviciosCoincidentes === 1 ? 'servicio' : 'servicios'}
+                      {cat.serviciosCoincidentes} {cat.serviciosCoincidentes === 1 ? type : `${type}s`}
                     </div>
                   )}
                 </div>

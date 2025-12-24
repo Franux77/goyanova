@@ -61,8 +61,32 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
-  overflow: auto;
+  overflow-y: auto;  /* ✅ CAMBIAR DE "auto" A "auto" */
+  overflow-x: hidden; /* ✅ AGREGAR ESTA LÍNEA */
   max-height: 90vh;
+  
+  /* ✅ AGREGAR SCROLL PERSONALIZADO */
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f0f0f0;
+}
+
+/* ✅ AGREGAR ESTAS LÍNEAS */
+.ca-form-avanzado::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ca-form-avanzado::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.ca-form-avanzado::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.ca-form-avanzado::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 .ca-form-avanzado label {
@@ -208,7 +232,7 @@
   font-family: monospace;
 }
 
-.ca-color-preview {
+.ca-color-previeww {
   width: 42px;
   height: 42px;
   border-radius: 8px;
@@ -257,7 +281,7 @@
 }
 
 /* Header del preview con icono seleccionado y contador */
-.ca-icon-preview-header {
+.ca-icon-previeww-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -265,7 +289,7 @@
   padding: 8px 0;
 }
 
-.ca-icon-seleccionado-preview {
+.ca-icon-seleccionado-previeww {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -276,7 +300,7 @@
   flex: 1;
 }
 
-.ca-icon-seleccionado-preview span {
+.ca-icon-seleccionado-previeww span {
   flex-shrink: 0;
 }
 
@@ -496,6 +520,14 @@
   margin-bottom: 1.8rem;
 }
 
+/* Loader wrapper: solo en pantallas de escritorio se hace full-row y se centra */
+@media (min-width: 1024px) {
+  .ca-loader-wrapper {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+}
+
 .ca-categoria-card {
   display: flex;
   flex-direction: column;
@@ -562,6 +594,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: left;
 }
 
 .ca-categoria-meta {
@@ -603,7 +636,17 @@
   color: #495057;
   font-weight: 600;
 }
-
+.ca-categoria-grupo {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
+  font-weight: 600;
+  border: 1px solid #667eea40;
+}
 .ca-categoria-desc {
   margin: 0.8rem 0;
   font-size: 0.9rem;
@@ -950,11 +993,11 @@
     font-size: 0.65rem;
   }
 
-  .ca-icon-seleccionado-preview {
+  .ca-icon-seleccionado-previeww {
     padding: 6px 10px;
   }
 
-  .ca-icon-seleccionado-preview span {
+  .ca-icon-seleccionado-previeww span {
     font-size: 28px !important;
   }
 
@@ -995,4 +1038,132 @@
   .ca-icon-grid-mejorado {
     grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
   }
+}
+
+/* ===================================== */
+/* MODAL DE GESTIÓN DE GRUPOS - MEJORADO */
+/* ===================================== */
+
+.ca-modal-grupos {
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ca-modal-grupos h4 {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 12px 0;
+  margin: 0 0 12px 0;
+  z-index: 10;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.ca-modal-grupos > div {
+  max-height: none;
+}
+
+/* Scroll personalizado para el modal */
+.ca-modal-grupos::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ca-modal-grupos::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.ca-modal-grupos::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.ca-modal-grupos::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Responsive para modal de grupos */
+@media (max-width: 768px) {
+  .ca-modal-grupos {
+    max-height: 80vh;
+    padding: 12px;
+  }
+  
+  .ca-modal-grupos h3 {
+    font-size: 1.2rem;
+  }
+  
+  .ca-modal-grupos h4 {
+    font-size: 1rem;
+  }
+}
+
+/* ===================================== */
+/* SOPORTE PARA MATERIAL SYMBOLS */
+/* ===================================== */
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+}
+
+/* En tarjetas de categoría */
+.ca-categoria-icono .material-symbols-outlined {
+  font-size: 32px;
+}
+
+/* En grid de selección de iconos */
+.ca-icon-item-mejorado.material-symbols-outlined {
+  font-size: 32px;
+}
+/* ===================================== */
+/* ICONOS SIMPLIFICADOS (SOLO MATERIAL ICONS) */
+/* ===================================== */
+
+.ca-icon-item-mejorado {
+  font-size: 32px;
+  line-height: 1;
+  vertical-align: middle;
+  font-family: 'Material Icons';
+}
+
+/* Asegurar que los iconos se rendericen correctamente */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* En tarjetas de categoría */
+.ca-categoria-icono .material-icons {
+  font-size: 32px;
+}
+
+/* En grid de selección */
+.ca-icon-item-mejorado.material-icons {
+  font-size: 32px;
 }

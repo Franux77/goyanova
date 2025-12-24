@@ -1,4 +1,4 @@
-// src/components/panel/admin/ServiciosAdmin.jsx
+// src/components/panel/admin/ServiciosAdmin.jsx - VERSIÓN CORREGIDA
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import { useNavigate } from 'react-router-dom';
@@ -10,69 +10,79 @@ const ServiciosAdmin = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [paginaActual, setPaginaActual] = useState(1);
+  const [cargandoInicial, setCargandoInicial] = useState(true); // 👈 NUEVO
   const serviciosPorPagina = 15;
   const navigate = useNavigate();
 
   const fetchServicios = async () => {
-    const { data: serviciosData, error } = await supabase
-      .from('servicios')
-      .select(`
-        id,
-        nombre,
-        estado,
-        suspendido_por,
-        categoria_id,
-        categorias(nombre),
-        disponibilidades(
+    try {
+      const { data: serviciosData, error } = await supabase
+        .from('servicios')
+        .select(`
           id,
-          tipo,
-          mensaje,
-          dia,
-          turno,
-          hora_inicio,
-          hora_fin
-        )
-      `)
-      .order('creado_en', { ascending: false });
+          nombre,
+          estado,
+          suspendido_por,
+          categoria_id,
+          categorias(nombre),
+          disponibilidades(
+            id,
+            tipo,
+            mensaje,
+            dia,
+            turno,
+            hora_inicio,
+            hora_fin
+          )
+        `)
+        .order('creado_en', { ascending: false });
 
-    if (error) return;
+      if (error) {
+        console.error('Error al cargar servicios:', error);
+        return;
+      }
 
-    const { data: suspensionesData } = await supabase
-      .from('suspensiones')
-      .select('entidad_id, motivo')
-      .eq('entidad', 'servicio');
+      const { data: suspensionesData } = await supabase
+        .from('suspensiones')
+        .select('entidad_id, motivo')
+        .eq('entidad', 'servicio');
 
-    const suspendidosIds = suspensionesData?.map(s => s.entidad_id) || [];
+      const suspendidosIds = suspensionesData?.map(s => s.entidad_id) || [];
 
-    const serviciosMapeados = serviciosData.map(s => {
-      const suspension = suspensionesData.find(x => x.entidad_id === s.id);
+      const serviciosMapeados = (serviciosData || []).map(s => {
+        const suspension = suspensionesData?.find(x => x.entidad_id === s.id);
 
-      const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-      const horarios = diasSemana.reduce((acc, dia) => {
-        const turnosDia = s.disponibilidades
-          .filter(d => d.dia?.toLowerCase() === dia.toLowerCase())
-          .map(d => ({ inicio: d.hora_inicio || '', fin: d.hora_fin || '' }));
-        if (turnosDia.length) acc[dia] = turnosDia;
-        return acc;
-      }, {});
+        const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+        const horarios = diasSemana.reduce((acc, dia) => {
+          const turnosDia = (s.disponibilidades || [])
+            .filter(d => d.dia?.toLowerCase() === dia.toLowerCase())
+            .map(d => ({ inicio: d.hora_inicio || '', fin: d.hora_fin || '' }));
+          if (turnosDia.length) acc[dia] = turnosDia;
+          return acc;
+        }, {});
 
-      let tipoDisponibilidad = s.disponibilidades[0]?.tipo || "horarios";
-      let mensaje = s.disponibilidades[0]?.mensaje || "";
+        let tipoDisponibilidad = s.disponibilidades?.[0]?.tipo || "horarios";
+        let mensaje = s.disponibilidades?.[0]?.mensaje || "";
 
-      return {
-        ...s,
-        categoria: s.categorias?.nombre || 'Sin categoría',
-        estado: suspendidosIds.includes(s.id) ? 'suspendido' : s.estado || 'activo',
-        motivoSuspension: suspension?.motivo || null,
-        formDataParaEditar: {
-          tipoDisponibilidad,
-          mensaje,
-          horarios
-        }
-      };
-    });
+        return {
+          ...s,
+          categoria: s.categorias?.nombre || 'Sin categoría',
+          estado: suspendidosIds.includes(s.id) ? 'suspendido' : s.estado || 'activo',
+          motivoSuspension: suspension?.motivo || null,
+          formDataParaEditar: {
+            tipoDisponibilidad,
+            mensaje,
+            horarios
+          }
+        };
+      });
 
-    setServicios(serviciosMapeados);
+      setServicios(serviciosMapeados);
+    } catch (error) {
+      console.error('Error inesperado:', error);
+    } finally {
+      setCargandoInicial(false); // 👈 SIEMPRE se ejecuta
+    }
   };
 
   useEffect(() => {
@@ -164,7 +174,8 @@ const ServiciosAdmin = () => {
     navigate(`/panel/admin/publicar/${id}`);
   };
 
-  if (!servicios.length && busqueda === '') {
+  // 👇 LÓGICA CORREGIDA
+  if (cargandoInicial) {
     return <Loading message="Cargando servicios..." />;
   }
 
@@ -208,7 +219,20 @@ const ServiciosAdmin = () => {
 
       <div className="sadmin-servicios__lista">
         {serviciosPaginados.length === 0 ? (
-          <p className="sadmin-sin-resultados">No se encontraron servicios.</p>
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            color: '#666'
+          }}>
+            <span className="material-icons" style={{ fontSize: '80px', opacity: 0.3 }}>
+              inbox
+            </span>
+            <p className="sadmin-sin-resultados">
+              {servicios.length === 0 
+                ? 'No hay servicios registrados aún.' 
+                : 'No se encontraron servicios con esos filtros.'}
+            </p>
+          </div>
         ) : (
           serviciosPaginados.map(s => (
             <article key={s.id} className="sadmin-card">
