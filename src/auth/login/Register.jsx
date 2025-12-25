@@ -20,9 +20,7 @@ const Register = () => {
   const [mostrarPass, setMostrarPass] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
-  
-  // 🆕 Estado para modal
-  const [modalInfo, setModalInfo] = useState(null); // { tipo, titulo, mensaje, onClose }
+  const [modalInfo, setModalInfo] = useState(null);
 
   const validarPassword = (pass) => {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(pass);
@@ -44,12 +42,14 @@ const Register = () => {
 
     const { nombre, apellido, telefono, email, edad, password } = formData;
     
-    if (!nombre.trim() || !apellido.trim() || !telefono.trim() || !email.trim() || !password) {
+    // Validar campos obligatorios incluyendo edad
+    if (!nombre.trim() || !apellido.trim() || !telefono.trim() || !email.trim() || !edad || !password) {
       setError('Completá todos los campos obligatorios.');
       return;
     }
 
-    if (edad && Number(edad) < 12) {
+    // Validar edad mínima
+    if (Number(edad) < 12) {
       setError('Debes tener al menos 12 años para registrarte.');
       return;
     }
@@ -80,31 +80,70 @@ const Register = () => {
       if (!authData.user) throw new Error('No se pudo crear el usuario');
 
       const userId = authData.user.id;
-      const needsConfirmation = authData.user.identities?.length === 0;
+      
+      // 🔍 DETECCIÓN AUTOMÁTICA: ¿Necesita confirmar email?
+      // Verificamos si el email fue verificado en user_metadata
+      const emailVerified = authData.user.user_metadata?.email_verified === true;
+      // También verificamos si tiene email_confirmed_at
+      const hasConfirmedAt = authData.user.email_confirmed_at != null;
+      // Si el email NO está verificado, necesita confirmación
+      const necesitaConfirmacion = !emailVerified && !hasConfirmedAt;
+
+      console.log('📊 ESTADO DE CONFIRMACIÓN:', {
+        necesitaConfirmacion,
+        emailVerified,
+        hasConfirmedAt,
+        email_confirmed_at: authData.user.email_confirmed_at,
+        user_metadata: authData.user.user_metadata,
+        identities: authData.user.identities,
+        identitiesLength: authData.user.identities?.length,
+        userId,
+        fullUser: authData.user
+      });
 
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (needsConfirmation) {
+      // 🎯 CASO 1: CONFIRMACIÓN DE EMAIL ACTIVADA
+      if (necesitaConfirmacion) {
+        console.log('📧 Confirmación de email REQUERIDA');
+        
+        // Guardar para mostrar modal de promo DESPUÉS de confirmar
         const promoData = {
           email: email.trim().toLowerCase(),
           timestamp: Date.now(),
           userId: userId
         };
         localStorage.setItem('pendiente_modal_promo', JSON.stringify(promoData));
-      } else {
-        sessionStorage.setItem('mostrar_modal_promo', 'true');
-      }
 
-      // 🆕 Mostrar modal - SIEMPRE necesita confirmación de email
-      setModalInfo({
-        tipo: 'success',
-        titulo: '🎉 ¡Cuenta creada exitosamente!',
-        mensaje: `📧 Enviamos un correo de confirmación a:\n${email.trim()}\n\n📋 PASOS PARA ACTIVAR TU CUENTA:\n\n1️⃣ Revisa tu bandeja de entrada\n2️⃣ Busca el correo de GoyaNova\n3️⃣ Haz clic en "Confirmar correo electrónico"\n4️⃣ Vuelve aquí y actualiza la página (F5)\n5️⃣ Inicia sesión con tu correo y contraseña\n\n⏰ El correo puede tardar hasta 2 minutos\n📂 Si no lo ves, REVISA LA CARPETA DE SPAM\n\n⚠️ NO podrás iniciar sesión hasta confirmar tu correo\n\n💡 Después de confirmar podrás usar códigos promocionales`,
-        onClose: () => {
-          setModalInfo(null);
-          navigate('/login');
-        }
-      });
+        // Modal explicando confirmación de email
+        setModalInfo({
+          tipo: 'success',
+          titulo: '🎉 ¡Registro exitoso!',
+          mensaje: `📧 Te enviamos un correo de confirmación a:\n${email.trim()}\n\n✅ PASOS PARA ACTIVAR TU CUENTA:\n\n1️⃣ Abre tu correo electrónico\n2️⃣ Busca el email de GoyaNova\n   📂 Si no está en principal, REVISA SPAM\n3️⃣ Haz clic en "Confirmar correo"\n4️⃣ Vuelve aquí e inicia sesión\n\n⏰ El correo puede tardar 1-2 minutos\n\n⚠️ IMPORTANTE:\n• NO podrás iniciar sesión sin confirmar\n• Después de confirmar podrás:\n  → Iniciar sesión normalmente\n  → Aplicar códigos promocionales\n  → Disfrutar de descuentos\n\n💡 Si no llega el correo, puedes registrarte de nuevo con el mismo email para recibir uno nuevo`,
+          onClose: () => {
+            setModalInfo(null);
+            navigate('/login');
+          }
+        });
+
+      // 🎯 CASO 2: CONFIRMACIÓN DE EMAIL DESACTIVADA
+      } else {
+        console.log('✅ Confirmación de email NO requerida - Usuario activo inmediatamente');
+        
+        // Usuario puede iniciar sesión de inmediato
+        sessionStorage.setItem('mostrar_modal_promo', 'true');
+
+        // Modal de éxito directo - puede iniciar sesión ya
+        setModalInfo({
+          tipo: 'success',
+          titulo: '🎉 ¡Cuenta creada exitosamente!',
+          mensaje: `✅ Tu cuenta está completamente activa\n\n📧 Email registrado:\n${email.trim()}\n\n🚀 ¡YA PUEDES EMPEZAR!\n\n✓ Inicia sesión ahora mismo\n✓ Navega por nuestros servicios\n✓ Aplica códigos promocionales\n✓ Disfruta de descuentos exclusivos\n\n💡 No necesitas confirmar ningún correo, tu cuenta está lista para usar de inmediato.`,
+          onClose: () => {
+            setModalInfo(null);
+            navigate('/login');
+          }
+        });
+      }
 
     } catch (err) {
       console.error('❌ ERROR EN REGISTRO:', err);
@@ -162,7 +201,7 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      {/* 🆕 Modal integrado */}
+      {/* Modal */}
       {modalInfo && (
         <div style={{
           position: 'fixed',
@@ -350,11 +389,12 @@ const Register = () => {
           <input 
             type="number"
             name="edad"
-            placeholder="Edad (opcional)" 
+            placeholder="Edad *" 
             value={formData.edad} 
             onChange={handleChange}
             min="12"
             disabled={cargando}
+            required
           />
 
           {/* Contraseñas */}

@@ -137,6 +137,65 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
   }
 };
 
+// 🆕 NUEVA FUNCIÓN: Obtener datos de membresía premium
+const obtenerDatosPremium = async (usuario_id) => {
+  try {
+    // Consultar directamente la tabla membresias (más confiable)
+    const { data: membresia, error } = await supabase
+      .from('membresias')
+      .select('tipo_membresia, badge_texto, fecha_fin, prioridad_nivel')
+      .eq('usuario_id', usuario_id)
+      .eq('estado', 'activa')
+      .order('prioridad_nivel', { ascending: false })
+      .order('fecha_fin', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error al obtener membresía:', error);
+      return { es_premium: false, badge_texto: null, fecha_premium_hasta: null };
+    }
+
+    if (!membresia) {
+      // Sin membresía activa
+      return { es_premium: false, badge_texto: null, fecha_premium_hasta: null };
+    }
+
+    // Determinar si es premium: cualquier tipo que NO sea 'gratis'
+    const esPremium = membresia.tipo_membresia !== 'gratis' && membresia.tipo_membresia !== null;
+    
+    // Usar el badge_texto de la base de datos (ya viene configurado)
+    let badgeTexto = membresia.badge_texto;
+    
+    // Si no tiene badge_texto pero es premium, asignar según tipo
+    if (!badgeTexto && esPremium) {
+      const mapeoNombres = {
+        'manual_admin': 'VIP',
+        'codigo_promocion': 'Promoción',
+        'pago': 'Premium'
+      };
+      badgeTexto = mapeoNombres[membresia.tipo_membresia] || 'Premium';
+    }
+
+    console.log('✅ Datos premium obtenidos:', {
+      tipo: membresia.tipo_membresia,
+      es_premium: esPremium,
+      badge: badgeTexto,
+      prioridad: membresia.prioridad_nivel
+    });
+
+    return {
+      es_premium: esPremium,
+      badge_texto: badgeTexto,
+      fecha_premium_hasta: membresia.fecha_fin
+    };
+
+  } catch (err) {
+    console.error('Error crítico al obtener datos premium:', err);
+    return { es_premium: false, badge_texto: null, fecha_premium_hasta: null };
+  }
+};
+
 export const publicarServicio = async (
   formData,
   id,
@@ -154,7 +213,7 @@ export const publicarServicio = async (
       throw new Error("No se pudo obtener el usuario logueado");
     }
 
-    // ✅ NUEVO: Verificar límite SOLO si es inserción (no actualización)
+    // ✅ Verificar límite SOLO si es inserción (no actualización)
     if (!id) {
       const { data: limiteData, error: limiteError } = await supabase
         .rpc('puede_publicar_servicio', {
@@ -185,6 +244,9 @@ export const publicarServicio = async (
       }
     }
 
+    // 🆕 OBTENER DATOS PREMIUM DEL USUARIO
+    const datosPremium = await obtenerDatosPremium(usuario_id);
+
     let categoriaId = formData.categoria;
     if (typeof categoriaId !== "number") {
       const { data: catRow } = await supabase
@@ -195,6 +257,7 @@ export const publicarServicio = async (
       categoriaId = catRow?.id || null;
     }
 
+    // 🆕 PAYLOAD CON DATOS PREMIUM
     const payloadServicio = {
       usuario_id,
       nombre: formData.nombre,
@@ -210,6 +273,10 @@ export const publicarServicio = async (
       contacto_instagram: formData.instagram || null,
       contacto_facebook: formData.facebook || null,
       mostrar_boton_whatsapp: formData.mostrarBotonWhatsapp ?? true,
+      // 🆕 ASIGNAR AUTOMÁTICAMENTE SEGÚN MEMBRESÍA
+      es_premium: datosPremium.es_premium,
+      badge_texto: datosPremium.badge_texto,
+      fecha_premium_hasta: datosPremium.fecha_premium_hasta
     };
 
     let servicioId = id;
@@ -321,26 +388,25 @@ export const publicarServicio = async (
       await supabase.from("disponibilidades").insert(disponibilidadesPayload);
     }
     
-    // ✅ CÓDIGO NUEVO:
-// 🔹 Detectar el origen correcto del panel
-const { data: { user: currentUser } } = await supabase.auth.getUser();
-const { data: perfilUsuario } = await supabase
-  .from('perfiles_usuarios')
-  .select('rol')
-  .eq('id', currentUser.id)
-  .single();
+    // Detectar el origen correcto del panel
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const { data: perfilUsuario } = await supabase
+      .from('perfiles_usuarios')
+      .select('rol')
+      .eq('id', currentUser.id)
+      .single();
 
-const esAdmin = perfilUsuario?.rol === 'admin';
-const origenPanel = esAdmin ? 'admin' : 'usuario';
+    const esAdmin = perfilUsuario?.rol === 'admin';
+    const origenPanel = esAdmin ? 'admin' : 'usuario';
 
-navigate("/publicar/finalizado", {
-  replace: true,
-  state: {
-    esActualizacion: !!id,
-    origenPanel: origenPanel,
-    servicioId: servicioId
-  }
-});
+    navigate("/publicar/finalizado", {
+      replace: true,
+      state: {
+        esActualizacion: !!id,
+        origenPanel: origenPanel,
+        servicioId: servicioId
+      }
+    });
 
   } catch (err) {
     setErrorModal(err.message || "Error al publicar el servicio");
