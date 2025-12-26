@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './GaleriaTrabajos.css';
 
 const GaleriaTrabajos = ({ imagenes = [] }) => {
-  const [verMas, setVerMas] = useState(false);
   const [imagenActiva, setImagenActiva] = useState(null);
   const [scrollPercent, setScrollPercent] = useState(0);
+  const [indiceActual, setIndiceActual] = useState(0);
   const carruselRef = useRef(null);
-
-  const imagenesMostradas = verMas ? imagenes : imagenes.slice(0, 10);
 
   const abrirModal = (imgUrl) => {
     setImagenActiva(imgUrl);
@@ -31,6 +29,34 @@ const GaleriaTrabajos = ({ imagenes = [] }) => {
     if (el) {
       const porcentaje = (el.scrollLeft / (el.scrollWidth - el.clientWidth)) * 100;
       setScrollPercent(porcentaje);
+      
+      // Calcular el índice actual basado en el scroll
+      const anchoCard = 150 + 13; // ancho + gap (0.8rem ≈ 13px)
+      const indice = Math.round(el.scrollLeft / anchoCard);
+      setIndiceActual(indice);
+    }
+  };
+
+  const scrollHaciaImagen = (indice) => {
+    const el = carruselRef.current;
+    if (el) {
+      const anchoCard = 150 + 13;
+      el.scrollTo({
+        left: indice * anchoCard,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const irSiguiente = () => {
+    if (indiceActual < imagenes.length - 1) {
+      scrollHaciaImagen(indiceActual + 1);
+    }
+  };
+
+  const irAnterior = () => {
+    if (indiceActual > 0) {
+      scrollHaciaImagen(indiceActual - 1);
     }
   };
 
@@ -43,34 +69,39 @@ const GaleriaTrabajos = ({ imagenes = [] }) => {
         Trabajos Realizados
       </h3>
 
-      <div className="galeria-carrusel-scroll" ref={carruselRef} onScroll={manejarScroll}>
-        {imagenesMostradas.map((img, index) => (
-          <div
-            className="galeria-item-card"
-            key={index}
-            onClick={() => abrirModal(img)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && abrirModal(img)}
-          >
-            <img src={img} alt={`Trabajo ${index + 1}`} loading="lazy" />
-          </div>
-        ))}
+      <div className="galeria-carrusel-wrapper">
+        {imagenes.length > 1 && indiceActual > 0 && (
+          <button className="galeria-flecha galeria-flecha-izq" onClick={irAnterior}>
+            <span className="material-icons">chevron_left</span>
+          </button>
+        )}
+
+        <div className="galeria-carrusel-scroll" ref={carruselRef} onScroll={manejarScroll}>
+          {imagenes.map((img, index) => (
+            <div
+              className="galeria-item-card"
+              key={index}
+              onClick={() => abrirModal(img)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && abrirModal(img)}
+            >
+              <img src={img} alt={`Trabajo ${index + 1}`} loading="lazy" />
+            </div>
+          ))}
+        </div>
+
+        {imagenes.length > 1 && indiceActual < imagenes.length - 1 && (
+          <button className="galeria-flecha galeria-flecha-der" onClick={irSiguiente}>
+            <span className="material-icons">chevron_right</span>
+          </button>
+        )}
       </div>
 
-      {imagenesMostradas.length > 2 && (
+      {imagenes.length > 2 && (
         <div className="galeria-scroll-barra">
           <div className="galeria-scroll-indicador" style={{ width: `${scrollPercent}%` }} />
         </div>
-      )}
-
-      {imagenes.length > 10 && (
-        <button className="galeria-btn-ver-mas" onClick={() => setVerMas(!verMas)}>
-          <span className="material-icons galeria-icono-ver-mas">
-            {verMas ? 'expand_less' : 'expand_more'}
-          </span>
-          {verMas ? 'Ver menos' : 'Ver más'}
-        </button>
       )}
 
       {imagenActiva && (

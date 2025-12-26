@@ -1,5 +1,5 @@
 /* ============================================
-   GALERÍA DE TRABAJOS - Compacto y moderno
+   GALERÍA DE TRABAJOS - Grid con Ver más
    ============================================ */
 
 .galeria-contenedor-principal {
@@ -34,8 +34,14 @@
 }
 
 /* ============================================
-   Carrusel
+   Carrusel con flechas
    ============================================ */
+
+.galeria-carrusel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 
 .galeria-carrusel-scroll {
   display: flex;
@@ -45,6 +51,7 @@
   padding-bottom: 0.6rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  flex: 1;
 }
 
 .galeria-carrusel-scroll::-webkit-scrollbar {
@@ -84,6 +91,46 @@
 }
 
 /* ============================================
+   Flechas de navegación
+   ============================================ */
+
+.galeria-flecha {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
+  transition: all 0.3s ease;
+}
+
+.galeria-flecha:hover {
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.6);
+}
+
+.galeria-flecha-izq {
+  left: -15px;
+}
+
+.galeria-flecha-der {
+  right: -15px;
+}
+
+.galeria-flecha .material-icons {
+  font-size: 1.8rem !important;
+}
+
+/* ============================================
    Barra de progreso scroll
    ============================================ */
 
@@ -105,36 +152,8 @@
 }
 
 /* ============================================
-   Botón Ver más
+   Paginación - ELIMINADA (ya no se usa)
    ============================================ */
-
-.galeria-btn-ver-mas {
-  margin-top: 1rem;
-  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
-  color: white;
-  padding: 0.7rem 1.5rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-inline: auto;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(23, 116, 246, 0.3);
-}
-
-.galeria-btn-ver-mas:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(23, 116, 246, 0.4);
-}
-
-.galeria-icono-ver-mas {
-  font-size: 1.1rem !important;
-}
 
 /* ============================================
    Modal
@@ -233,8 +252,17 @@
     height: 100px;
   }
 
-  .galeria-btn-ver-mas {
-    width: 100%;
+  .galeria-flecha {
+    width: 36px;
+    height: 36px;
+  }
+
+  .galeria-flecha-izq {
+    left: -10px;
+  }
+
+  .galeria-flecha-der {
+    right: -10px;
   }
 }
 
@@ -255,5 +283,22 @@
   .galeria-modal-contenido {
     max-width: 95vw;
     max-height: 95vh;
+  }
+
+  .galeria-flecha {
+    width: 32px;
+    height: 32px;
+  }
+
+  .galeria-flecha .material-icons {
+    font-size: 1.5rem !important;
+  }
+
+  .galeria-flecha-izq {
+    left: -8px;
+  }
+
+  .galeria-flecha-der {
+    right: -8px;
   }
 }

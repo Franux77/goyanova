@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import imageCompression from 'browser-image-compression'; // 👈 NUEVO
+import imageCompression from 'browser-image-compression';
 import './Paso2ImagenesUbicacion.css';
 
 const Paso2ImagenesUbicacion = ({ 
@@ -15,32 +15,25 @@ const Paso2ImagenesUbicacion = ({
   const [subiendo, setSubiendo] = useState(false);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
 
-  // ✅ Calcular si se alcanzó el límite
   const maximoAlcanzado = (formData.imagenesPreview?.length || 0) >= limiteImagenes;
 
-  // 🆕 FUNCIÓN DE COMPRESIÓN
   const comprimirImagen = async (file) => {
     try {
       const options = {
-        maxSizeMB: 0.5, // 500KB máximo
-        maxWidthOrHeight: 1920, // Full HD
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1920,
         useWebWorker: true,
-        fileType: 'image/jpeg', // Convertir a JPEG para mejor compresión
-        initialQuality: 0.85 // Calidad inicial
+        fileType: 'image/jpeg',
+        initialQuality: 0.85
       };
-
       const imagenComprimida = await imageCompression(file, options);
-      
-      // console.log(`📦 Compresión: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(imagenComprimida.size / 1024 / 1024).toFixed(2)}MB`);
-      
       return imagenComprimida;
     } catch (error) {
       console.error('❌ Error comprimiendo imagen:', error);
-      return file; // Si falla, usar original
+      return file;
     }
   };
 
-  // 🆕 AGREGAR IMÁGENES CON COMPRESIÓN
   const handleAgregarImagenes = async (e) => {
     const archivos = Array.from(e.target.files);
     if (!archivos.length) return;
@@ -51,7 +44,6 @@ const Paso2ImagenesUbicacion = ({
     setSubiendo(true);
 
     try {
-      // 👇 COMPRIMIR TODAS LAS IMÁGENES EN PARALELO
       const imagenesComprimidas = await Promise.all(
         seleccionados.map(file => comprimirImagen(file))
       );
@@ -79,7 +71,6 @@ const Paso2ImagenesUbicacion = ({
     }
   };
 
-  // 🆕 AGREGAR PORTADA CON COMPRESIÓN
   const handleAgregarPortada = async (e) => {
     const archivo = e.target.files[0];
     if (!archivo) return;
@@ -87,7 +78,6 @@ const Paso2ImagenesUbicacion = ({
     setSubiendoPortada(true);
 
     try {
-      // 👇 COMPRIMIR PORTADA
       const portadaComprimida = await comprimirImagen(archivo);
 
       if (formData.portadaPreview && formData.portadaPreview.startsWith("blob:")) {
@@ -108,8 +98,8 @@ const Paso2ImagenesUbicacion = ({
     }
   };
 
-  // 📌 ELIMINAR PORTADA
-  const handleEliminarPortada = () => {
+  const handleEliminarPortada = (e) => {
+    e.stopPropagation();
     if (formData.portadaPreview || formData.portadaDB) {
       setFormData({
         ...formData,
@@ -121,8 +111,8 @@ const Paso2ImagenesUbicacion = ({
     }
   };
 
-  // 📌 ELIMINAR IMAGEN NORMAL
-  const handleEliminarImagen = (index) => {
+  const handleEliminarImagen = (index, e) => {
+    e.stopPropagation();
     const nuevosFiles = [...(formData.imagenesFiles || [])];
     const nuevosPreviews = [...(formData.imagenesPreview || [])];
 
@@ -149,11 +139,20 @@ const Paso2ImagenesUbicacion = ({
 
   const imagenesListadas = useMemo(() => formData.imagenesPreview || [], [formData.imagenesPreview]);
 
+  const abrirModal = (src) => {
+    console.log('🖼️ Abriendo modal con:', src);
+    setModalImagen(src);
+  };
+
+  const cerrarModal = () => {
+    console.log('❌ Cerrando modal');
+    setModalImagen(null);
+  };
+
   return (
     <div className="paso2-container">
       <h2 className="paso2-titulo">Paso 2: Imágenes</h2>
 
-      {/* 📌 Subida portada */}
       <div className="paso2-portada-section">
         <h3 className='h33'>Imagen de portada del servicio (Opcional)</h3>
         <p className="paso2-descripcion">
@@ -185,7 +184,9 @@ const Paso2ImagenesUbicacion = ({
             <img
               src={formData.portadaPreview || formData.portadaDB}
               alt="Portada subida"
-              className="paso2-imagen"
+              className="paso2-imagen paso2-imagen-clickeable"
+              onClick={() => abrirModal(formData.portadaPreview || formData.portadaDB)}
+              style={{ cursor: 'pointer' }}
             />
             <button
               type="button"
@@ -198,7 +199,6 @@ const Paso2ImagenesUbicacion = ({
         )}
       </div>
 
-      {/* 📌 Subida imágenes normales */}
       <h3 className='h33'>Imágenes de tus trabajos (Opcional)</h3>
       <div className="paso2-adicionales-info">
         <div className="paso2-limite-info">
@@ -230,7 +230,6 @@ const Paso2ImagenesUbicacion = ({
         </div>
       </div>
 
-      {/* ✅ BOTÓN SE OCULTA CUANDO SE ALCANZA EL LÍMITE */}
       {!maximoAlcanzado && (
         <>
           <label
@@ -262,13 +261,14 @@ const Paso2ImagenesUbicacion = ({
             <img
               src={src}
               alt={`Imagen subida ${i + 1}`}
-              className="paso2-imagen"
-              onClick={() => setModalImagen(src)}
+              className="paso2-imagen paso2-imagen-clickeable"
+              onClick={() => abrirModal(src)}
+              style={{ cursor: 'pointer' }}
             />
             <button
               type="button"
               className="paso2-btn-eliminar"
-              onClick={() => handleEliminarImagen(i)}
+              onClick={(e) => handleEliminarImagen(i, e)}
             >
               ×
             </button>
@@ -277,9 +277,9 @@ const Paso2ImagenesUbicacion = ({
       </div>
 
       {modalImagen && (
-        <div className="paso2-modal-overlay" onClick={() => setModalImagen(null)}>
+        <div className="paso2-modal-overlay" onClick={cerrarModal}>
           <div className="paso2-modal-contenido" onClick={(e) => e.stopPropagation()}>
-            <button className="paso2-modal-close" onClick={() => setModalImagen(null)}>×</button>
+            <button className="paso2-modal-close" onClick={cerrarModal}>×</button>
             <img src={modalImagen} alt="Vista ampliada" className="paso2-modal-imagen" />
           </div>
         </div>

@@ -355,3 +355,12 @@
   }
 }
 
+/* Asegurar que las imágenes sean clickeables */
+.paso2-imagen {
+  cursor: pointer;
+}
+
+.paso2-imagen:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}

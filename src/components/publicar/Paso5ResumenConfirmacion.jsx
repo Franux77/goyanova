@@ -19,29 +19,29 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
     instagram,
     facebook,
     ubicacion,
-    fotoPortada,     // URL pública de la portada
-    portadaPreview,  // preview local mientras no se sube
+    fotoPortada,
+    portadaPreview,
   } = formData;
 
   const renderDisponibilidad = () => {
     if (!tipoDisponibilidad) return <p>No se ha seleccionado disponibilidad.</p>;
 
     const renderTurnos = (turnos) =>
-  turnos.length === 0 ? (
-    <p className="paso5-no-disponible">Sin turnos definidos.</p>
-  ) : (
-    turnos.map((turno, i) => {
-      const inicio = (turno.inicio || turno.hora_inicio || "").slice(0, 5);
-      const fin = (turno.fin || turno.hora_fin || "").slice(0, 5);
-      return (
-        <span key={i} className="paso5-turno">
-          {inicio} - {fin}
-        </span>
+      turnos.length === 0 ? (
+        <p className="paso5-no-disponible">Sin turnos definidos.</p>
+      ) : (
+        turnos.map((turno, i) => {
+          const inicio = (turno.inicio || turno.hora_inicio || "").slice(0, 5);
+          const fin = (turno.fin || turno.hora_fin || "").slice(0, 5);
+          return (
+            <span key={i} className="paso5-turno">
+              {inicio} - {fin}
+            </span>
+          );
+        })
       );
-    })
-  );
-  
-        switch (tipoDisponibilidad) {
+
+    switch (tipoDisponibilidad) {
       case "horarios":
         return (
           <div className="paso5-disponibilidad-box">
@@ -55,31 +55,29 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
           </div>
         );
       case "por_turnos":
-  return (
-    <div className="paso5-disponibilidad-box">
-      <p><strong>Tipo:</strong> Por turnos</p>
-      {Object.entries(horarios || {}).map(([dia, turnos]) => (
-        <div key={dia} className="paso5-dia">
-          <strong>{dia.charAt(0).toUpperCase() + dia.slice(1)}:</strong>
-          {turnos.length === 0 ? (
-            <p className="paso5-no-disponible">Sin turnos definidos.</p>
-          ) : (
-            turnos.map((turno, i) => {
-              const inicio = (turno.inicio || turno.hora_inicio || "").slice(0, 5);
-              const fin = (turno.fin || turno.hora_fin || "").slice(0, 5);
-              return (
-                <span key={i} className="paso5-turno">
-                  
-                  {inicio && fin ? `${inicio} - ${fin}` : "Sin horario"}
-                </span>
-              );
-            })
-          )}
-        </div>
-      ))}
-    </div>
-  );
-
+        return (
+          <div className="paso5-disponibilidad-box">
+            <p><strong>Tipo:</strong> Por turnos</p>
+            {Object.entries(horarios || {}).map(([dia, turnos]) => (
+              <div key={dia} className="paso5-dia">
+                <strong>{dia.charAt(0).toUpperCase() + dia.slice(1)}:</strong>
+                {turnos.length === 0 ? (
+                  <p className="paso5-no-disponible">Sin turnos definidos.</p>
+                ) : (
+                  turnos.map((turno, i) => {
+                    const inicio = (turno.inicio || turno.hora_inicio || "").slice(0, 5);
+                    const fin = (turno.fin || turno.hora_fin || "").slice(0, 5);
+                    return (
+                      <span key={i} className="paso5-turno">
+                        {inicio && fin ? `${inicio} - ${fin}` : "Sin horario"}
+                      </span>
+                    );
+                  })
+                )}
+              </div>
+            ))}
+          </div>
+        );
       case "por_pedido":
         return (
           <div className="paso5-disponibilidad-box">
@@ -132,7 +130,6 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
     <div className="paso5-resumen-container">
       <h3>Paso 5: Resumen Final</h3>
 
-      {/* Información básica */}
       <div className="paso5-group">
         <h4>Información Básica</h4>
         <p><strong>Nombre:</strong> {nombre || "No proporcionado"}</p>
@@ -143,7 +140,6 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
         <p><strong>Referencia:</strong> {ubicacion?.referencia || "Sin referencia"}</p>
       </div>
 
-      {/* Mapa */}
       {ubicacion?.lat && ubicacion?.lng ? (
         <div className="paso5-mini-mapa">
           <iframe
@@ -167,64 +163,56 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
         </div>
       ) : <p className="Ubi"><strong>Ubicación:</strong> No disponible.</p>}
 
-      {/* 📌 Imagen de portada */}
-<div className="paso5-group">
-  <h4>Foto portada</h4>
-  {formData.portadaPreview ? (
-    <div className="paso5-imagenes-carrusel">
-      <div className="paso5-imagen-wrapper">
-        <img
-          src={formData.portadaPreview}
-          alt="Portada del servicio"
-          className="paso5-imagen"
-          onClick={() => setModalImagen(formData.portadaPreview)}
-        />
+      <div className="paso5-group">
+        <h4>Foto portada</h4>
+        {formData.portadaPreview ? (
+          <div className="paso5-imagenes-carrusel">
+            <div 
+              className="paso5-imagen-wrapper"
+              onClick={() => setModalImagen(formData.portadaPreview)}
+              style={{ cursor: 'pointer' }}
+            >
+              <img
+                src={formData.portadaPreview}
+                alt="Portada del servicio"
+                className="paso5-imagen"
+              />
+            </div>
+          </div>
+        ) : (
+          <p className="paso5-sin-imagen">Todavía no subiste una portada.</p>
+        )}
       </div>
-    </div>
-  ) : (
-    <p className="paso5-sin-imagen">Todavía no subiste una portada.</p>
-  )}
-</div>
 
-{/* 📌 Imágenes adicionales */}
-<div className="paso5-group">
-  <h4>Imágenes de tus trabajos</h4>
-  {formData.imagenesPreview && formData.imagenesPreview.length > 0 ? (
-    <div className="paso5-imagenes-carrusel">
-      {formData.imagenesPreview.map((src, i) => (
-        <div key={i} className="paso5-imagen-wrapper">
-          <img
-            src={src}
-            alt={`Imagen ${i + 1}`}
-            className="paso5-imagen"
-            onClick={() => setModalImagen(src)}
-          />
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p className="paso5-sin-imagen">Todavía no subiste imágenes de trabajos.</p>
-  )}
-</div>
+      <div className="paso5-group">
+        <h4>Imágenes de tus trabajos</h4>
+        {formData.imagenesPreview && formData.imagenesPreview.length > 0 ? (
+          <div className="paso5-imagenes-carrusel">
+            {formData.imagenesPreview.map((src, i) => (
+              <div 
+                key={i} 
+                className="paso5-imagen-wrapper"
+                onClick={() => setModalImagen(src)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img
+                  src={src}
+                  alt={`Imagen ${i + 1}`}
+                  className="paso5-imagen"
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="paso5-sin-imagen">Todavía no subiste imágenes de trabajos.</p>
+        )}
+      </div>
 
-{/* 📌 Modal para preview grande */}
-{modalImagen && (
-  <div className="paso5-modal-overlay" onClick={() => setModalImagen(null)}>
-    <div className="paso5-modal-contenido" onClick={(e) => e.stopPropagation()}>
-      <button className="paso5-modal-close" onClick={() => setModalImagen(null)}>×</button>
-      <img src={modalImagen} alt="Vista ampliada" className="paso5-modal-imagen" />
-    </div>
-  </div>
-)}
-
-
-      {/* Disponibilidad */}
       <div className="paso5-group">
         <h4>Disponibilidad</h4>
         {renderDisponibilidad()}
       </div>
 
-      {/* Contacto */}
       <div className="paso5-group">
         <h4>Contacto</h4>
         <p><strong>WhatsApp:</strong> {whatsapp || <span style={{ color: "red" }}>No proporcionado</span>}</p>
@@ -233,7 +221,6 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
         <p><strong>Facebook:</strong> {facebook || "No proporcionado"}</p>
       </div>
 
-      {/* Modal imagen */}
       {modalImagen && (
         <div className="paso5-modal-overlay" onClick={() => setModalImagen(null)}>
           <div className="paso5-modal-contenido" onClick={(e) => e.stopPropagation()}>
