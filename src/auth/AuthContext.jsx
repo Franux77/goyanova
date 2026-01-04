@@ -18,13 +18,13 @@ export const AuthProvider = ({ children }) => {
   const lastVisibilityRef = useRef(Date.now());
   const isRefreshingRef = useRef(false);
   
-  // 🆕 MEJORAS CRÍTICAS
+  // 🆕 OPTIMIZADO PARA CARGA SÚPER RÁPIDA
   const lastCheckRef = useRef(0);
-  const CHECK_COOLDOWN = 30000; // 👈 30 segundos (antes 5s)
-  const isCheckingRef = useRef(false); // 👈 Prevenir checks simultáneos
+  const CHECK_COOLDOWN = 60000; // 👈 60 segundos - menos verificaciones
+  const isCheckingRef = useRef(false);
 
-  // 🆕 Timeout más agresivo
-  const withTimeout = (promise, timeoutMs = 5000) => { // 👈 5s (antes 10s)
+  // 🆕 Timeouts MUY agresivos para carga instantánea
+  const withTimeout = (promise, timeoutMs = 2500) => { // 👈 2.5s por defecto
     return Promise.race([
       promise,
       new Promise((_, reject) =>
@@ -43,14 +43,14 @@ export const AuthProvider = ({ children }) => {
     isLoadingProfile.current = true;
 
     try {
-      // 👈 Timeout de 5s (antes 8s)
+      // 👈 Timeout de 3s
       const { data, error: perfilError } = await withTimeout(
         supabase
           .from('perfiles_usuarios')
           .select('*')
           .eq('id', userId)
           .maybeSingle(),
-        5000
+        3000
       );
 
       if (perfilError) {
@@ -111,8 +111,9 @@ export const AuthProvider = ({ children }) => {
       let intentos = 0;
       let perfilExistente = null;
       
-      while (intentos < 3 && !perfilExistente) { // 👈 3 intentos (antes 5)
-        await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 300 : 500)); // 👈 Delays más cortos
+      // 👈 Solo 2 intentos con delays cortos
+      while (intentos < 2 && !perfilExistente) {
+        await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 200 : 400));
         
         const { data } = await withTimeout(
           supabase
@@ -120,7 +121,7 @@ export const AuthProvider = ({ children }) => {
             .select('*')
             .eq('id', user.id)
             .maybeSingle(),
-          5000 // 👈 5s (antes 8s)
+          3000
         );
         
         perfilExistente = data;
@@ -188,7 +189,7 @@ export const AuthProvider = ({ children }) => {
           email: emailLimpio,
           password,
         }),
-        10000 // 👈 Login puede tomar más tiempo
+        8000 // 👈 Login puede tomar más tiempo
       );
 
       if (loginError) throw loginError;
@@ -301,13 +302,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data: { session }, error } = await withTimeout(
         supabase.auth.refreshSession(),
-        8000 // 👈 8s para refresh
+        6000 // 👈 6s para refresh
       );
       
       if (error) {
         // 👈 NO cerrar sesión por timeout
         if (error.message === 'Timeout') {
-          return true; // Asumir que está bien
+          return true;
         }
         await signOut();
         return false;
@@ -321,21 +322,18 @@ export const AuthProvider = ({ children }) => {
       await signOut();
       return false;
     } catch (err) {
-      // 👈 Timeout no es crítico
       return true;
     } finally {
       isRefreshingRef.current = false;
     }
   }, [signOut]);
 
-  // 🆕 VERIFICACIÓN OPTIMIZADA
+  // 🆕 VERIFICACIÓN SUPER OPTIMIZADA
   const verificarSesionActiva = useCallback(async () => {
-    // 👇 Prevenir verificaciones simultáneas
     if (isCheckingRef.current) {
       return true;
     }
 
-    // 👇 Cooldown de 30 segundos
     const ahora = Date.now();
     if (ahora - lastCheckRef.current < CHECK_COOLDOWN) {
       return true;
@@ -345,14 +343,13 @@ export const AuthProvider = ({ children }) => {
     isCheckingRef.current = true;
 
     try {
-      // 👇 Timeout de 3 segundos (muy agresivo)
+      // 👇 Timeout de 2 segundos (muy rápido)
       const { data: { session }, error } = await withTimeout(
         supabase.auth.getSession(),
-        3000
+        2000
       );
       
       if (error) {
-        // 👈 Timeout NO es crítico - mantener sesión
         if (error.message === 'Timeout') {
           return true;
         }
@@ -380,14 +377,13 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (err) {
-      // 👈 Error de red/timeout - NO es crítico
       return true;
     } finally {
       isCheckingRef.current = false;
     }
   }, [refreshSession, signOut]);
 
-  // Auto-refresh cada 50 minutos (antes 45)
+  // Auto-refresh cada 55 minutos
   useEffect(() => {
     if (!user) return;
 
@@ -402,7 +398,7 @@ export const AuthProvider = ({ children }) => {
         if (success) {
           setupAutoRefresh();
         }
-      }, 50 * 60 * 1000); // 👈 50 minutos
+      }, 55 * 60 * 1000); // 👈 55 minutos
     };
 
     setupAutoRefresh();
@@ -417,12 +413,12 @@ export const AuthProvider = ({ children }) => {
   // 🆕 MANEJO OPTIMIZADO DE VISIBILIDAD
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      // 👇 Solo verificar cuando REGRESA después de 10 minutos
+      // 👇 Solo verificar cuando REGRESA después de 15 minutos
       if (document.visibilityState === 'visible' && user) {
         const tiempoInactivo = Date.now() - lastVisibilityRef.current;
         
-        // 👈 10 minutos (antes 5)
-        if (tiempoInactivo > 10 * 60 * 1000) {
+        // 👈 15 minutos - mucho menos frecuente
+        if (tiempoInactivo > 15 * 60 * 1000) {
           await verificarSesionActiva();
         }
       } else if (document.visibilityState === 'hidden') {
@@ -430,7 +426,6 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    // 👇 ELIMINAR handleFocus - Es redundante con visibilitychange
     const handleBeforeUnload = () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
@@ -455,7 +450,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data: { session }, error: sessionError } = await withTimeout(
           supabase.auth.getSession(),
-          8000 // 👈 8s inicial
+          5000 // 👈 5s inicial - más rápido
         );
         
         if (sessionError) {
@@ -567,7 +562,7 @@ export const AuthProvider = ({ children }) => {
           
           const provider = session.user.app_metadata?.provider;
           
-          await new Promise(resolve => setTimeout(resolve, 300)); // 👈 300ms (antes 500ms)
+          await new Promise(resolve => setTimeout(resolve, 200)); // 👈 200ms - super rápido
           
           if (provider === 'google') {
             await crearPerfilDesdeGoogle(session.user);
