@@ -19,41 +19,57 @@ const Login = () => {
   const [suspensionInfo, setSuspensionInfo] = useState(null);
   const [mostrarModalSuspension, setMostrarModalSuspension] = useState(false);
 
-  // 🆕 Estados para modales
-  const [modalInfo, setModalInfo] = useState(null); // { tipo: 'success'|'error'|'warning', titulo, mensaje }
+  const [modalInfo, setModalInfo] = useState(null);
 
+  // 🔥 NUEVOS REFS para control de flujo
   const verificacionEnProceso = useRef(false);
   const yaVerificado = useRef(false);
   const navegacionRealizada = useRef(false);
+  const loginAttemptRef = useRef(0);
+  const timeoutRef = useRef(null);
 
+  // 🔥 Limpiar timeouts al desmontar
   useEffect(() => {
-    return () => console.log('🔵 [LOGIN] Componente desmontado');
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      console.log('🔵 [LOGIN] Componente desmontado');
+    };
   }, []);
 
+  // ✅ Verificación de acceso mejorada
   useEffect(() => {
+    // 🔥 Condiciones de salida temprana
     if (!user || !perfil || loading || yaVerificado.current || navegacionRealizada.current) {
       return;
     }
     
-    setLoadingAction(true);
+    console.log('🔵 [LOGIN] Verificando acceso usuario:', user.id);
     verificarAccesoUsuario();
   }, [user, perfil, loading]);
 
   const verificarAccesoUsuario = async () => {
+    // Evitar ejecuciones múltiples
     if (verificacionEnProceso.current || navegacionRealizada.current) {
+      console.log('🔵 [LOGIN] Verificación ya en proceso o navegación realizada');
       return;
     }
 
     verificacionEnProceso.current = true;
     yaVerificado.current = true;
+    setLoadingAction(true);
 
     try {
+      // Admins pasan directo
       if (perfil.estado === 'admin' || perfil.rol === 'admin') {
+        console.log('✅ [LOGIN] Admin detectado, redirigiendo...');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
 
+      // Verificar suspensión
       const { data: suspension } = await supabase
         .from('suspensiones')
         .select('*')
@@ -65,16 +81,19 @@ const Login = () => {
         .maybeSingle();
 
       if (!suspension) {
+        console.log('✅ [LOGIN] Sin suspensión, redirigiendo...');
         navegacionRealizada.current = true;
         navigate('/', { replace: true });
         return;
       }
 
+      // Manejar suspensión temporal expirada
       if (suspension.tipo_suspension === 'temporal' && suspension.fecha_fin) {
         const ahora = new Date();
         const fechaFin = new Date(suspension.fecha_fin);
 
         if (ahora >= fechaFin) {
+          console.log('✅ [LOGIN] Suspensión expirada, actualizando...');
           await supabase
             .from('suspensiones')
             .update({ activa: false })
@@ -96,34 +115,61 @@ const Login = () => {
         setSuspensionInfo(suspension);
       }
 
+      console.log('⚠️ [LOGIN] Usuario suspendido, mostrando modal');
       setMostrarModalSuspension(true);
       await supabase.auth.signOut();
 
     } catch (error) {
       console.error('❌ [VERIFICAR] Error:', error);
+      // En caso de error, permitir acceso
       navegacionRealizada.current = true;
       navigate('/', { replace: true });
     } finally {
       verificacionEnProceso.current = false;
+      setLoadingAction(false);
     }
   };
 
+  // ✅ Submit mejorado con timeout de seguridad
   const manejarSubmit = async (e) => {
     e.preventDefault();
     
     setFormError('');
     setLoadingAction(true);
 
+    // Incrementar contador de intentos
+    loginAttemptRef.current += 1;
+    const currentAttempt = loginAttemptRef.current;
+
+    // 🔥 Timeout de seguridad: si no responde en 15 segundos, liberar UI
+    timeoutRef.current = setTimeout(() => {
+      if (currentAttempt === loginAttemptRef.current) {
+        console.warn('⏱️ [LOGIN] Timeout alcanzado, liberando UI');
+        setLoadingAction(false);
+        setFormError('La conexión está tardando demasiado. Por favor intenta nuevamente.');
+      }
+    }, 15000); // 15 segundos
+
     if (!email.trim() || !password.trim()) {
       setFormError('Por favor completa todos los campos.');
       setLoadingAction(false);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       return;
     }
 
     try {
+      console.log('🔵 [LOGIN] Iniciando login para:', email.trim());
       await login(email.trim(), password);
+      console.log('✅ [LOGIN] Login exitoso');
+      
+      // Login exitoso - el useEffect de arriba manejará la navegación
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      
     } catch (err) {
       console.error('❌ [SUBMIT] Error en login:', err);
+      
+      // Limpiar timeout
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       
       let mensajeError = '';
       
@@ -131,12 +177,17 @@ const Login = () => {
         mensajeError = '❌ Correo o contraseña incorrectos.\n\n¿Posibles causas?\n• El correo no está registrado\n• La contraseña es incorrecta\n• Tu cuenta aún no fue confirmada (revisa tu email)\n\n💡 Si recién te registraste, confirma tu correo primero';
       } else if (err.message?.includes('Email not confirmed')) {
         mensajeError = '⚠️ Tu correo aún no está confirmado.\n\nRevisa tu bandeja de entrada y spam.\nSi no recibiste el correo, usa el botón "Reenviar confirmación" abajo.';
+      } else if (err.message === 'Timeout') {
+        mensajeError = '⏱️ La conexión está tardando demasiado.\n\nPor favor verifica tu internet e intenta nuevamente.';
       } else {
         mensajeError = '❌ Error al iniciar sesión. Intenta de nuevo.';
       }
       
       setFormError(mensajeError);
+    } finally {
+      // 🔥 CRÍTICO: Siempre liberar el loading después de un intento
       setLoadingAction(false);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     }
   };
 
@@ -146,6 +197,7 @@ const Login = () => {
     setFormError('');
     
     try {
+      console.log('🔵 [LOGIN] Iniciando Google OAuth');
       await loginWithGoogle();
     } catch (err) {
       console.error('❌ [GOOGLE] Error:', err);
@@ -230,6 +282,15 @@ const Login = () => {
     navigate('/');
   };
 
+  // 🔥 Resetear estado al cerrar modal de suspensión
+  const handleCerrarSuspension = () => {
+    setMostrarModalSuspension(false);
+    setSuspensionInfo(null);
+    yaVerificado.current = false;
+    navegacionRealizada.current = false;
+    verificacionEnProceso.current = false;
+  };
+
   if (isRedirectingToGoogle) {
     return (
       <div className="login-goya-container">
@@ -251,12 +312,7 @@ const Login = () => {
     return (
       <SuspensionModal
         suspension={suspensionInfo}
-        onCerrarSesion={() => {
-          setMostrarModalSuspension(false);
-          setSuspensionInfo(null);
-          yaVerificado.current = false;
-          navegacionRealizada.current = false;
-        }}
+        onCerrarSesion={handleCerrarSuspension}
         onContactarSoporte={() => {
           const asunto = encodeURIComponent('Consulta sobre suspensión de cuenta');
           const cuerpo = encodeURIComponent(`
@@ -285,7 +341,6 @@ Gracias.
 
   return (
     <div className="login-goya-container">
-      {/* 🆕 Modal de información */}
       {modalInfo && (
         <div style={{
           position: 'fixed',

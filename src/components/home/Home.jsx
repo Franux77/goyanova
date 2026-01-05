@@ -32,7 +32,6 @@ const Home = () => {
 
   // Capturar evento de instalación PWA
   useEffect(() => {
-    // Verificar si ya está instalada
     const isInstalled = window.matchMedia('(display-mode: standalone)').matches 
                       || window.navigator.standalone
                       || localStorage.getItem('pwa-installed') === 'true';
@@ -42,14 +41,21 @@ const Home = () => {
       return;
     }
 
-    // Si no está instalada, mostrar el botón y capturar el evento
     setMostrarBotonInstalar(true);
 
     const handleBeforeInstall = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setMostrarBotonInstalar(true);
+      
+      // 🔥 Compartir con el modal
+      window.__pwaPrompt = e;
     };
+
+    // 🔥 Verificar si ya existe el prompt
+    if (window.__pwaPrompt) {
+      setDeferredPrompt(window.__pwaPrompt);
+    }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
@@ -189,29 +195,40 @@ const Home = () => {
     });
   };
 
-  // Función para instalar la app
   const handleInstalarApp = async () => {
-    if (!deferredPrompt) {
-      const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      
-      if (isIOSDevice) {
-        alert('📱 Para instalar en iPhone/iPad:\n\n1. Tocá el botón "Compartir" ⎙ (abajo)\n2. Desplazate y tocá "Agregar a pantalla de inicio"\n3. Tocá "Agregar"');
-      } else {
-        alert('💻 Para instalar GoyaNova:\n\n1. Abrí el menú de Chrome (⋮)\n2. Seleccioná "Instalar aplicación" o "Agregar a pantalla de inicio"\n\n¡Es gratis y accedés más rápido!');
+    // 🔥 Verificar también window.__pwaPrompt
+    const promptToUse = deferredPrompt || window.__pwaPrompt;
+    
+    if (promptToUse) {
+      try {
+        promptToUse.prompt();
+        const { outcome } = await promptToUse.userChoice;
+        
+        if (outcome === 'accepted') {
+          console.log('✅ App instalada desde Hero');
+          localStorage.setItem('pwa-installed', 'true');
+          setMostrarBotonInstalar(false);
+          setDeferredPrompt(null);
+          window.__pwaPrompt = null;
+        } else {
+          console.log('⚠️ Usuario rechazó instalación desde Hero');
+          // Si rechaza, el prompt sigue disponible para reintentar
+        }
+        
+        return;
+      } catch (err) {
+        console.error('Error en prompt nativo:', err);
       }
-      return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    // Si no hay prompt, mostrar instrucciones
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
     
-    if (outcome === 'accepted') {
-      // console.log('✅ App instalada desde el Hero');
-      localStorage.setItem('pwa-installed', 'true');
-      setMostrarBotonInstalar(false);
+    if (isIOSDevice) {
+      alert('📱 Para instalar en iPhone/iPad:\n\n1. Tocá el botón "Compartir" ⎙ (abajo)\n2. Desplazate y tocá "Agregar a pantalla de inicio"\n3. Tocá "Agregar"\n\n¡Es gratis y accedés más rápido!');
+    } else {
+      alert('💻 Para instalar GoyaNova:\n\n1. Abrí el menú de Chrome (⋮) arriba a la derecha\n2. Seleccioná "Instalar aplicación" o "Agregar a pantalla de inicio"\n3. Confirmá tocando "Instalar"\n\n¡Es gratis y accedés más rápido!');
     }
-    
-    setDeferredPrompt(null);
   };
 
   const handlePublicarClick = async () => {
@@ -266,7 +283,6 @@ const Home = () => {
     <div className="home">
       <SaludoUsuario />
 
-      {/* HERO MEJORADO */}
       <section className="goya-hero-section">
         <div className="goya-hero-content">
           <div className="goya-hero-badge">
@@ -323,7 +339,6 @@ const Home = () => {
               ¿No entendés cómo funciona? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link> o <Link to="/contacto" className="goya-hero-link">contactanos</Link>
             </p>
             
-            {/* BOTÓN INSTALAR - Solo si NO está instalada */}
             {mostrarBotonInstalar && (
               <button className="goya-hero-install-btn" onClick={handleInstalarApp}>
                 <span className="material-icons">get_app</span>
@@ -334,7 +349,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CÓMO FUNCIONA */}
       <section className="goya-howworks-section">
         <h2 className="goya-section-title">¿Cómo funciona?</h2>
         
@@ -401,7 +415,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* BANNER PROYECTO LOCAL */}
       <section className="goya-local-banner">
         <div className="goya-local-content">
           <span className="material-icons goya-local-icon">favorite</span>

@@ -1,4 +1,4 @@
-// src/auth/AuthContext.jsx
+// src/auth/AuthContext.jsx - VERSIÓN CORREGIDA
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
@@ -17,14 +17,17 @@ export const AuthProvider = ({ children }) => {
   const refreshTimerRef = useRef(null);
   const lastVisibilityRef = useRef(Date.now());
   const isRefreshingRef = useRef(false);
-  
-  // 🆕 OPTIMIZADO PARA CARGA SÚPER RÁPIDA
   const lastCheckRef = useRef(0);
-  const CHECK_COOLDOWN = 60000; // 👈 60 segundos - menos verificaciones
   const isCheckingRef = useRef(false);
+  
+  // 🔥 NUEVO: Control de inicialización
+  const initializationComplete = useRef(false);
+  const authListenerSetup = useRef(false);
 
-  // 🆕 Timeouts MUY agresivos para carga instantánea
-  const withTimeout = (promise, timeoutMs = 2500) => { // 👈 2.5s por defecto
+  const CHECK_COOLDOWN = 60000; // 60 segundos
+
+  // ✅ Timeout helper mejorado con mejor manejo de errores
+  const withTimeout = (promise, timeoutMs = 5000) => {
     return Promise.race([
       promise,
       new Promise((_, reject) =>
@@ -43,14 +46,13 @@ export const AuthProvider = ({ children }) => {
     isLoadingProfile.current = true;
 
     try {
-      // 👈 Timeout de 3s
       const { data, error: perfilError } = await withTimeout(
         supabase
           .from('perfiles_usuarios')
           .select('*')
           .eq('id', userId)
           .maybeSingle(),
-        3000
+        4000 // 4 segundos
       );
 
       if (perfilError) {
@@ -69,7 +71,6 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (err) {
-      // 👈 Silenciar timeout - no es crítico
       if (isMounted.current && err.message !== 'Timeout') {
         setPerfil(null);
         perfilCargadoRef.current = false;
@@ -111,7 +112,6 @@ export const AuthProvider = ({ children }) => {
       let intentos = 0;
       let perfilExistente = null;
       
-      // 👈 Solo 2 intentos con delays cortos
       while (intentos < 2 && !perfilExistente) {
         await new Promise(resolve => setTimeout(resolve, intentos === 0 ? 200 : 400));
         
@@ -175,6 +175,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // ✅ LOGIN MEJORADO - Siempre limpia el estado de loading
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
@@ -189,7 +190,7 @@ export const AuthProvider = ({ children }) => {
           email: emailLimpio,
           password,
         }),
-        8000 // 👈 Login puede tomar más tiempo
+        10000 // 10 segundos para login
       );
 
       if (loginError) throw loginError;
@@ -213,7 +214,10 @@ export const AuthProvider = ({ children }) => {
       }
       throw err;
     } finally {
-      if (isMounted.current) setLoading(false);
+      // 🔥 CRÍTICO: Siempre liberar el loading después de login
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   }, [cargarPerfil]);
 
@@ -261,6 +265,8 @@ export const AuthProvider = ({ children }) => {
       perfilCargadoRef.current = false;
       lastUserIdRef.current = null;
       isLoadingProfile.current = false;
+      // 🔥 Limpiar flags de inicialización
+      initializationComplete.current = false;
     }
   }, []);
 
@@ -278,6 +284,7 @@ export const AuthProvider = ({ children }) => {
       perfilCargadoRef.current = false;
       lastUserIdRef.current = null;
       isLoadingProfile.current = false;
+      initializationComplete.current = false;
     }
   }, []);
 
@@ -302,13 +309,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data: { session }, error } = await withTimeout(
         supabase.auth.refreshSession(),
-        6000 // 👈 6s para refresh
+        8000
       );
       
       if (error) {
-        // 👈 NO cerrar sesión por timeout
         if (error.message === 'Timeout') {
-          return true;
+          return true; // No cerrar sesión por timeout
         }
         await signOut();
         return false;
@@ -322,13 +328,12 @@ export const AuthProvider = ({ children }) => {
       await signOut();
       return false;
     } catch (err) {
-      return true;
+      return true; // No cerrar sesión por errores de red
     } finally {
       isRefreshingRef.current = false;
     }
   }, [signOut]);
 
-  // 🆕 VERIFICACIÓN SUPER OPTIMIZADA
   const verificarSesionActiva = useCallback(async () => {
     if (isCheckingRef.current) {
       return true;
@@ -343,10 +348,9 @@ export const AuthProvider = ({ children }) => {
     isCheckingRef.current = true;
 
     try {
-      // 👇 Timeout de 2 segundos (muy rápido)
       const { data: { session }, error } = await withTimeout(
         supabase.auth.getSession(),
-        2000
+        3000
       );
       
       if (error) {
@@ -366,7 +370,6 @@ export const AuthProvider = ({ children }) => {
       const ahoraSec = Math.floor(Date.now() / 1000);
       const tiempoRestante = expiresAt - ahoraSec;
 
-      // 👇 Solo refrescar si expira en menos de 5 minutos
       if (tiempoRestante < 300) {
         return await refreshSession();
       }
@@ -398,7 +401,7 @@ export const AuthProvider = ({ children }) => {
         if (success) {
           setupAutoRefresh();
         }
-      }, 55 * 60 * 1000); // 👈 55 minutos
+      }, 55 * 60 * 1000);
     };
 
     setupAutoRefresh();
@@ -410,14 +413,12 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user, refreshSession]);
 
-  // 🆕 MANEJO OPTIMIZADO DE VISIBILIDAD
+  // Manejo de visibilidad
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      // 👇 Solo verificar cuando REGRESA después de 15 minutos
       if (document.visibilityState === 'visible' && user) {
         const tiempoInactivo = Date.now() - lastVisibilityRef.current;
         
-        // 👈 15 minutos - mucho menos frecuente
         if (tiempoInactivo > 15 * 60 * 1000) {
           await verificarSesionActiva();
         }
@@ -441,7 +442,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user, verificarSesionActiva]);
 
-  // Inicialización y listener de auth
+  // ✅ INICIALIZACIÓN MEJORADA
   useEffect(() => {
     isMounted.current = true;
     let authSubscription = null;
@@ -450,16 +451,18 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data: { session }, error: sessionError } = await withTimeout(
           supabase.auth.getSession(),
-          5000 // 👈 5s inicial - más rápido
+          6000
         );
         
         if (sessionError) {
+          console.error('Error obteniendo sesión:', sessionError);
           if (isMounted.current) {
             setUser(null);
             setPerfil(null);
             perfilCargadoRef.current = false;
             lastUserIdRef.current = null;
             setLoading(false);
+            initializationComplete.current = true;
           }
           return;
         }
@@ -517,6 +520,7 @@ export const AuthProvider = ({ children }) => {
             }
             
             setLoading(false);
+            initializationComplete.current = true;
           }
         } else {
           if (isMounted.current) {
@@ -525,25 +529,34 @@ export const AuthProvider = ({ children }) => {
             perfilCargadoRef.current = false;
             lastUserIdRef.current = null;
             setLoading(false);
+            initializationComplete.current = true;
           }
         }
       } catch (err) {
+        console.error('Error en inicialización:', err);
         if (isMounted.current) {
           setUser(null);
           setPerfil(null);
           perfilCargadoRef.current = false;
           lastUserIdRef.current = null;
           setLoading(false);
+          initializationComplete.current = true;
         }
       }
     };
 
     const setupAuthListener = () => {
+      if (authListenerSetup.current) return;
+      authListenerSetup.current = true;
+
       const processedSignInRef = { current: false };
       
       const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!isMounted.current) return;
 
+        console.log('🔐 Auth event:', event);
+
+        // 🔥 CRÍTICO: Ignorar INITIAL_SESSION para evitar doble procesamiento
         if (event === 'INITIAL_SESSION') return;
         
         if (event === 'TOKEN_REFRESHED') {
@@ -554,6 +567,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         if (event === 'SIGNED_IN' && session?.user) {
+          // Evitar procesamiento duplicado
           if (processedSignInRef.current && session.user.id === lastUserIdRef.current) {
             return;
           }
@@ -562,7 +576,7 @@ export const AuthProvider = ({ children }) => {
           
           const provider = session.user.app_metadata?.provider;
           
-          await new Promise(resolve => setTimeout(resolve, 200)); // 👈 200ms - super rápido
+          await new Promise(resolve => setTimeout(resolve, 300));
           
           if (provider === 'google') {
             await crearPerfilDesdeGoogle(session.user);
@@ -585,9 +599,11 @@ export const AuthProvider = ({ children }) => {
           perfilCargadoRef.current = false;
           lastUserIdRef.current = null;
           setLoading(false);
+          initializationComplete.current = false;
           return;
         }
 
+        // Otros eventos
         try {
           if (session?.user) {
             if (isMounted.current) {
@@ -604,6 +620,7 @@ export const AuthProvider = ({ children }) => {
             lastUserIdRef.current = null;
           }
         } catch (error) {
+          console.error('Error en auth listener:', error);
           setUser(null);
           setPerfil(null);
           perfilCargadoRef.current = false;
@@ -616,6 +633,7 @@ export const AuthProvider = ({ children }) => {
       authSubscription = listener.subscription;
     };
 
+    // Ejecutar inicialización
     getSession().then(() => {
       setupAuthListener();
     });
@@ -625,6 +643,8 @@ export const AuthProvider = ({ children }) => {
       isLoadingProfile.current = false;
       perfilCargadoRef.current = false;
       lastUserIdRef.current = null;
+      authListenerSetup.current = false;
+      initializationComplete.current = false;
       
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
