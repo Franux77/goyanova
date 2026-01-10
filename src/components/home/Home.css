@@ -86,6 +86,16 @@
   line-height: 1.6;
   font-weight: 400;
 }
+.goya-hero-descriptionn {
+  font-size: 1.3rem;
+  margin-bottom: 1.2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.95;
+  line-height: 1.6;
+  font-weight: 400;
+}
 
 .goya-hero-description strong {
   font-weight: 700;
@@ -779,6 +789,9 @@
   .goya-hero-description {
     font-size: 0.95rem;
   }
+  .goya-hero-descriptionn {
+    font-size: 1.1rem;
+  }
 
   .goya-hero-benefits {
     gap: 1rem;
@@ -790,7 +803,7 @@
 
   .goya-hero-actions {
     flex-direction: row;
-    width: 60%;
+    /* width: 70%; */
   }
 
   .goya-btn-hero-primary,
@@ -1157,7 +1170,7 @@
    ============================================ */
 @media (max-width: 768px) {
   .goya-tutorial-section {
-    margin: 2rem auto;
+    margin: 1rem auto;
     padding: 2rem 0.5rem;
     border-radius: 20px;
   }
@@ -1254,7 +1267,7 @@
 .publicar-servicio-hero {
   text-align: center;
   margin: 1.5rem auto 0;
-  padding: 0 1rem;
+  padding: 0;
 }
 
 .btn-publicar-hero {
@@ -1353,7 +1366,7 @@
 
   .btn-publicar-hero {
     width: 100%;
-    min-width: auto;
+    /* min-width: auto; */
     padding: 16px 0;
     font-size: 1.1rem;
   }

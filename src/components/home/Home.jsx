@@ -361,6 +361,10 @@ const Home = () => {
             </div>
           </div>
           
+          <p className="goya-hero-descriptionn">
+            <strong>Comienza ahora por</strong>
+          </p>
+
           <div className="goya-hero-actions">
             <a
               href="#categorias"
@@ -371,7 +375,7 @@ const Home = () => {
               }}
             >
               <span className="material-icons">search</span>
-              Empezar a Buscar
+              Buscar
             </a>
             {/* Mantenemos este botón secundario por si bajaron mucho, pero el importante es el de arriba */}
             <button
@@ -398,11 +402,10 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="goya-howworks-section">
+      {/* <section className="goya-howworks-section">
         <h2 className="goya-section-title">¿Cómo funciona?</h2>
         
         <div className="goya-howworks-grid">
-          {/* TEXTO SIMPLIFICADO: "Buscá, Mirá, Contactá" */}
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-client">person_search</span>
@@ -431,12 +434,12 @@ const Home = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="goya-howworks-card">
+          {/* <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-professional">engineering</span>
-              <h3>Soy Profesional</h3>
+              <h3>Soy prestador</h3>
             </div>
             <div className="goya-steps-list">
               <div className="goya-step-item">
@@ -450,7 +453,7 @@ const Home = () => {
                 <div className="goya-step-number">2</div>
                 <div className="goya-step-text">
                   <strong>Publicá</strong>
-                  <p>Tus servicios o productos</p>
+                  <p>Tus servicios</p>
                 </div>
               </div>
               <div className="goya-step-item">
@@ -463,9 +466,9 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="goya-local-banner">
+      {/* <section className="goya-local-banner">
         <div className="goya-local-content">
           <span className="material-icons goya-local-icon">favorite</span>
           <div className="goya-local-text">
@@ -476,7 +479,7 @@ const Home = () => {
         <button className="goya-local-btn" onClick={handlePublicarClick}>
           Sumate Gratis
         </button>
-      </section>
+      </section> */}
 
       {mostrarBanner && tiempoRestante && (
         <section className="promo-code-banner">

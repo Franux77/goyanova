@@ -426,7 +426,7 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     <div className="paso1-container">
       <h2 className="titulo-paso">Información básica</h2>
 
-      <label>¿Cómo se llama tu negocio/emprendimiento o vos?</label>
+      <label>¿Cómo se llama tu negocio/emprendimiento o vos? *</label>
       <input
         type="text"
         value={nombreLocal}
