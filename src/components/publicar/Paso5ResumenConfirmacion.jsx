@@ -128,10 +128,10 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
 
   return (
     <div className="paso5-resumen-container">
-      <h3>Paso 5: Resumen Final</h3>
+      <h3>Paso 5: Revisá todo antes de publicar</h3>
 
       <div className="paso5-group">
-        <h4>Información Básica</h4>
+        <h4>Datos principales</h4>
         <p><strong>Nombre:</strong> {nombre || "No proporcionado"}</p>
         <p><strong>Tipo:</strong> {tipo || "No proporcionado"}</p>
         <p><strong>Categoría:</strong> {formData.categoriaNombre || "No proporcionada"}</p>
@@ -164,7 +164,7 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
       ) : <p className="Ubi"><strong>Ubicación:</strong> No disponible.</p>}
 
       <div className="paso5-group">
-        <h4>Foto portada</h4>
+        <h4>Tu foto principal</h4>
         {formData.portadaPreview ? (
           <div className="paso5-imagenes-carrusel">
             <div 
@@ -185,7 +185,7 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
       </div>
 
       <div className="paso5-group">
-        <h4>Imágenes de tus trabajos</h4>
+        <h4>IMás fotos</h4>
         {formData.imagenesPreview && formData.imagenesPreview.length > 0 ? (
           <div className="paso5-imagenes-carrusel">
             {formData.imagenesPreview.map((src, i) => (
@@ -209,12 +209,12 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
       </div>
 
       <div className="paso5-group">
-        <h4>Disponibilidad</h4>
+        <h4>Cuándo trabajás</h4>
         {renderDisponibilidad()}
       </div>
 
       <div className="paso5-group">
-        <h4>Contacto</h4>
+        <h4>Cómo te contactan</h4>
         <p><strong>WhatsApp:</strong> {whatsapp || <span style={{ color: "red" }}>No proporcionado</span>}</p>
         <p><strong>Email:</strong> {email || "No proporcionado"}</p>
         <p><strong>Instagram:</strong> {instagram || "No proporcionado"}</p>

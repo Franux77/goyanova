@@ -154,9 +154,9 @@ const Paso2ImagenesUbicacion = ({
       <h2 className="paso2-titulo">Paso 2: Imágenes</h2>
 
       <div className="paso2-portada-section">
-        <h3 className='h33'>Imagen de portada del servicio (Opcional)</h3>
-        <p className="paso2-descripcion">
-          Esta será la foto principal que verá el cliente en tu perfil.
+        <h3 className='h33'>Foto principal (Opcional)</h3>
+<p className="paso2-descripcion">
+  Esta es la foto que todos van a ver primero
           <span style={{ fontSize: '0.85em', color: '#666', display: 'block', marginTop: '0.3rem' }}>
             📦 Las imágenes se comprimen automáticamente para ahorrar espacio
           </span>
@@ -199,12 +199,12 @@ const Paso2ImagenesUbicacion = ({
         )}
       </div>
 
-      <h3 className='h33'>Imágenes de tus trabajos (Opcional)</h3>
-      <div className="paso2-adicionales-info">
-        <div className="paso2-limite-info">
-          <p className="paso2-descripcion">
-            Podés subir hasta <strong>{limiteImagenes}</strong> imágenes adicionales para mostrar tus trabajos y generar más confianza.
-          </p>
+      <h3 className='h33'>Más fotos de lo que hacés (Opcional)</h3>
+<div className="paso2-adicionales-info">
+  <div className="paso2-limite-info">
+    <p className="paso2-descripcion">
+      Subí hasta <strong>{limiteImagenes}</strong> fotos más para que te conozcan mejor
+    </p>
           <div className="paso2-contador-imagenes">
             <span className={`paso2-contador ${maximoAlcanzado ? 'limite-alcanzado' : ''}`}>
               {formData.imagenesPreview?.length || 0} / {limiteImagenes} imágenes

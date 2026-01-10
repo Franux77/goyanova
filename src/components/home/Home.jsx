@@ -283,19 +283,67 @@ const Home = () => {
     <div className="home">
       <SaludoUsuario />
 
+      {/* ESTE ES EL BOTÓN GIGANTE QUE QUERÍAS MANTENER: */}
+      <section className="publicar-servicio-hero">
+        <button
+          className="btn-publicar-hero"
+          onClick={handlePublicarClick}
+        >
+          <span className="material-icons">add_circle_outline</span>
+          <span className="btn-text">Publicar un Servicio</span>
+          <span className="btn-shine"></span>
+        </button>
+      </section>
+
+      {/* BLOQUE COMENTADO:
+         Esta sección de tutoriales repetía lo mismo que la sección "¿Cómo funciona?" de más abajo.
+         La comenté para limpiar la pantalla y que el usuario no se maree con tanta información repetida.
+      */}
+      <section className="goya-tutorial-section">
+        <h2 className="goya-tutorial-title">¿Primera vez en GoyaNova?</h2>
+        <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos según cómo vayas a usar la plataforma</p>
+        
+        <div className="goya-tutorial-grid">
+          <a href="https://youtube.com/tu-video-cliente" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
+            <span className="material-icons goya-card-icon">play_circle_filled</span>
+            <div className="goya-card-content">
+              <strong>Tutorial Cliente</strong>
+              <span>Cómo buscar lo que necesitás</span>
+            </div>
+            <div className="goya-card-badge">Ver video</div>
+          </a>
+
+          <a href="https://youtube.com/tu-video-prestador" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
+            <span className="material-icons goya-card-icon">play_circle_filled</span>
+            <div className="goya-card-content">
+              <strong>Tutorial Prestador</strong>
+              <span>Cómo publicar servicios</span>
+            </div>
+            <div className="goya-card-badge">Ver video</div>
+          </a>
+        </div>
+
+        <p className="goya-tutorial-note">
+          <span className="material-icons">lightbulb</span>
+          Podés usar GoyaNova de ambas formas: buscar Y publicar servicios
+        </p>
+      </section>
+     
+
       <section className="goya-hero-section">
         <div className="goya-hero-content">
           <div className="goya-hero-badge">
             <span className="material-icons">location_on</span>
-            Servicios locales en Goya, Corrientes
+            Servicios en Goya, Corrientes
           </div>
           
+          {/* TEXTO SIMPLIFICADO: Directo al grano */}
           <h1 className="goya-hero-title">
-            Encontrá el profesional que necesitás
+            Encontrá lo que buscás, rápido.
           </h1>
           
           <p className="goya-hero-description">
-            Plomeros, pintores, casas de comidas, productos y más. <strong>Contacto directo por WhatsApp</strong>, sin intermediarios.
+            Profesionales, comida y oficios. <strong>Trato directo por WhatsApp</strong>, sin vueltas.
           </p>
           
           <div className="goya-hero-benefits">
@@ -323,8 +371,9 @@ const Home = () => {
               }}
             >
               <span className="material-icons">search</span>
-              Buscar
+              Empezar a Buscar
             </a>
+            {/* Mantenemos este botón secundario por si bajaron mucho, pero el importante es el de arriba */}
             <button
               className="goya-btn-hero-secondary"
               onClick={handlePublicarClick}
@@ -336,13 +385,13 @@ const Home = () => {
 
           <div className="goya-hero-footer">
             <p className="goya-hero-info-text">
-              ¿No entendés cómo funciona? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link> o <Link to="/contacto" className="goya-hero-link">contactanos</Link>
+              ¿Dudas? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link>
             </p>
             
             {mostrarBotonInstalar && (
               <button className="goya-hero-install-btn" onClick={handleInstalarApp}>
                 <span className="material-icons">get_app</span>
-                Instalar como app
+                Descargar App
               </button>
             )}
           </div>
@@ -353,31 +402,32 @@ const Home = () => {
         <h2 className="goya-section-title">¿Cómo funciona?</h2>
         
         <div className="goya-howworks-grid">
+          {/* TEXTO SIMPLIFICADO: "Buscá, Mirá, Contactá" */}
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-client">person_search</span>
-              <h3>Clientes</h3>
+              <h3>Soy Cliente</h3>
             </div>
             <div className="goya-steps-list">
               <div className="goya-step-item">
                 <div className="goya-step-number">1</div>
                 <div className="goya-step-text">
                   <strong>Buscá</strong>
-                  <p>Por categoría o mapa</p>
+                  <p>Lo que necesitás</p>
                 </div>
               </div>
               <div className="goya-step-item">
                 <div className="goya-step-number">2</div>
                 <div className="goya-step-text">
-                  <strong>Mirá perfiles</strong>
+                  <strong>Mirá</strong>
                   <p>Fotos y opiniones</p>
                 </div>
               </div>
               <div className="goya-step-item">
                 <div className="goya-step-number">3</div>
                 <div className="goya-step-text">
-                  <strong>Contactá</strong>
-                  <p>Directo por WhatsApp</p>
+                  <strong>Mandá WhatsApp</strong>
+                  <p>Y arreglá directo</p>
                 </div>
               </div>
             </div>
@@ -386,28 +436,28 @@ const Home = () => {
           <div className="goya-howworks-card">
             <div className="goya-card-header">
               <span className="material-icons goya-card-icon goya-icon-professional">engineering</span>
-              <h3>Prestadores</h3>
+              <h3>Soy Profesional</h3>
             </div>
             <div className="goya-steps-list">
               <div className="goya-step-item">
                 <div className="goya-step-number">1</div>
                 <div className="goya-step-text">
                   <strong>Registrate</strong>
-                  <p>Cuenta gratis</p>
+                  <p>Es gratis</p>
                 </div>
               </div>
               <div className="goya-step-item">
                 <div className="goya-step-number">2</div>
                 <div className="goya-step-text">
                   <strong>Publicá</strong>
-                  <p>Con fotos y detalles</p>
+                  <p>Tus servicios o productos</p>
                 </div>
               </div>
               <div className="goya-step-item">
                 <div className="goya-step-number">3</div>
                 <div className="goya-step-text">
-                  <strong>Recibí consultas</strong>
-                  <p>Clientes reales</p>
+                  <strong>Trabajá</strong>
+                  <p>Te escriben los clientes</p>
                 </div>
               </div>
             </div>
@@ -419,12 +469,12 @@ const Home = () => {
         <div className="goya-local-content">
           <span className="material-icons goya-local-icon">favorite</span>
           <div className="goya-local-text">
-            <strong>Proyecto 100% local de Goya</strong>
-            <p>Creado por un joven Goyano para conectar nuestra ciudad</p>
+            <strong>De Goya, para Goya</strong>
+            <p>Conectamos vecinos sin intermediarios.</p>
           </div>
         </div>
         <button className="goya-local-btn" onClick={handlePublicarClick}>
-          Sumate gratis
+          Sumate Gratis
         </button>
       </section>
 
@@ -435,8 +485,8 @@ const Home = () => {
             
             <div className="banner-info">
               <div className="banner-text">
-                <strong>¡Oferta por Tiempo Limitado!</strong>
-                <p>Aplicá tu código promocional y obtené Premium gratis</p>
+                <strong>¡Tenés una Promo!</strong>
+                <p>Usá tu código para ser Premium gratis</p>
               </div>
               
               <div className="countdown-timer">
@@ -467,28 +517,19 @@ const Home = () => {
               onClick={() => setMostrarModalCodigo(true)}
             >
               <span className="material-icons">redeem</span>
-              Aplicar Código
+              Usar Código
             </button>
           </div>
           
           <div className="banner-footer">
             <span className="material-icons">info</span>
-            <span>Buscá códigos en folletos de GoyaNova o en nuestras redes sociales</span>
+            <span>Buscá códigos en nuestras redes sociales</span>
           </div>
         </section>
       )}
 
       <section className="map-section">
         <MapaHome onExplorarClick={handleExplorarClick} />
-      </section>
-
-      <section className="publicar-servicio-section" style={{ textAlign: 'center', margin: '0' }}>
-        <button
-          className="btn-publicar-servicio"
-          onClick={handlePublicarClick}
-        >
-          Publicar un Servicio
-        </button>
       </section>
 
       <section className="category-section">
@@ -507,7 +548,7 @@ const Home = () => {
         <button 
           className="floating-promo-btn"
           onClick={() => setMostrarModalCodigo(true)}
-          title="Aplicá tu código antes que expire"
+          title="Usá tu código"
         >
           <span className="material-icons">redeem</span>
           <span className="floating-text">

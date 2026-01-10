@@ -412,16 +412,16 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
 
   return (
     <div className="paso3-wrapper">
-      <h2 className="paso3-titulo">Paso 3: Disponibilidad del servicio o producto</h2>
+      <h2 className="paso3-titulo">Paso 3: ¿Cuándo trabajás?</h2>
 
       <div className="opciones-disponibilidad">
         {["horario", "turnos", "pedido", "consultar", "nodisp"].map((op) => (
           <button key={op} className={modo === op ? "activa" : ""} onClick={() => setModo(op)}>
-            {op === "horario" && "Horario fijo semanal"}
-            {op === "turnos" && "Por turnos"}
-            {op === "pedido" && "Por pedido"}
-            {op === "consultar" && "Consultar disponibilidad"}
-            {op === "nodisp" && "No disponible"}
+            {op === "horario" && "Siempre el mismo horario"}
+{op === "turnos" && "Trabajo por turnos"}
+{op === "pedido" && "Solo con pedido"}
+{op === "consultar" && "Consultame por WhatsApp"}
+{op === "nodisp" && "Cerrado ahora"}
           </button>
         ))}
       </div>
@@ -432,15 +432,15 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
             <div className="mensaje-pedido-info">
               <p><strong>{modo === "pedido" ? "📦 Por pedido" : "⏰ Por turnos"}</strong></p>
               <textarea
-                placeholder="Mensaje adicional (opcional)"
-                className="mensaje-textarea"
-                value={mensaje}
-                onChange={(e) => setMensaje(e.target.value)}
-              />
+  placeholder="Ej: Pedí 2 días antes. Entrego sábados y domingos - Trabajo con seña"
+  className="mensaje-textarea"
+  value={mensaje}
+  onChange={(e) => setMensaje(e.target.value)}
+/>
             </div>
           )}
 
-          <p className="subtitulo">Seleccioná tus días y horarios:</p>
+          <p className="subtitulo">Marcá los días que trabajás y tus horarios:</p>
 
           {Object.values(diasActivos).every(v => !v) && (
             <div className="alerta-sin-dias">
@@ -459,7 +459,7 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
                     <span>{dia}</span>
                     {diasActivos[dia] ? (
                       <span className={`cantidad-turnos ${sinCompletarTurnos ? "advertencia" : ""}`}>
-                        {tieneHorarios ? `${turnos[dia]?.filter(t => t.inicio && t.fin).length || 0} turno(s)` : "⚠️ Sin configurar"}
+                        {tieneHorarios ? `${turnos[dia]?.filter(t => t.inicio && t.fin).length || 0} turno(s)` : "⚠️ Sin horarios"}
                       </span>
                     ) : (
                       <span className="off">OFF</span>
@@ -497,7 +497,7 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
       {modalDia && (
         <div className="modal-dia">
           <div className="modal-contenido">
-            <h3>Configurar horarios: {modalDia}</h3>
+            <h3>¿Qué horario tenés el {modalDia}?</h3>
             {(turnos[modalDia] || []).map((turno, i) => (
               <div key={i} className="grupo-turno">
                 <div className="inputs-horario">
@@ -542,8 +542,8 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
 
             {(turnos[modalDia]?.length || 0) < 2 && (
               <button className="btn-add" onClick={() => agregarTurno(modalDia)} type="button">
-                + Agregar otro turno
-              </button>
+  + Agregar otro horario
+</button>
             )}
 
             <label className="checkbox-copy">
@@ -552,7 +552,7 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
                 checked={copiarAResto}
                 onChange={(e) => setCopiarAResto(e.target.checked)}
               />
-              Aplicar estos horarios a todos los días activos
+              Usar este horario para todos los días
             </label>
 
             <div className="footer-botones">

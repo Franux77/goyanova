@@ -1,218 +1,247 @@
 // src/componentes/publicar/ModalMapa.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import './ModalMapa.css';
 
 const ModalMapa = ({ onGuardar, onCerrar, ubicacion }) => {
   const mapaRef = useRef(null);
   const mapaInstanciaRef = useRef(null);
+  const marcadorCentroRef = useRef(null);
+  const marcadorUsuarioRef = useRef(null);
   const ubicacionUsuarioRef = useRef(null);
-  const marcadorRef = useRef(null);
   const [coordenadas, setCoordenadas] = useState(null);
   const [cargandoUbicacion, setCargandoUbicacion] = useState(true);
+  const [errorMapa, setErrorMapa] = useState(null);
 
   useEffect(() => {
-    // 🔹 PRIORIDAD 1: Si ya tiene ubicación previa (editando), úsala
-    if (ubicacion?.lat && ubicacion?.lng) {
-      const coords = [ubicacion.lat, ubicacion.lng];
-      setCoordenadas({ lat: ubicacion.lat, lng: ubicacion.lng });
-      
-      // 🔹 Obtener ubicación actual del usuario en paralelo (para el punto azul)
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            ubicacionUsuarioRef.current = [pos.coords.latitude, pos.coords.longitude];
-            iniciarMapa(coords); // Inicia en las coordenadas guardadas
-          },
-          () => {
-            ubicacionUsuarioRef.current = coords; // Fallback: usar las coords guardadas
-            iniciarMapa(coords);
+    let isMounted = true;
+
+    const initMap = async () => {
+      try {
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+        if (!apiKey) throw new Error('Falta la API key de Google Maps');
+
+        // 1. Determinar coordenadas iniciales
+        let coordsIniciales;
+
+        // Intentar usar ubicación existente o geolocalización
+        if (ubicacion?.lat && ubicacion?.lng) {
+          coordsIniciales = { lat: ubicacion.lat, lng: ubicacion.lng };
+          setCoordenadas(coordsIniciales);
+        } else if (navigator.geolocation) {
+          try {
+            const position = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                timeout: 5000,
+                enableHighAccuracy: false
+              });
+            });
+            coordsIniciales = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            ubicacionUsuarioRef.current = coordsIniciales;
+            setCoordenadas(coordsIniciales);
+          } catch (error) {
+            // Fallback si falla GPS
+            coordsIniciales = { lat: -29.1406, lng: -59.2651 };
+            ubicacionUsuarioRef.current = coordsIniciales;
+            setCoordenadas(coordsIniciales);
           }
-        );
-      } else {
-        iniciarMapa(coords);
-      }
-      
-      setCargandoUbicacion(false);
-      return;
-    }
-
-    // 🔹 PRIORIDAD 2: Si NO hay ubicación previa, obtener ubicación actual
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-        if (result.state === 'prompt') {
-          navigator.geolocation.getCurrentPosition(() => {}, () => {});
+        } else {
+          coordsIniciales = { lat: -29.1406, lng: -59.2651 };
+          ubicacionUsuarioRef.current = coordsIniciales;
+          setCoordenadas(coordsIniciales);
         }
-      });
-    }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = [pos.coords.latitude, pos.coords.longitude];
-        ubicacionUsuarioRef.current = coords;
-        setCoordenadas({ lat: coords[0], lng: coords[1] });
-        iniciarMapa(coords);
-        setCargandoUbicacion(false);
-      },
-      () => {
-        // Fallback: coordenadas por defecto (Goya, Corrientes)
-        const coords = [-29.1406, -59.2651];
-        ubicacionUsuarioRef.current = coords;
-        setCoordenadas({ lat: coords[0], lng: coords[1] });
-        iniciarMapa(coords);
-        setCargandoUbicacion(false);
-      }
-    );
+        // 2. Función para crear el mapa
+        const crearMapa = () => {
+          if (!isMounted || !mapaRef.current) return;
+          
+          // Verificación de seguridad extra
+          if (!window.google || !window.google.maps) return;
 
-    return () => {
-      if (mapaInstanciaRef.current) {
-        try {
-          mapaInstanciaRef.current.off();
-          mapaInstanciaRef.current.remove();
-          mapaInstanciaRef.current = null;
-        } catch (error) {
-          console.warn('Error al limpiar el mapa:', error);
+          const map = new window.google.maps.Map(mapaRef.current, {
+            center: coordsIniciales,
+            zoom: 18,
+            
+            // --- CONFIGURACIÓN CRÍTICA ---
+            mapTypeId: 'hybrid', // Modo satélite híbrido (con calles)
+            gestureHandling: 'greedy', // IMPORTANTE: Permite mover con un solo dedo en celular
+            disableDefaultUI: false, // Dejar controles básicos
+            
+            // Simplificamos controles para evitar el error 'TOP_RIGHT' undefined
+            mapTypeControl: false, // Ocultamos el selector de mapa (ya está en híbrido)
+            streetViewControl: false,
+            fullscreenControl: false,
+            zoomControl: false, // Usamos tus botones personalizados
+            mapId: 'DEMO_MAP_ID' 
+          });
+
+          mapaInstanciaRef.current = map;
+
+          // Marcador Rojo (Centro)
+          const marcadorCentro = new window.google.maps.Marker({
+            position: coordsIniciales,
+            map: map,
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#FF0000',
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: '#FFFFFF'
+            },
+            zIndex: 1000
+          });
+          marcadorCentroRef.current = marcadorCentro;
+
+          // Marcador Azul (Usuario)
+          if (ubicacionUsuarioRef.current && (!ubicacion?.lat || !ubicacion?.lng)) {
+            const marcadorUsuario = new window.google.maps.Marker({
+              position: ubicacionUsuarioRef.current,
+              map: map,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#3399ff',
+                fillOpacity: 0.8,
+                strokeWeight: 2,
+                strokeColor: '#FFFFFF'
+              },
+              zIndex: 999
+            });
+            marcadorUsuarioRef.current = marcadorUsuario;
+          }
+
+          // Listener de movimiento
+          map.addListener('center_changed', () => {
+            if (!isMounted) return;
+            const centro = map.getCenter();
+            const nuevasCoordenadas = {
+              lat: centro.lat(),
+              lng: centro.lng()
+            };
+            marcadorCentro.setPosition(nuevasCoordenadas);
+            setCoordenadas(nuevasCoordenadas);
+          });
+
+          if (isMounted) setCargandoUbicacion(false);
+        };
+
+        // 3. Lógica de carga del Script (Optimizada)
+        if (window.google?.maps) {
+          crearMapa();
+        } else {
+          const scriptExistente = document.querySelector('script[src*="maps.googleapis.com"]');
+          if (scriptExistente) {
+             // Si existe pero no cargó, le agregamos el listener
+            scriptExistente.addEventListener('load', crearMapa);
+          } else {
+            const script = document.createElement('script');
+            // Quitamos loading=async para forzar carga síncrona de recursos si es posible y evitar race conditions
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = crearMapa;
+            script.onerror = () => {
+              if (isMounted) {
+                setErrorMapa('Error de conexión con Google Maps');
+                setCargandoUbicacion(false);
+              }
+            };
+            document.head.appendChild(script);
+          }
+        }
+
+      } catch (error) {
+        console.error(error);
+        if (isMounted) {
+          setErrorMapa(error.message);
+          setCargandoUbicacion(false);
         }
       }
     };
+
+    initMap();
+
+    return () => {
+      isMounted = false;
+      if (marcadorCentroRef.current) marcadorCentroRef.current.setMap(null);
+      if (marcadorUsuarioRef.current) marcadorUsuarioRef.current.setMap(null);
+    };
   }, [ubicacion]);
 
-  const iniciarMapa = (centro) => {
-    if (mapaInstanciaRef.current) return;
-
-    // Asegurarse de que el contenedor esté limpio
-    const container = mapaRef.current;
-    if (!container) return;
-    
-    // Limpiar cualquier instancia previa de Leaflet en el contenedor
-    if (container._leaflet_id) {
-      delete container._leaflet_id;
-    }
-
-    const mapa = L.map(container, { zoomControl: false }).setView(centro, 16);
-    mapaInstanciaRef.current = mapa;
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(mapa);
-
-    // 🔴 Marcador principal (pin rojo) en el centro
-    const marcador = L.marker(centro, { draggable: false }).addTo(mapa);
-    marcadorRef.current = marcador;
-
-    // Actualizar coordenadas cuando se mueve el mapa
-    mapa.on('move', () => {
-      const centroMapa = mapa.getCenter();
-      marcador.setLatLng(centroMapa);
-      setCoordenadas({ lat: centroMapa.lat, lng: centroMapa.lng });
-    });
-
-    // 🔵 Punto azul de ubicación actual del usuario
-    if (ubicacionUsuarioRef.current) {
-      L.circleMarker(ubicacionUsuarioRef.current, {
-        radius: 8,
-        color: '#3399ff',
-        fillColor: '#3399ff',
-        fillOpacity: 0.8,
-      }).addTo(mapa);
-    }
-  };
-
+  // Funciones de control manual
   const volverAMiUbicacion = () => {
     if (mapaInstanciaRef.current && ubicacionUsuarioRef.current) {
-      mapaInstanciaRef.current.setView(ubicacionUsuarioRef.current, 16);
+      mapaInstanciaRef.current.panTo(ubicacionUsuarioRef.current);
+      mapaInstanciaRef.current.setZoom(18);
     }
   };
 
   const confirmarUbicacion = () => {
-    if (coordenadas) {
-      onGuardar(coordenadas.lat, coordenadas.lng);
-    }
+    if (coordenadas) onGuardar(coordenadas.lat, coordenadas.lng);
   };
 
   const acercarMapa = () => {
-    if (mapaInstanciaRef.current) {
-      mapaInstanciaRef.current.zoomIn();
-    }
+    if (mapaInstanciaRef.current) mapaInstanciaRef.current.setZoom(mapaInstanciaRef.current.getZoom() + 1);
   };
 
   const alejarMapa = () => {
-    if (mapaInstanciaRef.current) {
-      mapaInstanciaRef.current.zoomOut();
-    }
+    if (mapaInstanciaRef.current) mapaInstanciaRef.current.setZoom(mapaInstanciaRef.current.getZoom() - 1);
   };
 
   return (
     <div className="modal-mapa-overlay" onClick={onCerrar}>
       <div className="modal-mapa-contenido" onClick={(e) => e.stopPropagation()}>
-        {/* Header del modal */}
         <div className="modal-mapa-header">
           <div className="modal-mapa-titulo">
             <span className="material-icons">location_on</span>
-            <h3>Selecciona tu ubicación</h3>
+            <h3>Ubicación exacta</h3>
           </div>
-          <button onClick={onCerrar} className="modal-mapa-cerrar-x" aria-label="Cerrar">
+          <button onClick={onCerrar} className="modal-mapa-cerrar-x">
             <span className="material-icons">close</span>
           </button>
         </div>
 
-        {/* Instrucciones */}
         <div className="modal-mapa-instrucciones">
-          <span className="material-icons">info</span>
-          <p>Arrastra el mapa para posicionar el marcador en tu ubicación exacta</p>
+          <span className="material-icons">touch_app</span>
+          <p>Mueve el mapa para ajustar el marcador rojo</p>
         </div>
 
-        {/* Contenedor del mapa */}
         <div className="modal-mapa-wrapper">
           {cargandoUbicacion && (
             <div className="modal-mapa-cargando">
               <div className="spinner-mapa"></div>
-              <p>Cargando ubicación...</p>
+              <p>Cargando satélite...</p>
             </div>
           )}
-          <div
-            id="mapa"
-            ref={mapaRef}
-            className="modal-mapa-leaflet"
-          ></div>
+          
+          {errorMapa && (
+            <div className="modal-mapa-error">
+              <span className="material-icons">error</span>
+              <p>{errorMapa}</p>
+            </div>
+          )}
 
-          {/* Controles de zoom personalizados */}
+          <div ref={mapaRef} className="modal-mapa-leaflet" style={{ width: '100%', height: '100%' }} />
+
           <div className="modal-mapa-zoom-controles">
-            <button onClick={acercarMapa} className="zoom-btn" aria-label="Acercar">
-              <span className="material-icons">add</span>
-            </button>
-            <button onClick={alejarMapa} className="zoom-btn" aria-label="Alejar">
-              <span className="material-icons">remove</span>
-            </button>
+            <button onClick={acercarMapa} className="zoom-btn"><span className="material-icons">add</span></button>
+            <button onClick={alejarMapa} className="zoom-btn"><span className="material-icons">remove</span></button>
           </div>
 
-          {/* Botón mi ubicación flotante */}
-          <button onClick={volverAMiUbicacion} className="modal-mapa-mi-ubicacion" aria-label="Mi ubicación">
-            <span className="material-icons">my_location</span>
-          </button>
+          {ubicacionUsuarioRef.current && (
+            <button onClick={volverAMiUbicacion} className="modal-mapa-mi-ubicacion">
+              <span className="material-icons">my_location</span>
+            </button>
+          )}
         </div>
 
-        {/* Coordenadas seleccionadas */}
-        {coordenadas && (
-          <div className="modal-mapa-coordenadas">
-            <span className="material-icons">pin_drop</span>
-            <div className="coordenadas-texto">
-              <span>Lat: {coordenadas.lat.toFixed(6)}</span>
-              <span>Lng: {coordenadas.lng.toFixed(6)}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Footer con acciones */}
         <div className="modal-mapa-footer">
-          <button onClick={onCerrar} className="btn-cancelar-mapa">
-            <span className="material-icons">close</span>
-            Cancelar
-          </button>
-          <button onClick={confirmarUbicacion} className="btn-confirmar-mapa">
-            <span className="material-icons">check_circle</span>
-            Confirmar ubicación
+          <button onClick={onCerrar} className="btn-cancelar-mapa">Cancelar</button>
+          <button onClick={confirmarUbicacion} className="btn-confirmar-mapa" disabled={!coordenadas}>
+            Confirmar
           </button>
         </div>
       </div>

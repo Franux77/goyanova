@@ -46,14 +46,14 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
 
   return (
     <div className="paso4-container">
-      <h3>Paso 4: Contacto</h3>
+      <h3>Paso 4: ¿Cómo te contactan?</h3>
       
 
       <div className="paso4-group">
-        <label>WhatsApp (Obligatorio) *</label>
-        <p className="paso4-hint">
-          Escribe tu número de celular sin espacios ni guiones.
-        </p>
+        <label>Tu número de WhatsApp *</label>
+<p className="paso4-hint">
+  Poné tu número de celu (sin espacios)
+</p>
         <PhoneInput
           country={"ar"}
           value={formData.whatsapp || ""}
@@ -63,7 +63,7 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
             required: true,
             autoFocus: false,
           }}
-          placeholder="3777 209955"
+          placeholder="37772020526"
           enableSearch={true}
           countryCodeEditable={false}
           disableCountryCode={false}
@@ -76,9 +76,9 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
         
         {errores.whatsapp && <p className="paso4-error">{errores.whatsapp}</p>}
         
-        <p className="paso4-hint">
-          Ejemplo para Argentina: +54 3777 209955 • Selecciona tu país en el selector
-        </p>
+       <p className="paso4-hint">
+  Ejemplo: +54 3777 209955 (elegí tu país arriba)
+</p>
 
         {numeroValido && (
           <a
@@ -93,11 +93,11 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
       </div>
 
       <div className="paso4-group">
-        <label>Email (opcional)</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="ejemplo@gmail.com"
+        <label>Tu email (si querés)</label>
+<input
+  type="email"
+  name="email"
+  placeholder="tucorreo@gmail.com"
           value={formData.email || ""}
           onChange={handleOtherChange}
           className={errores.email ? 'input-error' : ''}
@@ -105,14 +105,14 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
         {errores.email && <p className="paso4-error">{errores.email}</p>}
       </div>
 
-      <h3>Redes Sociales (opcional)</h3>
+      <h3>Tus redes (si tenés)</h3>
 
       <div className="paso4-group">
         <label>Instagram</label>
         <input
           type="text"
           name="instagram"
-          placeholder="@usuario"
+          placeholder="ejemplo: goyanova.com.ar"
           value={formData.instagram || ""}
           onChange={handleOtherChange}
         />
@@ -123,7 +123,7 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
         <input
           type="text"
           name="facebook"
-          placeholder="facebook.com/tuusuario"
+          placeholder="Tu nombre en Facebook"
           value={formData.facebook || ""}
           onChange={handleOtherChange}
         />

@@ -426,7 +426,7 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
     <div className="paso1-container">
       <h2 className="titulo-paso">Información básica</h2>
 
-      <label>Nombre del servicio/producto o tu nombre</label>
+      <label>¿Cómo se llama tu negocio/emprendimiento o vos?</label>
       <input
         type="text"
         value={nombreLocal}
@@ -436,29 +436,29 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
       />
       <div className="char-counter">{nombreLocal.length}/50</div>
 
-      <label>¿Qué vas a publicar? *</label>
-      <select value={tipoSeleccionado} onChange={handleTipoChange}>
-        <option value="">Seleccioná tipo de servicio</option>
-        <option value="servicio">Servicio</option>
-        <option value="producto">Producto</option>
-      </select>
+      <label>¿Qué querés publicar? *</label>
+<select value={tipoSeleccionado} onChange={handleTipoChange}>
+  <option value="">Elegí una opción</option>
+  <option value="servicio">Un servicio (plomero, electricista, delivery)</option>
+  <option value="producto">Un producto (ropa, comida, artesanías)</option>
+</select>
 
-      <label>Categoría relacionada *</label>
-      <div className="input-busqueda-wrapper">
-        <input
-          type="text"
-          value={busqueda || ''}
-          onChange={(e) => {
-            const value = e.target.value.slice(0, 50);
-            setBusqueda(value);
-            if (!value) {
-              setFormData(prev => ({ ...prev, categoria: '' }));
-            }
-          }}
-          disabled={!tipoSeleccionado}
-          placeholder="Escribí para buscar... (Ej: remis, comida, plomero)"
-          maxLength={50}
-        />
+      <label>¿A qué te dedicás? *</label>
+<div className="input-busqueda-wrapper">
+  <input
+    type="text"
+    value={busqueda || ''}
+    onChange={(e) => {
+      const value = e.target.value.slice(0, 50);
+      setBusqueda(value);
+      if (!value) {
+        setFormData(prev => ({ ...prev, categoria: '' }));
+      }
+    }}
+    disabled={!tipoSeleccionado}
+    placeholder="Escribí acá: remis, pizzas, plomero, ropa..."
+    maxLength={50}
+  />
 
         {busqueda && (
           <button type="button" className="limpiar-btn" onClick={limpiarBusqueda}>
@@ -515,39 +515,39 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
         ) : null}
       </div>
 
-      <label>Descripción de tu servicio/producto *</label>
-      <textarea
-        value={descripcionLocal}
-        onChange={handleDescripcionChange}
-        rows={3}
-        placeholder="Contá brevemente qué ofrecés y a quién está dirigido"
-        maxLength={300}
-      />
+      <label>Contanos qué hacés/vendés u ofrecés *</label>
+<textarea
+  value={descripcionLocal}
+  onChange={handleDescripcionChange}
+  rows={3}
+  placeholder="Ej: Vendo pizzas caseras. Delivery los fines de semana. Acepto pedidos con 1 día de anticipación"
+  maxLength={300}
+/>
       <div className="char-counter">{descripcionLocal.length}/300</div>
 
-      <label>Dirección escrita exacta *</label>
-      <input
-        type="text"
-        value={direccionLocal}
-        onChange={handleDireccionChange}
-        placeholder="Ej: Barrio Alem, Calle Sarmiento, Número 123"
-        maxLength={120}
-      />
+      <label>¿Dónde estás? (dirección completa) *</label>
+<input
+  type="text"
+  value={direccionLocal}
+  onChange={handleDireccionChange}
+  placeholder="Ej: Barrio Centro, calle San Martín 456"
+  maxLength={120}
+/>
       <div className="char-counter">{direccionLocal.length}/120</div>
 
-      <label>Referencia adicional (opcional)</label>
-      <textarea
-        value={referenciaLocal}
-        onChange={handleReferenciaChange}
-        rows={3}
-        maxLength={150}
-        placeholder="Ej: En una esquina, casa de color verde, frente a la plaza"
-      />
+      <label>¿Hay algo cerca? (opcional)</label>
+<textarea
+  value={referenciaLocal}
+  onChange={handleReferenciaChange}
+  rows={3}
+  maxLength={150}
+  placeholder="Ej: Casa amarilla al lado del kiosco, frente a la plaza"
+/>
       <div className="char-counter">{referenciaLocal.length}/150</div>
 
       <button type="button" className="btn-abrir-mapa" onClick={abrirModalMapa}>
-        Abrir mapa para fijar ubicación exacta
-      </button>
+  📍 Tocar acá para marcar en el mapa
+</button>
 
       {coordenadasMostrar.lat && coordenadasMostrar.lng && (
         <p className="coordenadas-info">
