@@ -295,20 +295,17 @@ const Home = () => {
         </button>
       </section>
 
-      {/* BLOQUE COMENTADO:
-         Esta sección de tutoriales repetía lo mismo que la sección "¿Cómo funciona?" de más abajo.
-         La comenté para limpiar la pantalla y que el usuario no se maree con tanta información repetida.
-      */}
+    
       <section className="goya-tutorial-section">
         <h2 className="goya-tutorial-title">¿Primera vez en GoyaNova?</h2>
-        <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos según cómo vayas a usar la plataforma</p>
+        <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos para ver como funciona GoyaNova</p>
         
         <div className="goya-tutorial-grid">
           <a href="https://youtube.com/tu-video-cliente" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
-              <strong>Tutorial Cliente</strong>
-              <span>Cómo buscar lo que necesitás</span>
+              <strong>Como usar GoyaNova</strong>
+              <span>Para toda persona de Goya</span>
             </div>
             <div className="goya-card-badge">Ver video</div>
           </a>
@@ -316,8 +313,8 @@ const Home = () => {
           <a href="https://youtube.com/tu-video-prestador" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
-              <strong>Tutorial Prestador</strong>
-              <span>Cómo publicar servicios</span>
+              <strong>Como publicar servicios</strong>
+              <span>Para los que tienen un servicio</span>
             </div>
             <div className="goya-card-badge">Ver video</div>
           </a>
