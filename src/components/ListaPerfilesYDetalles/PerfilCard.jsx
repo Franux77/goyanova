@@ -16,7 +16,8 @@ const generarColor = (str) => {
 
 const obtenerIniciales = (nombre) => {
   if (!nombre) return '?';
-  const palabras = nombre.split(' ');
+  const palabras = nombre.trim().split(/\s+/).filter(p => p.length > 0);
+  if (palabras.length === 0) return '?';
   return palabras.map((w) => w[0].toUpperCase()).join('');
 };
 
