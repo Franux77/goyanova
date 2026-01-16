@@ -233,19 +233,44 @@ input:checked + .slider:before {
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center; /* 👈 CAMBIO: de flex-end a center */
   z-index: 10000;
+  padding: 1rem; /* 👈 NUEVO: espacio en los bordes */
 }
 
 .modal-contenido {
-  position: fixed;
   background: #fff;
   width: 100%;
   max-width: 600px;
-  border-radius: 16px 16px 0 0;
-  padding: 2rem;
+  border-radius: 16px; /* 👈 CAMBIO: bordes redondeados en todos lados */
+  padding: 2rem 0.8rem;
   animation: slideUp 0.3s ease;
-    z-index: 10000;
+  z-index: 10000;
+  
+  /* 👇 NUEVAS LÍNEAS PARA SCROLL */
+  max-height: 90vh; /* Máximo 90% de altura de pantalla */
+  overflow-y: auto; /* Scroll vertical */
+  overflow-x: hidden; /* Sin scroll horizontal */
+  position: relative; /* 👈 CAMBIO: de fixed a relative */
+}
+
+/* Scrollbar personalizado del modal */
+.modal-contenido::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-contenido::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.modal-contenido::-webkit-scrollbar-thumb {
+  background: #1774f6;
+  border-radius: 10px;
+}
+
+.modal-contenido::-webkit-scrollbar-thumb:hover {
+  background: #0d5abf;
 }
 
 @keyframes slideUp {
@@ -482,43 +507,90 @@ input:checked + .slider:before {
 
 .inputs-horario {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
+  margin-bottom: 8px;
 }
 
-.inputs-horario input[type="time"] {
+.input-wrapper {
   flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.inputs-horario input[type="time"]:focus {
-  border-color: #80bdff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.inputs-horario span {
-  color: #6c757d;
+.input-wrapper label {
+  font-size: 12px;
   font-weight: 600;
+  color: #495057;
+}
+
+.inputs-horario input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ced4da;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+}
+
+.inputs-horario input[type="text"]:focus {
+  border-color: #1774f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(23, 116, 246, 0.1);
+}
+
+.inputs-horario input[type="text"]::placeholder {
+  color: #adb5bd;
+  font-weight: normal;
+}
+
+.separador-horario {
+  font-size: 20px;
+  color: #6c757d;
+  font-weight: 700;
+  padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .inputs-horario .btn-remove {
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: #dc3545;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   transition: background 0.2s;
+  flex-shrink: 0;
+  margin-bottom: 2px;
 }
 
 .inputs-horario .btn-remove:hover {
   background: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .inputs-horario {
+    flex-wrap: wrap;
+  }
+  
+  .input-wrapper {
+    flex: 1 1 45%;
+  }
+  
+  .separador-horario {
+    display: none;
+  }
+  
+  .inputs-horario .btn-remove {
+    flex: 1 1 100%;
+    margin-top: 8px;
+  }
 }
 
 /* Mensajes de error mejorados */

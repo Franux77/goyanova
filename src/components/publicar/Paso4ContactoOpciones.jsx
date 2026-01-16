@@ -77,7 +77,7 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
         {errores.whatsapp && <p className="paso4-error">{errores.whatsapp}</p>}
         
        <p className="paso4-hint">
-  Ejemplo: +54 3777 209955 (elegí tu país arriba)
+  Ejemplo: +54 3777 123123 (elegí tu país arriba)
 </p>
 
         {numeroValido && (

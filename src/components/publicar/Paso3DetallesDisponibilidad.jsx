@@ -196,7 +196,7 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
       setModo(nuevoTipo);
     }
     
-    if (mensaje !== nuevoMensaje && !modalDia) {
+    if (mensaje !== nuevoMensaje && !modalDia && document.activeElement?.tagName !== 'TEXTAREA') {
       setMensaje(nuevoMensaje);
     }
     
@@ -337,13 +337,14 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
     }
   };
 
-  const agregarTurno = (dia) => {
-    if ((turnos[dia] || []).length >= 2) return;
-    setTurnos((prev) => ({
-      ...prev,
-      [dia]: [...(prev[dia] || []), { inicio: "", fin: "" }],
-    }));
-  };
+const agregarTurno = (dia) => {
+  const limite = modo === "turnos" ? 10 : 2;  // 👈 10 turnos solo si es modo "turnos"
+  if ((turnos[dia] || []).length >= limite) return;
+  setTurnos((prev) => ({
+    ...prev,
+    [dia]: [...(prev[dia] || []), { inicio: "", fin: "" }],
+  }));
+};
 
   const eliminarTurno = (dia, i) => {
     setTurnos((prev) => {
@@ -415,72 +416,74 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
       <h2 className="paso3-titulo">Paso 3: ¿Cuándo trabajás?</h2>
 
       <div className="opciones-disponibilidad">
-        {["horario", "turnos", "pedido", "consultar", "nodisp"].map((op) => (
-          <button key={op} className={modo === op ? "activa" : ""} onClick={() => setModo(op)}>
-            {op === "horario" && "Siempre el mismo horario"}
-{op === "turnos" && "Trabajo por turnos"}
-{op === "pedido" && "Solo con pedido"}
-{op === "consultar" && "Consultame por WhatsApp"}
-{op === "nodisp" && "Cerrado ahora"}
-          </button>
-        ))}
+  {["horario", "turnos", "pedido", "consultar", "nodisp"].map((op) => (
+    <button key={op} className={modo === op ? "activa" : ""} onClick={() => setModo(op)}>
+      {op === "horario" && "Horario fijo semanal"}
+      {op === "turnos" && "Trabajo por turnos"}
+      {op === "pedido" && "Trabajo por pedido"}
+      {op === "consultar" && "Consultame por WhatsApp"}
+      {op === "nodisp" && "Fuera de servicio"}
+    </button>
+  ))}
+</div>
+
+     {(modo === "horario" || modo === "turnos" || modo === "pedido") && (
+  <div className="bloque-horario">
+    {(modo === "pedido" || modo === "turnos") && (
+      <div className="mensaje-pedido-info">
+        <p><strong>{modo === "pedido" ? "📦 Trabajo por pedido" : "⏰ Trabajo por turnos"}</strong></p>
+        <textarea
+          placeholder={modo === "pedido" 
+            ? "Ejemplo: Pedí con 2 días de anticipación. Entrego sábados y domingos - Trabajo con seña del 50% - Hacemos envios" 
+            : "Ejemplo: Reservá tu turno con anticipación - Duración: 1 hora - Cancelá con 24hs de aviso - Saca turno en la web www.ejemplo.com o pedí por WhatsApp"}
+          className="mensaje-textarea"
+          value={mensaje}
+          onChange={(e) => setMensaje(e.target.value)}
+        />
       </div>
+    )}
 
-      {(modo === "horario" || modo === "turnos" || modo === "pedido") && (
-        <div className="bloque-horario">
-          {(modo === "pedido" || modo === "turnos") && (
-            <div className="mensaje-pedido-info">
-              <p><strong>{modo === "pedido" ? "📦 Por pedido" : "⏰ Por turnos"}</strong></p>
-              <textarea
-  placeholder="Ej: Pedí 2 días antes. Entrego sábados y domingos - Trabajo con seña"
-  className="mensaje-textarea"
-  value={mensaje}
-  onChange={(e) => setMensaje(e.target.value)}
-/>
+    <p className="subtitulo">Marcá los días que trabajás y tus horarios:</p>
+
+    {Object.values(diasActivos).every(v => !v) && (
+      <div className="alerta-sin-dias">
+        ⚠️ Debes activar al menos un día de la semana
+      </div>
+    )}
+
+    <ul className="lista-dias">
+      {diasSemana.map((dia) => {
+        const tieneHorarios = diasActivos[dia] && (turnos[dia] || []).some(t => t.inicio && t.fin);
+        const sinCompletarTurnos = diasActivos[dia] && !tieneHorarios;
+
+        return (
+          <li key={dia} className={`item-dia ${!diasActivos[dia] ? "inactivo" : ""} ${sinCompletarTurnos ? "incompleto" : ""}`}>
+            <div className="dia-info" onClick={() => diasActivos[dia] && setModalDia(dia)}>
+              <span>{dia}</span>
+              {diasActivos[dia] ? (
+                <span className={`cantidad-turnos ${sinCompletarTurnos ? "advertencia" : ""}`}>
+                  {tieneHorarios ? `${turnos[dia]?.filter(t => t.inicio && t.fin).length || 0} turno(s)` : "⚠️ Sin horarios"}
+                </span>
+              ) : (
+                <span className="off">OFF</span>
+              )}
             </div>
-          )}
-
-          <p className="subtitulo">Marcá los días que trabajás y tus horarios:</p>
-
-          {Object.values(diasActivos).every(v => !v) && (
-            <div className="alerta-sin-dias">
-              ⚠️ Debes activar al menos un día de la semana
-            </div>
-          )}
-
-          <ul className="lista-dias">
-            {diasSemana.map((dia) => {
-              const tieneHorarios = diasActivos[dia] && (turnos[dia] || []).some(t => t.inicio && t.fin);
-              const sinCompletarTurnos = diasActivos[dia] && !tieneHorarios;
-
-              return (
-                <li key={dia} className={`item-dia ${!diasActivos[dia] ? "inactivo" : ""} ${sinCompletarTurnos ? "incompleto" : ""}`}>
-                  <div className="dia-info" onClick={() => diasActivos[dia] && setModalDia(dia)}>
-                    <span>{dia}</span>
-                    {diasActivos[dia] ? (
-                      <span className={`cantidad-turnos ${sinCompletarTurnos ? "advertencia" : ""}`}>
-                        {tieneHorarios ? `${turnos[dia]?.filter(t => t.inicio && t.fin).length || 0} turno(s)` : "⚠️ Sin horarios"}
-                      </span>
-                    ) : (
-                      <span className="off">OFF</span>
-                    )}
-                  </div>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!diasActivos[dia]}
-                      onChange={(e) =>
-                        setDiasActivos((prev) => ({ ...prev, [dia]: e.target.checked }))
-                      }
-                    />
-                    <span className="slider" />
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={!!diasActivos[dia]}
+                onChange={(e) =>
+                  setDiasActivos((prev) => ({ ...prev, [dia]: e.target.checked }))
+                }
+              />
+              <span className="slider" />
+            </label>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+)}
 
       {modo === "consultar" && (
         <div className="bloque-consultar">
@@ -501,29 +504,68 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
             {(turnos[modalDia] || []).map((turno, i) => (
               <div key={i} className="grupo-turno">
                 <div className="inputs-horario">
-                  <input
-                    type="time"
-                    value={turno.inicio || ""}
-                    onChange={(e) => handleChangeTurno(modalDia, i, "inicio", e.target.value)}
-                    className={errores[`${modalDia}-${i}-inicio`] ? "input-error" : ""}
-                  />
-                  <span>→</span>
-                  <input
-                    type="time"
-                    value={turno.fin || ""}
-                    onChange={(e) => handleChangeTurno(modalDia, i, "fin", e.target.value)}
-                    className={errores[`${modalDia}-${i}-fin`] ? "input-error" : ""}
-                  />
-                  {turnos[modalDia].length > 1 && (
-                    <button 
-                      className="btn-remove" 
-                      onClick={() => eliminarTurno(modalDia, i)}
-                      type="button"
-                    >
-                      🗑️
-                    </button>
-                  )}
-                </div>
+  <div className="input-wrapper">
+    <label>Desde</label>
+    <input
+      type="text"
+      inputMode="numeric"  // 👈 AGREGAR ESTA LÍNEA
+      placeholder="09:00"
+      value={turno.inicio || ""}
+      onChange={(e) => {
+        let valor = e.target.value.replace(/[^0-9:]/g, '');
+        if (valor.length === 2 && !valor.includes(':')) valor += ':';
+        if (valor.length <= 5) handleChangeTurno(modalDia, i, "inicio", valor);
+      }}
+      onBlur={(e) => {
+        const val = e.target.value;
+        if (val.length === 5 && /^\d{2}:\d{2}$/.test(val)) {
+          const [h, m] = val.split(':').map(Number);
+          if (h < 24 && m < 60) return;
+        }
+        handleChangeTurno(modalDia, i, "inicio", "");
+      }}
+      maxLength={5}
+      className={errores[`${modalDia}-${i}-inicio`] ? "input-error" : ""}
+    />
+  </div>
+  
+  <span className="separador-horario">→</span>
+  
+  <div className="input-wrapper">
+    <label>Hasta</label>
+    <input
+      type="text"
+      inputMode="numeric"  // 👈 AGREGAR ESTA LÍNEA
+      placeholder="18:00"
+      value={turno.fin || ""}
+      onChange={(e) => {
+        let valor = e.target.value.replace(/[^0-9:]/g, '');
+        if (valor.length === 2 && !valor.includes(':')) valor += ':';
+        if (valor.length <= 5) handleChangeTurno(modalDia, i, "fin", valor);
+      }}
+      onBlur={(e) => {
+        const val = e.target.value;
+        if (val.length === 5 && /^\d{2}:\d{2}$/.test(val)) {
+          const [h, m] = val.split(':').map(Number);
+          if (h < 24 && m < 60) return;
+        }
+        handleChangeTurno(modalDia, i, "fin", "");
+      }}
+      maxLength={5}
+      className={errores[`${modalDia}-${i}-fin`] ? "input-error" : ""}
+    />
+  </div>
+  
+  {turnos[modalDia].length > 1 && (
+    <button 
+      className="btn-remove" 
+      onClick={() => eliminarTurno(modalDia, i)}
+      type="button"
+    >
+      🗑️
+    </button>
+  )}
+</div>
                 
                 {errores[`${modalDia}-${i}-inicio`] && (
                   <small className="error-text">{errores[`${modalDia}-${i}-inicio`]}</small>
@@ -540,11 +582,11 @@ export default function Paso3Disponibilidad({ formData = {}, setFormData }) {
               </div>
             ))}
 
-            {(turnos[modalDia]?.length || 0) < 2 && (
-              <button className="btn-add" onClick={() => agregarTurno(modalDia)} type="button">
-  + Agregar otro horario
-</button>
-            )}
+            {(turnos[modalDia]?.length || 0) < (modo === "turnos" ? 10 : 2) && (  // 👈 Límite dinámico
+  <button className="btn-add" onClick={() => agregarTurno(modalDia)} type="button">
+    + Agregar otro horario
+  </button>
+)}
 
             <label className="checkbox-copy">
               <input

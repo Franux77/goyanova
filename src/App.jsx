@@ -173,21 +173,24 @@ const AppContent = () => {
       <main style={enMantenimiento && isAdmin && !esRutaExceptuada ? { marginTop: '68px' } : {}}>
         <RouteLoadingIndicator>
           <Suspense fallback={
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(255, 255, 255, 0.95)',
-              zIndex: 9999,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Loading message="Cargando..." />
-            </div>
-          }>
+  null  // 👈 CAMBIO: Quita el spinner de Suspense, deja solo la barra de progreso
+  /* 
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(255, 255, 255, 0.95)',
+    zIndex: 9999,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}>
+    <Loading message="Cargando..." />
+  </div>
+  */
+}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
