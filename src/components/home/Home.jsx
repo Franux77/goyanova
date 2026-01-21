@@ -301,7 +301,7 @@ const Home = () => {
         <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos para ver como funciona GoyaNova</p>
         
         <div className="goya-tutorial-grid">
-          <a href="https://youtube.com/tu-video-cliente" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
+          <a href="https://youtube.com/shorts/bCaEG8LHVas?si=lf55jmfh6iYVdGiS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
               <strong>Como usar GoyaNova</strong>
@@ -310,7 +310,7 @@ const Home = () => {
             <div className="goya-card-badge">Ver video</div>
           </a>
 
-          <a href="https://youtube.com/tu-video-prestador" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
+          <a href="https://youtube.com/shorts/hiLk1hVl6Kc?si=gdAuLmKyr0t01VMS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
               <strong>Como publicar servicios</strong>
