@@ -554,7 +554,7 @@ export const AuthProvider = ({ children }) => {
       const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!isMounted.current) return;
 
-        console.log('🔐 Auth event:', event);
+        // console.log('🔐 Auth event:', event);
 
         // 🔥 CRÍTICO: Ignorar INITIAL_SESSION para evitar doble procesamiento
         if (event === 'INITIAL_SESSION') return;

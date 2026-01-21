@@ -10,19 +10,17 @@ const SaludoUsuario = () => {
 
   useEffect(() => {
     const generarSaludo = () => {
-      // Si no hay perfil todavía, no generar saludo
       if (!perfil?.nombre) return;
       
       const ahora = new Date();
       const hora = ahora.getHours();
       const nombre = perfil.nombre;
       
-      // Crear una clave única que cambia cada 3 horas
+      // Clave única por bloque de 3 horas para no marear al usuario cambiando a cada rato
       const bloqueHorario = Math.floor(hora / 3);
       const fechaActual = ahora.toDateString();
       const claveAlmacenamiento = `saludo_${nombre}_${fechaActual}_${bloqueHorario}`;
       
-      // Verificar si ya hay un saludo guardado para este bloque horario
       const saludoGuardado = localStorage.getItem(claveAlmacenamiento);
       
       if (saludoGuardado) {
@@ -32,71 +30,57 @@ const SaludoUsuario = () => {
 
       let saludos = [];
 
+      // BLOQUE 1: MADRUGADA (00:00 a 05:59)
       if (hora >= 0 && hora < 6) {
-        // Madrugada (00:00 - 05:59)
         saludos = [
-          { principal: `¿Qué hacés despierto, ${nombre}?`, secundario: 'Es re tarde ya' },
-          { principal: `Buenas noches, ${nombre}`, secundario: 'O buenos días, quién sabe a esta hora' },
-          { principal: `Hola ${nombre}`, secundario: 'Los búhos andan sueltos por acá' },
-          { principal: `¿Trasnochando, ${nombre}?`, secundario: 'Bancá que viene el sueño' },
-          { principal: `Che ${nombre}`, secundario: '¿anda buscando algo?' },
-          { principal: `Che ${nombre}`, secundario: '¿No deberías estar durmiendo?' },
-          { principal: `Es de madrugada, ${nombre}`, secundario: 'Modo noctámbulo activado' },
-          { principal: `Mirá la hora, ${nombre}`, secundario: 'Pero bueno, busca lo necesario' },
-          { principal: `¿Todo bien ${nombre}?`, secundario: 'Es medio tarde para estar por acá' },
-          { principal: `Buenas ${nombre}`, secundario: 'Aunque no sé qué tan buenas a esta hora' }
+          { principal: `Che, ${nombre}`, secundario: 'A esta hora hay menos tráfico, navegá tranqui' },
+          { principal: `Buenas noches, ${nombre}`, secundario: 'O buenos días, ya ni se sabe' },
+          { principal: `Hola ${nombre}`, secundario: 'El sitio es todo tuyo a esta hora' },
+          { principal: `¿Desvelo, ${nombre}?`, secundario: 'Buscá lo que necesites sin apuro' },
+          { principal: `Buenas, ${nombre}`, secundario: 'Silencio absoluto, ideal para leer' },
+          { principal: `Epa, ${nombre}`, secundario: 'Acá seguimos de guardia para vos' }
         ];
-      } else if (hora >= 6 && hora < 12) {
-        // Mañana (06:00 - 11:59)
+      } 
+      // BLOQUE 2: MAÑANA (06:00 a 12:59) - Hasta la hora de comer
+      else if (hora >= 6 && hora < 13) {
         saludos = [
-          { principal: `¡Buen día, ${nombre}!`, secundario: 'Arrancamos con todo' },
-          { principal: `¡Buenos días, ${nombre}!`, secundario: '¿Ya tomaste mate?' },
-          { principal: `¡Hola ${nombre}!`, secundario: 'Que sea un buen día' },
-          { principal: `¡Qué tal, ${nombre}!`, secundario: 'Linda mañana para empezar' },
-          { principal: `¡Dale ${nombre}!`, secundario: 'A romperla hoy' },
-          { principal: `¡Ey ${nombre}!`, secundario: 'Arrancamos con la mejor' },
-          { principal: `¡Hola de nuevo, ${nombre}!`, secundario: 'Listo para el día' },
-          { principal: `¡Che ${nombre}!`, secundario: 'A darle con ganas hoy' },
-          { principal: `¡Buenas ${nombre}!`, secundario: 'El día está para aprovechar' },
-          { principal: `¿Como va ${nombre}?`, secundario: 'Arrancó la jornada' }
+          { principal: `¡Buen día, ${nombre}!`, secundario: 'Unos mates y arrancamos con todo' },
+          { principal: `Buenas, ${nombre}`, secundario: 'Tenés todo el día por delante' },
+          { principal: `¡Hola ${nombre}!`, secundario: 'Fijate las novedades de hoy' },
+          { principal: `Arriba, ${nombre}`, secundario: 'Acá tenés todo listo para empezar' },
+          { principal: `¡Qué tal, ${nombre}!`, secundario: 'Linda mañana para encontrar lo que buscás' },
+          { principal: `Dale ${nombre}`, secundario: 'Ponete cómodo que hay mucho para ver' }
         ];
-      } else if (hora >= 12 && hora < 19) {
-        // Tarde (12:00 - 18:59)
+      } 
+      // BLOQUE 3: TARDE (13:00 a 20:59) - Horario extendido por verano/Goya
+      else if (hora >= 13 && hora < 21) {
         saludos = [
-          { principal: `¡Buenas tardes, ${nombre}!`, secundario: '¿Cómo va el día?' },
-          { principal: `¡Hola ${nombre}!`, secundario: 'Ya pasó medio día' },
-          { principal: `¡Qué tal, ${nombre}!`, secundario: 'La tarde está tranqui' },
-          { principal: `¡Ey ${nombre}!`, secundario: 'Seguimos en la lucha' },
-          { principal: `¡Che ${nombre}!`, secundario: '¿Todo bien por ahí?' },
-          { principal: `¡Buenas ${nombre}!`, secundario: 'A full con la tarde' },
-          { principal: `¡Hola de vuelta, ${nombre}!`, secundario: 'La tarde vuela' },
-          { principal: `¡Qué onda ${nombre}!`, secundario: 'Seguimos activos' },
-          { principal: `¡Dale ${nombre}!`, secundario: 'Falta poco para la noche' },
-          { principal: `¡Epa ${nombre}!`, secundario: 'La tarde está buena' }
+          { principal: `Buenas tardes, ${nombre}`, secundario: 'Buscá tranqui, sin apuro' },
+          { principal: `¡Hola ${nombre}!`, secundario: 'Ideal para chusmear un poco la web' },
+          { principal: `Che, ${nombre}`, secundario: 'Esquivando el calor, quedate por acá' },
+          { principal: `Todo tranqui, ${nombre}`, secundario: 'Aprovechá y mirá lo último que subimos' },
+          { principal: `¡Buenas, ${nombre}!`, secundario: 'Todavía queda día, aprovechalo' },
+          { principal: `¡Epa ${nombre}!`, secundario: 'Acá estamos firmes, buscá lo que quieras' },
+          { principal: `Hola de nuevo, ${nombre}`, secundario: 'Seguimos activos por acá' }
         ];
-      } else {
-        // Noche (19:00 - 23:59)
+      } 
+      // BLOQUE 4: NOCHE (21:00 a 23:59) - Cuando ya refrescó
+      else {
         saludos = [
-          { principal: `¡Buenas noches, ${nombre}!`, secundario: 'Hora de relajar' },
-          { principal: `¡Hola ${nombre}!`, secundario: 'La noche es joven todavía' },
-          { principal: `¡Qué tal, ${nombre}!`, secundario: '¿Cómo estuvo el día?' },
-          { principal: `¡Ey ${nombre}!`, secundario: 'Llegó la noche' },
-          { principal: `¡Che ${nombre}!`, secundario: 'A disfrutar la noche' },
-          { principal: `¡Buenas ${nombre}!`, secundario: 'Ya cayó el sol' },
-          { principal: `¡Hola de nuevo, ${nombre}!`, secundario: 'La noche pinta bien' },
-          { principal: `¡Qué onda ${nombre}!`, secundario: 'Momento de descansar' },
-          { principal: `¡Dale ${nombre}!`, secundario: 'Termina el día tranqui' },
-          { principal: `¡Dale ${nombre}!`, secundario: 'A cerrar el día con onda' }
+          { principal: `Buenas noches, ${nombre}`, secundario: 'Por fin aflojó el calor, relajate acá' },
+          { principal: `¡Hola ${nombre}!`, secundario: 'Cerrando el día en GoyaNova' },
+          { principal: `¡Che ${nombre}!`, secundario: 'Antes de dormir, pegale una mirada a esto' },
+          { principal: `Buenas, ${nombre}`, secundario: 'Momento de relax y navegación' },
+          { principal: `Todo bien, ${nombre}`, secundario: 'Desconectá de todo, conectá con esto' },
+          { principal: `¡Hola ${nombre}!`, secundario: 'Ya es hora de bajar un cambio' }
         ];
       }
 
-      // Seleccionar uno aleatorio
       const saludoSeleccionado = saludos[Math.floor(Math.random() * saludos.length)];
       
-      // Guardar en localStorage para este bloque horario
       localStorage.setItem(claveAlmacenamiento, JSON.stringify(saludoSeleccionado));
       
-      // Limpiar saludos viejos (más de 24 horas)
+      // Limpieza de caché viejo
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('saludo_') && key !== claveAlmacenamiento) {
           const partes = key.split('_');
@@ -115,11 +99,11 @@ const SaludoUsuario = () => {
     }
   }, [perfil, loading]);
 
-  // Saludo para usuarios sin login
+  // Saludos neutrales para gente sin cuenta
   const saludosSinLogin = [
-    { principal: '¡Bienvenido!', secundario: 'Unite a GoyaNova' },
-    { principal: '¡Hola!', secundario: 'Iniciá sesión para mejorar tu experiencia' },
-    { principal: '¡Qué tal!', secundario: 'Entrá para poder disfrutar de más funciones' }
+    { principal: '¡Buenas!', secundario: 'Entrá a tu cuenta para ver todo completo' },
+    { principal: '¡Hola!', secundario: 'Si iniciás sesión tenés más funciones' },
+    { principal: '¡Bienvenido!', secundario: 'Unite a GoyaNova cuando quieras' }
   ];
 
   const saludoSinLogin = saludosSinLogin[Math.floor(Math.random() * saludosSinLogin.length)];

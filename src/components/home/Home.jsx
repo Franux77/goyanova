@@ -305,7 +305,7 @@ const Home = () => {
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
               <strong>Como usar GoyaNova</strong>
-              <span>Para toda persona de Goya</span>
+              <span>Para toda persona que necesita algo</span>
             </div>
             <div className="goya-card-badge">Ver video</div>
           </a>
@@ -314,7 +314,7 @@ const Home = () => {
             <span className="material-icons goya-card-icon">play_circle_filled</span>
             <div className="goya-card-content">
               <strong>Como publicar servicios</strong>
-              <span>Para los que tienen un servicio</span>
+              <span>Para toda persona que ofrece algo</span>
             </div>
             <div className="goya-card-badge">Ver video</div>
           </a>

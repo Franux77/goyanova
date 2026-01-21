@@ -117,14 +117,14 @@ const Register = () => {
 
         // Modal explicando confirmación de email
         setModalInfo({
-          tipo: 'success',
-          titulo: '🎉 ¡Registro exitoso!',
-          mensaje: `📧 Te enviamos un correo de confirmación a:\n${email.trim()}\n\n✅ PASOS PARA ACTIVAR TU CUENTA:\n\n1️⃣ Abre tu correo electrónico\n2️⃣ Busca el email de GoyaNova\n   📂 Si no está en principal, REVISA SPAM\n3️⃣ Haz clic en "Confirmar correo"\n4️⃣ Vuelve aquí e inicia sesión\n\n⏰ El correo puede tardar 1-2 minutos\n\n⚠️ IMPORTANTE:\n• NO podrás iniciar sesión sin confirmar\n• Después de confirmar podrás:\n  → Iniciar sesión normalmente\n  → Aplicar códigos promocionales\n  → Disfrutar de descuentos\n\n💡 Si no llega el correo, puedes registrarte de nuevo con el mismo email para recibir uno nuevo`,
-          onClose: () => {
-            setModalInfo(null);
-            navigate('/login');
-          }
-        });
+  tipo: 'success',
+  titulo: '🎉 ¡Registro exitoso!',
+  mensaje: `📧 Te enviamos un correo de confirmación a:\n${email.trim()}\n\n✅ PASOS PARA ACTIVAR TU CUENTA:\n\n1️⃣ Abre tu correo electrónico\n2️⃣ Busca el email de GoyaNova\n   📂 Si no está en principal, REVISA SPAM\n3️⃣ Haz clic en "Confirmar correo"\n4️⃣ Guarda tu correo y contraseña\n5️⃣ Vuelve aquí e inicia sesión\n\n⏰ El correo puede tardar 1-2 minutos\n\n🔐 IMPORTANTE - GUARDA ESTOS DATOS:\n• Correo: ${email.trim()}\n• Contraseña: (la que elegiste)\n\n⚠️ Después de confirmar el correo:\n• Vuelve a esta página\n• Inicia sesión con tu correo y contraseña\n• ¡Listo para usar GoyaNova!\n\n💡 Si no llega el correo en 2 minutos, revisa la carpeta de SPAM o correo no deseado.`,
+  onClose: () => {
+    setModalInfo(null);
+    navigate('/login');
+  }
+});
 
       // 🎯 CASO 2: CONFIRMACIÓN DE EMAIL DESACTIVADA
       } else {
@@ -135,14 +135,14 @@ const Register = () => {
 
         // Modal de éxito directo - puede iniciar sesión ya
         setModalInfo({
-          tipo: 'success',
-          titulo: '🎉 ¡Cuenta creada exitosamente!',
-          mensaje: `✅ Tu cuenta está completamente activa\n\n📧 Email registrado:\n${email.trim()}\n\n🚀 ¡YA PUEDES EMPEZAR!\n\n✓ Inicia sesión ahora mismo\n✓ Navega por nuestros servicios\n✓ Aplica códigos promocionales\n✓ Disfruta de descuentos exclusivos\n\n💡 No necesitas confirmar ningún correo, tu cuenta está lista para usar de inmediato.`,
-          onClose: () => {
-            setModalInfo(null);
-            navigate('/login');
-          }
-        });
+  tipo: 'success',
+  titulo: '🎉 ¡Cuenta creada exitosamente!',
+  mensaje: `✅ Tu cuenta ha sido creada correctamente\n\n📧 Email registrado:\n${email.trim()}\n\n🔐 GUARDA ESTOS DATOS:\n• Correo: ${email.trim()}\n• Contraseña: (la que elegiste)\n\n🚀 PRÓXIMOS PASOS:\n\n1️⃣ Haz clic en "Entendido"\n2️⃣ Inicia sesión con tu correo y contraseña\n3️⃣ Explora nuestros servicios\n4️⃣ Aplica códigos promocionales\n\n💡 Tu cuenta está activa de inmediato, solo debes iniciar sesión.`,
+  onClose: () => {
+    setModalInfo(null);
+    navigate('/login');
+  }
+});
       }
 
     } catch (err) {
@@ -299,20 +299,18 @@ const Register = () => {
         {/* Título */}
         <p className="register-title">Crear cuenta nueva</p>
 
-        {/* Info sobre re-registro */}
         <div style={{
-          fontSize: '12px',
-          color: '#666',
-          background: '#f0f9ff',
-          border: '1px solid #bae6fd',
-          borderRadius: '8px',
-          padding: '10px 12px',
-          marginBottom: '16px',
-          lineHeight: '1.5'
-        }}>
-          💡 <strong>¿No recibiste el email de confirmación?</strong><br/>
-          Puedes registrarte nuevamente con el mismo correo para recibir un nuevo email.
-        </div>
+  fontSize: '12px',
+  color: '#666',
+  background: '#f0f9ff',
+  border: '1px solid #bae6fd',
+  borderRadius: '8px',
+  padding: '10px 12px',
+  marginBottom: '16px',
+  lineHeight: '1.5'
+}}>
+  💡 <strong>Importante:</strong> Después de crear tu cuenta, guarda tu correo y contraseña para iniciar sesión.
+</div>
 
         {/* Error */}
         {error && (
