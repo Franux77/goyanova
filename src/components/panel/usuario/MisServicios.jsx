@@ -270,7 +270,7 @@ const handleIrAPublicar = async () => {
                 </div>
 
                 {/* Contenido principal */}
-                <div className="goya-card-content">
+                <div className="goya-card-contentt">
                   <div className="goya-card-main">
                     <h3 className="goya-card-titulo">{servicio.nombre}</h3>
                     

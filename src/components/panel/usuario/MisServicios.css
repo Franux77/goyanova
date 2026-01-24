@@ -335,7 +335,7 @@
 }
 
 /* Contenido principal */
-.goya-card-content {
+.goya-card-contentt {
   display: flex;
   gap: 1rem;
   flex-direction: row;
@@ -356,25 +356,40 @@
   text-align: left;
 }
 
-/* Meta información */
+/* Meta información (Contenedor de los 3 datos) */
 .goya-card-meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  flex-direction: column; /* Esto los pone en columna (uno abajo del otro) */
+  gap: 0.8rem;            /* Espacio entre cada renglón */
+  margin-bottom: 1rem;
+  width: 100%;            /* Asegura que ocupe todo el ancho */
 }
 
+/* Cada item individual (Icono + Texto) */
 .goya-meta-item {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%; /* ✅ CLAVE 1: Fuerza a que la fila ocupe todo el ancho */
+  font-size: 0.9rem;
   color: #64748b;
+  margin-bottom: 4px;
 }
 
+/* Ajuste del texto para que salte de línea correctamente */
+.goya-meta-item span:last-child {
+  flex: 1;                /* ✅ CLAVE 2: Le dice al texto "ocupa todo el espacio sobrante a la derecha" */
+  white-space: normal;    /* Permite saltos de línea naturales */
+  word-break: break-word; /* Rompe palabras largas si es necesario */
+  line-height: 1.4;       /* Mejora la lectura cuando son varias líneas */
+}
+
+/* Ajuste para que el icono no se deforme ni baje */
 .goya-meta-item .material-icons {
-  font-size: 18px;
+  font-size: 20px;
   color: #94a3b8;
+  flex-shrink: 0;   /* Evita que el icono se aplaste */
+  margin-top: 1px;  /* Pequeño ajuste visual para alinear con la primera línea de texto */
 }
 
 /* Descripción */
@@ -538,22 +553,27 @@
     padding: 1rem;
   }
 
-  .goya-card-content {
+  .goya-card-contentt {
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .goya-card-main {
-    min-width: 100%;
-  }
+  
 
   .goya-card-titulo {
     font-size: 1.1rem;
   }
 
+  .goya-card-main {
+    width: 100%;      /* ✅ Asegura que el bloque principal use el 100% */
+    min-width: 100%;  /* Evita que se encoja por el min-width anterior */
+    margin-bottom: 1rem;
+  }
+
   .goya-card-meta {
-    flex-direction: row;
-    gap: 0.5rem;
+    flex-direction: column;
+    width: 100%;      /* ✅ Asegura que la lista de datos use el 100% */
+    gap: 0.8rem;
   }
 
   /* Acciones horizontales en mobile */

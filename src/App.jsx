@@ -1,4 +1,4 @@
-// src/App.jsx - VERSIÓN OPTIMIZADA
+// src/App.jsx - RUTAS PROTEGIDAS CORREGIDAS
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
@@ -6,7 +6,7 @@ import { useMantenimiento } from './hooks/useMantenimiento';
 import ModalMantenimiento from './components/ModalMantenimiento';
 import InstallPWAModal from './components/InstallPWAModal';
 
-// ✅ CARGA INMEDIATA (componentes críticos del flujo principal)
+// Componentes de carga inmediata
 import Navbar from './components/home/Navbar';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
 import Home from './components/home/Home';
@@ -19,20 +19,20 @@ import Register from './auth/login/Register';
 import ResetPassword from './auth/login/ResetPassword';
 import DashboardAdmin from './components/panel/admin/DashboardAdmin';
 
-// 👇 NUEVO: Cargar CategoryPage y ExplorarMapa sin lazy
+// Componentes sin lazy loading
 import CategoryPage from './components/ListaPerfilesYDetalles/CategoryPage';
 import ExplorarMapa from './components/mapa/ExplorarMapa';
 import PublicarServicioForm from './components/publicar/PublicarServicioForm';
 import FinalizacionExitosa from './components/publicar/FinalizacionExitosa';
 
-// 🔥 LAZY LOADING (solo componentes secundarios)
+// Lazy loading componentes secundarios
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
 
-// Panel Usuario (lazy - solo se accede tras login)
+// Panel Usuario
 const PanelUsuario = lazy(() => import('./components/panel/usuario/PanelUsuario'));
 const Dashboard = lazy(() => import('./components/panel/usuario/Dashboard'));
 const MisServicios = lazy(() => import('./components/panel/usuario/MisServicios'));
@@ -44,7 +44,7 @@ const Notificaciones = lazy(() => import('./components/panel/usuario/Notificacio
 const AyudaSoporte = lazy(() => import('./components/panel/usuario/AyudaSoporte'));
 const MiMembresia = lazy(() => import('./components/panel/usuario/MiMembresia'));
 
-// Panel Admin (lazy - solo admins)
+// Panel Admin
 const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
 const UsuariosAdmin = lazy(() => import('./components/panel/admin/UsuariosAdmin'));
 const ServiciosAdmin = lazy(() => import('./components/panel/admin/ServiciosAdmin'));
@@ -65,8 +65,6 @@ const RouteLoadingIndicator = ({ children }) => {
 
   useEffect(() => {
     setIsTransitioning(true);
-    
-    // ✅ Muestra la barra inmediatamente al cambiar de ruta
     const timer = setTimeout(() => setIsTransitioning(false), 300);
     return () => clearTimeout(timer);
   }, [location.pathname]);
@@ -132,7 +130,6 @@ const AppContent = () => {
 
   return (
     <>
-      {/* 👇 MODAL PWA AGREGADO AQUÍ */}
       <InstallPWAModal />
       
       {isHome && <Navbar />}
@@ -172,32 +169,13 @@ const AppContent = () => {
 
       <main style={enMantenimiento && isAdmin && !esRutaExceptuada ? { marginTop: '68px' } : {}}>
         <RouteLoadingIndicator>
-          <Suspense fallback={
-  null  // 👈 CAMBIO: Quita el spinner de Suspense, deja solo la barra de progreso
-  /* 
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(255, 255, 255, 0.95)',
-    zIndex: 9999,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}>
-    <Loading message="Cargando..." />
-  </div>
-  */
-}>
+          <Suspense fallback={null}>
             <Routes>
+              {/* ✅ RUTAS PÚBLICAS */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/publicar" element={<PublicarServicioForm />} />
-              <Route path="/publicar/finalizado" element={<FinalizacionExitosa />} />
               <Route path="/categoria/:tipo/:categoria" element={<CategoryPage />} />
               <Route path="/perfil/:id" element={<PerfilDetalle />} />
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
@@ -206,6 +184,25 @@ const AppContent = () => {
               <Route path="/ayuda" element={<AyudaPublica />} />
               <Route path="/explorar" element={<ExplorarMapa />} />
 
+              {/* 🔒 RUTA /PUBLICAR AHORA PROTEGIDA */}
+              <Route
+                path="/publicar"
+                element={
+                  <ProtectedRoute allowedRoles={['usuario', 'admin']}>
+                    <PublicarServicioForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/publicar/finalizado"
+                element={
+                  <ProtectedRoute allowedRoles={['usuario', 'admin']}>
+                    <FinalizacionExitosa />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 🔒 PANEL USUARIO PROTEGIDO */}
               <Route
                 path="/panel/*"
                 element={
@@ -228,6 +225,7 @@ const AppContent = () => {
                 <Route path="mi-membresia" element={<MiMembresia />} />
               </Route>
 
+              {/* 🔒 PANEL ADMIN PROTEGIDO */}
               <Route
                 path="/panel/admin/*"
                 element={
