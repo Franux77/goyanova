@@ -153,8 +153,8 @@ const Contacto = () => {
     { 
       icon: 'phone', 
       label: 'WhatsApp', 
-      value: '+54 3777 209955', 
-      href: 'https://wa.me/5493777209955',
+      value: '+54 3777 716363', 
+      href: 'https://wa.me/5493777716363',
       description: 'Respondo lo más rápido posible'
     },
     { 

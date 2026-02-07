@@ -115,7 +115,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
         <span className="material-icons">local_fire_department</span>
         <div className="promo-text">
           <strong>¡OFERTA DE LANZAMIENTO!</strong>
-          <span>20% OFF - Precio exclusivo hasta agotar stock</span>
+          <span>Precio exclusivo hasta agotar stock</span>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
           ) : (
             <>
               <div className="precio-section">
-                <span className="precio-anterior">$3.125</span>
+                <span className="precio-anterior">$5.000</span>
                 <div className="precio-actual-wrapper">
                   <span className="material-icons">workspace_premium</span>
                   <span className="precio-actual">$2.500/mes</span>
@@ -178,7 +178,7 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
 
       <div className="aviso-precio">
         <span className="material-icons">info</span>
-        <p>Este precio especial es solo para los primeros usuarios. Los nuevos miembros pagarán el precio regular de $3.125/mes.</p>
+        <p>Este precio especial es solo para los primeros usuarios. Los nuevos miembros pagarán el precio regular.</p>
       </div>
     </div>
   );

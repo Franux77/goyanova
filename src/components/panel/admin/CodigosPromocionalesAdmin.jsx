@@ -94,67 +94,106 @@ const CodigosPromocionalesAdmin = () => {
   };
 
   // Crear códigos
-  const handleCrearCodigos = async (e) => {
-    e.preventDefault();
-    
-    if (!formCrear.cantidad || formCrear.cantidad < 1 || formCrear.cantidad > 100) {
-      alert('Cantidad debe ser entre 1 y 100');
-      return;
+const handleCrearCodigos = async (e) => {
+  e.preventDefault();
+  
+  if (!formCrear.cantidad || formCrear.cantidad < 1 || formCrear.cantidad > 100) {
+    alert('Cantidad debe ser entre 1 y 100');
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const nuevosCodigos = [];
+    const codigosGenerados = new Set();
+
+    // Generar todos los códigos únicos primero
+    for (let i = 0; i < formCrear.cantidad; i++) {
+      let codigo;
+      let intentos = 0;
+      
+      // Generar código único
+      do {
+        codigo = generarCodigoAleatorio(formCrear.prefijo);
+        intentos++;
+      } while (codigosGenerados.has(codigo) && intentos < 50);
+      
+      if (intentos >= 50) {
+        alert('⚠️ Dificultad para generar códigos únicos. Intenta con menos cantidad o cambia el prefijo.');
+        return;
+      }
+      
+      codigosGenerados.add(codigo);
+      
+      nuevosCodigos.push({
+        codigo,
+        descripcion: formCrear.descripcion || `Código ${formCrear.tipo}`,
+        usos_maximos: formCrear.usos_maximos,
+        duracion_dias: formCrear.duracion_dias,
+        tipo: formCrear.tipo,
+        activo: true,
+        creado_por: user.id
+      });
     }
 
-    try {
-      setLoading(true);
-      const nuevosCodegos = [];
+    // Insertar todos los códigos de una vez
+    const { data, error } = await supabase
+      .from('codigos_promocionales')
+      .insert(nuevosCodigos)
+      .select();
 
-      for (let i = 0; i < formCrear.cantidad; i++) {
-        const codigo = generarCodigoAleatorio(formCrear.prefijo);
-        
-        // Verificar que no exista
-        const { data: existente } = await supabase
-          .from('codigos_promocionales')
-          .select('codigo')
-          .eq('codigo', codigo)
-          .single();
-
-        if (!existente) {
-          nuevosCodegos.push({
-            codigo,
-            descripcion: formCrear.descripcion || `Código ${formCrear.tipo}`,
-            usos_maximos: formCrear.usos_maximos,
-            duracion_dias: formCrear.duracion_dias,
-            tipo: formCrear.tipo,
-            activo: true,
-            creado_por: user.id
-          });
-        }
-      }
-
-      if (nuevosCodegos.length > 0) {
-        const { error } = await supabase
-          .from('codigos_promocionales')
-          .insert(nuevosCodegos);
-
-        if (error) throw error;
-
-        alert(`✅ ${nuevosCodegos.length} código(s) creado(s) exitosamente`);
-        setModalCrear(false);
-        setFormCrear({
-          cantidad: 1,
-          prefijo: 'GOYA',
-          duracion_dias: 90,
-          usos_maximos: 3,
-          tipo: 'folleto',
-          descripcion: ''
-        });
-        cargarCodigos();
-      }
-    } catch (error) {
+    if (error) {
       console.error('Error al crear códigos:', error);
-      alert('Error al crear códigos');
-    } finally {
-      setLoading(false);
+      
+      // Si el error es por duplicado, intentar insertar uno por uno
+      if (error.code === '23505') {
+        let exitosos = 0;
+        for (const nuevoCodigo of nuevosCodigos) {
+          const { error: insertError } = await supabase
+            .from('codigos_promocionales')
+            .insert(nuevoCodigo);
+          
+          if (!insertError) exitosos++;
+        }
+        
+        if (exitosos > 0) {
+          alert(`✅ ${exitosos} código(s) creado(s) exitosamente (algunos duplicados fueron omitidos)`);
+          setModalCrear(false);
+          setFormCrear({
+            cantidad: 1,
+            prefijo: 'GOYA',
+            duracion_dias: 90,
+            usos_maximos: 3,
+            tipo: 'folleto',
+            descripcion: ''
+          });
+          cargarCodigos();
+        } else {
+          alert('❌ No se pudo crear ningún código. Todos eran duplicados.');
+        }
+      } else {
+        throw error;
+      }
+    } else {
+      alert(`✅ ${data.length} código(s) creado(s) exitosamente`);
+      setModalCrear(false);
+      setFormCrear({
+        cantidad: 1,
+        prefijo: 'GOYA',
+        duracion_dias: 90,
+        usos_maximos: 3,
+        tipo: 'folleto',
+        descripcion: ''
+      });
+      cargarCodigos();
     }
-  };
+  } catch (error) {
+    console.error('Error al crear códigos:', error);
+    alert('Error al crear códigos: ' + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Abrir modal editar
   const abrirModalEditar = (codigo) => {
@@ -201,29 +240,62 @@ const CodigosPromocionalesAdmin = () => {
   };
 
   // Eliminar código
-  const handleEliminarCodigo = async (id, codigo) => {
-    if (!window.confirm(`¿Seguro que deseas eliminar el código ${codigo}?`)) {
-      return;
-    }
-
+  // Eliminar código
+const handleEliminarCodigo = async (id, codigo, usosActuales) => {
+  // Verificar si el código ya fue usado
+  if (usosActuales > 0) {
+    const confirmar = window.confirm(
+      `⚠️ El código ${codigo} ya fue usado ${usosActuales} vez/veces.\n\n` +
+      `No se puede eliminar porque está vinculado a membresías.\n\n` +
+      `¿Deseas DESACTIVARLO en su lugar?`
+    );
+    
+    if (!confirmar) return;
+    
+    // Desactivar en lugar de eliminar
     try {
       setLoading(true);
       const { error } = await supabase
         .from('codigos_promocionales')
-        .delete()
+        .update({ activo: false })
         .eq('id', id);
 
       if (error) throw error;
 
-      alert('✅ Código eliminado exitosamente');
+      alert('✅ Código desactivado exitosamente');
       cargarCodigos();
     } catch (error) {
-      console.error('Error al eliminar código:', error);
-      alert('Error al eliminar código');
+      console.error('Error al desactivar código:', error);
+      alert('Error al desactivar código');
     } finally {
       setLoading(false);
     }
-  };
+    return;
+  }
+
+  // Si no tiene usos, permitir eliminar
+  if (!window.confirm(`¿Seguro que deseas eliminar el código ${codigo}?`)) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const { error } = await supabase
+      .from('codigos_promocionales')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    alert('✅ Código eliminado exitosamente');
+    cargarCodigos();
+  } catch (error) {
+    console.error('Error al eliminar código:', error);
+    alert('Error al eliminar código');
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Copiar código al portapapeles
   const copiarCodigo = (codigo) => {
@@ -415,10 +487,12 @@ const CodigosPromocionalesAdmin = () => {
                         </button>
                         <button 
                           className="btn-accion btn-eliminar"
-                          onClick={() => handleEliminarCodigo(codigo.id, codigo.codigo)}
-                          title="Eliminar"
+                          onClick={() => handleEliminarCodigo(codigo.id, codigo.codigo, codigo.usos_actuales)}
+                          title={codigo.usos_actuales > 0 ? "Desactivar código" : "Eliminar código"}
                         >
-                          <span className="material-icons">delete</span>
+                          <span className="material-icons">
+                            {codigo.usos_actuales > 0 ? 'block' : 'delete'}
+                          </span>
                         </button>
                       </div>
                     </td>

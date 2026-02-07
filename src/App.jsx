@@ -8,6 +8,7 @@ import InstallPWAModal from './components/InstallPWAModal';
 
 // Componentes de carga inmediata
 import Navbar from './components/home/Navbar';
+import BannerUpgrade from './components/home/BannerUpgrade';
 import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
 import Home from './components/home/Home';
 import ProtectedRoute from './auth/ProtectedRoute';
@@ -131,6 +132,9 @@ const AppContent = () => {
   return (
     <>
       <InstallPWAModal />
+      
+      {/* 🆕 BANNER UPGRADE arriba de todo */}
+      {isHome && <BannerUpgrade user={user} />}
       
       {isHome && <Navbar />}
       {isCategoria && <NavbarCategory />}
