@@ -137,23 +137,19 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
 
       // console.log('📊 Respuesta del servidor:', data);
 
-      if (data.success) {
-        // console.log('✅ Código aplicado exitosamente');
-        // console.log('   - Días otorgados:', infoCodigo.dias);
-        // console.log('   - Nueva fecha vencimiento:', data.nueva_fecha_vencimiento || 'N/A');
-        
+    const resultado = Array.isArray(data) ? data[0] : data;
+
+      if (resultado?.success) {
         alert(`✅ ¡Código aplicado con éxito!\n\n🎉 Recibiste ${infoCodigo.dias} días Premium gratis\n\n¡Disfrutá de todos los beneficios!`);
         
-        // Limpiar TODAS las flags de storage
-        // console.log('🧹 Limpiando flags de storage...');
         sessionStorage.removeItem('nuevo_usuario_google');
         sessionStorage.removeItem('mostrar_modal_promo');
         localStorage.removeItem('pendiente_modal_promo');
         
         onClose();
       } else {
-        console.warn('⚠️ El servidor rechazó el código:', data.error || data.message);
-        alert('❌ ' + (data.error || data.message || 'Error al aplicar código'));
+        console.warn('⚠️ El servidor rechazó el código:', resultado);
+        alert('❌ ' + (resultado?.message || 'Error al aplicar código'));
       }
     } catch (error) {
       console.error('❌ Error aplicando código:', error);
