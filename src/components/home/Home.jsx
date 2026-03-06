@@ -295,7 +295,56 @@ const Home = () => {
         </button>
       </section>
 
-    
+    {mostrarBanner && tiempoRestante && (
+        <section className="promo-code-banner">
+          <div className="banner-content">
+            <span className="material-icons banner-icon">redeem</span>
+            
+            <div className="banner-info">
+              <div className="banner-text">
+                <strong>¡Tenés una Promo!</strong>
+                <p>Usá tu código para ser Premium gratis</p>
+              </div>
+              
+              <div className="countdown-timer">
+                <div className="countdown-item">
+                  <span className="countdown-numero">{tiempoRestante.dias}</span>
+                  <span className="countdown-label">días</span>
+                </div>
+                <span className="countdown-separador">:</span>
+                <div className="countdown-item">
+                  <span className="countdown-numero">{String(tiempoRestante.horas).padStart(2, '0')}</span>
+                  <span className="countdown-label">hrs</span>
+                </div>
+                <span className="countdown-separador">:</span>
+                <div className="countdown-item">
+                  <span className="countdown-numero">{String(tiempoRestante.minutos).padStart(2, '0')}</span>
+                  <span className="countdown-label">min</span>
+                </div>
+                <span className="countdown-separador">:</span>
+                <div className="countdown-item">
+                  <span className="countdown-numero">{String(tiempoRestante.segundos).padStart(2, '0')}</span>
+                  <span className="countdown-label">seg</span>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              className="btn-aplicar-codigo"
+              onClick={() => setMostrarModalCodigo(true)}
+            >
+              <span className="material-icons">redeem</span>
+              Usar Código
+            </button>
+          </div>
+          
+          <div className="banner-footer">
+            <span className="material-icons">info</span>
+            <span>Buscá códigos en nuestro Instagram</span>
+          </div>
+        </section>
+      )}
+
       <section className="goya-tutorial-section">
         <h2 className="goya-tutorial-title">¿Primera vez en GoyaNova?</h2>
         <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos para ver como funciona GoyaNova</p>
@@ -478,55 +527,7 @@ const Home = () => {
         </button>
       </section> */}
 
-      {mostrarBanner && tiempoRestante && (
-        <section className="promo-code-banner">
-          <div className="banner-content">
-            <span className="material-icons banner-icon">redeem</span>
-            
-            <div className="banner-info">
-              <div className="banner-text">
-                <strong>¡Tenés una Promo!</strong>
-                <p>Usá tu código para ser Premium gratis</p>
-              </div>
-              
-              <div className="countdown-timer">
-                <div className="countdown-item">
-                  <span className="countdown-numero">{tiempoRestante.dias}</span>
-                  <span className="countdown-label">días</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.horas).padStart(2, '0')}</span>
-                  <span className="countdown-label">hrs</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.minutos).padStart(2, '0')}</span>
-                  <span className="countdown-label">min</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.segundos).padStart(2, '0')}</span>
-                  <span className="countdown-label">seg</span>
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              className="btn-aplicar-codigo"
-              onClick={() => setMostrarModalCodigo(true)}
-            >
-              <span className="material-icons">redeem</span>
-              Usar Código
-            </button>
-          </div>
-          
-          <div className="banner-footer">
-            <span className="material-icons">info</span>
-            <span>Buscá códigos en nuestras redes sociales</span>
-          </div>
-        </section>
-      )}
+      
 
       <section className="map-section">
         <MapaHome onExplorarClick={handleExplorarClick} />
