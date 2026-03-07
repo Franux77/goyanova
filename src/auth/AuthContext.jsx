@@ -455,17 +455,22 @@ export const AuthProvider = ({ children }) => {
         );
         
         if (sessionError) {
-          console.error('Error obteniendo sesión:', sessionError);
-          if (isMounted.current) {
-            setUser(null);
-            setPerfil(null);
-            perfilCargadoRef.current = false;
-            lastUserIdRef.current = null;
-            setLoading(false);
-            initializationComplete.current = true;
-          }
-          return;
-        }
+  console.error('Error obteniendo sesión:', sessionError);
+  if (isMounted.current) {
+    setUser(null);
+    setPerfil(null);
+    perfilCargadoRef.current = false;
+    lastUserIdRef.current = null;
+    setLoading(false);
+    initializationComplete.current = true;
+    // Si el JWT expiró, forzar signOut limpio y redirigir
+    if (sessionError.message?.includes('JWT') || sessionError.code === 'PGRST301') {
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+    }
+  }
+  return;
+}
 
         if (session?.user) {
           if (isMounted.current) {
@@ -560,11 +565,20 @@ export const AuthProvider = ({ children }) => {
         if (event === 'INITIAL_SESSION') return;
         
         if (event === 'TOKEN_REFRESHED') {
-          if (session?.user && isMounted.current) {
-            setUser(session.user);
-          }
-          return;
-        }
+  if (session?.user && isMounted.current) {
+    setUser(session.user);
+    return;
+  }
+  // Si TOKEN_REFRESHED llega sin sesión, el refresh falló definitivamente
+  setUser(null);
+  setPerfil(null);
+  perfilCargadoRef.current = false;
+  lastUserIdRef.current = null;
+  setLoading(false);
+  await supabase.auth.signOut();
+  window.location.href = '/login';
+  return;
+}
 
         if (event === 'SIGNED_IN' && session?.user) {
           // Evitar procesamiento duplicado
@@ -592,6 +606,7 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
+        
         if (event === 'SIGNED_OUT') {
           processedSignInRef.current = false;
           setUser(null);

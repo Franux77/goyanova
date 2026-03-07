@@ -531,7 +531,8 @@ useEffect(() => {
                 <div>
                   <strong>¿Qué pasará?</strong>
                   <ul>
-                    <li>Mantendrás tus beneficios hasta: <strong>{new Date(membresia?.fecha_fin).toLocaleDateString('es-AR')}</strong></li>
+                    <li>Tus servicios publicados mantendrán su estado actual hasta que expire la membresía</li>
+                    <li>No podrás subir nuevas fotos con el límite Premium</li>
                     <li>Después de esa fecha, volverás al plan gratuito</li>
                     <li>Perderás prioridad en búsquedas y badges exclusivos</li>
                   </ul>
