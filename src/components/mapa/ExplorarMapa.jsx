@@ -254,6 +254,38 @@ const ExplorarMapa = () => {
     return filtrados;
   }, [servicios, categoriasMap, tipo, categoria, query, calificacion]);
 
+  const marcadoresSeparados = useMemo(() => {
+    const UMBRAL = 0.0001;   // ~11 metros: distancia para considerarlos "el mismo punto"
+    const OFFSET = 0.00004;  // ~4-5 metros: apenas separados, sin cruzar de vereda
+
+    const grupos = {};
+    perfilesFiltrados.forEach(perfil => {
+      if (typeof perfil?.latitud !== 'number' || typeof perfil?.longitud !== 'number') return;
+      const clave = `${Math.round(perfil.latitud / UMBRAL)}_${Math.round(perfil.longitud / UMBRAL)}`;
+      if (!grupos[clave]) grupos[clave] = [];
+      grupos[clave].push(perfil);
+    });
+
+    const resultado = [];
+    Object.values(grupos).forEach(grupo => {
+      if (grupo.length === 1) {
+        resultado.push({ ...grupo[0], latMapa: grupo[0].latitud, lngMapa: grupo[0].longitud, esAproximado: false });
+        return;
+      }
+      grupo.forEach((perfil, i) => {
+        const angulo = (2 * Math.PI * i) / grupo.length;
+        resultado.push({
+          ...perfil,
+          latMapa: perfil.latitud + OFFSET * Math.cos(angulo),
+          lngMapa: perfil.longitud + OFFSET * Math.sin(angulo),
+          esAproximado: true,
+        });
+      });
+    });
+
+    return resultado;
+  }, [perfilesFiltrados]);
+
   const handleLocalizar = (perfil) => {
     const lat = Number(perfil.latitud);
     const lng = Number(perfil.longitud);
@@ -447,7 +479,7 @@ const ExplorarMapa = () => {
             showCoverageOnHover={false}
             spiderfyOnMaxZoom
             zoomToBoundsOnClick
-            maxClusterRadius={zoomLevel < 13 ? 5 : zoomLevel < 15 ? 5 : 0}
+            maxClusterRadius={zoomLevel < 13 ? 5 : zoomLevel < 15 ? 5 : 20}
             iconCreateFunction={cluster => {
               const count = cluster.getChildCount();
               const baseSize = 36;
@@ -465,12 +497,12 @@ const ExplorarMapa = () => {
               });
             }}
           >
-            {perfilesFiltrados.map(perfil => {
-              if (typeof perfil?.latitud !== 'number' || typeof perfil?.longitud !== 'number') return null;
+                        {marcadoresSeparados.map(perfil => {
+              if (typeof perfil?.latMapa !== 'number' || typeof perfil?.lngMapa !== 'number') return null;
               return (
                 <Marker
                   key={perfil.id}
-                  position={[perfil.latitud, perfil.longitud]}
+                  position={[perfil.latMapa, perfil.lngMapa]}
                   icon={getCategoriaIcono(perfil.categoria_id, zoomLevel)}
                   eventHandlers={{
                     click: () => {
@@ -486,7 +518,12 @@ const ExplorarMapa = () => {
                   }}
                   className={markerDestacado === perfil.id ? 'marker-destacado' : ''}
                 >
-                  <Popup>{perfil.nombre}</Popup>
+                                    <Popup>
+                    {perfil.nombre}
+                    {perfil.esAproximado && (
+                      <><br /><small>📍 Ubicación aproximada (muy cerca de otro negocio)</small></>
+                    )}
+                  </Popup>
                 </Marker>
               );
             })}
