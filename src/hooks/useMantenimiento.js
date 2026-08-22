@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
 /**
@@ -9,14 +9,15 @@ export const useMantenimiento = (userId = null) => {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const instanceId = useId(); // único por cada componente que use el hook
 
   // Obtener configuración inicial
   useEffect(() => {
     fetchConfig();
-    
+
     // Suscribirse a cambios en tiempo real
     const channel = supabase
-      .channel('config-mantenimiento')
+      .channel(`config-mantenimiento-${instanceId}`)
       .on(
         'postgres_changes',
         {
@@ -33,7 +34,7 @@ export const useMantenimiento = (userId = null) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [instanceId]);
 
   const fetchConfig = async () => {
     try {
@@ -84,7 +85,7 @@ export const useMantenimiento = (userId = null) => {
         .single();
 
       if (error) throw error;
-      
+
       await fetchConfig();
       return { success: true, data };
     } catch (err) {
@@ -111,7 +112,7 @@ export const useMantenimiento = (userId = null) => {
         .single();
 
       if (error) throw error;
-      
+
       await fetchConfig();
       return { success: true, data };
     } catch (err) {
