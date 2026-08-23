@@ -79,7 +79,8 @@ const PerfilDetalle = () => {
 
         setPerfil(perfilSeteado);
 
-      } catch (error) {
+            } catch (error) {
+        console.error('Error cargando perfil:', error);
         setPerfil(null);
       } finally {
         setLoading(false);

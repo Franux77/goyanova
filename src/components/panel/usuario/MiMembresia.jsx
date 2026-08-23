@@ -285,7 +285,7 @@ useEffect(() => {
       <div className="beneficio-text">
         <strong>Límite de servicios</strong>
         <small>
-          {membresia?.es_premium ? 'Hasta 10 servicios' : 'Hasta 2 servicios'}
+          {membresia?.es_premium ? 'Hasta 10 servicios' : 'Hasta 1 servicio'}
         </small>
       </div>
     </div>
@@ -421,13 +421,13 @@ useEffect(() => {
           />
           <path
             className="circle"
-            strokeDasharray={`${((serviciosActuales / (membresia?.limite_servicios || 2)) * 100)}, 100`}
+            strokeDasharray={`${((serviciosActuales / (limitesInfo?.limite_servicios || 2)) * 100)}, 100`}
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
           />
         </svg>
         <div className="contador-texto">
           <span className="numero-grande">{serviciosActuales}</span>
-          <span className="numero-total">/{membresia?.limite_servicios || 2}</span>
+          <span className="numero-total">/{limitesInfo?.limite_servicios || 2}</span>
         </div>
       </div>
       
@@ -443,13 +443,13 @@ useEffect(() => {
           <span className="material-icons">add_circle</span>
           <div>
             <strong>Disponibles</strong>
-            <small>{Math.max(0, (membresia?.limite_servicios || 2) - serviciosActuales)} restantes</small>
+            <small>{Math.max(0, (limitesInfo?.limite_servicios || 2) - serviciosActuales)} restantes</small>
           </div>
         </div>
       </div>
     </div>
 
-    {serviciosActuales >= (membresia?.limite_servicios || 2) && (
+    {serviciosActuales >= (limitesInfo?.limite_servicios || 2) && (
       <div className="alerta-limite-alcanzado">
         <span className="material-icons">warning</span>
         <div>
@@ -478,8 +478,8 @@ useEffect(() => {
       <tbody>
         <tr>
           <td>Servicios publicados</td>
-          <td>Hasta 2 servicios</td>
-          <td className="highlight">2-10 servicios</td>
+          <td>Hasta 1 servicio</td>
+          <td className="highlight">1-10 servicios</td>
         </tr>
         <tr>
           <td>Fotos por servicio</td>

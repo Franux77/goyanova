@@ -1,0 +1,62 @@
+.aviso-login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.aviso-login-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: aviso-login-aparecer 0.2s ease-out;
+}
+
+@keyframes aviso-login-aparecer {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.aviso-login-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #999;
+}
+
+.aviso-login-icono { font-size: 36px; margin-bottom: 8px; }
+.aviso-login-titulo { margin: 0 0 8px; font-size: 1.15rem; color: #222; }
+.aviso-login-mensaje { margin: 0 0 20px; font-size: 0.92rem; color: #666; line-height: 1.4; }
+
+.aviso-login-botones { display: flex; gap: 10px; }
+
+.aviso-login-btn-cancelar,
+.aviso-login-btn-ingresar {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.aviso-login-btn-cancelar { background: #f0f0f0; color: #444; }
+.aviso-login-btn-ingresar { background: #2196f3; color: #fff; }
+
+@media (max-width: 400px) {
+  .aviso-login-box { padding: 22px 18px; }
+}

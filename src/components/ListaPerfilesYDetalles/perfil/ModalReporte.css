@@ -115,11 +115,41 @@
   background: #f8fff9;
 }
 
+.categoria-opcion:has(input[type="radio"]:checked) {
+  border-color: #25d366;
+  background: #f0fdf4;
+}
+
 .categoria-opcion input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  accent-color: #25d366;
+  margin: 0;
+  margin-right: 6px;
+  flex-shrink: 0;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  position: relative;
+  top: 2px;
   cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.categoria-opcion input[type="radio"]:checked {
+  border-color: #25d366;
+}
+
+.categoria-opcion input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #25d366;
+  transform: translate(-50%, -50%);
 }
 
 .categoria-opcion input[type="radio"]:checked + span {
@@ -131,6 +161,7 @@
   font-size: 0.95rem;
   color: #333;
   flex: 1;
+  line-height: 1.3;
 }
 
 .form-group textarea {

@@ -151,14 +151,14 @@ const Nosotros = () => {
               </div>
               <h2>¿Cómo empezó todo?</h2>
               <p>
-                Soy un joven de Goya de poco más de 20 años. Hace aproximadamente un año hice un curso de programación 
-                que me abrió los ojos a un mundo de posibilidades. Desde entonces, con la ayuda de herramientas de IA 
-                y mucho aprendizaje autodidacta, fui mejorando día a día.
+                Somos dos jóvenes de Goya de poco más de 20 años
+. El proyecto nació cuando Franco, apasionado del desarrollo técnico, se capacitó de forma autodidacta en programación y herramientas de IA, mientras que Maxi aportó el impulso clave para la organización y la estrategia comercial en las calles goyanas
+. No somos una multinacional ni una corporación gigante, pero justamente eso hace que GoyaNova sea especial: es una plataforma desarrollada a pulmón, con dedicación real y el genuino deseo de potenciar el trabajo en nuestra comunidad.
               </p>
-              <p>
+              {/* <p>
                 No soy un profesional con años de experiencia ni una empresa grande, pero justamente eso es lo que hace 
                 este proyecto especial: está hecho con dedicación, pasión y el genuino deseo de ayudar a mi comunidad.
-              </p>
+              </p> */}
             </div>
 
             <div className="story-card">
@@ -167,13 +167,15 @@ const Nosotros = () => {
               </div>
               <h2>¿Por qué GoyaNova?</h2>
               <p>
-                La idea surgió pensando en algo simple: ¿querés churros? Buscás "churros" y listo, aparecen todas las opciones. Aparecerán emprendedores, negocios y todos los servicios que tengan eso en su descripción, nombres y/o categorias, ves si están disponibles, qué días atienden, sus opiniones, fotos, y lo más importante: contacto directo por WhatsApp. 
-                Sin perder tiempo con mensajes dentro de la plataforma.
+                La idea surgió pensando en la vida cotidiana de nuestra ciudad. Si tenés ganas de comer churros, buscás 'churros' y listo: te aparecen al instante las opciones locales. Queríamos llevar ese tradicional 'boca a boca' goyano directamente a la pantalla del celular
+. Creamos un espacio donde todos los oficios, comercios y servicios independientes de Goya están en un solo lugar
+. El prestador publica su trabajo, el vecino o turista lo encuentra al instante y se comunican directo por WhatsApp de forma gratuita y libre de comisiones intermedias
+.
               </p>
-              <p>
+              {/* <p>
                 Quería crear algo 100% goyano, donde toda la información esté en un solo lugar y la conexión sea instantánea. 
                 Un emprendedor publica su servicio, la gente lo encuentra fácilmente, y se contactan directo. Así de simple.
-              </p>
+              </p> */}
             </div>
 
             <div className="story-card">
@@ -182,14 +184,15 @@ const Nosotros = () => {
               </div>
               <h2>Mi visión del proyecto</h2>
               <p>
-                Este es mi primer proyecto grande y estoy comprometido a mejorarlo constantemente. La tecnología me apasiona 
-                por su capacidad de innovar y facilitar la vida de las personas. GoyaNova es mi forma de aportar algo 
-                útil a Goya.
+                GoyaNova es nuestro primer gran desarrollo tecnológico y asumimos el compromiso de mejorarlo día a día
+. Creemos firmemente en el poder de la tecnología para innovar y facilitarle la vida a los vecinos de nuestra ciudad
+. Nuestro objetivo es que cualquier persona encuentre lo que necesita de forma rápida y directa, transformándose en la herramienta de referencia para Goya y ayudando a los trabajadores locales a tener la visibilidad digital que merecen
+.
               </p>
-              <p>
+              {/* <p>
                 Mi objetivo es que cualquier persona pueda encontrar lo que necesita de forma rápida y directa, ya sea lo que necesite (es más natural, servicios/productos ya está implícito) Y de paso, ayudar a emprendedores locales a tener más visibilidad sin costos 
                 excesivos.
-              </p>
+              </p> */}
             </div>
           </div>
         </section>
@@ -201,25 +204,30 @@ const Nosotros = () => {
             <div className="value-card">
               <span className="material-icons value-icon">handshake</span>
               <h3>Conexión Directa</h3>
-              <p>WhatsApp directo, sin intermediarios ni mensajes dentro de la plataforma. Contacto real e inmediato.</p>
+              <p>Contacto instantáneo por WhatsApp con un solo clic. Sin formularios lentos ni intermediarios en el medio
+.</p>
             </div>
 
             <div className="value-card">
               <span className="material-icons value-icon">location_city</span>
-              <h3>100% Goyano</h3>
-              <p>Hecho en Goya, para Goya. Enfocado en nuestra comunidad local y sus necesidades específicas.</p>
+              <h3>Modelo "Cero Comisiones</h3>
+              <p>Apoyamos el valor del esfuerzo local. El prestador del servicio conserva siempre el 100% de su tarifa cobrada
+.</p>
             </div>
 
             <div className="value-card">
               <span className="material-icons value-icon">trending_up</span>
-              <h3>Mejora Continua</h3>
-              <p>Siempre escuchando feedback y agregando mejoras. Este proyecto crece con tu ayuda.</p>
+              <h3>Identidad Goyana</h3>
+              <p>Hecho en Goya, por goyanos y para goyanos
+. Un ecosistema diseñado exclusivamente para las necesidades reales de nuestra comunidad
+.</p>
             </div>
 
             <div className="value-card">
               <span className="material-icons value-icon">volunteer_activism</span>
-              <h3>Accesible para Todos</h3>
-              <p>Gratis para usuarios, con opciones premium accesibles para emprendedores que quieran destacar.</p>
+              <h3>Infraestructura Inclusiva</h3>
+              <p>Un directorio web de navegación rápida, liviano, de carga inmediata y 100% gratuito para todos los usuarios de la ciudad
+.</p>
             </div>
           </div>
         </section>
@@ -232,7 +240,7 @@ const Nosotros = () => {
               <div className="timeline-dot"></div>
               <div className="timeline-content">
                 <h3>Finales de 2023 - El Comienzo</h3>
-                <p>Hice mi primer curso de programación. Descubrí la IA como herramienta de aprendizaje y empecé a experimentar con código.</p>
+                <p>Todo comenzó cuando Franco realizó su primer curso de programación. Al descubrir la Inteligencia Artificial como una potente herramienta de aprendizaje autodidacta, empezó a experimentar con código, construyendo las bases técnicas del proyecto.</p>
               </div>
             </div>
 
@@ -240,7 +248,7 @@ const Nosotros = () => {
               <div className="timeline-dot"></div>
               <div className="timeline-content">
                 <h3>2024 - Aprendizaje y Práctica</h3>
-                <p>Mejoré mis habilidades día a día. Creé páginas de turnos y otros proyectos pequeños para practicar con nuevos lenguajes y tecnologías.</p>
+                <p>Durante este año, Franco continuó perfeccionando sus habilidades de desarrollo diariamente, diseñando pequeños sistemas de turnos y aplicaciones web interactivas para dominar tecnologías modernas. Fue el año clave para consolidar la capacidad técnica necesaria antes de dar el gran salto.</p>
               </div>
             </div>
 
@@ -248,7 +256,7 @@ const Nosotros = () => {
               <div className="timeline-dot"></div>
               <div className="timeline-content">
                 <h3>Finales de 2024 - Nace la Idea</h3>
-                <p>Decidí crear algo más grande: una plataforma completa para conectar a la gente de Goya con servicios y productos locales.</p>
+                <p>Con la experiencia de programación consolidada y detectando la desconexión que existía en el ecosistema local, decidimos unir fuerzas con Maxi para crear algo mucho más grande: una plataforma integral y 100% goyana que conecte directamente a los vecinos con los servicios, comercios y oficios de la ciudad.</p>
               </div>
             </div>
 
@@ -256,7 +264,7 @@ const Nosotros = () => {
               <div className="timeline-dot active"></div>
               <div className="timeline-content">
                 <h3>2025 - GoyaNova en Marcha</h3>
-                <p>La plataforma está funcionando y creciendo. Sigo agregando mejoras constantemente y escuchando feedback de los usuarios.</p>
+                <p>La plataforma hoy ya es una realidad en funcionamiento y constante evolución. Seguimos optimizando el código, mejorando la velocidad de los servidores de Netlify y Supabase, y escuchando con atención el feedback de cada trabajador y vecino de Goya para incorporar mejoras semana tras semana.</p>
               </div>
             </div>
           </div>
@@ -271,8 +279,7 @@ const Nosotros = () => {
             <span className="material-icons cta-icon">favorite</span>
             <h2 className="cta-title">¿Querés ser parte de esto?</h2>
             <p className="cta-description">
-              Tu feedback, tus sugerencias y tu apoyo son fundamentales para que GoyaNova crezca. 
-              Si tenés ideas, encontraste algún error o simplemente querés saludar, no dudes en contactarme.
+              Tu opinión, sugerencias y apoyo son el motor principal para que este directorio siga creciendo. Si tenés una idea para mejorar la plataforma, encontraste algún detalle técnico en la web o simplemente querés saludarnos y sumarte a la red, no dudes en ponerte en contacto con nosotros.
             </p>
             <div className="cta-buttons">
               <Link to="/contacto" className="cta-btn cta-primary">

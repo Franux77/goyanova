@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaStar, FaWhatsapp } from 'react-icons/fa';
 import MenuOpciones from './MenuOpciones';
 import ModalReporte from './ModalReporte';
+import ModalAvisoLogin from './ModalAvisoLogin';
+import { AuthContext } from '../../../auth/AuthContext';
 import './ResumenPerfil.css';
 
 const coloresSuaves = [
@@ -20,9 +22,20 @@ const getIniciales = (texto) => {
 
 const ResumenPerfil = ({ perfil }) => {
   const [modalReporteAbierto, setModalReporteAbierto] = useState(false);
+  const [modalLoginAbierto, setModalLoginAbierto] = useState(false);
   const [descripcionExpandida, setDescripcionExpandida] = useState(false);
+  const { user } = useContext(AuthContext);
+  const isLoggedIn = !!user;
 
   if (!perfil) return null;
+
+  const handleReportarClick = () => {
+    if (!isLoggedIn) {
+      setModalLoginAbierto(true);
+      return;
+    }
+    setModalReporteAbierto(true);
+  };
 
   const rating = perfil.opiniones?.length
     ? Math.round(perfil.opiniones.reduce((sum, o) => sum + (o.rating || 0), 0) / perfil.opiniones.length)
@@ -32,7 +45,7 @@ const ResumenPerfil = ({ perfil }) => {
     <FaStar key={i} color="#ffc107" size={16} />
   ));
 
-  const foto = perfil.foto_portada || perfil.usuario?.foto_url || '';
+    const foto = perfil.foto_portada || '';
   const descripcion = perfil.descripcion || 'Sin descripción';
   const mostrarVerMas = descripcion.length > 120;
 
@@ -49,8 +62,8 @@ const ResumenPerfil = ({ perfil }) => {
           text: `Mira este servicio: ${perfil.nombre}`,
           url: url
         });
-      } catch (err) {
-        // console.log('Error al compartir:', err);
+            } catch (err) {
+        console.error('Error al compartir:', err);
       }
     } else {
       navigator.clipboard.writeText(url);
@@ -62,7 +75,7 @@ const ResumenPerfil = ({ perfil }) => {
     <>
       <div className="resumen-lista">
         <MenuOpciones
-          onReportar={() => setModalReporteAbierto(true)}
+          onReportar={handleReportarClick}
           onCompartir={handleCompartir}
           tipo="servicio"
         />
@@ -133,6 +146,12 @@ const ResumenPerfil = ({ perfil }) => {
         contenidoId={perfil.id}
         servicioId={perfil.id}
         nombreServicio={perfil.nombre}
+      />
+
+            <ModalAvisoLogin
+        isOpen={modalLoginAbierto}
+        onClose={() => setModalLoginAbierto(false)}
+        mensaje="Pedimos que inicies sesión para reportar contenido: así evitamos reportes falsos o coordinados, y nos aseguramos de que cada aviso venga de una persona real. Esto protege a los negocios de la comunidad de denuncias maliciosas."
       />
     </>
   );

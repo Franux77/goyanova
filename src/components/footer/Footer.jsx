@@ -28,7 +28,7 @@ const Footer = () => {
             </p>
             <div className="footer-social">
               <a 
-                href="https://wa.me/5493777716363" 
+                href="https://wa.me/5493777209955" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 aria-label="WhatsApp"
@@ -87,7 +87,7 @@ const Footer = () => {
               </li>
               <li>
                 <span className="material-icons">phone</span>
-                <a href="https://wa.me/5493777716363">+54 3777 71-6363</a>
+                <a href="https://wa.me/5493777209955">+54 3777 20-9955</a>
               </li>
             </ul>
           </div>
@@ -103,7 +103,7 @@ const Footer = () => {
             &copy; {currentYear} GoyaNova. Todos los derechos reservados.
           </p>
           <p className="footer-credit">
-            Hecho con <span className="material-icons footer-heart">favorite</span> en Goya
+            Desarrollado en Goya, Corrientes, Argentina.
           </p>
         </div>
 

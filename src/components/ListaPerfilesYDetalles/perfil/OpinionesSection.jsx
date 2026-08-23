@@ -557,14 +557,14 @@ return (
         </div>
       </div>
 
-      <button
+            <button
         className="opiniones-btn-enviar-comentario"
         onClick={
           !isLoggedIn
             ? () => navigate('/login')
             : handleEnviarComentario
         }
-        disabled={esMiServicio || (!isLoggedIn && !esMiServicio)}
+        disabled={esMiServicio}
       >
         {!isLoggedIn
           ? 'Iniciar sesión para comentar'

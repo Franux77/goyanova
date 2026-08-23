@@ -4,6 +4,14 @@ import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../useAuth';
 import './Register.css';
 
+// Solo se muestran en desarrollo (npm run dev). En el build de producción no aparecen en consola.
+const debugLog = (...args) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const debugError = (...args) => {
+  if (import.meta.env.DEV) console.error(...args);
+};
+
 const Register = () => {
   const navigate = useNavigate();
   const { loginWithGoogle } = useAuth();
@@ -89,7 +97,7 @@ const Register = () => {
       // Si el email NO está verificado, necesita confirmación
       const necesitaConfirmacion = !emailVerified && !hasConfirmedAt;
 
-      console.log('📊 ESTADO DE CONFIRMACIÓN:', {
+            debugLog('📊 ESTADO DE CONFIRMACIÓN:', {
         necesitaConfirmacion,
         emailVerified,
         hasConfirmedAt,
@@ -105,7 +113,7 @@ const Register = () => {
 
       // 🎯 CASO 1: CONFIRMACIÓN DE EMAIL ACTIVADA
       if (necesitaConfirmacion) {
-        console.log('📧 Confirmación de email REQUERIDA');
+               debugLog('📧 Confirmación de email REQUERIDA');
         
         // Guardar para mostrar modal de promo DESPUÉS de confirmar
         const promoData = {
@@ -128,7 +136,7 @@ const Register = () => {
 
       // 🎯 CASO 2: CONFIRMACIÓN DE EMAIL DESACTIVADA
       } else {
-        console.log('✅ Confirmación de email NO requerida - Usuario activo inmediatamente');
+                debugLog('✅ Confirmación de email NO requerida - Usuario activo inmediatamente');
         
         // Usuario puede iniciar sesión de inmediato
         sessionStorage.setItem('mostrar_modal_promo', 'true');
@@ -145,8 +153,8 @@ const Register = () => {
 });
       }
 
-    } catch (err) {
-      console.error('❌ ERROR EN REGISTRO:', err);
+        } catch (err) {
+      debugError('❌ ERROR EN REGISTRO:', err);
       
       let mensajeError = '';
       let tituloError = '❌ Error al crear cuenta';
@@ -187,8 +195,8 @@ const Register = () => {
     try {
       setError('');
       await loginWithGoogle();
-    } catch (err) {
-      console.error('❌ Error con Google OAuth:', err.message);
+        } catch (err) {
+      debugError('❌ Error con Google OAuth:', err.message);
       setModalInfo({
         tipo: 'error',
         titulo: '❌ Error con Google',

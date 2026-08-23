@@ -61,7 +61,7 @@ const CategoryPage = () => {
 
         const { data: serviciosData, error: serviciosError } = await supabase
   .from('servicios')
-  .select(`
+   .select(`
     id,
     nombre,
     descripcion,
@@ -71,7 +71,8 @@ const CategoryPage = () => {
     longitud,
     es_premium,
     badge_texto,
-    rating_promedio
+    rating_promedio,
+    prioridad
   `)
   .eq('estado', 'activo')
   .eq('tipo', tipo)
@@ -115,8 +116,9 @@ const mapped = serviciosData.map((s) => ({
   contacto: { whatsapp: s.contacto_whatsapp || null },
   lat: s.latitud,
   lng: s.longitud,
-  esPremium: s.es_premium || false,
-  badgeTexto: s.badge_texto || ''
+    esPremium: s.es_premium || false,
+  badgeTexto: s.badge_texto || '',
+  prioridad: s.prioridad || 0
 }));
 
         setPerfiles(mapped);
@@ -141,12 +143,16 @@ const mapped = serviciosData.map((s) => ({
     );
   }, [perfiles, debouncedBusqueda]);
 
-  const perfilesOrdenados = useMemo(() => {
+    const perfilesOrdenados = useMemo(() => {
     const copia = [...perfilesFiltrados];
-    if (orden === 'rating-desc') return copia.sort((a, b) => b.rating - a.rating);
-    if (orden === 'rating-asc') return copia.sort((a, b) => a.rating - b.rating);
 
     return copia.sort((a, b) => {
+      // La prioridad manda siempre, sin importar qué orden eligió el usuario
+      if (b.prioridad !== a.prioridad) return b.prioridad - a.prioridad;
+
+      if (orden === 'rating-desc') return b.rating - a.rating;
+      if (orden === 'rating-asc') return a.rating - b.rating;
+
       const distA = a.lat !== undefined && a.lng !== undefined ? calcularDistancia(a.lat, a.lng) : Infinity;
       const distB = b.lat !== undefined && b.lng !== undefined ? calcularDistancia(b.lat, b.lng) : Infinity;
       return distA - distB;
