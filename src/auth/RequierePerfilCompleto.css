@@ -1,0 +1,102 @@
+.completar-perfil-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 20px;
+}
+
+.completar-perfil-box {
+  background: white;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.completar-perfil-box h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.completar-perfil-box p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.completar-perfil-error {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #e53e3e;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.completar-perfil-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.completar-perfil-box input[type="tel"],
+.completar-perfil-box input[type="number"] {
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+}
+
+.completar-perfil-box input:focus {
+  border-color: #1774f6;
+}
+
+.completar-perfil-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.completar-perfil-checkbox input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #1774f6;
+}
+
+.completar-perfil-checkbox a {
+  color: #1774f6;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.completar-perfil-box button[type="submit"] {
+  padding: 13px;
+  background: linear-gradient(135deg, #1774f6, #0d5abf);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.completar-perfil-box button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

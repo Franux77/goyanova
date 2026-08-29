@@ -28,7 +28,7 @@ const Footer = () => {
             </p>
             <div className="footer-social">
               <a 
-                href="https://wa.me/5493777209955" 
+                href="https://wa.me/5493777599800" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 aria-label="WhatsApp"
@@ -65,12 +65,14 @@ const Footer = () => {
           <div className="footer-column">
             <h4 className="footer-title">Navegación</h4>
             <ul className="footer-links">
-              <li><Link to="/">Inicio</Link></li>
-              <li><Link to="/nosotros">Nosotros</Link></li>
-              <li><Link to="/explorar">Explorar Mapa</Link></li>
-              <li><Link to="/ayuda">Centro de Ayuda</Link></li>
-              <li><Link to="/contacto">Contacto</Link></li>
-            </ul>
+  <li><Link to="/">Inicio</Link></li>
+  <li><Link to="/nosotros">Nosotros</Link></li>
+  <li><Link to="/explorar">Explorar Mapa</Link></li>
+  <li><Link to="/ayuda">Centro de Ayuda</Link></li>
+  <li><Link to="/contacto">Contacto</Link></li>
+  <li><Link to="/terminos">Términos y Condiciones</Link></li>       {/* 👈 NUEVA */}
+  <li><Link to="/privacidad">Política de Privacidad</Link></li>     {/* 👈 NUEVA */}
+</ul>
           </div>
 
           {/* Columna 3: Contacto (Solo Desktop) */}
@@ -87,7 +89,7 @@ const Footer = () => {
               </li>
               <li>
                 <span className="material-icons">phone</span>
-                <a href="https://wa.me/5493777209955">+54 3777 20-9955</a>
+                <a href="https://wa.me/5493777599800">+54 3777 59-9800</a>
               </li>
             </ul>
           </div>

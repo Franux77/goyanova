@@ -118,7 +118,7 @@ const NavbarCategory = () => {
                   className={`nav-shared-link ${location.pathname.includes('/panel') ? 'nav-shared-link-active' : ''}`}
                 >
                   <span className="material-icons nav-shared-link-icon">dashboard</span>
-                  <span className="nav-shared-link-text">Mi Panel</span>
+                  <span className="nav-shared-link-text">Mi Cuenta</span>
                 </Link>
               </li>
             )}
@@ -185,7 +185,7 @@ const NavbarCategory = () => {
                 className={`nav-shared-mobile-nav-link ${location.pathname.includes('/panel') ? 'nav-shared-mobile-nav-active' : ''}`}
               >
                 <span className="material-icons nav-shared-mobile-nav-icon">dashboard</span>
-                <span className="nav-shared-mobile-nav-text">Mi Panel</span>
+                <span className="nav-shared-mobile-nav-text">Mi Cuenta</span>
                 <span className="material-icons nav-shared-mobile-nav-arrow">chevron_right</span>
               </Link>
             </li>

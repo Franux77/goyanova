@@ -127,7 +127,7 @@ const Contacto = () => {
       }
     } catch (err) {
       console.error('Error:', err);
-      setError('Hubo un error al enviar el mensaje. Por favor, intenta de nuevo o escríbeme directamente al email.');
+      setError('Hubo un error al enviar el mensaje. Por favor, intenta de nuevo o escríbenos directamente al email.');
     } finally {
       setEnviando(false);
     }
@@ -146,30 +146,30 @@ const Contacto = () => {
     { to: '/', label: 'Inicio', icon: 'home' },
     { to: '/nosotros', label: 'Nosotros', icon: 'group' },
     { to: '/explorar', label: 'Mapa', icon: 'map' },
-    { to: '/panel/dashboard', label: 'Mi Panel', icon: 'dashboard' },
+    { to: '/panel/dashboard', label: 'Mi Cuenta', icon: 'dashboard' },
   ];
 
   const contactInfo = [
     { 
       icon: 'phone', 
       label: 'WhatsApp', 
-      value: '+54 3777 716363', 
-      href: 'https://wa.me/5493777716363',
-      description: 'Respondo lo más rápido posible'
+      value: '+54 3777 59-9800', 
+      href: 'https://wa.me/5493777599800',
+      description: 'Te respondemos a la brevedad'
     },
     { 
       icon: 'email', 
       label: 'Email', 
       value: 'goyanovasoporte@gmail.com', 
       href: 'mailto:goyanovasoporte@gmail.com',
-      description: 'Te respondo en 24-48 horas'
+      description: 'Te respondemos dentro de las 24-48 horas hábiles'
     },
     { 
       icon: 'location_on', 
       label: 'Ubicación', 
       value: 'Goya, Corrientes, Argentina', 
       href: '#',
-      description: 'Trabajo remoto desde Goya'
+      description: 'Equipo con base en Goya, Corrientes'
     },
   ];
 
@@ -253,13 +253,13 @@ const Contacto = () => {
           <div className="hero-content">
             <div className="hero-badge">
               <span className="material-icons">waving_hand</span>
-              <span>Estoy aquí para ayudarte</span>
+              <span>Estamos aquí para ayudarte</span>
             </div>
             <h1 className="hero-title">
               Conectemos y conversemos
             </h1>
             <p className="hero-description">
-              Soy un desarrollador de Goya trabajando en mi primer gran proyecto. Si tenés dudas, sugerencias o querés colaborar, no dudes en contactarme. ¡Toda ayuda y feedback es bienvenida!
+              Somos el equipo de GoyaNova, trabajando en la plataforma de servicios locales de Goya. Si tenés dudas, sugerencias o querés colaborar con el proyecto, no dudes en contactarnos. Toda idea y comentario es bienvenido.
             </p>
           </div>
           <div className="hero-decoration">
@@ -305,10 +305,10 @@ const Contacto = () => {
                   <span className="material-icons">schedule</span>
                 </div>
                 <div className="hours-content">
-                  <h3 className="hours-title">Disponibilidad</h3>
+                  <h3 className="hours-title">Horario de Atención</h3>
                   <p className="hours-text">
-                    Trabajo de manera remota, por lo que puedo responder en horarios flexibles. 
-                    Generalmente estoy disponible de 9:00 AM a 10:00 PM (hora Argentina).
+                    Atendemos de lunes a viernes de 9:00 a 13:00 hs y de 15:00 a 19:00 hs (hora Argentina). 
+                    Fuera de ese horario, podés dejarnos tu mensaje y te responderemos en la próxima franja disponible.
                   </p>
                 </div>
               </div>
@@ -317,8 +317,8 @@ const Contacto = () => {
             {/* Contact Form */}
             <div className="contact-form-container">
               <div className="form-header">
-                <h2 className="form-title">Enviame un Mensaje</h2>
-                <p className="form-subtitle">Completa el formulario y te respondo a la brevedad</p>
+                <h2 className="form-title">Envianos un Mensaje</h2>
+                <p className="form-subtitle">Completá el formulario y te responderemos a la brevedad</p>
               </div>
 
               <form className="contact-form" onSubmit={handleSubmit}>
@@ -365,7 +365,7 @@ const Contacto = () => {
                     id="mensaje"
                     name="mensaje"
                     className="form-textarea"
-                    placeholder="Contame qué necesitás..."
+                    placeholder="Contanos qué necesitás..."
                     value={form.mensaje}
                     onChange={handleChange}
                     rows={6}
@@ -390,7 +390,7 @@ const Contacto = () => {
                 {enviado && (
                   <div className="success-message">
                     <span className="material-icons">check_circle</span>
-                    <span>¡Mensaje enviado! Te respondo pronto.</span>
+                    <span>¡Mensaje enviado! Te responderemos a la brevedad.</span>
                   </div>
                 )}
 
@@ -411,8 +411,8 @@ const Contacto = () => {
           <div className="faq-grid">
             <div className="faq-card">
               <span className="material-icons faq-icon">schedule</span>
-              <h3>¿Cuánto tardás en responder?</h3>
-              <p>Normalmente respondo en menos de 24 horas. Si es urgente, escribime por WhatsApp.</p>
+              <h3>¿Cuánto tardan en responder?</h3>
+              <p>Dentro de nuestro horario de atención (9 a 13 y 15 a 19 hs) respondemos a la brevedad. Si es urgente, escribinos por WhatsApp.</p>
             </div>
             <div className="faq-card">
               <span className="material-icons faq-icon">local_offer</span>
@@ -422,7 +422,7 @@ const Contacto = () => {
             <div className="faq-card">
               <span className="material-icons faq-icon">lightbulb</span>
               <h3>¿Puedo sugerir mejoras?</h3>
-              <p>¡Por supuesto! Valoro mucho el feedback. Toda sugerencia me ayuda a mejorar la plataforma.</p>
+              <p>¡Por supuesto! Valoramos mucho el feedback de la comunidad. Cada sugerencia nos ayuda a mejorar la plataforma.</p>
             </div>
           </div>
         </section>

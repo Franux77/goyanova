@@ -42,7 +42,7 @@ const Nosotros = () => {
     { to: '/', label: 'Inicio', icon: 'home' },
     { to: '/explorar', label: 'Mapa', icon: 'map' },
     { to: '/contacto', label: 'Contacto', icon: 'phone_in_talk' },
-    { to: '/panel/dashboard', label: 'Mi Panel', icon: 'dashboard' },
+    { to: '/panel/dashboard', label: 'Mi Cuenta', icon: 'dashboard' },
   ];
 
   return (

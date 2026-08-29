@@ -44,93 +44,104 @@ const CategoryPage = () => {
     window.scrollTo(0, 0);
   }, [tipo, categoria]);
 
-  useEffect(() => {
-    const fetchPerfiles = async () => {
-      setLoading(true);
-      try {
-        const { data: catData, error: catError } = await supabase
-          .from('categorias')
-          .select('id')
-          .eq('nombre', categoria)
-          .single();
-        
-        if (catError || !catData) {
-          setPerfiles([]);
-          return;
-        }
+ useEffect(() => {
+  let cancelado = false; // 👈 bandera para ignorar respuestas obsoletas
 
-        const { data: serviciosData, error: serviciosError } = await supabase
-  .from('servicios')
-   .select(`
-    id,
-    nombre,
-    descripcion,
-    foto_portada,
-    contacto_whatsapp,
-    latitud,
-    longitud,
-    es_premium,
-    badge_texto,
-    rating_promedio,
-    prioridad
-  `)
-  .eq('estado', 'activo')
-  .eq('tipo', tipo)
-  .eq('categoria_id', catData.id)
-  .eq('oculto_por_reportes', false)
-  .order('prioridad', { ascending: false })
-  .order('rating_promedio', { ascending: false })
-  .order('creado_en', { ascending: true });
+  const fetchPerfiles = async () => {
+    setLoading(true);
+    try {
+      const { data: catData, error: catError } = await supabase
+        .from('categorias')
+        .select('id')
+        .eq('nombre', categoria)
+        .maybeSingle(); // 👈 no explota si no hay match, solo devuelve null
 
-        if (serviciosError || !serviciosData?.length) {
-          setPerfiles([]);
-          return;
-        }
+      if (cancelado) return; // si ya cambiamos de categoría, no seguimos
 
-        const servicioIds = serviciosData.map((s) => s.id);
-
-        const { data: opinionesData, error: opinionesError } = await supabase
-          .from('opiniones')
-          .select('servicio_id, puntuacion')
-          .in('servicio_id', servicioIds);
-
-        if (opinionesError) {
-          setPerfiles([]);
-          return;
-        }
-
-       const ratingMap = servicioIds.reduce((acc, id) => {
-  const opinionesServicio = opinionesData?.filter((o) => o.servicio_id === id) || [];
-  const totalOpiniones = opinionesServicio.length;
-  acc[id] = { totalOpiniones };
-  return acc;
-}, {});
-
-const mapped = serviciosData.map((s) => ({
-  id: s.id,
-  nombre: s.nombre,
-  descripcionServicio: s.descripcion || '',
-  fotoPerfil: s.foto_portada || null,
-  rating: Number(s.rating_promedio) || 0,
-  totalOpiniones: ratingMap[s.id]?.totalOpiniones || 0,
-  contacto: { whatsapp: s.contacto_whatsapp || null },
-  lat: s.latitud,
-  lng: s.longitud,
-    esPremium: s.es_premium || false,
-  badgeTexto: s.badge_texto || '',
-  prioridad: s.prioridad || 0
-}));
-
-        setPerfiles(mapped);
-      } catch {
+      if (catError || !catData) {
         setPerfiles([]);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
 
-    if (tipo && categoria) fetchPerfiles();
-  }, [tipo, categoria]);
+      const { data: serviciosData, error: serviciosError } = await supabase
+        .from('servicios')
+        .select(`
+          id,
+          nombre,
+          descripcion,
+          foto_portada,
+          contacto_whatsapp,
+          latitud,
+          longitud,
+          es_premium,
+          badge_texto,
+          rating_promedio,
+          prioridad
+        `)
+        .eq('estado', 'activo')
+        .eq('tipo', tipo)
+        .eq('categoria_id', catData.id)
+        .eq('oculto_por_reportes', false)
+        .order('prioridad', { ascending: false })
+        .order('rating_promedio', { ascending: false })
+        .order('creado_en', { ascending: true });
+
+      if (cancelado) return; // 👈 chequeo otra vez antes de tocar el estado
+
+      if (serviciosError || !serviciosData?.length) {
+        setPerfiles([]);
+        return;
+      }
+
+      const servicioIds = serviciosData.map((s) => s.id);
+
+      const { data: opinionesData, error: opinionesError } = await supabase
+        .from('opiniones')
+        .select('servicio_id, puntuacion')
+        .in('servicio_id', servicioIds);
+
+      if (cancelado) return; // 👈 chequeo otra vez
+
+      if (opinionesError) {
+        setPerfiles([]);
+        return;
+      }
+
+      const ratingMap = servicioIds.reduce((acc, id) => {
+        const opinionesServicio = opinionesData?.filter((o) => o.servicio_id === id) || [];
+        acc[id] = { totalOpiniones: opinionesServicio.length };
+        return acc;
+      }, {});
+
+      const mapped = serviciosData.map((s) => ({
+        id: s.id,
+        nombre: s.nombre,
+        descripcionServicio: s.descripcion || '',
+        fotoPerfil: s.foto_portada || null,
+        rating: Number(s.rating_promedio) || 0,
+        totalOpiniones: ratingMap[s.id]?.totalOpiniones || 0,
+        contacto: { whatsapp: s.contacto_whatsapp || null },
+        lat: s.latitud,
+        lng: s.longitud,
+        esPremium: s.es_premium || false,
+        badgeTexto: s.badge_texto || '',
+        prioridad: s.prioridad || 0
+      }));
+
+      if (!cancelado) setPerfiles(mapped); // 👈 solo actualiza si sigue siendo la petición vigente
+    } catch {
+      if (!cancelado) setPerfiles([]);
+    } finally {
+      if (!cancelado) setLoading(false);
+    }
+  };
+
+  if (tipo && categoria) fetchPerfiles();
+
+  return () => {
+    cancelado = true; // 👈 al desmontar o cambiar tipo/categoria, esta respuesta queda invalidada
+  };
+}, [tipo, categoria]);
 
   useEffect(() => setPagina(1), [debouncedBusqueda, orden]);
 

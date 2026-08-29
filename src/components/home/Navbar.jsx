@@ -84,7 +84,7 @@ const Navbar = () => {
                     navigate(obtenerRutaPanel());
                   }}
                 >
-                  Mi Panel
+                  Mi Cuenta
                 </button>
               </li>
             )}

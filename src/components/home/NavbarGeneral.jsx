@@ -131,7 +131,7 @@ const NavbarGeneral = () => {
                   onClick={() => navigate(obtenerRutaPanel())}
                 >
                   <span className="material-icons">dashboard</span>
-                  <span>Mi Panel</span>
+                  <span>Mi Cuenta</span>
                 </button>
               </li>
             )}
@@ -212,7 +212,7 @@ const NavbarGeneral = () => {
                 }}
               >
                 <span className="material-icons navbar-general-mobile-nav-icon">dashboard</span>
-                <span className="navbar-general-mobile-nav-text">Mi Panel</span>
+                <span className="navbar-general-mobile-nav-text">Mi Cuenta</span>
                 <span className="material-icons navbar-general-mobile-nav-arrow">
                   chevron_right
                 </span>

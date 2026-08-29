@@ -13,6 +13,7 @@ import NavbarCategory from './components/ListaPerfilesYDetalles/NavbarCategory';
 import Home from './components/home/Home';
 import ProtectedRoute from './auth/ProtectedRoute';
 import RutaProtegidaAdmin from './auth/RutaProtegidaAdmin';
+import RequierePerfilCompleto from './auth/RequierePerfilCompleto';
 import Loading from './components/loading/Loading';
 import Footer from './components/footer/Footer';
 import Login from './auth/login/login';
@@ -29,6 +30,8 @@ import FinalizacionExitosa from './components/publicar/FinalizacionExitosa';
 // Lazy loading componentes secundarios
 const Contacto = lazy(() => import('./components/contacto/Contacto'));
 const Nosotros = lazy(() => import('./components/nosotros/Nosotros'));
+const Terminos = lazy(() => import('./components/legal/Terminos')); 
+const InstalarApp = lazy(() => import('./components/instalar/InstalarApp'));   // 👈 NUEVA
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
@@ -185,18 +188,23 @@ const AppContent = () => {
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
+              <Route path="/terminos" element={<Terminos />} />       {/* 👈 NUEVA */}
+<Route path="/privacidad" element={<Terminos />} />  
+<Route path="/instalar" element={<InstalarApp />} /> 
               <Route path="/ayuda" element={<AyudaPublica />} />
               <Route path="/explorar" element={<ExplorarMapa />} />
 
               {/* 🔒 RUTA /PUBLICAR AHORA PROTEGIDA */}
               <Route
-                path="/publicar"
-                element={
-                  <ProtectedRoute allowedRoles={['usuario', 'admin']}>
-                    <PublicarServicioForm />
-                  </ProtectedRoute>
-                }
-              />
+  path="/publicar"
+  element={
+    <ProtectedRoute allowedRoles={['usuario', 'admin']}>
+      <RequierePerfilCompleto>
+        <PublicarServicioForm />
+      </RequierePerfilCompleto>
+    </ProtectedRoute>
+  }
+/>
               <Route
                 path="/publicar/finalizado"
                 element={
@@ -218,8 +226,8 @@ const AppContent = () => {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="mis-servicios" element={<MisServicios />} />
-                <Route path="editar-servicio/:id" element={<PublicarServicioForm />} />
-                <Route path="publicar" element={<PublicarServicioForm />} />
+                <Route path="editar-servicio/:id" element={<RequierePerfilCompleto><PublicarServicioForm /></RequierePerfilCompleto>} />
+<Route path="publicar" element={<RequierePerfilCompleto><PublicarServicioForm /></RequierePerfilCompleto>} />
                 <Route path="perfil" element={<Perfil />} />
                 <Route path="opiniones" element={<Opiniones />} />
                 <Route path="solicitudes" element={<Solicitudes />} />
@@ -252,8 +260,8 @@ const AppContent = () => {
                 <Route path="tutoriales" element={<GestionTutoriales />} />
                 <Route path="mensajes-soporte" element={<GestionMensajesSoporte />} />
                 <Route path="configuracion" element={<ConfiguracionAdmin />} />
-                <Route path="publicar" element={<PublicarServicioForm />} />
-                <Route path="publicar/:id" element={<PublicarServicioForm />} />
+                <Route path="publicar" element={<RequierePerfilCompleto><PublicarServicioForm /></RequierePerfilCompleto>} />
+<Route path="publicar/:id" element={<RequierePerfilCompleto><PublicarServicioForm /></RequierePerfilCompleto>} />
               </Route>
 
               <Route path="/no-autorizado" element={<h2>No autorizado</h2>} />

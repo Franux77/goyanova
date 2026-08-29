@@ -424,7 +424,7 @@ const ExplorarMapa = () => {
                 className="menu-lateral-link"
               >
                 <span className="material-icons">dashboard</span>
-                <span>Mi Panel</span>
+                <span>Mi Cuenta</span>
               </Link>
             </li>
           )}
