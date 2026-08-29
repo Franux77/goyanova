@@ -3,6 +3,11 @@ import React, { useRef } from 'react';
 import './ListaPerfilesExplorar.css';
 import CardPerfilExplorar from './CardPerfilExplorar';
 
+// Si el dedo se mueve más que esto (en px) mientras está apoyado,
+// lo consideramos scroll/arrastre y NO un toque quieto para cerrar.
+const MOVIMIENTO_MAXIMO_PX = 10;
+const TIEMPO_TOQUE_QUIETO_MS = 600;
+
 const ListaPerfilesExplorar = ({
   perfiles,
   visible,
@@ -19,11 +24,27 @@ const ListaPerfilesExplorar = ({
   serviciosCargados
 }) => {
   const timerRef = useRef(null);
+  const inicioToqueRef = useRef({ x: 0, y: 0 });
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    inicioToqueRef.current = { x: touch.clientX, y: touch.clientY };
+
     timerRef.current = setTimeout(() => {
       onClose();
-    }, 600);
+    }, TIEMPO_TOQUE_QUIETO_MS);
+  };
+
+  const handleTouchMove = (e) => {
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - inicioToqueRef.current.x);
+    const dy = Math.abs(touch.clientY - inicioToqueRef.current.y);
+
+    // Se movió lo suficiente como para ser scroll/arrastre: cancelamos
+    // el cierre, sin importar cuánto dure el gesto.
+    if (dx > MOVIMIENTO_MAXIMO_PX || dy > MOVIMIENTO_MAXIMO_PX) {
+      clearTimeout(timerRef.current);
+    }
   };
 
   const handleTouchEnd = () => {
@@ -44,7 +65,9 @@ const ListaPerfilesExplorar = ({
       <div
         className={`lista-perfiles-container ${visible ? 'visible' : ''}`}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <div className="handle-bar" />
         
