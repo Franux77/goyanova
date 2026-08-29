@@ -4,7 +4,10 @@ import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../auth/useAuth';
 import './PanelUsuario.css';
 
-const ADMIN_EMAIL = "12torresfranco@gmail.com";
+const ADMIN_EMAILS = [
+  '12torresfranco@gmail.com',
+  'claudiaoviedo509@gmail.com'
+];
 
 // 👇 QUITÉ 'publicar' de aquí
 const enlaces = [
@@ -35,7 +38,8 @@ const PanelUsuario = () => {
 
   useEffect(() => {
     if (user) {
-      setIsAdmin(user.email === ADMIN_EMAIL);
+      const esAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase());
+      setIsAdmin(esAdmin);
     }
   }, [user]);
 

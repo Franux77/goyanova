@@ -3,7 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
 import './NavbarCategory.css';
 
-const ADMIN_EMAIL = "12torresfranco@gmail.com";
+const ADMIN_EMAILS = [
+  '12torresfranco@gmail.com',
+  'claudiaoviedo509@gmail.com'
+];
 
 const NavbarPerfil = () => {
   const { user } = useAuth();
@@ -16,7 +19,8 @@ const NavbarPerfil = () => {
 
   useEffect(() => {
     if (user) {
-      setRol(user.email === ADMIN_EMAIL ? "admin" : "prestador");
+      const esAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase());
+      setRol(esAdmin ? 'admin' : 'prestador');
     } else {
       setRol(null);
     }

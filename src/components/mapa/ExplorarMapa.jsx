@@ -20,7 +20,10 @@ import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../../auth/useAuth';
 import UbicacionActual from './UbicacionActual';
 
-const ADMIN_EMAIL = "12torresfranco@gmail.com";
+const ADMIN_EMAILS = [
+  '12torresfranco@gmail.com',
+  'claudiaoviedo509@gmail.com'
+];
 const SERVICIOS_POR_PAGINA = 50; // 👈 Cargar de a 50
 
 const ExplorarMapa = () => {
@@ -54,7 +57,8 @@ const ExplorarMapa = () => {
 
   useEffect(() => {
     if (user) {
-      setRol(user.email === ADMIN_EMAIL ? "admin" : "prestador");
+      const esAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === user.email?.toLowerCase());
+      setRol(esAdmin ? 'admin' : 'prestador');
     } else {
       setRol(null);
     }

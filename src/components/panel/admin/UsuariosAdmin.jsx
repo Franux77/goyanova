@@ -8,13 +8,16 @@ import { useAuth } from '../../../auth/useAuth';
 import './UsuariosAdmin.css';
 import Loading from '../../loading/Loading';
 
-const ADMIN_EMAIL = '12torresfranco@gmail.com';
+const ADMIN_EMAILS = [
+  '12torresfranco@gmail.com',
+  'claudiaoviedo509@gmail.com'
+];
 
 const UsuariosAdmin = () => {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [servicios, setServicios] = useState([]);
-  const [suspensiones, setSuspensiones] = useState([]);
+  // const [suspensiones, setSuspensiones] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [filtroRol, setFiltroRol] = useState('todos');
   const [paginaActual, setPaginaActual] = useState(1);
@@ -51,7 +54,7 @@ const UsuariosAdmin = () => {
       if (spErr) throw spErr;
 
       setServicios(serviciosData || []);
-      setSuspensiones(suspData || []);
+      // setSuspensiones(suspData || []);
 
       const suspendedUserIds = new Set(
         (suspData || [])
@@ -61,7 +64,8 @@ const UsuariosAdmin = () => {
 
       const usuariosConRol = (usuariosData || []).map(u => {
         const tieneServicios = (serviciosData || []).some(s => s.usuario_id === u.id);
-        const rol = u.email === ADMIN_EMAIL ? 'admin' : (tieneServicios ? 'prestador' : 'cliente');
+        const esAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === (u.email || '').toLowerCase());
+        const rol = esAdmin ? 'admin' : (tieneServicios ? 'prestador' : 'cliente');
         
         const suspensionActiva = (suspData || []).find(
           s => s.entidad === 'usuario' && s.entidad_id?.toString() === u.id?.toString() && s.activa
