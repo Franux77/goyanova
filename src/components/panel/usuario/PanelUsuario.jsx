@@ -6,7 +6,8 @@ import './PanelUsuario.css';
 
 const ADMIN_EMAILS = [
   '12torresfranco@gmail.com',
-  'claudiaoviedo509@gmail.com'
+  'claudiaoviedo509@gmail.com',
+  'maximocenturion.07@gmail.com'
 ];
 
 // 👇 QUITÉ 'publicar' de aquí

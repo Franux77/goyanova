@@ -22,7 +22,8 @@ import UbicacionActual from './UbicacionActual';
 
 const ADMIN_EMAILS = [
   '12torresfranco@gmail.com',
-  'claudiaoviedo509@gmail.com'
+  'claudiaoviedo509@gmail.com',
+  'maximocenturion.07@gmail.com'
 ];
 const SERVICIOS_POR_PAGINA = 50; // 👈 Cargar de a 50
 
