@@ -199,29 +199,14 @@ const MensajesSoporte = () => {
     }
   };
 
-  const enviarEmailRespuesta = async (mensaje, respuestaTexto) => {
-    const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
-    const BREVO_SENDER = import.meta.env.VITE_BREVO_SENDER_EMAIL || 'goyanovasoporte@gmail.com';
-
+   const enviarEmailRespuesta = async (mensaje, respuestaTexto) => {
     try {
-      await fetch('https://api.brevo.com/v3/smtp/email', {
+      await fetch('/.netlify/functions/enviar-email', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': BREVO_API_KEY,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sender: {
-            name: 'Soporte GoyaNova',
-            email: BREVO_SENDER,
-          },
-          to: [
-            {
-              email: mensaje.email,
-              name: mensaje.nombre,
-            }
-          ],
+          senderName: 'Soporte GoyaNova',
+          to: { email: mensaje.email, name: mensaje.nombre },
           subject: `Re: ${mensaje.asunto}`,
           htmlContent: `
             <!DOCTYPE html>
@@ -271,7 +256,7 @@ const MensajesSoporte = () => {
                 
                 <div class="ms-footer">
                   <p><strong>GoyaNova</strong></p>
-                  <p>📧 ${BREVO_SENDER}</p>
+                  <p>📧 goyanovasoporte@gmail.com</p>
                   <p style="margin-top: 10px; color: #999;">Este email fue enviado en respuesta a tu consulta #${mensaje.id.substring(0, 8)}</p>
                 </div>
               </div>

@@ -75,29 +75,14 @@ const AyudaSoporte = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const enviarEmailBrevo = async (datos) => {
-    const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
-    const BREVO_SENDER = import.meta.env.VITE_BREVO_SENDER_EMAIL || 'goyanovasoporte@gmail.com';
-
+    const enviarEmailBrevo = async (datos) => {
     try {
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const notificacionInterna = await fetch('/.netlify/functions/enviar-email', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': BREVO_API_KEY,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sender: {
-            name: 'GoyaNova Ayuda',
-            email: BREVO_SENDER,
-          },
-          to: [
-            {
-              email: BREVO_SENDER,
-              name: 'Soporte GoyaNova',
-            },
-          ],
+          senderName: 'GoyaNova Ayuda',
+          to: { email: 'goyanovasoporte@gmail.com', name: 'Soporte GoyaNova' },
           subject: `[Ayuda] ${datos.asunto}`,
           htmlContent: `
             <!DOCTYPE html>
@@ -161,33 +146,18 @@ const AyudaSoporte = () => {
             </body>
             </html>
           `,
-          replyTo: {
-            email: datos.email,
-            name: datos.nombre,
-          }
+          replyTo: { email: datos.email, name: datos.nombre }
         }),
       });
 
-      if (response.ok) {
+      if (notificacionInterna.ok) {
         // Email de confirmación al usuario
-        await fetch('https://api.brevo.com/v3/smtp/email', {
+        await fetch('/.netlify/functions/enviar-email', {
           method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': BREVO_API_KEY,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sender: {
-              name: 'Soporte GoyaNova',
-              email: BREVO_SENDER,
-            },
-            to: [
-              {
-                email: datos.email,
-                name: datos.nombre,
-              }
-            ],
+            senderName: 'Soporte GoyaNova',
+            to: { email: datos.email, name: datos.nombre },
             subject: 'Recibimos tu consulta - GoyaNova',
             htmlContent: `
               <!DOCTYPE html>
@@ -237,7 +207,7 @@ const AyudaSoporte = () => {
                   <div class="ayuda-footer">
                     <p><strong>GoyaNova</strong></p>
                     <p>Equipo de Soporte</p>
-                    <p style="margin-top: 10px;">📧 ${BREVO_SENDER}</p>
+                    <p style="margin-top: 10px;">📧 goyanovasoporte@gmail.com</p>
                   </div>
                 </div>
               </body>
@@ -251,7 +221,7 @@ const AyudaSoporte = () => {
         throw new Error('Error al enviar email');
       }
     } catch (error) {
-      console.error('Error Brevo:', error);
+      console.error('Error al enviar email:', error);
       return false;
     }
   };

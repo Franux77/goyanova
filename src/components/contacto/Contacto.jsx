@@ -34,86 +34,16 @@ const Contacto = () => {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setEnviando(true);
     setError('');
 
     try {
-      // 🔹 Configuración de Brevo
-      const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
-      const BREVO_SENDER = import.meta.env.VITE_BREVO_SENDER_EMAIL || 'goyanovasoporte@gmail.com';
-
-      if (!BREVO_API_KEY) {
-        throw new Error('Falta configurar la API Key de Brevo en el archivo .env');
-      }
-
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const response = await fetch('/.netlify/functions/contacto', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': BREVO_API_KEY,
-        },
-        body: JSON.stringify({
-          sender: {
-            name: 'GoyaNova Contacto',
-            email: BREVO_SENDER,
-          },
-          to: [
-            {
-              email: BREVO_SENDER,
-              name: 'Soporte GoyaNova',
-            },
-          ],
-          subject: `Nuevo mensaje de ${form.nombre} - GoyaNova`,
-          htmlContent: `
-            <html>
-              <head>
-                <style>
-                  body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                  .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                  .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                  .field { margin-bottom: 20px; }
-                  .label { font-weight: bold; color: #667eea; margin-bottom: 5px; display: block; }
-                  .value { background: white; padding: 15px; border-radius: 5px; border-left: 3px solid #667eea; }
-                  .footer { text-align: center; margin-top: 20px; color: #888; font-size: 12px; }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                  <div class="header">
-                    <h1>📧 Nuevo Mensaje de Contacto</h1>
-                    <p>GoyaNova - Plataforma de Servicios</p>
-                  </div>
-                  <div class="content">
-                    <div class="field">
-                      <span class="label">👤 Nombre:</span>
-                      <div class="value">${form.nombre}</div>
-                    </div>
-                    <div class="field">
-                      <span class="label">📧 Email:</span>
-                      <div class="value">${form.email}</div>
-                    </div>
-                    <div class="field">
-                      <span class="label">💬 Mensaje:</span>
-                      <div class="value">${form.mensaje}</div>
-                    </div>
-                  </div>
-                  <div class="footer">
-                    <p>Este mensaje fue enviado desde el formulario de contacto de GoyaNova</p>
-                    <p>Fecha: ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}</p>
-                  </div>
-                </div>
-              </body>
-            </html>
-          `,
-          replyTo: {
-            email: form.email,
-            name: form.nombre,
-          },
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
       });
 
       if (response.ok) {
@@ -122,11 +52,10 @@ const Contacto = () => {
         setTimeout(() => setEnviado(false), 5000);
       } else {
         const errorData = await response.json();
-        console.error('Error de Brevo:', errorData);
         throw new Error(errorData.message || 'Error al enviar');
       }
-    } catch (err) {
-      console.error('Error:', err);
+    } catch (error) {
+      console.error('Error al enviar el formulario de contacto:', error);
       setError('Hubo un error al enviar el mensaje. Por favor, intenta de nuevo o escríbenos directamente al email.');
     } finally {
       setEnviando(false);

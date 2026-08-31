@@ -73,21 +73,14 @@ const AyudaPublica = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const enviarEmailBrevo = async (datos) => {
-    const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
-    const BREVO_SENDER = import.meta.env.VITE_BREVO_SENDER_EMAIL || 'goyanovasoporte@gmail.com';
-
+   const enviarEmailBrevo = async (datos) => {
     try {
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const notificacionInterna = await fetch('/.netlify/functions/enviar-email', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': BREVO_API_KEY,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sender: { name: 'GoyaNova Ayuda', email: BREVO_SENDER },
-          to: [{ email: BREVO_SENDER, name: 'Soporte GoyaNova' }],
+          senderName: 'GoyaNova Ayuda',
+          to: { email: 'goyanovasoporte@gmail.com', name: 'Soporte GoyaNova' },
           subject: `[Ayuda Pública] ${datos.asunto}`,
           htmlContent: `
             <h2>Nueva Consulta desde Ayuda Pública</h2>
@@ -102,18 +95,14 @@ const AyudaPublica = () => {
         }),
       });
 
-      if (response.ok) {
+      if (notificacionInterna.ok) {
         // Email confirmación al usuario
-        await fetch('https://api.brevo.com/v3/smtp/email', {
+        await fetch('/.netlify/functions/enviar-email', {
           method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': BREVO_API_KEY,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sender: { name: 'Soporte GoyaNova', email: BREVO_SENDER },
-            to: [{ email: datos.email, name: datos.nombre }],
+            senderName: 'Soporte GoyaNova',
+            to: { email: datos.email, name: datos.nombre },
             subject: 'Recibimos tu consulta - GoyaNova',
             htmlContent: `
               <h2>¡Hola ${datos.nombre}!</h2>
@@ -128,7 +117,7 @@ const AyudaPublica = () => {
       }
       return false;
     } catch (error) {
-      console.error('Error Brevo:', error);
+      console.error('Error al enviar email:', error);
       return false;
     }
   };
