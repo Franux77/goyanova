@@ -123,6 +123,12 @@
   font-weight: 500;
 }
 
+.precio-nota {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 .precio-actual-wrapper {
   display: flex;
   align-items: center;
@@ -377,6 +383,10 @@
 
   .precio-anterior {
     font-size: 0.9rem;
+  }
+
+  .precio-nota {
+    font-size: 0.8rem;
   }
 
   .precio-actual-wrapper .material-icons {

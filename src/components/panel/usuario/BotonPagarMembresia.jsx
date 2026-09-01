@@ -134,11 +134,11 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
           ) : (
             <>
               <div className="precio-section">
-                <span className="precio-anterior">$5.000</span>
                 <div className="precio-actual-wrapper">
                   <span className="material-icons">workspace_premium</span>
-                  <span className="precio-actual">$2.500/mes</span>
+                  <span className="precio-actual">USD 7/mes</span>
                 </div>
+                <span className="precio-nota">Precio sin impuestos</span>
               </div>
               <div className="btn-cta-wrapper">
                 <span className="material-icons btn-icon">shopping_cart</span>
