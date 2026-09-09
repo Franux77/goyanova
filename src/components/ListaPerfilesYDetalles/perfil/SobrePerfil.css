@@ -178,3 +178,164 @@
     font-size: 0.85rem;
   }
 }
+
+/* ============================================
+   AGREGAR AL FINAL DE SobrePerfil.css
+   Foto de referencia del local + redes sociales
+   ============================================ */
+
+/* --- Redes sociales / contacto extra --- */
+.sobre-redes-titulo {
+  margin-bottom: 0.6rem !important;
+}
+
+.sobre-redes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.sobre-red-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sobre-red-item .material-icons {
+  font-size: 1.1rem;
+}
+
+.sobre-red-item:hover {
+  transform: translateY(-2px);
+}
+
+.sobre-red-email {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.sobre-red-instagram {
+  background: linear-gradient(135deg, #feda75, #fa7e1e 50%, #d62976 75%, #962fbf);
+  color: #fff;
+}
+
+.sobre-red-facebook {
+  background: #1877F2;
+  color: #fff;
+}
+
+.sobre-red-web {
+  background: #1774f6;
+  color: #fff;
+}
+
+/* --- Foto de referencia del local --- */
+.sobre-referencia-wrapper {
+  margin: 1rem 0;
+}
+
+.sobre-btn-referencia {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid rgba(23, 116, 246, 0.25);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+  color: #1774f6;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sobre-btn-referencia:hover {
+  border-color: #1774f6;
+  box-shadow: 0 4px 14px rgba(23, 116, 246, 0.18);
+  transform: translateY(-1px);
+}
+
+.sobre-flecha-referencia {
+  transition: transform 0.25s ease;
+  font-size: 1.2rem !important;
+}
+
+.sobre-flecha-referencia.abierta {
+  transform: rotate(180deg);
+}
+
+.sobre-referencia-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease;
+}
+
+.sobre-referencia-panel.abierto {
+  max-height: 420px;
+  opacity: 1;
+  margin-top: 0.75rem;
+}
+
+.sobre-referencia-imagen {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(23, 116, 246, 0.15);
+  cursor: zoom-in;
+  display: block;
+}
+
+.sobre-referencia-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6000;
+  padding: 1.5rem;
+}
+
+.sobre-referencia-zoom-overlay img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.sobre-referencia-zoom-cerrar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .sobre-btn-referencia {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+
+  .sobre-red-item {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.75rem;
+  }
+}

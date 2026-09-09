@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import BotonPagarMembresia from './BotonPagarMembresia';
+import PlanesDisponibles from './PlanesDisponibles';
 import { useAuth } from '../../../auth/useAuth';
 import { supabase } from '../../../utils/supabaseClient';
-import Loading from '../../loading/Loading'; // 👈 IMPORTAR
+import Loading from '../../loading/Loading';
 import './MiMembresia.css';
 
 const MiMembresia = () => {
   const { user } = useAuth();
   const [membresia, setMembresia] = useState(null);
+  const [planActual, setPlanActual] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalCancelar, setModalCancelar] = useState(false);
   const [cancelando, setCancelando] = useState(false);
@@ -22,8 +23,7 @@ const MiMembresia = () => {
 
     try {
       setLoading(true);
-      // console.log('📊 Cargando membresía del usuario:', user.id);
-      
+
       const { data, error } = await supabase
         .rpc('obtener_membresia_usuario', {
           p_usuario_id: user.id
@@ -35,7 +35,6 @@ const MiMembresia = () => {
       }
 
       setMembresia(data);
-      // console.log('✅ Membresía cargada:', data);
     } catch (error) {
       console.error('❌ Error crítico al cargar membresía:', error);
       // Si falla, poner valores por defecto
@@ -43,6 +42,7 @@ const MiMembresia = () => {
         tiene_membresia: false,
         tipo: 'gratis',
         limite_fotos: 5,
+        limite_servicios: 1,
         prioridad_nivel: 0,
         es_premium: false,
         badge: null,
@@ -59,64 +59,96 @@ const MiMembresia = () => {
   }, [user]);
 
   // ============================================
-// CARGAR SERVICIOS ACTUALES DEL USUARIO
-// ============================================
-useEffect(() => {
-  const cargarServiciosActuales = async () => {
-    if (!user?.id) return;
+  // CARGAR DATOS DEL PLAN ACTUAL
+  // (nombre real, duración y color — ya no hardcodeados)
+  // ============================================
+  useEffect(() => {
+    const cargarPlan = async () => {
+      if (!membresia?.tipo) return;
 
-    try {
-      const { data, error } = await supabase
-        .rpc('puede_publicar_servicio', {
-          p_usuario_id: user.id
-        });
+      try {
+        const { data, error } = await supabase
+          .from('planes_membresia')
+          .select('id, tipo, nombre, duracion_dias, color_acento, beneficios')
+          .eq('tipo', membresia.tipo)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
+        setPlanActual(data);
+      } catch (err) {
+        console.error('❌ Error al cargar el plan:', err);
+        setPlanActual(null);
+      }
+    };
 
-      setServiciosActuales(data.servicios_actuales || 0);
-      setLimitesInfo(data);
-    } catch (error) {
-      console.error('❌ Error al cargar servicios:', error);
-      setServiciosActuales(0);
-    }
-  };
-
-  cargarServiciosActuales();
-}, [user]);
+    cargarPlan();
+  }, [membresia?.tipo]);
 
   // ============================================
-// DETECTAR RETORNO DE MERCADO PAGO
-// ============================================
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const pagoStatus = params.get('pago');
+  // CARGAR SERVICIOS ACTUALES DEL USUARIO
+  // ============================================
+  useEffect(() => {
+    const cargarServiciosActuales = async () => {
+      if (!user?.id) return;
 
-  if (pagoStatus) {
-    // Limpiar URL
-    window.history.replaceState({}, '', window.location.pathname);
+      try {
+        const { data, error } = await supabase
+          .rpc('puede_publicar_servicio', {
+            p_usuario_id: user.id
+          });
 
-    // Mostrar mensaje según el estado
-    if (pagoStatus === 'exito') {
-      alert('✅ ¡Pago exitoso! Tu membresía Premium se está activando. Puede demorar unos segundos.');
-      // Recargar membresía después de 3 segundos
-      setTimeout(() => {
-        cargarMembresia();
-      }, 3000);
-    } else if (pagoStatus === 'pendiente') {
-      alert('⏳ Tu pago está pendiente de confirmación. Te avisaremos cuando se procese.');
-    } else if (pagoStatus === 'error') {
-      alert('❌ Hubo un problema con tu pago. Por favor, intentá nuevamente.');
+        if (error) throw error;
+
+        setServiciosActuales(data.servicios_actuales || 0);
+        setLimitesInfo(data);
+      } catch (error) {
+        console.error('❌ Error al cargar servicios:', error);
+        setServiciosActuales(0);
+      }
+    };
+
+    cargarServiciosActuales();
+  }, [user]);
+
+  // ============================================
+  // DETECTAR RETORNO DE MERCADO PAGO
+  // ============================================
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pagoStatus = params.get('pago');
+
+    if (pagoStatus) {
+      // Limpiar URL
+      window.history.replaceState({}, '', window.location.pathname);
+
+      if (pagoStatus === 'exito') {
+        alert('✅ ¡Pago exitoso! Tu plan se está activando. Puede demorar unos segundos.');
+        setTimeout(() => {
+          cargarMembresia();
+        }, 3000);
+      } else if (pagoStatus === 'pendiente') {
+        alert('⏳ Tu pago está pendiente de confirmación. Te avisamos cuando se procese.');
+      } else if (pagoStatus === 'error') {
+        alert('❌ Hubo un problema con tu pago. Por favor, intentá nuevamente.');
+      }
     }
-  }
-}, []);
+  }, []);
+
   // ============================================
   // CALCULAR PORCENTAJE DE TIEMPO RESTANTE
+  // Usa la duración real del plan, no un número fijo
   // ============================================
   const calcularPorcentaje = () => {
     if (!membresia?.dias_restantes) return 0;
-    const diasTotal = membresia.tipo === 'codigo_gratis' ? 90 : 365;
+    const diasTotal = planActual?.duracion_dias > 0 ? planActual.duracion_dias : 30;
     return Math.max(0, Math.min(100, (membresia.dias_restantes / diasTotal) * 100));
   };
+
+  // ============================================
+  // NOMBRE DEL PLAN (sale de la base)
+  // ============================================
+  const nombrePlan = planActual?.nombre
+    || (membresia?.es_premium ? 'Plan Premium' : 'Plan Free');
 
   // ============================================
   // CANCELAR MEMBRESÍA
@@ -126,45 +158,42 @@ useEffect(() => {
 
     try {
       setCancelando(true);
-      // console.log('🚫 Cancelando membresía...');
 
-      const { error } = await supabase
-        .from('membresias')
-        .update({ 
-          estado: 'cancelada',
-          cancelado_por: user.id,
-          fecha_cancelacion: new Date().toISOString(),
-          motivo_cancelacion: 'Cancelado por el usuario'
-        })
-        .eq('usuario_id', user.id)
-        .eq('estado', 'activa');
+      // Ahora vía RPC: marca la cancelación pero respeta los días ya pagados
+      const { data, error } = await supabase.rpc('cancelar_mi_membresia', {
+        p_motivo: 'Cancelado por el usuario'
+      });
 
       if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'No se pudo cancelar');
 
-      // console.log('✅ Membresía cancelada exitosamente');
-      alert('✅ Membresía cancelada con éxito.\n\nTus beneficios Premium finalizarán al vencer el período actual.');
-      
+      alert(`✅ ${data.message}`);
+
       setModalCancelar(false);
       cargarMembresia();
 
     } catch (error) {
       console.error('❌ Error al cancelar membresía:', error);
-      alert('❌ Error al cancelar la membresía. Intenta nuevamente.');
+      alert(`❌ ${error.message || 'Error al cancelar la membresía. Intentá nuevamente.'}`);
     } finally {
       setCancelando(false);
     }
   };
 
   // ============================================
-  // LOADING - 👇 REEMPLAZAR ESTE BLOQUE
+  // LOADING
   // ============================================
   if (loading) {
     return <Loading message="Cargando tu membresía..." />;
   }
 
+  const limiteServicios = limitesInfo?.limite_servicios
+    ?? membresia?.limite_servicios
+    ?? 1;
+
   return (
     <div className="mi-membresia-container">
-      
+
       {/* ============================================
           HEADER
           ============================================ */}
@@ -177,9 +206,9 @@ useEffect(() => {
           <p className="membresia-subtitle">Gestiona tu plan y beneficios</p>
         </div>
 
-        {/* Botón cancelar (solo si es premium y no es admin) */}
+        {/* Botón cancelar (solo si es premium y no es VIP de admin) */}
         {membresia?.es_premium && membresia?.tipo !== 'manual_admin' && (
-          <button 
+          <button
             className="btn-cancelar-header"
             onClick={() => setModalCancelar(true)}
           >
@@ -193,37 +222,30 @@ useEffect(() => {
           CARD PRINCIPAL DE MEMBRESÍA
           ============================================ */}
       <div className={`membresia-card ${membresia?.es_premium ? 'membresia-premium' : 'membresia-gratis'}`}>
-        
+
         {/* Header del Card */}
         <div className="membresia-card-header">
           <div className="membresia-tipo-info">
             <span className="material-icons membresia-icono">
-  {membresia?.es_premium ? 'diamond' : 'money_off'}
-</span>
+              {membresia?.es_premium ? 'diamond' : 'money_off'}
+            </span>
 
             <div className="tipo-text">
-              <h2 className="membresia-tipo-titulo">
-                {membresia?.tipo === 'manual_admin' ? 'Premium VIP' :
-                 membresia?.tipo === 'pago' ? 'Premium Pago' :
-                 membresia?.tipo === 'codigo_gratis' ? 'Premium Promocional' : 
-                 'Plan Gratuito'}
-              </h2>
+              <h2 className="membresia-tipo-titulo">{nombrePlan}</h2>
               {membresia?.badge && (
                 <span className="membresia-badge">{membresia.badge}</span>
               )}
             </div>
           </div>
 
-          {membresia?.es_premium && (
-            <div className="membresia-estado-badge">
-              <span className="material-icons">verified</span>
-              <span>Activo</span>
-            </div>
-          )}
+          <div className="membresia-estado-badge">
+            <span className="material-icons">verified</span>
+            <span>Activo</span>
+          </div>
         </div>
 
-        {/* Tiempo Restante (solo premium) */}
-        {membresia?.es_premium && membresia?.dias_restantes !== undefined && (
+        {/* Tiempo Restante (solo planes con vencimiento) */}
+        {membresia?.es_premium && membresia?.dias_restantes !== null && membresia?.dias_restantes !== undefined && (
           <>
             <div className="membresia-tiempo">
               <div className="tiempo-info">
@@ -242,12 +264,22 @@ useEffect(() => {
 
             {/* Barra de progreso */}
             <div className="membresia-progreso">
-              <div 
+              <div
                 className="membresia-progreso-bar"
                 style={{ width: `${calcularPorcentaje()}%` }}
               />
             </div>
           </>
+        )}
+
+        {/* Sin vencimiento (plan gratuito) */}
+        {!membresia?.es_premium && (
+          <div className="membresia-tiempo">
+            <div className="tiempo-fecha">
+              <span className="material-icons">all_inclusive</span>
+              <span>Sin vencimiento</span>
+            </div>
+          </div>
         )}
 
         {/* Beneficios */}
@@ -257,7 +289,7 @@ useEffect(() => {
             Tus Beneficios Actuales
           </h3>
           <div className="beneficios-grid">
-            
+
             <div className="beneficio-item">
               <span className={`material-icons beneficio-icon ${membresia?.es_premium ? 'activo' : 'inactivo'}`}>
                 {membresia?.es_premium ? 'check_circle' : 'cancel'}
@@ -265,52 +297,40 @@ useEffect(() => {
               <div className="beneficio-text">
                 <strong>Prioridad en resultados</strong>
                 <small>
-                  {membresia?.es_premium 
-                    ? `Nivel ${membresia.prioridad_nivel} - Apareces primero` 
-                    : 'Solo usuarios Premium'}
+                  {membresia?.es_premium
+                    ? `Nivel ${membresia.prioridad_nivel} - Aparecés primero`
+                    : 'Solo con planes pagos'}
                 </small>
               </div>
             </div>
 
             <div className="beneficio-item">
-              <span className="material-icons beneficio-icon activo">check_circle</span>
+              <span className="material-icons beneficio-icon activo">photo_library</span>
               <div className="beneficio-text">
                 <strong>Límite de fotos</strong>
                 <small>Hasta {membresia?.limite_fotos || 5} fotos por servicio</small>
               </div>
             </div>
-            
+
             <div className="beneficio-item">
-      <span className="material-icons beneficio-icon activo">library_add</span>
-      <div className="beneficio-text">
-        <strong>Límite de servicios</strong>
-        <small>
-          {membresia?.es_premium ? 'Hasta 10 servicios' : 'Hasta 1 servicio'}
-        </small>
-      </div>
-    </div>
+              <span className="material-icons beneficio-icon activo">library_add</span>
+              <div className="beneficio-text">
+                <strong>Límite de servicios</strong>
+                <small>
+                  Hasta {limiteServicios} {limiteServicios === 1 ? 'servicio' : 'servicios'}
+                </small>
+              </div>
+            </div>
 
             {membresia?.badge && (
               <div className="beneficio-item">
-                <span className="material-icons beneficio-icon activo">check_circle</span>
+                <span className="material-icons beneficio-icon activo">workspace_premium</span>
                 <div className="beneficio-text">
                   <strong>Badge exclusivo</strong>
                   <small>"{membresia.badge}" en tus publicaciones</small>
                 </div>
               </div>
             )}
-
-            {/* <div className="beneficio-item">
-              <span className={`material-icons beneficio-icon ${membresia?.es_premium ? 'activo' : 'inactivo'}`}>
-                {membresia?.es_premium ? 'check_circle' : 'cancel'}
-              </span>
-              <div className="beneficio-text">
-                <strong>Estadísticas avanzadas</strong>
-                <small>
-                  {membresia?.es_premium ? 'Acceso completo' : 'Solo usuarios Premium'}
-                </small>
-              </div>
-            </div> */}
 
             <div className="beneficio-item">
               <span className={`material-icons beneficio-icon ${membresia?.es_premium ? 'activo' : 'inactivo'}`}>
@@ -319,7 +339,7 @@ useEffect(() => {
               <div className="beneficio-text">
                 <strong>Soporte prioritario</strong>
                 <small>
-                  {membresia?.es_premium ? 'Atención preferencial' : 'Solo usuarios Premium'}
+                  {membresia?.es_premium ? 'Atención preferencial' : 'Solo con planes pagos'}
                 </small>
               </div>
             </div>
@@ -329,187 +349,74 @@ useEffect(() => {
       </div>
 
       {/* ============================================
-          INFO ADICIONAL PARA USUARIOS GRATUITOS
+          SECCIÓN DE SERVICIOS PUBLICADOS
           ============================================ */}
-      {/* ============================================
-    SECCIÓN PARA OBTENER PREMIUM
-    ============================================ */}
-{(!membresia?.tiene_membresia || membresia.tipo === 'gratis' || membresia.tipo === 'codigo_gratis') && (
-  <div className="upgrade-section">
-    <div className="upgrade-header">
-      <div className="upgrade-icon">
-        <span className="material-icons">rocket_launch</span>
-      </div>
-      <div className="upgrade-content">
-        <h3>🚀 Potenciá tu visibilidad con Premium</h3>
-        <p>Con Premium, tus servicios aparecen primero en todas las búsquedas y tenés acceso a beneficios exclusivos.</p>
-      </div>
-    </div>
-
-    <div className="upgrade-beneficios-grid">
-      <div className="beneficio-upgrade">
-        <span className="material-icons">verified</span>
-        <div>
-          <strong>Prioridad máxima</strong>
-          <small>Aparecés primero siempre</small>
+      <div className="servicios-publicados-section">
+        <div className="servicios-header">
+          <h2>
+            <span className="material-icons">feed</span>
+            Servicios Publicados
+          </h2>
+          <p className="servicios-subtitle">Gestiona cuántos servicios puedes publicar</p>
         </div>
-      </div>
-      <div className="beneficio-upgrade">
-        <span className="material-icons">photo_library</span>
-        <div>
-          <strong>Hasta 25 fotos</strong>
-          <small>Mostrá más de tu trabajo</small>
-        </div>
-      </div>
-      <div className="beneficio-upgrade">
-        <span className="material-icons">workspace_premium</span>
-        <div>
-          <strong>Badge Premium</strong>
-          <small>Destacate con insignia exclusiva</small>
-        </div>
-      </div>
-      <div className="beneficio-upgrade">
-        <span className="material-icons">support_agent</span>
-        <div>
-          <strong>Soporte prioritario</strong>
-          <small>Atención preferencial</small>
-        </div>
-      </div>
-      <div className="beneficio-upgrade">
-    <span className="material-icons">library_add</span>
-    <div>
-      <strong>Publicá más servicios</strong>
-      <small>Hasta 10 servicios en Premium</small>
-    </div>
-  </div>
-    </div>
 
-    {/* Botón de pago */}
-    <BotonPagarMembresia 
-      membresia={membresia} 
-      onPagoIniciado={() => {
-        // console.log('🚀 Redirigiendo a Mercado Pago...');
-      }}
-    />
+        <div className="servicios-info-card">
+          <div className="servicios-contador">
+            <div className="contador-circular">
+              <svg viewBox="0 0 36 36" className="circular-chart">
+                <path
+                  className="circle-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="circle"
+                  strokeDasharray={`${Math.min(100, (serviciosActuales / limiteServicios) * 100)}, 100`}
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div className="contador-texto">
+                <span className="numero-grande">{serviciosActuales}</span>
+                <span className="numero-total">/{limiteServicios}</span>
+              </div>
+            </div>
 
-    <div className="upgrade-cta">
-      <span className="material-icons">info</span>
-      <span>También podés obtener Premium con códigos promocionales en folletos locales</span>
-    </div>
-  </div>
-)}
-
-{/* ============================================
-    SECCIÓN DE SERVICIOS PUBLICADOS
-    ============================================ */}
-<div className="servicios-publicados-section">
-  <div className="servicios-header">
-    <h2>
-      <span className="material-icons">feed</span>
-      Servicios Publicados
-    </h2>
-    <p className="servicios-subtitle">Gestiona cuántos servicios puedes publicar</p>
-  </div>
-
-  <div className="servicios-info-card">
-    <div className="servicios-contador">
-      <div className="contador-circular">
-        <svg viewBox="0 0 36 36" className="circular-chart">
-          <path
-            className="circle-bg"
-            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-          />
-          <path
-            className="circle"
-            strokeDasharray={`${((serviciosActuales / (limitesInfo?.limite_servicios || 2)) * 100)}, 100`}
-            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-          />
-        </svg>
-        <div className="contador-texto">
-          <span className="numero-grande">{serviciosActuales}</span>
-          <span className="numero-total">/{limitesInfo?.limite_servicios || 2}</span>
-        </div>
-      </div>
-      
-      <div className="contador-detalles">
-        <div className="detalle-item">
-          <span className="material-icons">check_circle</span>
-          <div>
-            <strong>Servicios activos</strong>
-            <small>{serviciosActuales} publicados</small>
+            <div className="contador-detalles">
+              <div className="detalle-item">
+                <span className="material-icons">check_circle</span>
+                <div>
+                  <strong>Servicios activos</strong>
+                  <small>{serviciosActuales} publicados</small>
+                </div>
+              </div>
+              <div className="detalle-item">
+                <span className="material-icons">add_circle</span>
+                <div>
+                  <strong>Disponibles</strong>
+                  <small>{Math.max(0, limiteServicios - serviciosActuales)} restantes</small>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="detalle-item">
-          <span className="material-icons">add_circle</span>
-          <div>
-            <strong>Disponibles</strong>
-            <small>{Math.max(0, (limitesInfo?.limite_servicios || 2) - serviciosActuales)} restantes</small>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    {serviciosActuales >= (limitesInfo?.limite_servicios || 2) && (
-      <div className="alerta-limite-alcanzado">
-        <span className="material-icons">warning</span>
-        <div>
-          <strong>Has alcanzado tu límite</strong>
-          <p>Para publicar más servicios, mejorá tu plan a Premium</p>
+          {serviciosActuales >= limiteServicios && (
+            <div className="alerta-limite-alcanzado">
+              <span className="material-icons">warning</span>
+              <div>
+                <strong>Alcanzaste tu límite</strong>
+                <p>Para publicar más servicios, mejorá tu plan</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    )}
-  </div>
-</div>
 
       {/* ============================================
-    TABLA COMPARATIVA
-    ============================================ */}
-<div className="comparativa-planes">
-  <h2>Comparación de Planes</h2>
-  <div className="tabla-responsive">
-    <table className="tabla-planes">
-      <thead>
-        <tr>
-          <th>Característica</th>
-          <th>Gratis</th>
-          <th className="plan-premium">Premium</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Servicios publicados</td>
-          <td>Hasta 1 servicio</td>
-          <td className="highlight">1-10 servicios</td>
-        </tr>
-        <tr>
-          <td>Fotos por servicio</td>
-          <td>5 fotos</td>
-          <td className="highlight">5-25 fotos</td>
-        </tr>
-        <tr>
-          <td>Prioridad en resultados</td>
-          <td><span className="cross">✗</span></td>
-          <td><span className="check premium-check">✓</span></td>
-        </tr>
-        <tr>
-          <td>Badge en publicaciones</td>
-          <td><span className="cross">✗</span></td>
-          <td><span className="check premium-check">✓</span></td>
-        </tr>
-        {/* <tr>
-          <td>Estadísticas avanzadas</td>
-          <td><span className="cross">✗</span></td>
-          <td><span className="check premium-check">✓</span></td>
-        </tr> */}
-        <tr>
-          <td>Soporte prioritario</td>
-          <td><span className="cross">✗</span></td>
-          <td><span className="check premium-check">✓</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+          PLANES DISPONIBLES
+          ============================================ */}
+      <PlanesDisponibles
+        membresia={membresia}
+        onPagoIniciado={() => {}}
+      />
 
       {/* ============================================
           MODAL CANCELAR MEMBRESÍA
@@ -517,24 +424,24 @@ useEffect(() => {
       {modalCancelar && (
         <div className="modal-overlay" onClick={() => !cancelando && setModalCancelar(false)}>
           <div className="modal-content modal-cancelar" onClick={(e) => e.stopPropagation()}>
-            
+
             <div className="modal-header-cancelar">
               <span className="material-icons icon-warning">warning</span>
-              <h3>¿Cancelar Membresía Premium?</h3>
+              <h3>¿Cancelar tu plan?</h3>
             </div>
 
             <div className="modal-body-cancelar">
-              <p>Estás a punto de cancelar tu membresía Premium.</p>
-              
+              <p>Estás a punto de cancelar tu plan actual.</p>
+
               <div className="info-box-warning">
                 <span className="material-icons">info</span>
                 <div>
                   <strong>¿Qué pasará?</strong>
                   <ul>
-                    <li>Tus servicios publicados mantendrán su estado actual hasta que expire la membresía</li>
-                    <li>No podrás subir nuevas fotos con el límite Premium</li>
-                    <li>Después de esa fecha, volverás al plan gratuito</li>
-                    <li>Perderás prioridad en búsquedas y badges exclusivos</li>
+                    <li>Conservás todos los beneficios hasta la fecha de vencimiento</li>
+                    <li>No se te va a renovar automáticamente</li>
+                    <li>Después de esa fecha volvés al Plan Free</li>
+                    <li>Ahí perdés prioridad en búsquedas y el badge</li>
                   </ul>
                 </div>
               </div>
@@ -543,14 +450,14 @@ useEffect(() => {
             </div>
 
             <div className="modal-actions-cancelar">
-              <button 
+              <button
                 className="btn-volver"
                 onClick={() => setModalCancelar(false)}
                 disabled={cancelando}
               >
-                No, mantener Premium
+                No, mantener mi plan
               </button>
-              <button 
+              <button
                 className="btn-confirmar-cancelar"
                 onClick={handleCancelarMembresia}
                 disabled={cancelando}

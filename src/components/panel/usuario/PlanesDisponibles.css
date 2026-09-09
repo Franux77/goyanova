@@ -1,0 +1,395 @@
+/* src/components/panel/usuario/PlanesDisponibles.css */
+
+.planes-disponibles {
+  width: 100%;
+  margin: 2rem 0;
+}
+
+.planes-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.planes-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 0.5rem;
+}
+
+.planes-header p {
+  color: #64748B;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ---------- Grilla ---------- */
+
+.planes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 2px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  border-color: var(--plan-color);
+}
+
+.plan-card.plan-actual {
+  border-color: #16A34A;
+  background: linear-gradient(180deg, #F0FDF4 0%, #fff 45%);
+}
+
+/* ---------- Badges ---------- */
+
+.plan-badge-actual,
+.plan-badge-tipo {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.plan-badge-actual {
+  background: #16A34A;
+  color: #fff;
+}
+
+.plan-badge-actual .material-icons {
+  font-size: 1rem;
+}
+
+.plan-badge-tipo {
+  background: var(--plan-color);
+  color: #fff;
+}
+
+/* ---------- Texto ---------- */
+
+.plan-nombre {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0.5rem 0 0.35rem;
+  text-align: center;
+}
+
+.plan-descripcion {
+  font-size: 0.85rem;
+  color: #64748B;
+  text-align: center;
+  margin: 0 0 1rem;
+  min-height: 2.4em;
+  line-height: 1.2;
+}
+
+/* ---------- Precio ---------- */
+
+.plan-precio {
+  text-align: center;
+  padding: 0.75rem 0 1rem;
+  border-bottom: 1px solid #F1F5F9;
+  margin-bottom: 1rem;
+}
+
+.plan-precio-gratis {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #16A34A;
+}
+
+.plan-precio-tachado {
+  display: block;
+  font-size: 0.85rem;
+  color: #94A3B8;
+  text-decoration: line-through;
+  margin-bottom: 0.15rem;
+}
+
+.plan-precio-principal {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.plan-precio-usd {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--plan-color);
+  line-height: 1;
+}
+
+.plan-precio-periodo {
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+.plan-precio-ars {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.plan-precio-ars-tachado {
+  color: #94A3B8;
+  font-weight: 400;
+  margin-left: 0.4rem;
+}
+
+/* ---------- Límites ---------- */
+
+.plan-limites {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.plan-limite {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1E293B;
+  background: #F8FAFC;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+.plan-limite .material-icons {
+  font-size: 1.1rem;
+  color: var(--plan-color);
+}
+
+/* ---------- Beneficios ---------- */
+
+.plan-beneficios {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.plan-beneficios li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.plan-beneficios .material-icons {
+  font-size: 1rem;
+  color: var(--plan-color);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* ---------- Acción ---------- */
+
+.plan-accion {
+  margin-top: auto;
+}
+
+.plan-actual-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #DCFCE7;
+  color: #15803D;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.plan-actual-msg.plan-msg-gris {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.plan-actual-msg .material-icons {
+  font-size: 1.1rem;
+}
+
+/* ---------- Nota de cotización ---------- */
+
+.planes-nota-cotizacion {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94A3B8;
+  line-height: 1.5;
+}
+
+/* ---------- Estados ---------- */
+
+.planes-loading,
+.planes-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: #64748B;
+}
+
+.planes-error .material-icons {
+  font-size: 2rem;
+  color: #DC2626;
+}
+
+.planes-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E2E8F0;
+  border-top-color: #2563EB;
+  border-radius: 50%;
+  animation: planes-spin 0.8s linear infinite;
+}
+
+@keyframes planes-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Botón contratar ---------- */
+
+.btn-plan-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-contratar-plan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--btn-color, #2563EB);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+.btn-contratar-plan:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn-contratar-plan:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-contratar-plan:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-contratar-plan .material-icons {
+  font-size: 1.1rem;
+}
+
+.btn-plan-precio-nota {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.btn-plan-seguridad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.btn-plan-seguridad .material-icons {
+  font-size: 0.9rem;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: planes-spin 0.7s linear infinite;
+}
+
+.error-pago {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+}
+
+.error-pago .material-icons {
+  color: #DC2626;
+  font-size: 1.1rem;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  color: #991B1B;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 640px) {
+  .planes-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .planes-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .plan-descripcion {
+    min-height: auto;
+  }
+}

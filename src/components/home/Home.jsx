@@ -7,6 +7,7 @@ import TypeSelector from './TypeSelector';
 import { useAuth } from '../../auth/useAuth';
 import ModalCodigoPromo from '../../auth/login/ModalCodigoPromo';
 import MapaHome from './MapaHome';
+import HistoriasHome from './HistoriasHome';
 import { supabase } from '../../utils/supabaseClient';
 
 const Home = () => {
@@ -279,8 +280,9 @@ const Home = () => {
     }
   };
 
-  return (
+    return (
     <div className="home">
+      <HistoriasHome />
       <SaludoUsuario />
 
       {/* ESTE ES EL BOTÓN GIGANTE QUE QUERÍAS MANTENER: */}

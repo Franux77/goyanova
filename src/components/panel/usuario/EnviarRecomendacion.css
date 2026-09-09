@@ -1,0 +1,42 @@
+.enviarecom-container {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.enviarecom-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: 8px;
+  background: #7C3AED;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.enviarecom-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.enviarecom-btn .material-icons {
+  font-size: 1.1rem;
+}
+
+.enviarecom-nota {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.enviarecom-resultado {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.enviarecom-resultado.ok { color: #16A34A; }
+.enviarecom-resultado.error { color: #DC2626; }

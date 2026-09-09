@@ -1,8 +1,17 @@
+// src/components/panel/usuario/BotonPagarMembresia.jsx
+//
+// v2: ahora recibe el plan como prop y le manda el plan_id a la edge
+// function. Ya no tiene el precio escrito a mano (aquel "USD 7/mes" que
+// no coincidía con lo que se cobraba).
+//
+// Si lo usás sin prop `plan`, sigue funcionando como antes: la edge
+// function cae al plan 'pago' por defecto.
+
 import React, { useState } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import './BotonPagarMembresia.css';
 
-const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
+const BotonPagarMembresia = ({ plan, precioArs, onPagoIniciado }) => {
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,177 +20,95 @@ const BotonPagarMembresia = ({ membresia, onPagoIniciado }) => {
       setProcesando(true);
       setError(null);
 
-      // console.log('💳 Iniciando proceso de pago...');
-      // console.log('📊 Estado actual de membresía:', membresia);
+      const { data: { session }, error: sessionError } =
+        await supabase.auth.getSession();
 
-      // Obtener token de sesión actual
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
       if (sessionError || !session) {
-        throw new Error('No estás autenticado. Por favor, iniciá sesión nuevamente.');
+        throw new Error('Tenés que iniciar sesión para contratar un plan.');
       }
 
-      // console.log('🔑 Sesión obtenida, llamando a Edge Function...');
-
-      // Llamar a la Edge Function para crear preferencia de pago
       const { data, error: functionError } = await supabase.functions.invoke(
         'crear-preferencia-pago',
         {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: plan?.id ? { plan_id: plan.id } : {}
         }
       );
 
-      // console.log('📡 Respuesta de Edge Function:', { data, error: functionError });
-
       if (functionError) {
-        console.error('❌ Error de la función:', functionError);
-        
-        // Mostrar mensaje de error más detallado
+        console.error('Error de la función:', functionError);
         if (functionError.message?.includes('FunctionsRelayError')) {
-          throw new Error('La función de pago no está disponible. Por favor, contactá a soporte.');
-        } else if (functionError.message?.includes('FunctionsFetchError')) {
-          throw new Error('Error de conexión. Verificá tu internet y probá nuevamente.');
-        } else {
-          throw new Error(functionError.message || 'Error al procesar el pago');
+          throw new Error('El servicio de pagos no está disponible. Escribinos y lo resolvemos.');
         }
+        if (functionError.message?.includes('FunctionsFetchError')) {
+          throw new Error('Error de conexión. Revisá tu internet y probá de nuevo.');
+        }
+        throw new Error(functionError.message || 'No pudimos iniciar el pago');
       }
 
-      if (!data) {
-        throw new Error('No se recibió respuesta del servidor');
-      }
+      if (!data) throw new Error('No hubo respuesta del servidor');
+      if (data.error) throw new Error(data.error);
+      if (!data.init_point) throw new Error('Mercado Pago no devolvió el link de pago');
 
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (onPagoIniciado) onPagoIniciado(plan);
 
-      // console.log('✅ Preferencia creada exitosamente:', data);
-
-      // Notificar al componente padre que el pago se inició
-      if (onPagoIniciado) {
-        onPagoIniciado();
-      }
-
-      // Redirigir a Mercado Pago
-      if (data.init_point) {
-        // console.log('🚀 Redirigiendo a Mercado Pago...');
-        window.location.href = data.init_point;
-      } else {
-        throw new Error('No se recibió URL de pago de Mercado Pago');
-      }
+      window.location.href = data.init_point;
 
     } catch (err) {
-      console.error('❌ Error al procesar pago:', err);
+      console.error('Error al procesar pago:', err);
       setError(err.message || 'Error al procesar el pago. Intentá nuevamente.');
       setProcesando(false);
     }
   };
 
-  // Si ya tiene membresía Premium de pago activa
-  if (membresia?.tipo === 'pago' && membresia?.es_premium) {
-    return (
-      <div className="info-membresia-activa">
-        <span className="material-icons">check_circle</span>
-        <p>Ya tenés una membresía Premium activa</p>
-      </div>
-    );
-  }
-
-  // Si tiene membresía promocional
-  if (membresia?.tipo === 'codigo_gratis' && membresia?.es_premium) {
-    return (
-      <div className="info-membresia-promocional">
-        <span className="material-icons">local_offer</span>
-        <p>Tenés una membresía promocional activa. Cuando expire, podrás adquirir Premium.</p>
-      </div>
-    );
-  }
-
-  // Si tiene membresía VIP manual
-  if (membresia?.tipo === 'manual_admin' && membresia?.es_premium) {
-    return (
-      <div className="info-membresia-vip">
-        <span className="material-icons">workspace_premium</span>
-        <p>Tenés una membresía VIP especial</p>
-      </div>
-    );
-  }
+  const formatearPesos = (n) =>
+    n == null ? null : '$' + Number(n).toLocaleString('es-AR');
 
   return (
-    <div className="boton-pagar-container">
-      {/* Badge de descuento */}
-      <div className="promo-badge">
-        <span className="material-icons">local_fire_department</span>
-        <div className="promo-text">
-          <strong>¡OFERTA DE LANZAMIENTO!</strong>
-          <span>Precio exclusivo hasta agotar stock</span>
-        </div>
-      </div>
-
-      {/* Botón principal */}
-      <button 
-        className="btn-pagar-premium"
+    <div className="btn-plan-wrapper">
+      <button
+        className="btn-contratar-plan"
         onClick={handlePagar}
         disabled={procesando}
+        style={{ '--btn-color': plan?.color_acento || '#2563EB' }}
       >
-        <div className="btn-content">
-          {procesando ? (
-            <>
-              <span className="spinner-small"></span>
-              <span>Procesando pago...</span>
-            </>
-          ) : (
-            <>
-              <div className="precio-section">
-                <div className="precio-actual-wrapper">
-                  <span className="material-icons">workspace_premium</span>
-                  <span className="precio-actual">USD 7/mes</span>
-                </div>
-                <span className="precio-nota">Precio sin impuestos</span>
-              </div>
-              <div className="btn-cta-wrapper">
-                <span className="material-icons btn-icon">shopping_cart</span>
-                <span className="btn-cta">ADQUIRIR PREMIUM AHORA</span>
-                <span className="material-icons btn-arrow">arrow_forward</span>
-              </div>
-            </>
-          )}
-        </div>
+        {procesando ? (
+          <>
+            <span className="spinner-small" />
+            <span>Redirigiendo a Mercado Pago...</span>
+          </>
+        ) : (
+          <>
+            <span className="material-icons">shopping_cart</span>
+            <span>
+              Contratar{plan?.nombre ? ` ${plan.nombre}` : ''}
+            </span>
+          </>
+        )}
       </button>
+
+      {!procesando && precioArs && (
+        <span className="btn-plan-precio-nota">
+          Pagás {formatearPesos(precioArs)} ARS
+        </span>
+      )}
+
+      <div className="btn-plan-seguridad">
+        <span className="material-icons">lock</span>
+        <span>Pago seguro con Mercado Pago</span>
+      </div>
 
       {error && (
         <div className="error-pago">
           <span className="material-icons">error</span>
           <div className="error-content">
-            <strong>Error al procesar el pago</strong>
+            <strong>No se pudo iniciar el pago</strong>
             <span>{error}</span>
           </div>
         </div>
       )}
-
-      {/* Información adicional */}
-      <div className="info-promocion">
-        <div className="info-item">
-          <span className="material-icons">schedule</span>
-          <span>Oferta por tiempo limitado</span>
-        </div>
-        <div className="info-item">
-          <span className="material-icons">lock</span>
-          <span>Pago seguro con Mercado Pago</span>
-        </div>
-        <div className="info-item">
-          <span className="material-icons">trending_up</span>
-          <span>Precio aumentará próximamente</span>
-        </div>
-      </div>
-
-      <div className="aviso-precio">
-        <span className="material-icons">info</span>
-        <p>Este precio especial es solo para los primeros usuarios. Los nuevos miembros pagarán el precio regular.</p>
-      </div>
     </div>
   );
 };
 
-export default BotonPagarMembresia;
+export default BotonPagarMembresia;   

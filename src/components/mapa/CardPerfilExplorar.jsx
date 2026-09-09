@@ -24,24 +24,25 @@ const getIniciales = (nombre) => {
 
 const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) => {
   const navigate = useNavigate();
-  const { 
-    id, 
-    nombre = 'Sin nombre', 
-    categoria_id, 
-    descripcion = '', 
+  const {
+    id,
+    nombre = 'Sin nombre',
+    categoria_id,
+    descripcion = '',
     contacto_whatsapp,
     foto_portada,
     es_premium,
     badge_texto,
+    pin_color, // 🆕 color de destaque del plan (Destacado/Elite)
     opiniones = []
   } = perfil;
 
   const nombreCategoria = categoriasMap[categoria_id]?.nombre || '';
-  
-  const foto = foto_portada && 
-    foto_portada.trim() !== '' && 
-    foto_portada.toLowerCase() !== 'empty' 
-      ? foto_portada 
+
+  const foto = foto_portada &&
+    foto_portada.trim() !== '' &&
+    foto_portada.toLowerCase() !== 'empty'
+      ? foto_portada
       : null;
 
   const rating = opiniones?.length > 0
@@ -50,13 +51,16 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
 
   const handleVerPerfil = () => navigate(`/perfil/${id}`);
 
-  const descripcionCorta = descripcion && descripcion.length > 120 
-    ? descripcion.substring(0, 120) + '...' 
+  const descripcionCorta = descripcion && descripcion.length > 120
+    ? descripcion.substring(0, 120) + '...'
     : descripcion;
 
   return (
-    <div className="card-perfil-explorar">
-      {/* 🆕 Badge Premium - Esquina superior derecha */}
+    <div
+      className={`card-perfil-explorar ${pin_color ? 'card-perfil-destacada' : ''}`}
+      style={pin_color ? { '--color-destaque': pin_color } : undefined}
+    >
+      {/* Badge Premium - Esquina superior derecha */}
       {es_premium && badge_texto && (
         <div className="badge-explorar-premium">
           <span className="material-icons badge-explorar-star">star</span>
@@ -67,11 +71,11 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
       {/* Imagen o iniciales */}
       <div className="card-perfil-imagen-container">
         {foto ? (
-          <img 
-            src={foto} 
-            alt={nombre} 
-            className="card-perfil-imagen" 
-            loading="lazy" 
+          <img
+            src={foto}
+            alt={nombre}
+            className="card-perfil-imagen"
+            loading="lazy"
           />
         ) : (
           <div
@@ -139,7 +143,7 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
             <MapPin size={16} />
           </button>
 
-          <button 
+          <button
             className="btn-accion btn-ver-perfil"
             onClick={(e) => {
               e.stopPropagation();

@@ -1,0 +1,80 @@
+.subirreel-container {
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  border: 1px dashed #CBD5E1;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.subirreel-activo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+  color: #16A34A;
+}
+
+.subirreel-activo strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #0F172A;
+}
+
+.subirreel-activo p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748B;
+}
+
+.subirreel-sin-reel {
+  font-size: 0.82rem;
+  color: #94A3B8;
+  margin: 0 0 0.6rem;
+}
+
+.subirreel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #F97316, #EA580C);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.subirreel-btn.deshabilitado {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.subirreel-btn .material-icons {
+  font-size: 1.1rem;
+}
+
+.subirreel-nota {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.subirreel-aviso,
+.subirreel-error {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.subirreel-aviso { color: #D97706; }
+.subirreel-error { color: #DC2626; }
+
+.subirreel-aviso .material-icons,
+.subirreel-error .material-icons {
+  font-size: 1rem;
+}

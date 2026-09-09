@@ -8,12 +8,14 @@ const Paso2ImagenesUbicacion = ({
   setFormData, 
   errores, 
   limiteImagenes = 5,
-  membresiaUsuario = 'Gratis'
+  membresiaUsuario = 'Gratis',
+  puedeFotoReferencia = false // 🆕 viene de useCaracteristicasPlan() en PublicarServicioForm
 }) => {
   const navigate = useNavigate();
   const [modalImagen, setModalImagen] = useState(null);
   const [subiendo, setSubiendo] = useState(false);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
+  const [subiendoReferencia, setSubiendoReferencia] = useState(false); // 🆕
 
   const maximoAlcanzado = (formData.imagenesPreview?.length || 0) >= limiteImagenes;
 
@@ -111,6 +113,47 @@ const Paso2ImagenesUbicacion = ({
     }
   };
 
+  // 🆕 Foto de referencia de ubicación (Impulso+)
+  const handleAgregarReferencia = async (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    setSubiendoReferencia(true);
+
+    try {
+      const comprimida = await comprimirImagen(archivo);
+
+      if (formData.referenciaPreview && formData.referenciaPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(formData.referenciaPreview);
+      }
+
+      setFormData({
+        ...formData,
+        referenciaFile: comprimida,
+        referenciaPreview: URL.createObjectURL(comprimida),
+        referenciaAEliminar: null,
+      });
+    } catch (error) {
+      console.error('Error procesando foto de referencia:', error);
+      alert('Error al procesar la imagen. Intenta nuevamente.');
+    } finally {
+      setSubiendoReferencia(false);
+    }
+  };
+
+  const handleEliminarReferencia = (e) => {
+    e.stopPropagation();
+    if (formData.referenciaPreview || formData.referenciaDB) {
+      setFormData({
+        ...formData,
+        referenciaAEliminar: formData.referenciaDB || formData.referenciaPreview,
+        referenciaPreview: null,
+        referenciaFile: null,
+        referenciaDB: null,
+      });
+    }
+  };
+
   const handleEliminarImagen = (index, e) => {
     e.stopPropagation();
     const nuevosFiles = [...(formData.imagenesFiles || [])];
@@ -140,12 +183,10 @@ const Paso2ImagenesUbicacion = ({
   const imagenesListadas = useMemo(() => formData.imagenesPreview || [], [formData.imagenesPreview]);
 
   const abrirModal = (src) => {
-    console.log('🖼️ Abriendo modal con:', src);
     setModalImagen(src);
   };
 
   const cerrarModal = () => {
-    console.log('❌ Cerrando modal');
     setModalImagen(null);
   };
 
@@ -155,8 +196,8 @@ const Paso2ImagenesUbicacion = ({
 
       <div className="paso2-portada-section">
         <h3 className='h33'>Foto principal (Opcional)</h3>
-<p className="paso2-descripcion">
-  Esta es la foto que todos van a ver primero
+        <p className="paso2-descripcion">
+          Esta es la foto que todos van a ver primero
           <span style={{ fontSize: '0.85em', color: '#666', display: 'block', marginTop: '0.3rem' }}>
             📦 Las imágenes se comprimen automáticamente para ahorrar espacio
           </span>
@@ -199,12 +240,58 @@ const Paso2ImagenesUbicacion = ({
         )}
       </div>
 
+      {/* 🆕 Foto de referencia de ubicación — Plan Impulso en adelante */}
+      {puedeFotoReferencia && (
+        <div className="paso2-portada-section">
+          <h3 className='h33'>Foto de referencia de tu ubicación (Opcional)</h3>
+          <p className="paso2-descripcion">
+            Una foto del frente, cartel o punto de referencia, para que te encuentren más fácil
+          </p>
+          <label
+            htmlFor="input-agregar-referencia"
+            className={`paso2-agregar-imagen ${subiendoReferencia ? 'deshabilitado' : ''}`}
+          >
+            <div className="paso2-icono-plus">+</div>
+            <div className="paso2-texto-agregar">
+              {subiendoReferencia ? 'Comprimiendo...' : 'Agregar foto de referencia'}
+            </div>
+          </label>
+          <input
+            type="file"
+            id="input-agregar-referencia"
+            accept="image/*"
+            onChange={handleAgregarReferencia}
+            style={{ display: 'none' }}
+            disabled={subiendoReferencia}
+          />
+
+          {(formData.referenciaPreview || formData.referenciaDB) && (
+            <div className="paso2-imagen-wrapper">
+              <img
+                src={formData.referenciaPreview || formData.referenciaDB}
+                alt="Referencia de ubicación"
+                className="paso2-imagen paso2-imagen-clickeable"
+                onClick={() => abrirModal(formData.referenciaPreview || formData.referenciaDB)}
+                style={{ cursor: 'pointer' }}
+              />
+              <button
+                type="button"
+                className="paso2-btn-eliminar"
+                onClick={handleEliminarReferencia}
+              >
+                ×
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <h3 className='h33'>Más fotos de lo que hacés (Opcional)</h3>
-<div className="paso2-adicionales-info">
-  <div className="paso2-limite-info">
-    <p className="paso2-descripcion">
-      Subí hasta <strong>{limiteImagenes}</strong> fotos más para que te conozcan mejor
-    </p>
+      <div className="paso2-adicionales-info">
+        <div className="paso2-limite-info">
+          <p className="paso2-descripcion">
+            Subí hasta <strong>{limiteImagenes}</strong> fotos más para que te conozcan mejor
+          </p>
           <div className="paso2-contador-imagenes">
             <span className={`paso2-contador ${maximoAlcanzado ? 'limite-alcanzado' : ''}`}>
               {formData.imagenesPreview?.length || 0} / {limiteImagenes} imágenes
@@ -287,5 +374,5 @@ const Paso2ImagenesUbicacion = ({
     </div>
   );
 };
- 
+
 export default Paso2ImagenesUbicacion;

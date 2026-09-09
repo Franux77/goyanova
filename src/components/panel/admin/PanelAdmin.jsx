@@ -45,7 +45,8 @@ const PanelAdmin = () => {
     { nombre: 'Categorías', ruta: '/panel/admin/categorias', icono: 'folder' },
     { nombre: 'Comentarios', ruta: '/panel/admin/comentarios', icono: 'forum' },
     { nombre: 'Códigos Promo', ruta: '/panel/admin/codigos', icono: 'confirmation_number' },
-    { nombre: 'Membresías', ruta: '/panel/admin/membresias', icono: 'card_membership' },
+        { nombre: 'Membresías', ruta: '/panel/admin/membresias', icono: 'card_membership' },
+    { nombre: 'Verificaciones', ruta: '/panel/admin/verificaciones', icono: 'verified' },
     { nombre: 'Solicitudes', ruta: '/panel/admin/solicitudes-eliminacion', icono: 'delete' },
     { nombre: 'Reportes', ruta: '/panel/admin/reportes', icono: 'warning' },
     // 👇 NUEVAS SECCIONES DE AYUDA Y SOPORTE

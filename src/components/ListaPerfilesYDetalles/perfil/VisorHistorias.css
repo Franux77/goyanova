@@ -1,0 +1,114 @@
+.visorhist-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.visorhist-contenido {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  max-height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+.visorhist-barras {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  z-index: 10;
+}
+
+.visorhist-barra-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.visorhist-barra-fill {
+  height: 100%;
+  background: #fff;
+  transition: width 0.1s linear;
+}
+
+.visorhist-header {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  z-index: 10;
+}
+
+.visorhist-nombre {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.visorhist-cerrar {
+  background: rgba(0,0,0,0.4);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+}
+
+.visorhist-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.visorhist-zona-izq,
+.visorhist-zona-der {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  cursor: pointer;
+}
+
+.visorhist-zona-izq { left: 0; }
+.visorhist-zona-der { right: 0; }
+
+.visorhist-btn-perfil {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #0F172A;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  z-index: 10;
+}

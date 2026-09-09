@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, forwardRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../utils/supabaseClient";
+import { useCaracteristicasPlan } from "../../hooks/useCaracteristicasPlan";
 
 import Paso1InfoBasica from "./Paso1InfoBasica";
 import Paso2ImagenesUbicacion from "./Paso2ImagenesUbicacion";
@@ -43,6 +44,11 @@ const PublicarServicioForm = () => {
     portadaAEliminar: null,
     imagenesAEliminar: [],
     imagenesDB: [],
+    // 🆕 foto de referencia de ubicación (Impulso+)
+    referenciaFile: null,
+    referenciaPreview: null,
+    referenciaDB: null,
+    referenciaAEliminar: null,
     direccion_escrita: "",
     ubicacion: { lat: null, lng: null, referencia: "" },
     tipoDisponibilidad: "",
@@ -54,6 +60,13 @@ const PublicarServicioForm = () => {
     email: "",
     instagram: "",
     facebook: "",
+    // 🆕 campos habilitados por plan (Paso 4)
+    metodos_pago: [],
+    acepta_cuotas: false,
+    hace_envios: false,
+    alcance_envio: null,
+    sitio_web: "",
+    whatsapp_mensaje_personalizado: "",
   });
 
   const setFormDataSeguro = actualizarDatosSeguro(setFormData);
@@ -68,6 +81,9 @@ const PublicarServicioForm = () => {
   const [limiteImagenes, setLimiteImagenes] = useState(5);
   const [cargado, setCargado] = useState(false);
   const [cargando, setCargando] = useState(false);
+
+  // 🆕 Características del plan activo, para gatear campos del formulario
+  const { tiene: tieneCaracteristica } = useCaracteristicasPlan();
 
   // ------------------ IntersectionObserver ------------------
   useEffect(() => {
@@ -112,48 +128,46 @@ const PublicarServicioForm = () => {
     cargarServicio();
   }, [id, cargado, cargando]);
 
- // ------------------ OBTENER MEMBRESÍA ------------------
-useEffect(() => {
-  const obtenerMembresia = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        console.warn('⚠️ Usuario no autenticado');
+  // ------------------ OBTENER MEMBRESÍA ------------------
+  useEffect(() => {
+    const obtenerMembresia = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          console.warn('⚠️ Usuario no autenticado');
+          setMembresiaUsuario('Gratis - 5 fotos');
+          setLimiteImagenes(5);
+          return;
+        }
+
+        const { data: membresia, error: membresiaError } = await supabase
+          .rpc('obtener_membresia_usuario', { p_usuario_id: user.id });
+
+        if (membresiaError) {
+          console.error('❌ Error al cargar membresía:', membresiaError);
+          setMembresiaUsuario('Gratis - 5 fotos');
+          setLimiteImagenes(5);
+          return;
+        }
+
+        if (membresia) {
+          const badgeFormulario = membresia.badge_formulario || 'Gratis - 5 fotos';
+          
+          setMembresiaUsuario(badgeFormulario);
+          setLimiteImagenes(membresia.limite_fotos || 5);
+        } else {
+          setMembresiaUsuario('Gratis - 5 fotos');
+          setLimiteImagenes(5);
+        }
+      } catch (err) {
+        console.error('💥 Error crítico al obtener membresía:', err);
         setMembresiaUsuario('Gratis - 5 fotos');
         setLimiteImagenes(5);
-        return;
       }
+    };
 
-      // ✅ LLAMAR A LA FUNCIÓN RPC que devuelve badge_formulario
-      const { data: membresia, error: membresiaError } = await supabase
-        .rpc('obtener_membresia_usuario', { p_usuario_id: user.id });
-
-      if (membresiaError) {
-        console.error('❌ Error al cargar membresía:', membresiaError);
-        setMembresiaUsuario('Gratis - 5 fotos');
-        setLimiteImagenes(5);
-        return;
-      }
-
-      if (membresia) {
-        // ✅ Usar badge_formulario en lugar de badge_texto
-        const badgeFormulario = membresia.badge_formulario || 'Gratis - 5 fotos';
-        
-        setMembresiaUsuario(badgeFormulario);
-        setLimiteImagenes(membresia.limite_fotos || 5);
-      } else {
-        setMembresiaUsuario('Gratis - 5 fotos');
-        setLimiteImagenes(5);
-      }
-    } catch (err) {
-      console.error('💥 Error crítico al obtener membresía:', err);
-      setMembresiaUsuario('Gratis - 5 fotos');
-      setLimiteImagenes(5);
-    }
-  };
-
-  obtenerMembresia();
-}, []);
+    obtenerMembresia();
+  }, []);
 
   // ------------------ useMemo ------------------
   const propsPaso = useMemo(() => ({
@@ -169,8 +183,10 @@ useEffect(() => {
       }
     },
     limiteImagenes,
-    membresiaUsuario
-  }), [formData, setFormDataSeguro, errores, limiteImagenes, membresiaUsuario, pasoActivo]);
+    membresiaUsuario,
+    // 🆕 gating por plan
+    puedeFotoReferencia: tieneCaracteristica('foto_referencia_ubicacion'),
+  }), [formData, setFormDataSeguro, errores, limiteImagenes, membresiaUsuario, pasoActivo, tieneCaracteristica]);
 
   const handlePublicar = async () => {
     const { esValido, nuevosErrores } = validarCamposRequeridos(formData, setErrores);

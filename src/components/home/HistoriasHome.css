@@ -1,0 +1,67 @@
+.historiashome-container {
+  width: 100%;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #F1F5F9;
+  background: #fff;
+}
+
+.historiashome-scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0 1rem;
+  scrollbar-width: none;
+}
+
+.historiashome-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.historiashome-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 68px;
+}
+
+.historiashome-anillo {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #F97316, #EC4899, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.historiashome-anillo img,
+.historiashome-iniciales {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.historiashome-iniciales {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563EB;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.historiashome-nombre {
+  font-size: 0.72rem;
+  color: #334155;
+  text-align: center;
+  white-space: nowrap;
+}

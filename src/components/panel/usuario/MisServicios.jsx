@@ -2,45 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../utils/supabaseClient';
 import Loading from '../../loading/Loading';
+import PanelProfesional from '../../ListaPerfilesYDetalles/perfil/PanelProfesional';
+import EnviarRecomendacion from './EnviarRecomendacion';
+import SubirReel from './SubirReel';
+import { useCaracteristicasPlan } from '../../../hooks/useCaracteristicasPlan';
 import './MisServicios.css';
 
 const MisServicios = () => {
+  const { tiene } = useCaracteristicasPlan();
   const [servicios, setServicios] = useState([]);
   const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandidos, setExpandidos] = useState({});
   const [busqueda, setBusqueda] = useState('');
+  const [statsAbiertos, setStatsAbiertos] = useState({});
   const navigate = useNavigate();
 
-  // 👇 AGREGAR ESTA FUNCIÓN COMPLETA AQUÍ
-const handleIrAPublicar = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      alert('Debes iniciar sesión para publicar');
-      return;
+  const handleIrAPublicar = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert('Debes iniciar sesión para publicar');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .rpc('puede_publicar_servicio', {
+          p_usuario_id: user.id
+        });
+
+      if (error) throw error;
+
+      if (data.puede_publicar) {
+        navigate('/panel/publicar');
+      } else {
+        navigate('/panel/mi-membresia');
+      }
+    } catch (error) {
+      console.error('Error al verificar límite:', error);
+      alert('Error al verificar límites. Intenta nuevamente.');
     }
-
-    const { data, error } = await supabase
-      .rpc('puede_publicar_servicio', {
-        p_usuario_id: user.id
-      });
-
-    if (error) throw error;
-
-    if (data.puede_publicar) {
-      // ✅ Puede publicar -> ir al formulario
-      navigate('/panel/publicar');
-    } else {
-      // ❌ No puede publicar -> ir a membresía
-      navigate('/panel/mi-membresia');
-    }
-  } catch (error) {
-    console.error('Error al verificar límite:', error);
-    alert('Error al verificar límites. Intenta nuevamente.');
-  }
-};
+  };
 
   useEffect(() => {
     const fetchServicios = async () => {
@@ -75,7 +78,6 @@ const handleIrAPublicar = async () => {
     fetchServicios();
   }, []);
 
-  // Filtrar servicios en tiempo real
   useEffect(() => {
     if (!busqueda.trim()) {
       setServiciosFiltrados(servicios);
@@ -83,13 +85,13 @@ const handleIrAPublicar = async () => {
     }
 
     const terminoBusqueda = busqueda.toLowerCase().trim();
-    
+
     const resultados = servicios.filter((servicio) => {
       const nombre = servicio.nombre?.toLowerCase() || '';
       const descripcion = servicio.descripcion?.toLowerCase() || '';
       const categoria = servicio.categorias?.nombre?.toLowerCase() || '';
       const direccion = servicio.direccion_escrita?.toLowerCase() || '';
-      
+
       return (
         nombre.includes(terminoBusqueda) ||
         descripcion.includes(terminoBusqueda) ||
@@ -147,6 +149,13 @@ const handleIrAPublicar = async () => {
     }));
   };
 
+  const toggleStats = (id) => {
+    setStatsAbiertos(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
   const truncarTexto = (texto, limite = 100) => {
     if (!texto || texto.length <= limite) return texto;
     return texto.substring(0, limite) + '...';
@@ -168,35 +177,33 @@ const handleIrAPublicar = async () => {
         </div>
         <h3>No tenés servicios publicados</h3>
         <p>Empezá a publicar tus servicios y llegá a más clientes</p>
-<button
-  className="goya-btn-publicar-vacio"
-  onClick={handleIrAPublicar}
->
-  <span className="material-icons">add_circle</span>
-  Publicar mi primer servicio
-</button>
+        <button
+          className="goya-btn-publicar-vacio"
+          onClick={handleIrAPublicar}
+        >
+          <span className="material-icons">add_circle</span>
+          Publicar mi primer servicio
+        </button>
       </div>
     );
   }
 
   return (
     <div className="goya-servicios-container">
-      {/* Header con contador */}
       <div className="goya-servicios-header">
         <div className="goya-header-info">
           <h2>Mis Servicios</h2>
           <span className="goya-contador-badge">{servicios.length}</span>
         </div>
-<button
-  className="goya-btn-nuevo"
-  onClick={handleIrAPublicar}
->
-  <span className="material-icons">add</span>
-  Nuevo
-</button>
+        <button
+          className="goya-btn-nuevo"
+          onClick={handleIrAPublicar}
+        >
+          <span className="material-icons">add</span>
+          Nuevo
+        </button>
       </div>
 
-      {/* Buscador */}
       <div className="goya-buscador-container">
         <div className="goya-buscador-input-wrapper">
           <span className="material-icons goya-buscador-icono">search</span>
@@ -208,7 +215,7 @@ const handleIrAPublicar = async () => {
             onChange={(e) => setBusqueda(e.target.value)}
           />
           {busqueda && (
-            <button 
+            <button
               className="goya-buscador-limpiar"
               onClick={limpiarBusqueda}
               title="Limpiar búsqueda"
@@ -217,13 +224,13 @@ const handleIrAPublicar = async () => {
             </button>
           )}
         </div>
-        
+
         {busqueda && (
           <div className="goya-buscador-resultados">
             <span className="material-icons">info</span>
             <span>
-              {serviciosFiltrados.length === 0 
-                ? 'No se encontraron servicios' 
+              {serviciosFiltrados.length === 0
+                ? 'No se encontraron servicios'
                 : `${serviciosFiltrados.length} ${serviciosFiltrados.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`
               }
             </span>
@@ -231,13 +238,12 @@ const handleIrAPublicar = async () => {
         )}
       </div>
 
-      {/* Lista de servicios */}
       {serviciosFiltrados.length === 0 ? (
         <div className="goya-sin-resultados">
           <span className="material-icons">search_off</span>
           <h3>No se encontraron servicios</h3>
           <p>Intentá con otros términos de búsqueda</p>
-          <button 
+          <button
             className="goya-btn-limpiar-busqueda"
             onClick={limpiarBusqueda}
           >
@@ -251,9 +257,13 @@ const handleIrAPublicar = async () => {
             const esLargo = descripcionCompleta.length > 100;
             const mostrarCompleto = expandidos[servicio.id];
 
+            // 🆕 ¿Hay algo para mostrar en el bloque de extras de este servicio?
+            const hayExtras = statsAbiertos[servicio.id]
+              || tiene('email_recomendacion')
+              || tiene('reel_historia');
+
             return (
               <div key={servicio.id} className="goya-servicio-card">
-                {/* Badge de estado */}
                 <div className="goya-card-badges">
                   {servicio.estado === 'suspendido' && (
                     <span className={`goya-badge ${servicio.suspendido_por === 'admin' ? 'goya-badge-admin' : 'goya-badge-suspendido'}`}>
@@ -269,11 +279,10 @@ const handleIrAPublicar = async () => {
                   )}
                 </div>
 
-                {/* Contenido principal */}
                 <div className="goya-card-contentt">
                   <div className="goya-card-main">
                     <h3 className="goya-card-titulo">{servicio.nombre}</h3>
-                    
+
                     <div className="goya-card-meta">
                       <div className="goya-meta-item">
                         <span className="material-icons">category</span>
@@ -306,10 +315,9 @@ const handleIrAPublicar = async () => {
                     )}
                   </div>
 
-                  {/* Acciones */}
                   <div className="goya-card-acciones">
-                    <Link 
-                      to={`/panel/editar-servicio/${servicio.id}`} 
+                    <Link
+                      to={`/panel/editar-servicio/${servicio.id}`}
                       className="goya-btn-accion goya-btn-editar"
                       title="Editar servicio"
                     >
@@ -339,8 +347,39 @@ const handleIrAPublicar = async () => {
                       <span className="material-icons">delete</span>
                       <span className="goya-btn-text">Eliminar</span>
                     </button>
+
+                    <button
+                      className="goya-btn-accion goya-btn-stats"
+                      onClick={() => toggleStats(servicio.id)}
+                      title="Ver estadísticas"
+                    >
+                      <span className="material-icons">insights</span>
+                      <span className="goya-btn-text">
+                        {statsAbiertos[servicio.id] ? 'Ocultar stats' : 'Estadísticas'}
+                      </span>
+                    </button>
                   </div>
                 </div>
+
+                {/* 🆕 Bloque de extras: FUERA de goya-card-contentt, ancho completo */}
+                {hayExtras && (
+                  <div className="goya-servicio-extras">
+                    {statsAbiertos[servicio.id] && (
+                      <PanelProfesional perfilId={servicio.id} />
+                    )}
+
+                    {tiene('email_recomendacion') && (
+                      <EnviarRecomendacion
+                        servicioId={servicio.id}
+                        nombreServicio={servicio.nombre}
+                      />
+                    )}
+
+                    {tiene('reel_historia') && (
+                      <SubirReel servicioId={servicio.id} />
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

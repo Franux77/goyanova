@@ -1,0 +1,225 @@
+.verifadmin-container {
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.verifadmin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.verifadmin-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+  color: #0F172A;
+  margin: 0;
+}
+
+.verifadmin-contador {
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.verifadmin-loading,
+.verifadmin-vacio {
+  text-align: center;
+  padding: 3rem;
+  color: #64748B;
+}
+
+.verifadmin-vacio .material-icons {
+  font-size: 2.5rem;
+  color: #16A34A;
+  margin-bottom: 0.5rem;
+}
+
+.verifadmin-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.verifadmin-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.25rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.verifadmin-info h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+  color: #0F172A;
+}
+
+.verifadmin-email {
+  color: #64748B;
+  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+}
+
+.verifadmin-doc {
+  font-size: 0.9rem;
+  margin: 0 0 0.2rem;
+  color: #334155;
+}
+
+.verifadmin-fecha {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.verifadmin-fotos {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.verifadmin-fotos a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  font-size: 0.72rem;
+  color: #2563EB;
+}
+
+.verifadmin-fotos img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+}
+
+.verifadmin-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verifadmin-btn-aprobar,
+.verifadmin-btn-rechazar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.verifadmin-btn-aprobar {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.verifadmin-btn-rechazar {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.verifadmin-btn-aprobar:disabled,
+.verifadmin-btn-rechazar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.verifadmin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.verifadmin-modal {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.verifadmin-modal h3 {
+  margin: 0 0 0.75rem;
+}
+
+.verifadmin-modal textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.verifadmin-modal-acciones {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.verifadmin-modal-acciones button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.verifadmin-btn-confirmar-rechazo {
+  background: #DC2626;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .verifadmin-card {
+    grid-template-columns: 1fr;
+  }
+  .verifadmin-fotos {
+    justify-content: center;
+  }
+}
+
+.verifadmin-link-perfil {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2563EB;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.verifadmin-link-perfil:hover {
+  text-decoration: underline;
+}
+
+.verifadmin-link-perfil .material-icons {
+  font-size: 1rem;
+}

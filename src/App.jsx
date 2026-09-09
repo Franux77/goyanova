@@ -3,6 +3,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
 import { useMantenimiento } from './hooks/useMantenimiento';
+import { useRegistrarActividad } from './hooks/useRegistrarActividad';
 import ModalMantenimiento from './components/ModalMantenimiento';
 import InstallPWAModal from './components/InstallPWAModal';
 
@@ -37,6 +38,7 @@ const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/per
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
 
 // Panel Usuario
+// Panel Usuario
 const PanelUsuario = lazy(() => import('./components/panel/usuario/PanelUsuario'));
 const Dashboard = lazy(() => import('./components/panel/usuario/Dashboard'));
 const MisServicios = lazy(() => import('./components/panel/usuario/MisServicios'));
@@ -47,6 +49,7 @@ const Configuracion = lazy(() => import('./components/panel/usuario/Configuracio
 const Notificaciones = lazy(() => import('./components/panel/usuario/Notificaciones'));
 const AyudaSoporte = lazy(() => import('./components/panel/usuario/AyudaSoporte'));
 const MiMembresia = lazy(() => import('./components/panel/usuario/MiMembresia'));
+const SolicitudVerificacion = lazy(() => import('./components/panel/usuario/SolicitudVerificacion'));
 
 // Panel Admin
 const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
@@ -57,6 +60,7 @@ const SolicitudesEliminacion = lazy(() => import('./components/panel/admin/Solic
 const ReportesAdmin = lazy(() => import('./components/panel/admin/ReportesAdmin'));
 const CodigosPromocionalesAdmin = lazy(() => import('./components/panel/admin/CodigosPromocionalesAdmin'));
 const MembresiasAdmin = lazy(() => import('./components/panel/admin/MembresiasAdmin'));
+const VerificacionesAdmin = lazy(() => import('./components/panel/admin/VerificacionesAdmin'));
 const CategoriasAdmin = lazy(() => import('./components/panel/admin/CategoriasAdmin'));
 const ConfiguracionAdmin = lazy(() => import('./components/panel/admin/ConfiguracionAdmin'));
 const GestionFAQs = lazy(() => import('./components/panel/admin/GestionFAQs'));
@@ -95,7 +99,9 @@ const RouteLoadingIndicator = ({ children }) => {
 
 const AppContent = () => {
   const location = useLocation();
-  const { user, perfil, loading: authLoading } = useAuth();
+    const { user, perfil, loading: authLoading } = useAuth();
+  useRegistrarActividad(user?.id);
+  
   const { config, loading: mantenimientoLoading, enMantenimiento, puedeAcceder } = useMantenimiento(user?.id);
   
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
@@ -234,8 +240,10 @@ const AppContent = () => {
                 <Route path="configuracion" element={<Configuracion />} />
                 <Route path="notificaciones" element={<Notificaciones />} />
                 <Route path="ayuda" element={<AyudaSoporte />} />
-                <Route path="mi-membresia" element={<MiMembresia />} />
+                                <Route path="mi-membresia" element={<MiMembresia />} />
+                <Route path="verificacion" element={<SolicitudVerificacion />} />
               </Route>
+              
 
               {/* 🔒 PANEL ADMIN PROTEGIDO */}
               <Route
@@ -255,7 +263,8 @@ const AppContent = () => {
                 <Route path="solicitudes-eliminacion" element={<SolicitudesEliminacion />} />
                 <Route path="reportes" element={<ReportesAdmin />} />
                 <Route path="codigos" element={<CodigosPromocionalesAdmin />} />
-                <Route path="membresias" element={<MembresiasAdmin />} />
+                                <Route path="membresias" element={<MembresiasAdmin />} />
+                <Route path="verificaciones" element={<VerificacionesAdmin />} />
                 <Route path="faqs" element={<GestionFAQs />} />
                 <Route path="tutoriales" element={<GestionTutoriales />} />
                 <Route path="mensajes-soporte" element={<GestionMensajesSoporte />} />

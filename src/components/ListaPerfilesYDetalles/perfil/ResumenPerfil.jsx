@@ -1,9 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaStar, FaWhatsapp } from 'react-icons/fa';
 import MenuOpciones from './MenuOpciones';
 import ModalReporte from './ModalReporte';
 import ModalAvisoLogin from './ModalAvisoLogin';
+import VisorHistorias from './VisorHistorias';
 import { AuthContext } from '../../../auth/AuthContext';
+import { supabase } from '../../../utils/supabaseClient';
+import EstadoActividad from './EstadoActividad';
 import './ResumenPerfil.css';
 
 const coloresSuaves = [
@@ -27,6 +30,30 @@ const ResumenPerfil = ({ perfil }) => {
   const { user } = useContext(AuthContext);
   const isLoggedIn = !!user;
 
+  // 🆕 Reel activo de este servicio (si tiene uno vigente)
+  const [reelActivo, setReelActivo] = useState(null);
+  const [mostrarVisor, setMostrarVisor] = useState(false);
+
+  useEffect(() => {
+    if (!perfil?.id) return;
+
+    const cargarReel = async () => {
+      const { data } = await supabase
+        .from('reels_servicio')
+        .select('id, video_url')
+        .eq('servicio_id', perfil.id)
+        .eq('activo', true)
+        .gt('expira_en', new Date().toISOString())
+        .order('publicado_en', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      setReelActivo(data || null);
+    };
+
+    cargarReel();
+  }, [perfil?.id]);
+
   if (!perfil) return null;
 
   const handleReportarClick = () => {
@@ -45,16 +72,20 @@ const ResumenPerfil = ({ perfil }) => {
     <FaStar key={i} color="#ffc107" size={16} />
   ));
 
-    const foto = perfil.foto_portada || '';
+  const foto = perfil.foto_portada || '';
   const descripcion = perfil.descripcion || 'Sin descripción';
   const mostrarVerMas = descripcion.length > 120;
 
   const whatsappNumero = perfil.contacto_whatsapp || '549000000000';
-  const contactoUrl = `https://wa.me/${whatsappNumero}`;
+  const mensajePredefinido = perfil.whatsapp_mensaje_personalizado?.trim();
+  const contactoUrl = mensajePredefinido
+    ? `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensajePredefinido)}`
+    : `https://wa.me/${whatsappNumero}`;
+  const whatsappAnimado = perfil.badge_texto === 'Destacado' || perfil.badge_texto === 'Elite';
 
   const handleCompartir = async () => {
     const url = window.location.href;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -62,7 +93,7 @@ const ResumenPerfil = ({ perfil }) => {
           text: `Mira este servicio: ${perfil.nombre}`,
           url: url
         });
-            } catch (err) {
+      } catch (err) {
         console.error('Error al compartir:', err);
       }
     } else {
@@ -73,6 +104,13 @@ const ResumenPerfil = ({ perfil }) => {
 
   return (
     <>
+      {perfil.badge_texto === 'Elite' && (
+        <div className="resumen-banner-elite">
+          <span className="material-icons">workspace_premium</span>
+          <span>Prestador Elite de GoyaNova</span>
+        </div>
+      )}
+
       <div className="resumen-lista">
         <MenuOpciones
           onReportar={handleReportarClick}
@@ -80,7 +118,6 @@ const ResumenPerfil = ({ perfil }) => {
           tipo="servicio"
         />
 
-        {/* Badge Premium - Esquina inferior derecha */}
         {perfil.es_premium && perfil.badge_texto && (
           <div className="resumen-badge-premium-perfil">
             <span className="material-icons resumen-badge-star-icon">star</span>
@@ -88,23 +125,43 @@ const ResumenPerfil = ({ perfil }) => {
           </div>
         )}
 
-        {/* Foto o placeholder */}
+        {/* 🆕 Foto con anillo clickeable si hay historia activa */}
         {foto ? (
-          <img src={foto} alt={perfil.nombre} className="resumen-foto-perfil" />
+          <div
+            className={`resumen-foto-wrapper ${reelActivo ? 'con-historia' : ''}`}
+            onClick={() => reelActivo && setMostrarVisor(true)}
+          >
+            <img src={foto} alt={perfil.nombre} className="resumen-foto-perfil" />
+            {reelActivo && (
+              <span className="resumen-historia-badge">
+                <span className="material-icons">play_circle</span>
+                Ver historia
+              </span>
+            )}
+          </div>
         ) : (
           <div
-            className="resumen-placeholder-perfil"
+            className={`resumen-placeholder-perfil ${reelActivo ? 'con-historia' : ''}`}
             style={{ backgroundColor: getColorAleatorio() }}
+            onClick={() => reelActivo && setMostrarVisor(true)}
           >
             {getIniciales(perfil.nombre)}
+            {reelActivo && (
+              <span className="resumen-historia-badge">
+                <span className="material-icons">play_circle</span>
+                Ver historia
+              </span>
+            )}
           </div>
         )}
 
-        {/* Contenido */}
         <div className="resumen-contenido-perfil">
           <h2 className="resumen-titulo-perfil">{perfil.nombre}</h2>
+                    <EstadoActividad
+            ultimaActividad={perfil.usuario?.ultima_actividad}
+            esPremium={perfil.es_premium}
+          />
 
-          {/* Descripción con Ver más */}
           <div>
             <p className={`resumen-descripcion-perfil ${descripcionExpandida ? 'expanded' : ''}`}>
               {descripcion}
@@ -113,8 +170,8 @@ const ResumenPerfil = ({ perfil }) => {
               <div className="resumen-gradient-descripcion"></div>
             )}
             {mostrarVerMas && (
-              <button 
-                className="resumen-ver-mas-btn" 
+              <button
+                className="resumen-ver-mas-btn"
                 onClick={() => setDescripcionExpandida(!descripcionExpandida)}
               >
                 {descripcionExpandida ? 'Ver menos' : 'Ver más'}
@@ -122,22 +179,40 @@ const ResumenPerfil = ({ perfil }) => {
             )}
           </div>
 
-          {/* Estrellas */}
           <div className="resumen-estrellas-perfil">{estrellas}</div>
 
-          {/* Botón WhatsApp */}
           {perfil.mostrar_boton_whatsapp && (
-            <a 
-              href={contactoUrl} 
-              target="_blank" 
-              rel="noreferrer" 
-              className="resumen-btn-contacto"
+            <a
+              href={contactoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={`resumen-btn-contacto ${whatsappAnimado ? 'resumen-btn-contacto-animado' : ''}`}
+              onClick={() => {
+                supabase.rpc('registrar_evento_servicio', {
+                  p_servicio_id: perfil.id,
+                  p_tipo: 'clic_whatsapp'
+                });
+              }}
             >
               <FaWhatsapp /> Contactar
             </a>
           )}
         </div>
       </div>
+
+      {/* 🆕 Visor de historia, solo si el usuario tocó "Ver historia" */}
+      {mostrarVisor && reelActivo && (
+        <VisorHistorias
+          reels={[{
+            reel_id: reelActivo.id,
+            servicio_id: perfil.id,
+            servicio_nombre: perfil.nombre,
+            video_url: reelActivo.video_url
+          }]}
+          indiceInicial={0}
+          onClose={() => setMostrarVisor(false)}
+        />
+      )}
 
       <ModalReporte
         isOpen={modalReporteAbierto}
@@ -148,7 +223,7 @@ const ResumenPerfil = ({ perfil }) => {
         nombreServicio={perfil.nombre}
       />
 
-            <ModalAvisoLogin
+      <ModalAvisoLogin
         isOpen={modalLoginAbierto}
         onClose={() => setModalLoginAbierto(false)}
         mensaje="Pedimos que inicies sesión para reportar contenido: así evitamos reportes falsos o coordinados, y nos aseguramos de que cada aviso venga de una persona real. Esto protege a los negocios de la comunidad de denuncias maliciosas."

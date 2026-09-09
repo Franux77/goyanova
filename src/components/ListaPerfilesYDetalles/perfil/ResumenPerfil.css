@@ -280,3 +280,88 @@
     font-size: 0.8rem !important;
   }
 }
+
+/* ============================================
+   AGREGAR AL FINAL DE ResumenPerfil.css
+   (no reemplaza nada, solo suma)
+   ============================================ */
+
+.resumen-banner-elite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #7C3AED, #A855F7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.resumen-banner-elite .material-icons {
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   AGREGAR AL FINAL DE ResumenPerfil.css
+   (no reemplaza nada, solo suma)
+   ============================================ */
+
+.resumen-banner-elite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #7C3AED, #A855F7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.resumen-banner-elite .material-icons {
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   AGREGAR AL FINAL DE ResumenPerfil.css (reel)
+   ============================================ */
+
+.resumen-foto-wrapper,
+.resumen-placeholder-perfil {
+  position: relative;
+}
+
+.resumen-foto-wrapper.con-historia .resumen-foto-perfil,
+.resumen-placeholder-perfil.con-historia {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #F97316;
+  border-radius: 50%;
+}
+
+.resumen-historia-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #F97316;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.resumen-historia-badge .material-icons {
+  font-size: 0.85rem;
+}

@@ -435,3 +435,90 @@
     width: 100%;
   }
 }
+
+/* ============================================
+   AGREGAR AL FINAL DE OpinionesSection.css
+   Foto adjunta en opiniones
+   ============================================ */
+
+.opinion-foto-link {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.opinion-foto-adjunta {
+  max-width: 220px;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  object-fit: cover;
+  cursor: zoom-in;
+}
+
+.opiniones-foto-adjunta-wrapper {
+  margin: 0.75rem 0;
+}
+
+.opiniones-btn-adjuntar-foto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1.5px dashed #94A3B8;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #F8FAFC;
+}
+
+.opiniones-btn-adjuntar-foto:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
+.opiniones-btn-adjuntar-foto.deshabilitado {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.opiniones-btn-adjuntar-foto .material-icons {
+  font-size: 1.1rem;
+}
+
+.opiniones-preview-foto {
+  position: relative;
+  display: inline-block;
+}
+
+.opiniones-preview-foto img {
+  max-width: 160px;
+  max-height: 160px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  object-fit: cover;
+  display: block;
+}
+
+.opiniones-preview-foto-quitar {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: #DC2626;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.opiniones-preview-foto-quitar .material-icons {
+  font-size: 1rem;
+}

@@ -1,3 +1,4 @@
+
 // src/components/mapa/ExplorarMapa.jsx
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -48,12 +49,12 @@ const ExplorarMapa = () => {
   const [categoriasMap, setCategoriasMap] = useState({});
   const [cargando, setCargando] = useState(true);
   const [totalServicios, setTotalServicios] = useState(0);
-  
+
   // 👇 NUEVOS ESTADOS PARA PAGINACIÓN
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargandoMas, setCargandoMas] = useState(false);
   const [hayMasServicios, setHayMasServicios] = useState(true);
-  
+
   const location = useLocation();
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const ExplorarMapa = () => {
   useEffect(() => {
     const fetchInicial = async () => {
       setCargando(true);
-      
+
       try {
         const [categoriasRes, serviciosRes, countRes] = await Promise.all([
           // Query 1: Categorías
@@ -91,8 +92,9 @@ const ExplorarMapa = () => {
             .from('categorias')
             .select('id, nombre, tipo, icon, color')
             .eq('estado', 'activa'),
-          
+
           // Query 2: Primeros 50 servicios
+          // 🆕 pin_color: color de destaque del plan (Destacado/Elite)
           supabase
             .from('servicios')
             .select(`
@@ -103,7 +105,7 @@ const ExplorarMapa = () => {
               contacto_email, 
               contacto_instagram, 
               contacto_facebook,
-              es_premium, badge_texto,
+              es_premium, badge_texto, pin_color,
               prioridad, rating_promedio, creado_en
             `)
             .eq('estado', 'activo')
@@ -112,7 +114,7 @@ const ExplorarMapa = () => {
             .order('rating_promedio', { ascending: false })
             .order('creado_en', { ascending: true })
             .range(0, SERVICIOS_POR_PAGINA - 1), // 0-49
-          
+
           // Query 3: Contar total
           supabase
             .from('servicios')
@@ -158,7 +160,7 @@ const ExplorarMapa = () => {
     if (cargandoMas || !hayMasServicios) return;
 
     setCargandoMas(true);
-    
+
     try {
       const inicio = paginaActual * SERVICIOS_POR_PAGINA;
       const fin = inicio + SERVICIOS_POR_PAGINA - 1;
@@ -169,7 +171,7 @@ const ExplorarMapa = () => {
           id, nombre, descripcion, tipo, categoria_id, latitud, longitud,
           direccion_escrita, referencia, foto_portada, 
           contacto_whatsapp, contacto_email, contacto_instagram, contacto_facebook,
-          es_premium, badge_texto, prioridad, rating_promedio, creado_en
+          es_premium, badge_texto, pin_color, prioridad, rating_promedio, creado_en
         `)
         .eq('estado', 'activo')
         .eq('oculto_por_reportes', false)
@@ -223,9 +225,9 @@ const ExplorarMapa = () => {
   // Búsqueda optimizada
   const buscarEnPerfil = (perfil, query, categoriasMap) => {
     if (!query || query.trim() === '') return true;
-    
+
     const queryLower = query.toLowerCase().trim();
-    
+
     return (
       (perfil?.nombre || '').toLowerCase().includes(queryLower) ||
       (perfil?.descripcion || '').toLowerCase().includes(queryLower) ||
@@ -241,7 +243,7 @@ const ExplorarMapa = () => {
 
     let filtrados = servicios.filter(perfil => {
       const catNombre = categoriasMap[perfil?.categoria_id]?.nombre || '';
-      
+
       return (
         (!tipo || perfil?.tipo === tipo) &&
         (!categoria || catNombre === categoria) &&
@@ -314,19 +316,24 @@ const ExplorarMapa = () => {
   };
 
   // Iconos memoizados
+  // 🆕 pinColor: si el servicio tiene un color de plan (Destacado/Elite),
+  // dibuja un anillo alrededor del pin normal de la categoría.
   const getCategoriaIcono = useMemo(() => {
-    return (categoriaId, zoom = 13) => {
+    return (categoriaId, zoom = 13, pinColor = null) => {
       const categoria = categoriasMap[categoriaId];
       if (!categoria) return L.divIcon({});
-      
+
       const icon = categoria.icon || 'location_on';
       const color = categoria.color || '#607d8b';
       const baseSize = Math.max(16, Math.min(zoom * 1.5, 28));
-      
+      const anillo = pinColor
+        ? `box-shadow: 0 0 0 3px ${pinColor}, 0 0 8px 2px ${pinColor}88;`
+        : '';
+
       return L.divIcon({
         className: 'custom-icon-pin',
         html: `
-          <div class="pin" style="background:${color}; width:${baseSize}px; height:${baseSize}px;">
+          <div class="pin" style="background:${color}; width:${baseSize}px; height:${baseSize}px; ${anillo}">
             <span class="material-icons icono-pin" style="font-size:${baseSize * 0.6}px;">${icon}</span>
             <div class="pin-point" style="
               border-top-color:${color};
@@ -344,7 +351,7 @@ const ExplorarMapa = () => {
   }, [categoriasMap]);
 
   const hayResultados = perfilesFiltrados.length > 0;
-  const categoriasDisponibles = useMemo(() => 
+  const categoriasDisponibles = useMemo(() =>
     Object.values(categoriasMap).filter(cat => !tipo || cat.tipo === tipo),
     [categoriasMap, tipo]
   );
@@ -372,7 +379,7 @@ const ExplorarMapa = () => {
             <ArrowLeft size={20} /> Volver
           </button>
 
-          <button 
+          <button
             className="boton-menu-explorar"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menú"
@@ -398,7 +405,7 @@ const ExplorarMapa = () => {
       <div className={`menu-lateral-explorar ${menuOpen ? 'menu-lateral-open' : ''}`}>
         <div className="menu-lateral-header">
           <h3>Navegación</h3>
-          <button 
+          <button
             className="menu-lateral-close"
             onClick={() => setMenuOpen(false)}
             aria-label="Cerrar menú"
@@ -406,11 +413,11 @@ const ExplorarMapa = () => {
             <X size={24} />
           </button>
         </div>
-        
+
         <ul className="menu-lateral-links">
           {navLinks.map((link) => (
             <li key={link.to}>
-              <Link 
+              <Link
                 to={link.to}
                 onClick={() => setMenuOpen(false)}
                 className="menu-lateral-link"
@@ -420,10 +427,10 @@ const ExplorarMapa = () => {
               </Link>
             </li>
           ))}
-          
+
           {rol && (
             <li>
-              <Link 
+              <Link
                 to={obtenerRutaPanel()}
                 onClick={() => setMenuOpen(false)}
                 className="menu-lateral-link"
@@ -436,7 +443,7 @@ const ExplorarMapa = () => {
         </ul>
       </div>
 
-      <div 
+      <div
         className={`menu-overlay-explorar ${menuOpen ? 'menu-overlay-visible' : ''}`}
         onClick={() => setMenuOpen(false)}
       />
@@ -502,13 +509,13 @@ const ExplorarMapa = () => {
               });
             }}
           >
-                        {marcadoresSeparados.map(perfil => {
+            {marcadoresSeparados.map(perfil => {
               if (typeof perfil?.latMapa !== 'number' || typeof perfil?.lngMapa !== 'number') return null;
               return (
                 <Marker
                   key={perfil.id}
                   position={[perfil.latMapa, perfil.lngMapa]}
-                  icon={getCategoriaIcono(perfil.categoria_id, zoomLevel)}
+                  icon={getCategoriaIcono(perfil.categoria_id, zoomLevel, perfil.pin_color)}
                   eventHandlers={{
                     click: () => {
                       setPerfilSeleccionado(perfil);
@@ -523,7 +530,7 @@ const ExplorarMapa = () => {
                   }}
                   className={markerDestacado === perfil.id ? 'marker-destacado' : ''}
                 >
-                                    <Popup>
+                  <Popup>
                     {perfil.nombre}
                     {perfil.esAproximado && (
                       <><br /><small>📍 Ubicación aproximada (muy cerca de otro negocio)</small></>
@@ -535,7 +542,7 @@ const ExplorarMapa = () => {
           </MarkerClusterGroup>
         </MapContainer>
       )}
-      
+
       {/* 👇 PANEL CON NUEVAS PROPS */}
       <ListaPerfilesExplorar
         perfiles={perfilesFiltrados}

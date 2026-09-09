@@ -5,7 +5,6 @@ import { normalizarDia } from "./helpers";
 // 🔹 Cargar servicio existente (OPTIMIZADO)
 export const cargarServicioDesdeDB = async (id, setFormData) => {
   try {
-    // 🆕 Timeout de 15 segundos
     const withTimeout = (promise, ms = 15000) => {
       return Promise.race([
         promise,
@@ -22,7 +21,9 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
           id, nombre, tipo, categoria_id, descripcion, direccion_escrita,
           latitud, longitud, referencia, contacto_whatsapp, contacto_email,
           contacto_instagram, contacto_facebook, foto_portada, 
-          mostrar_boton_whatsapp, categorias(nombre)
+          mostrar_boton_whatsapp, categorias(nombre),
+          metodos_pago, acepta_cuotas, hace_envios, alcance_envio,
+                    sitio_web, whatsapp_mensaje_personalizado, foto_referencia_ubicacion, reglas_devoluciones
         `)
         .eq("id", id)
         .single()
@@ -31,7 +32,6 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
     if (error) throw error;
     if (!servicio) throw new Error('Servicio no encontrado');
 
-    // 🆕 Cargar disponibilidad e imágenes en paralelo (más rápido)
     const [disponibilidadResult, imagenesResult] = await Promise.all([
       withTimeout(
         supabase
@@ -129,6 +129,17 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
       disponibilidades: disponibilidadesArray,
       imagenesPreview: imagenesUrls,
       imagenesDB: imagenesUrls,
+      // 🆕 Campos habilitados desde Plan Impulso en adelante
+      metodos_pago: servicio.metodos_pago || [],
+      acepta_cuotas: servicio.acepta_cuotas || false,
+      hace_envios: servicio.hace_envios || false,
+      alcance_envio: servicio.alcance_envio || null,
+      sitio_web: servicio.sitio_web || "",
+            whatsapp_mensaje_personalizado: servicio.whatsapp_mensaje_personalizado || "",
+      reglas_devoluciones: servicio.reglas_devoluciones || "",
+      // 🆕 Foto de referencia de ubicación
+      referenciaPreview: servicio.foto_referencia_ubicacion || null,
+      referenciaDB: servicio.foto_referencia_ubicacion || null,
     }));
     
   } catch (err) {
@@ -137,15 +148,17 @@ export const cargarServicioDesdeDB = async (id, setFormData) => {
   }
 };
 
-// 🆕 NUEVA FUNCIÓN: Obtener datos de membresía premium
+// 🔹 Obtener datos de membresía premium
+// 🩹 FIX: se agrego el filtro por fecha_fin > now(). Antes una membresia
+// vencida seguia devolviendo es_premium=true en cada servicio nuevo/editado.
 const obtenerDatosPremium = async (usuario_id) => {
   try {
-    // Consultar directamente la tabla membresias (más confiable)
     const { data: membresia, error } = await supabase
       .from('membresias')
       .select('tipo_membresia, badge_texto, fecha_fin, prioridad_nivel')
       .eq('usuario_id', usuario_id)
       .eq('estado', 'activa')
+      .gt('fecha_fin', new Date().toISOString())
       .order('prioridad_nivel', { ascending: false })
       .order('fecha_fin', { ascending: false })
       .limit(1)
@@ -157,32 +170,46 @@ const obtenerDatosPremium = async (usuario_id) => {
     }
 
     if (!membresia) {
-      // Sin membresía activa
       return { es_premium: false, badge_texto: null, fecha_premium_hasta: null };
     }
 
-    // Determinar si es premium: cualquier tipo que NO sea 'gratis'
     const esPremium = membresia.tipo_membresia !== 'gratis' && membresia.tipo_membresia !== null;
-    
-    // Usar el badge_texto de la base de datos (ya viene configurado)
+
     let badgeTexto = membresia.badge_texto;
-    
-    // Si no tiene badge_texto pero es premium, asignar según tipo
+
     if (!badgeTexto && esPremium) {
       const mapeoNombres = {
         'manual_admin': 'VIP',
         'codigo_promocion': 'Promoción',
-        'pago': 'Premium'
+        'pago': 'Premium',
+        'impulso': 'Verificado',
+        'destacado': 'Destacado',
+        'elite': 'Elite'
       };
       badgeTexto = mapeoNombres[membresia.tipo_membresia] || 'Premium';
     }
 
-    console.log('✅ Datos premium obtenidos:', {
-      tipo: membresia.tipo_membresia,
-      es_premium: esPremium,
-      badge: badgeTexto,
-      prioridad: membresia.prioridad_nivel
+    // 🩹 FIX: si el plan requiere aprobación de identidad y el admin
+    // todavía no la dio, el badge no se muestra aunque el plan lo incluya.
+    // Antes esto solo lo chequeaba el trigger de membresías, no acá — por
+    // eso publicar/editar un servicio podía "destrabar" el badge sin que
+    // nadie lo hubiera aprobado.
+    const { data: requiereValidacion } = await supabase.rpc('usuario_tiene_caracteristica', {
+      p_usuario_id: usuario_id,
+      p_clave: 'requiere_validacion_identidad'
     });
+
+    if (requiereValidacion) {
+      const { data: perfil } = await supabase
+        .from('perfiles_usuarios')
+        .select('identidad_verificada')
+        .eq('id', usuario_id)
+        .single();
+
+      if (!perfil?.identidad_verificada) {
+        badgeTexto = null;
+      }
+    }
 
     return {
       es_premium: esPremium,
@@ -213,7 +240,6 @@ export const publicarServicio = async (
       throw new Error("No se pudo obtener el usuario logueado");
     }
 
-    // ✅ Verificar límite SOLO si es inserción (no actualización)
     if (!id) {
       const { data: limiteData, error: limiteError } = await supabase
         .rpc('puede_publicar_servicio', {
@@ -244,7 +270,21 @@ export const publicarServicio = async (
       }
     }
 
-    // 🆕 OBTENER DATOS PREMIUM DEL USUARIO
+    // 🆕 Características del plan del dueño: gatea qué campos se guardan.
+    // Si el usuario cambió a un plan inferior entre que cargó el form y
+    // publicó, estos campos se limpian en vez de guardarse igual.
+    const { data: caracteristicas } = await supabase.rpc(
+      'obtener_caracteristicas_usuario',
+      { p_usuario_id: usuario_id }
+    );
+
+    const puedeMetodosPago = caracteristicas?.metodos_pago_formulario === true;
+    const puedeEnvios = caracteristicas?.envios_formulario === true;
+    const puedeSitioWeb = caracteristicas?.link_sitio_web === true;
+        const puedeMensajePersonalizado = caracteristicas?.whatsapp_mensaje_personalizado === true;
+    const puedeFotoReferencia = caracteristicas?.foto_referencia_ubicacion === true;
+    const puedeReglas = caracteristicas?.reglas_devoluciones === true;
+
     const datosPremium = await obtenerDatosPremium(usuario_id);
 
     let categoriaId = formData.categoria;
@@ -257,7 +297,6 @@ export const publicarServicio = async (
       categoriaId = catRow?.id || null;
     }
 
-    // 🆕 PAYLOAD CON DATOS PREMIUM
     const payloadServicio = {
       usuario_id,
       nombre: formData.nombre,
@@ -273,10 +312,21 @@ export const publicarServicio = async (
       contacto_instagram: formData.instagram || null,
       contacto_facebook: formData.facebook || null,
       mostrar_boton_whatsapp: formData.mostrarBotonWhatsapp ?? true,
-      // 🆕 ASIGNAR AUTOMÁTICAMENTE SEGÚN MEMBRESÍA
       es_premium: datosPremium.es_premium,
       badge_texto: datosPremium.badge_texto,
-      fecha_premium_hasta: datosPremium.fecha_premium_hasta
+      fecha_premium_hasta: datosPremium.fecha_premium_hasta,
+      // 🆕 Campos por plan — se limpian si el plan no los habilita
+      metodos_pago: puedeMetodosPago ? (formData.metodos_pago || []) : [],
+      acepta_cuotas: puedeMetodosPago ? !!formData.acepta_cuotas : false,
+      hace_envios: puedeEnvios ? !!formData.hace_envios : false,
+      alcance_envio: puedeEnvios ? (formData.alcance_envio || null) : null,
+      sitio_web: puedeSitioWeb ? (formData.sitio_web || null) : null,
+            whatsapp_mensaje_personalizado: puedeMensajePersonalizado
+        ? (formData.whatsapp_mensaje_personalizado || null)
+        : null,
+      reglas_devoluciones: puedeReglas
+        ? (formData.reglas_devoluciones || null)
+        : null,
     };
 
     let servicioId = id;
@@ -329,6 +379,37 @@ export const publicarServicio = async (
         await supabase.storage.from('imagenes').remove([rutaArchivo]);
       }
       await supabase.from('servicios').update({ foto_portada: null }).eq('id', servicioId);
+    }
+
+    // 🆕 Subir foto de referencia de ubicación (solo si el plan la habilita)
+    if (puedeFotoReferencia && formData.referenciaFile) {
+      const timestamp = Date.now();
+      const ext = formData.referenciaFile.name.split('.').pop();
+      const rutaReferencia = `referencias/${servicioId}_${timestamp}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('imagenes')
+        .upload(rutaReferencia, formData.referenciaFile, { upsert: true });
+
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage
+          .from('imagenes')
+          .getPublicUrl(rutaReferencia);
+
+        await supabase
+          .from('servicios')
+          .update({ foto_referencia_ubicacion: urlData.publicUrl })
+          .eq('id', servicioId);
+      }
+    }
+
+    if (formData.referenciaAEliminar && !formData.referenciaFile) {
+      const urlParts = formData.referenciaAEliminar.split('/imagenes/');
+      if (urlParts.length > 1) {
+        const rutaArchivo = urlParts[1].split('?')[0];
+        await supabase.storage.from('imagenes').remove([rutaArchivo]);
+      }
+      await supabase.from('servicios').update({ foto_referencia_ubicacion: null }).eq('id', servicioId);
     }
 
     if (formData.imagenesAEliminar?.length > 0) {
@@ -388,7 +469,6 @@ export const publicarServicio = async (
       await supabase.from("disponibilidades").insert(disponibilidadesPayload);
     }
     
-    // Detectar el origen correcto del panel
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     const { data: perfilUsuario } = await supabase
       .from('perfiles_usuarios')

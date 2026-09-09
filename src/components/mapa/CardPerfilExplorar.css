@@ -456,3 +456,13 @@
   background-size: 200px 100%;
   animation: skeleton-loading 1.5s ease-in-out infinite;
 }
+/* ============================================
+   AGREGAR AL FINAL DE CardPerfilExplorar.css
+   (no reemplaza nada, solo suma)
+   ============================================ */
+
+.card-perfil-destacada {
+  border: 2px solid var(--color-destaque, #2563EB);
+  box-shadow: 0 0 0 1px var(--color-destaque, #2563EB) inset,
+              0 4px 14px rgba(0, 0, 0, 0.08);
+}

@@ -1,0 +1,152 @@
+.verif-container {
+  max-width: 520px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+}
+
+.verif-container h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  color: #0F172A;
+  margin: 0 0 0.5rem;
+}
+
+.verif-container h2 .material-icons {
+  color: #2563EB;
+}
+
+.verif-intro {
+  color: #64748B;
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+  line-height: 1.4;
+}
+
+.verif-group {
+  margin-bottom: 1.1rem;
+}
+
+.verif-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.35rem;
+}
+
+.verif-hint {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 0 0 0.4rem;
+}
+
+.verif-group input[type="text"] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.verif-group input[type="text"].input-error {
+  border-color: #DC2626;
+}
+
+.verif-group input[type="file"] {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.verif-error {
+  color: #DC2626;
+  font-size: 0.8rem;
+  margin: 0.3rem 0 0;
+}
+
+.verif-error-general {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.verif-btn-enviar {
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 10px;
+  background: #2563EB;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.verif-btn-enviar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.verif-cargando,
+.verif-bloqueado,
+.verif-estado {
+  max-width: 480px;
+  margin: 1.5rem auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+}
+
+.verif-bloqueado .material-icons,
+.verif-estado .material-icons {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.verif-bloqueado .material-icons { color: #94A3B8; }
+.verif-pendiente .material-icons { color: #D97706; }
+.verif-aprobada .material-icons { color: #16A34A; }
+
+.verif-bloqueado h3,
+.verif-estado h3 {
+  margin: 0 0 0.4rem;
+  color: #0F172A;
+}
+
+.verif-bloqueado p,
+.verif-estado p {
+  color: #64748B;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.verif-rechazo-aviso {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border-radius: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  margin-bottom: 1.25rem;
+}
+
+.verif-rechazo-aviso .material-icons {
+  color: #DC2626;
+  flex-shrink: 0;
+}
+
+.verif-rechazo-aviso strong {
+  color: #991B1B;
+  font-size: 0.9rem;
+}
+
+.verif-rechazo-aviso p {
+  color: #7F1D1D;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+}

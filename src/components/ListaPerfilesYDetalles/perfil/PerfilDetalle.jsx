@@ -32,13 +32,14 @@ const PerfilDetalle = () => {
           supabase.from('servicios')
             .select(`
               *,
-              usuario:perfiles_usuarios (
+                usuario:perfiles_usuarios (
                 id,
                 nombre,
                 apellido,
                 foto_url,
                 email,
-                telefono
+                telefono,
+                ultima_actividad
               ),
               categoria:categorias ( nombre )
             `)
@@ -77,7 +78,15 @@ const PerfilDetalle = () => {
           opiniones
         };
 
-        setPerfil(perfilSeteado);
+                setPerfil(perfilSeteado);
+
+        // 🆕 Registrar la visita (no bloquea la carga, no importa si falla)
+        supabase.rpc('registrar_evento_servicio', {
+          p_servicio_id: id,
+          p_tipo: 'visita'
+        }).then(({ error }) => {
+          if (error) console.error('No se pudo registrar la visita:', error);
+        });
 
             } catch (error) {
         console.error('Error cargando perfil:', error);

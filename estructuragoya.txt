@@ -1,343 +1,262 @@
-Listado de rutas de carpetas para el volumen FRANCO F
-El n£mero de serie del volumen es 5C42-6190
-D:.
-³   eslint.config.js
-³   index.html
-³   README.md
-³   vite.config.js
-³   .gitignore
-³   package.json
-³   .env
-³   package-lock.json
-³   estructuragoya.txt
-³   manifest.json
-³   
-ÃÄÄÄpublic
-³   ³   _redirects
-³   ³   GoyaNova_20250918_144009_0000.png
-³   ³   
-³   ÀÄÄÄassets
-³           GoyaNova_20250918_144009_0000.png
-³           
-ÃÄÄÄsrc
-³   ³   App.css
-³   ³   App.jsx
-³   ³   index.css
-³   ³   main.jsx
-³   ³   RouterApp.jsx
-³   ³   
-³   ÃÄÄÄassets
-³   ³       react.svg
-³   ³       image.png
-³   ³       Imagen de WhatsApp 2025-09-18 a las 14.33.45_37c6ee86.jpg
-³   ³       LOGO.jpg
-³   ³       GoyaNova_20250918_144009_0000.png
-³   ³       
-³   ÃÄÄÄcomponents
-³   ³   ³   ModalMantenimiento.jsx
-³   ³   ³   ModalMantenimiento.css
-³   ³   ³   InstallPWAModal.jsx
-³   ³   ³   InstallPWAModal.css
-³   ³   ³   
-³   ³   ÃÄÄÄpublicar
-³   ³   ³   ³   Paso1InfoBasica.jsx
-³   ³   ³   ³   Paso1InfoBasica.css
-³   ³   ³   ³   Paso2ImagenesUbicacion.jsx
-³   ³   ³   ³   Paso2ImagenesUbicacion.css
-³   ³   ³   ³   Paso3DetallesDisponibilidad.jsx
-³   ³   ³   ³   Paso3DetallesDisponibilidad.css
-³   ³   ³   ³   Paso4ContactoOpciones.jsx
-³   ³   ³   ³   Paso4ContactoOpciones.css
-³   ³   ³   ³   Paso5ResumenConfirmacion.jsx
-³   ³   ³   ³   Paso5ResumenConfirmacion.css
-³   ³   ³   ³   PublicarServicioForm.jsx
-³   ³   ³   ³   PublicarServicioForm.css
-³   ³   ³   ³   FinalizacionExitosa.jsx
-³   ³   ³   ³   FinalizacionExitosa.css
-³   ³   ³   ³   SeccionFormulario.css
-³   ³   ³   ³   SeccionFormulario.jsx
-³   ³   ³   ³   ModalMapa.jsx
-³   ³   ³   ³   ModalMapa.css
-³   ³   ³   ³   
-³   ³   ³   ÀÄÄÄutils
-³   ³   ³           validacionesServicio.js
-³   ³   ³           helpers.js
-³   ³   ³           serviciosService.js
-³   ³   ³           
-³   ³   ÃÄÄÄpanel
-³   ³   ³   ÃÄÄÄusuario
-³   ³   ³   ³   ³   PanelUsuario.jsx
-³   ³   ³   ³   ³   PanelUsuario.css
-³   ³   ³   ³   ³   MisServicios.jsx
-³   ³   ³   ³   ³   ServicioCard.jsx
-³   ³   ³   ³   ³   MisServicios.css
-³   ³   ³   ³   ³   ServicioCard.css
-³   ³   ³   ³   ³   Dashboard.jsx
-³   ³   ³   ³   ³   Dashboard.css
-³   ³   ³   ³   ³   Perfil.jsx
-³   ³   ³   ³   ³   Opiniones.jsx
-³   ³   ³   ³   ³   Solicitudes.jsx
-³   ³   ³   ³   ³   Configuracion.jsx
-³   ³   ³   ³   ³   PublicarServicio.jsx
-³   ³   ³   ³   ³   Perfil.css
-³   ³   ³   ³   ³   Opiniones.css
-³   ³   ³   ³   ³   Configuracion.css
-³   ³   ³   ³   ³   Notificaciones.jsx
-³   ³   ³   ³   ³   Notificaciones.css
-³   ³   ³   ³   ³   AyudaSoporte.jsx
-³   ³   ³   ³   ³   AyudaSoporte.css
-³   ³   ³   ³   ³   PublicarServicio.css
-³   ³   ³   ³   ³   MiMembresia.jsx
-³   ³   ³   ³   ³   MiMembresia.css
-³   ³   ³   ³   ³   BotonPagarMembresia.jsx
-³   ³   ³   ³   ³   BotonPagarMembresia.css
-³   ³   ³   ³   ³   
-³   ³   ³   ³   ÀÄÄÄcomponents
-³   ³   ³   ³           icons.jsx
-³   ³   ³   ³           
-³   ³   ³   ÀÄÄÄadmin
-³   ³   ³           PanelAdmin.jsx
-³   ³   ³           PanelAdmin.css
-³   ³   ³           DashboardAdmin.jsx
-³   ³   ³           DashboardAdmin.css
-³   ³   ³           UsuariosAdmin.jsx
-³   ³   ³           UsuariosAdmin.css
-³   ³   ³           ServiciosAdmin.jsx
-³   ³   ³           ServiciosAdmin.css
-³   ³   ³           CategoriasAdmin.jsx
-³   ³   ³           CategoriasAdmin.css
-³   ³   ³           ConfiguracionAdmin.jsx
-³   ³   ³           ConfiguracionAdmin.css
-³   ³   ³           SolicitudesEliminacion.jsx
-³   ³   ³           SolicitudesEliminacion.css
-³   ³   ³           ReportesAdmin.jsx
-³   ³   ³           ReportesAdmin.css
-³   ³   ³           CodigosPromocionalesAdmin.jsx
-³   ³   ³           CodigosPromocionalesAdmin.css
-³   ³   ³           MembresiasAdmin.jsx
-³   ³   ³           MembresiasAdmin.css
-³   ³   ³           ComentariosAdmin.jsx
-³   ³   ³           ComentariosAdmin.css
-³   ³   ³           GestionFAQs.css
-³   ³   ³           GestionFAQs.jsx
-³   ³   ³           GestionTutoriales.jsx
-³   ³   ³           GestionTutoriales.css
-³   ³   ³           MensajesSoporte.jsx
-³   ³   ³           MensajesSoporte.css
-³   ³   ³           
-³   ³   ÃÄÄÄhome
-³   ³   ³       Home.jsx
-³   ³   ³       Home.css
-³   ³   ³       Navbar.jsx
-³   ³   ³       Navbar.css
-³   ³   ³       SaludoUsuario.jsx
-³   ³   ³       SaludoUsuario.css
-³   ³   ³       TypeSelector.css
-³   ³   ³       TypeSelector.jsx
-³   ³   ³       CategoryList.jsx
-³   ³   ³       CategoryCard.jsx
-³   ³   ³       CategoryList.css
-³   ³   ³       CategoryCard.css
-³   ³   ³       MapaHome.jsx
-³   ³   ³       MapaHome.css
-³   ³   ³       BuscadorCategorias.jsx
-³   ³   ³       NavbarGeneral.jsx
-³   ³   ³       NavbarGeneral.css
-³   ³   ³       
-³   ³   ÃÄÄÄListaPerfilesYDetalles
-³   ³   ³   ³   NavbarCategory.jsx
-³   ³   ³   ³   CategoryPageWrapper.jsx
-³   ³   ³   ³   CategoryPage.css
-³   ³   ³   ³   CategoryPage.jsx
-³   ³   ³   ³   NavbarCategory.css
-³   ³   ³   ³   PerfilCard.css
-³   ³   ³   ³   PerfilCard.jsx
-³   ³   ³   ³   NavbarPerfil.jsx
-³   ³   ³   ³   
-³   ³   ³   ÀÄÄÄperfil
-³   ³   ³       ³   PerfilDetalle.jsx
-³   ³   ³       ³   PerfilDetalle.css
-³   ³   ³       ³   SobrePerfil.jsx
-³   ³   ³       ³   DisponibilidadPerfilRobusto.css
-³   ³   ³       ³   DisponibilidadPerfilRobusto.jsx
-³   ³   ³       ³   GaleriaTrabajos.css
-³   ³   ³       ³   GaleriaTrabajos.jsx
-³   ³   ³       ³   OpinionesSection.css
-³   ³   ³       ³   ResumenPerfil.jsx
-³   ³   ³       ³   ResumenPerfil.css
-³   ³   ³       ³   SobrePerfil.css
-³   ³   ³       ³   OpinionesSection.jsx
-³   ³   ³       ³   PanelProfesional.jsx
-³   ³   ³       ³   PanelProfesional.css
-³   ³   ³       ³   MenuOpciones.jsx
-³   ³   ³       ³   MenuOpciones.css
-³   ³   ³       ³   ModalReporte.jsx
-³   ³   ³       ³   ModalReporte.css
-³   ³   ³       ³   
-³   ³   ³       ÀÄÄÄopinion
-³   ³   ³               OpinionesCompletas.jsx
-³   ³   ³               OpinionesList.jsx
-³   ³   ³               OpinionesList.css
-³   ³   ³               OpinionesCompletas.css
-³   ³   ³               
-³   ³   ÃÄÄÄnosotros
-³   ³   ³       Nosotros.jsx
-³   ³   ³       Nosotros.css
-³   ³   ³       
-³   ³   ÃÄÄÄcontacto
-³   ³   ³       Contacto.jsx
-³   ³   ³       Contacto.css
-³   ³   ³       
-³   ³   ÃÄÄÄmapa
-³   ³   ³       ExplorarMapa.jsx
-³   ³   ³       FiltrosExplorar.jsx
-³   ³   ³       DetallesServicio.jsx
-³   ³   ³       ExplorarMapa.css
-³   ³   ³       BarraBusquedaExplorar.jsx
-³   ³   ³       BarraBusquedaExplorar.css
-³   ³   ³       FiltrosExplorar.css
-³   ³   ³       ListaPerfilesExplorar.jsx
-³   ³   ³       ListaPerfilesExplorar.css
-³   ³   ³       CardPerfilExplorar.jsx
-³   ³   ³       CardPerfilExplorar.css
-³   ³   ³       DetallesServicio.css
-³   ³   ³       ScrollControl.jsx
-³   ³   ³       PanelInferiorResultados.jsx
-³   ³   ³       MarkerCluster.css
-³   ³   ³       MapFlyTo.jsx
-³   ³   ³       UbicacionActual.jsx
-³   ³   ³       UbicacionActual.css
-³   ³   ³       
-³   ³   ÃÄÄÄComentariosProyecto
-³   ³   ³       ComentariosProyecto.jsx
-³   ³   ³       ComentariosProyecto.css
-³   ³   ³       
-³   ³   ÃÄÄÄloading
-³   ³   ³       Loading.css
-³   ³   ³       Loading.jsx
-³   ³   ³       
-³   ³   ÃÄÄÄfooter
-³   ³   ³       Footer.jsx
-³   ³   ³       Footer.css
-³   ³   ³       
-³   ³   ÀÄÄÄayuda
-³   ³           AyudaPublica.jsx
-³   ³           AyudaPublica.css
-³   ³           
-³   ÃÄÄÄauth
-³   ³   ³   AuthContext.jsx
-³   ³   ³   useAuth.js
-³   ³   ³   ProtectedRoute.jsx
-³   ³   ³   RutaProtegidaAdmin.jsx
-³   ³   ³   useSuspension.js
-³   ³   ³   
-³   ³   ÀÄÄÄlogin
-³   ³           login.jsx
-³   ³           Login.css
-³   ³           Register.jsx
-³   ³           Register.css
-³   ³           ResetPassword.jsx
-³   ³           ResetPassword.css
-³   ³           SuspensionModal.jsx
-³   ³           SuspensionModal.css
-³   ³           ModalCodigoPromo.jsx
-³   ³           ModalCodigoPromo.css
-³   ³           
-³   ÃÄÄÄutils
-³   ³       supabaseClient.js
-³   ³       materialIconsList.js
-³   ³       validacionesReportes.js
-³   ³       suspensionUtils.js
-³   ³       
-³   ÃÄÄÄcontexts
-³   ³       NotificationsProvider.jsx
-³   ³       NotificationsProvider.css
-³   ³       
-³   ÀÄÄÄhooks
-³           useMantenimiento.js
-³           
-ÃÄÄÄ.vscode
-³       settings.json
-³       launch.json
-³       
-ÃÄÄÄdist
-³   ³   _redirects
-³   ³   index.html
-³   ³   
-³   ÀÄÄÄassets
-³           GoyaNova_20250918_144009_0000.png
-³           GoyaNova_20250918_144009_0000-C_BJVZ63.png
-³           index-D2-zTyLJ.css
-³           Contacto-Czmm4aER.css
-³           Nosotros-gg72FF-i.css
-³           PublicarServicioForm-3LMMDqdW.css
-³           PerfilDetalle-Z2Z1Yx8g.css
-³           CategoryPage-DZwh71Oj.css
-³           OpinionesCompletas-sxbglnVq.css
-³           ExplorarMapa-alLuZo8s.css
-³           MisServicios-Bj2h-iUv.css
-³           Perfil-BcPpbX3P.css
-³           Opiniones-C3xEW4z7.css
-³           Configuracion-EcnawQiJ.css
-³           Notificaciones-B1ynQThX.css
-³           AyudaSoporte-CMOcQxvM.css
-³           MiMembresia-Dj6sKEta.css
-³           PanelAdmin-DJe3pIcX.css
-³           PanelUsuario-DAJP0Ebo.css
-³           DashboardAdmin-DoMPfILL.css
-³           FinalizacionExitosa-BkaRU4rP.css
-³           Dashboard-DbD14ibP.css
-³           UsuariosAdmin-CjvJUySE.css
-³           ServiciosAdmin-BuKJ8DIF.css
-³           ComentariosAdmin-wkDnQnCz.css
-³           SolicitudesEliminacion-BGtrlTee.css
-³           ReportesAdmin-B3dPz7Pn.css
-³           MembresiasAdmin-B1mkKp_n.css
-³           CodigosPromocionalesAdmin-DhfLByIf.css
-³           CategoriasAdmin-BSmv8F2l.css
-³           ConfiguracionAdmin-BORh5FAU.css
-³           GestionTutoriales-BewOUKhX.css
-³           GestionFAQs-CsRtkP-T.css
-³           MensajesSoporte-BxsaoeNP.css
-³           vendor-react-B595ec7m.js
-³           Contacto-BJct9AS9.js
-³           index-CoXZKxNh.js
-³           PublicarServicioForm-BkeWmrUn.js
-³           Nosotros-CdrekPFS.js
-³           CategoryPage-DQ9seIxk.js
-³           PerfilDetalle-BGnjpu_2.js
-³           FinalizacionExitosa-3JguI1nt.js
-³           OpinionesCompletas-6_FBSZWL.js
-³           ExplorarMapa-B0t4xuJo.js
-³           index-q1hs-Sd7.js
-³           PanelUsuario-3NOffg7g.js
-³           Dashboard-Dtf4K4RN.js
-³           MisServicios-BA4qQUMU.js
-³           Perfil-B12Z_lP9.js
-³           Opiniones-BaUMPyNt.js
-³           Solicitudes-CRHWXedO.js
-³           Notificaciones-C2fsCMVU.js
-³           Configuracion-D99Y6Jiq.js
-³           MiMembresia-CrRR8JUY.js
-³           AyudaSoporte-r5KnXK26.js
-³           PanelAdmin-CGHvJLqK.js
-³           DashboardAdmin-egQIpZhR.js
-³           UsuariosAdmin-DcvaOgnC.js
-³           ServiciosAdmin-B-RcogLT.js
-³           ComentariosAdmin-D7o3_l6D.js
-³           SolicitudesEliminacion-CP9DUwjx.js
-³           ReportesAdmin-D-tpuWSo.js
-³           index-B67Muka8.js
-³           iconBase-BJQpXvkP.js
-³           CodigosPromocionalesAdmin-B8FvbVWO.js
-³           CategoriasAdmin-DrRoJcyv.js
-³           MembresiasAdmin-Cev17N5N.js
-³           ConfiguracionAdmin-DbSOYclF.js
-³           GestionFAQs-C1L6vaVc.js
-³           MensajesSoporte-CN510Z8v.js
-³           GestionTutoriales-DApNrWAi.js
-³           
-ÀÄÄÄauth
-    ÀÄÄÄlogin
-            ModalCodigoPromoGoogle
-            
+goyanova/
+â”œâ”€â”€ .env
+â”œâ”€â”€ .gitignore
+â”œâ”€â”€ .vscode
+â”‚   â”œâ”€â”€ launch.json
+â”‚   â”œâ”€â”€ settings.json
+â”œâ”€â”€ README.md
+â”œâ”€â”€ auth
+â”‚   â”œâ”€â”€ login
+â”‚       â”œâ”€â”€ ModalCodigoPromoGoogle
+â”œâ”€â”€ eslint.config.js
+â”œâ”€â”€ generate-readme.cjs
+â”œâ”€â”€ index.html
+â”œâ”€â”€ manifest.json
+â”œâ”€â”€ netlify
+â”œâ”€â”€ netlify.toml
+â”‚   â”œâ”€â”€ functions
+â”‚       â”œâ”€â”€ contacto.mjs
+â”‚       â”œâ”€â”€ enviar-email.mjs
+â”œâ”€â”€ package-lock.json
+â”œâ”€â”€ package.json
+â”œâ”€â”€ public
+â”‚   â”œâ”€â”€ _redirects
+â”‚   â”œâ”€â”€ assets
+â”‚       â”œâ”€â”€ 20260121_152102_0000.png
+â”‚       â”œâ”€â”€ GoyaNova_20250918_144009_0000.png
+â”‚       â”œâ”€â”€ GoyaNova_20251222_205000_0000.png
+â”‚       â”œâ”€â”€ GoyaNova_Blanco.png
+â”‚       â”œâ”€â”€ GoyaNova_Blanco_Maskable.png
+â”‚       â”œâ”€â”€ IMG_20251214_152221_302.webp
+â”‚       â”œâ”€â”€ favicon.ico
+â”‚   â”œâ”€â”€ google2ae942aae60591aa.html
+â”‚   â”œâ”€â”€ robots.txt
+â”‚   â”œâ”€â”€ sitemap.xml
+â”œâ”€â”€ src
+â”‚   â”œâ”€â”€ App.css
+â”‚   â”œâ”€â”€ App.jsx
+â”‚   â”œâ”€â”€ RouterApp.jsx
+â”‚   â”œâ”€â”€ assets
+â”‚       â”œâ”€â”€ GoyaNova_20250918_144009_0000.png
+â”‚       â”œâ”€â”€ Imagen de WhatsApp 2025-09-18 a las 14.33.45_37c6ee86.jpg
+â”‚       â”œâ”€â”€ LOGO.jpg
+â”‚       â”œâ”€â”€ image.png
+â”‚       â”œâ”€â”€ react.svg
+â”‚   â”œâ”€â”€ auth
+â”‚       â”œâ”€â”€ AuthContext.jsx
+â”‚       â”œâ”€â”€ ProtectedRoute.jsx
+â”‚       â”œâ”€â”€ RequierePerfilCompleto.css
+â”‚       â”œâ”€â”€ RequierePerfilCompleto.jsx
+â”‚       â”œâ”€â”€ RutaProtegidaAdmin.jsx
+â”‚       â”œâ”€â”€ login
+â”‚           â”œâ”€â”€ Login.css
+â”‚           â”œâ”€â”€ ModalCodigoPromo.css
+â”‚           â”œâ”€â”€ ModalCodigoPromo.jsx
+â”‚           â”œâ”€â”€ Register.css
+â”‚           â”œâ”€â”€ Register.jsx
+â”‚           â”œâ”€â”€ ResetPassword.css
+â”‚           â”œâ”€â”€ ResetPassword.jsx
+â”‚           â”œâ”€â”€ SuspensionModal.css
+â”‚           â”œâ”€â”€ SuspensionModal.jsx
+â”‚           â”œâ”€â”€ login.jsx
+â”‚       â”œâ”€â”€ useAuth.js
+â”‚       â”œâ”€â”€ useSuspension.js
+â”‚   â”œâ”€â”€ components
+â”‚       â”œâ”€â”€ ComentariosProyecto
+â”‚           â”œâ”€â”€ ComentariosProyecto.css
+â”‚           â”œâ”€â”€ ComentariosProyecto.jsx  // muestra y permite enviar comentarios/reseÃ±as pÃºblicas del proyecto con estadÃ­sticas y reportes
+â”‚       â”œâ”€â”€ InstallPWAModal.css
+â”‚       â”œâ”€â”€ InstallPWAModal.jsx  // modal que promueve instalar la PWA en el dispositivo
+â”‚       â”œâ”€â”€ ListaPerfilesYDetalles
+â”‚           â”œâ”€â”€ CategoryPage.css
+â”‚           â”œâ”€â”€ CategoryPage.jsx  // listado de perfiles filtrado por categorÃ­a con bÃºsqueda, orden y paginaciÃ³n
+â”‚           â”œâ”€â”€ CategoryPageWrapper.jsx  // wrapper de ruta que pasa el parÃ¡metro de categorÃ­a a CategoryPage
+â”‚           â”œâ”€â”€ NavbarCategory.css
+â”‚           â”œâ”€â”€ NavbarCategory.jsx  // navbar para las pÃ¡ginas de categorÃ­a con rol de usuario
+â”‚           â”œâ”€â”€ NavbarPerfil.jsx  // navbar para la pÃ¡gina de perfil de servicio con rol de usuario
+â”‚           â”œâ”€â”€ PerfilCard.css
+â”‚           â”œâ”€â”€ PerfilCard.jsx  // tarjeta de perfil de servicio con rating, iniciales y enlace a WhatsApp
+â”‚           â”œâ”€â”€ perfil
+â”‚               â”œâ”€â”€ DisponibilidadPerfilRobusto.css
+â”‚               â”œâ”€â”€ DisponibilidadPerfilRobusto.jsx  // muestra horarios de disponibilidad agrupados por dÃ­a y si estÃ¡ disponible ahora
+â”‚               â”œâ”€â”€ GaleriaTrabajos.css
+â”‚               â”œâ”€â”€ GaleriaTrabajos.jsx  // carrusel/galerÃ­a de imÃ¡genes de trabajos con modal ampliado
+â”‚               â”œâ”€â”€ MenuOpciones.css
+â”‚               â”œâ”€â”€ MenuOpciones.jsx  // menÃº desplegable de opciones (reportar/compartir)
+â”‚               â”œâ”€â”€ ModalAvisoLogin.css
+â”‚               â”œâ”€â”€ ModalAvisoLogin.jsx  // modal que pide iniciar sesiÃ³n para continuar una acciÃ³n
+â”‚               â”œâ”€â”€ ModalReporte.css
+â”‚               â”œâ”€â”€ ModalReporte.jsx  // modal para reportar un servicio o comentario con categorÃ­as
+â”‚               â”œâ”€â”€ OpinionesSection.css
+â”‚               â”œâ”€â”€ OpinionesSection.jsx  // secciÃ³n de opiniones con validaciones anti-spam para dejar reseÃ±as
+â”‚               â”œâ”€â”€ PanelProfesional.css
+â”‚               â”œâ”€â”€ PanelProfesional.jsx  // panel de estadÃ­sticas del profesional (trabajos, valoraciÃ³n, visitas)
+â”‚               â”œâ”€â”€ PerfilDetalle.css
+â”‚               â”œâ”€â”€ PerfilDetalle.jsx  // pÃ¡gina de detalle de un perfil de servicio que combina sub-secciones
+â”‚               â”œâ”€â”€ ResumenPerfil.css
+â”‚               â”œâ”€â”€ ResumenPerfil.jsx  // encabezado resumen del perfil con foto, rating y opciones de reporte
+â”‚               â”œâ”€â”€ SobrePerfil.css
+â”‚               â”œâ”€â”€ SobrePerfil.jsx  // muestra tipo, categorÃ­a, direcciÃ³n y mini mapa del servicio
+â”‚               â”œâ”€â”€ opinion
+â”‚                   â”œâ”€â”€ OpinionesCompletas.css
+â”‚                   â”œâ”€â”€ OpinionesCompletas.jsx  // vista paginada de todas las opiniones de un perfil
+â”‚                   â”œâ”€â”€ OpinionesList.css
+â”‚                   â”œâ”€â”€ OpinionesList.jsx  // lista simple de opiniones con "ver mÃ¡s/menos"
+â”‚       â”œâ”€â”€ ModalMantenimiento.css
+â”‚       â”œâ”€â”€ ModalMantenimiento.jsx  // modal de aviso de mantenimiento con cuenta regresiva estimada
+â”‚       â”œâ”€â”€ ayuda
+â”‚           â”œâ”€â”€ AyudaPublica.css
+â”‚           â”œâ”€â”€ AyudaPublica.jsx  // pÃ¡gina pÃºblica de ayuda con FAQs, tutoriales y formulario de contacto
+â”‚       â”œâ”€â”€ contacto
+â”‚           â”œâ”€â”€ Contacto.css
+â”‚           â”œâ”€â”€ Contacto.jsx  // pÃ¡gina de contacto con formulario que envÃ­a mensaje vÃ­a funciÃ³n Netlify
+â”‚       â”œâ”€â”€ footer
+â”‚           â”œâ”€â”€ Footer.css
+â”‚           â”œâ”€â”€ Footer.jsx  // pie de pÃ¡gina con marca, redes sociales y enlaces
+â”‚       â”œâ”€â”€ home
+â”‚           â”œâ”€â”€ BannerUpgrade.css
+â”‚           â”œâ”€â”€ BannerUpgrade.jsx  // banner que invita a mejorar de plan segÃºn la membresÃ­a del usuario
+â”‚           â”œâ”€â”€ BuscadorCategorias.jsx  // buscador con autocompletado de categorÃ­as desde la base de datos
+â”‚           â”œâ”€â”€ CategoryCard.css
+â”‚           â”œâ”€â”€ CategoryCard.jsx  // tarjeta individual clickeable de una categorÃ­a
+â”‚           â”œâ”€â”€ CategoryList.css
+â”‚           â”œâ”€â”€ CategoryList.jsx  // lista de categorÃ­as y servicios con bÃºsqueda y estado vacÃ­o
+â”‚           â”œâ”€â”€ Home.css
+â”‚           â”œâ”€â”€ Home.jsx  // pÃ¡gina principal: selector de tipo, categorÃ­as, mapa, y lÃ³gica de membresÃ­a/PWA
+â”‚           â”œâ”€â”€ MapaHome.css
+â”‚           â”œâ”€â”€ MapaHome.jsx  // mapa estÃ¡tico de vista previa de Goya con botÃ³n para ir a explorar
+â”‚           â”œâ”€â”€ Navbar.css
+â”‚           â”œâ”€â”€ Navbar.jsx  // barra de navegaciÃ³n principal con menÃº y accesos segÃºn sesiÃ³n
+â”‚           â”œâ”€â”€ NavbarGeneral.css
+â”‚           â”œâ”€â”€ NavbarGeneral.jsx  // navbar general reutilizable con scroll y menÃº responsive
+â”‚           â”œâ”€â”€ SaludoUsuario.css
+â”‚           â”œâ”€â”€ SaludoUsuario.jsx  // saludo personalizado que incorpora datos del clima de Goya
+â”‚           â”œâ”€â”€ TypeSelector.css
+â”‚           â”œâ”€â”€ TypeSelector.jsx  // selector de tipo (servicio/producto)
+â”‚       â”œâ”€â”€ instalar
+â”‚           â”œâ”€â”€ InstalarApp.css
+â”‚           â”œâ”€â”€ InstalarApp.jsx  // pantalla que guÃ­a la instalaciÃ³n de la app (prompt nativo o instrucciones manuales)
+â”‚       â”œâ”€â”€ legal
+â”‚           â”œâ”€â”€ Terminos.css
+â”‚           â”œâ”€â”€ Terminos.jsx  // pÃ¡gina de tÃ©rminos y condiciones / polÃ­tica de privacidad
+â”‚       â”œâ”€â”€ loading
+â”‚           â”œâ”€â”€ Loading.css
+â”‚           â”œâ”€â”€ Loading.jsx  // spinner/loader reutilizable con mensaje
+â”‚       â”œâ”€â”€ mapa
+â”‚           â”œâ”€â”€ BarraBusquedaExplorar.css
+â”‚           â”œâ”€â”€ BarraBusquedaExplorar.jsx  // barra de bÃºsqueda animada para la vista de explorar mapa
+â”‚           â”œâ”€â”€ CardPerfilExplorar.css
+â”‚           â”œâ”€â”€ CardPerfilExplorar.jsx  // tarjeta de perfil dentro del explorador de mapa
+â”‚           â”œâ”€â”€ DetallesServicio.css
+â”‚           â”œâ”€â”€ DetallesServicio.jsx  // panel deslizante con detalles completos de un servicio seleccionado en el mapa
+â”‚           â”œâ”€â”€ ExplorarMapa.css
+â”‚           â”œâ”€â”€ ExplorarMapa.jsx  // pantalla principal de explorar con mapa, filtros, lista y paginaciÃ³n de servicios
+â”‚           â”œâ”€â”€ FiltrosExplorar.css
+â”‚           â”œâ”€â”€ FiltrosExplorar.jsx  // selectores de filtro por tipo y categorÃ­a
+â”‚           â”œâ”€â”€ ListaPerfilesExplorar.css
+â”‚           â”œâ”€â”€ ListaPerfilesExplorar.jsx  // panel/lista de perfiles resultantes con gestos tÃ¡ctiles para cerrar
+â”‚           â”œâ”€â”€ MapFlyTo.jsx  // componente que anima el mapa (flyTo) hacia una ubicaciÃ³n objetivo
+â”‚           â”œâ”€â”€ MarkerCluster.css
+â”‚           â”œâ”€â”€ PanelInferiorResultados.jsx  // panel inferior simple con tarjetas de resultados de servicios
+â”‚           â”œâ”€â”€ ScrollControl.jsx  // habilita/deshabilita el zoom con scroll del mapa segÃºn el mouse
+â”‚           â”œâ”€â”€ UbicacionActual.css
+â”‚           â”œâ”€â”€ UbicacionActual.jsx  // muestra y detecta la ubicaciÃ³n GPS actual del usuario en el mapa
+â”‚       â”œâ”€â”€ nosotros
+â”‚           â”œâ”€â”€ Nosotros.css
+â”‚           â”œâ”€â”€ Nosotros.jsx  // pÃ¡gina "sobre nosotros" con navbar propia y secciÃ³n de comentarios
+â”‚       â”œâ”€â”€ panel
+â”‚           â”œâ”€â”€ admin
+â”‚               â”œâ”€â”€ CategoriasAdmin.css
+â”‚               â”œâ”€â”€ CategoriasAdmin.jsx  // administraciÃ³n de categorÃ­as con buscador de iconos online
+â”‚               â”œâ”€â”€ CodigosPromocionalesAdmin.css
+â”‚               â”œâ”€â”€ CodigosPromocionalesAdmin.jsx  // gestiÃ³n de cÃ³digos promocionales (crear, editar, estadÃ­sticas)
+â”‚               â”œâ”€â”€ ComentariosAdmin.css
+â”‚               â”œâ”€â”€ ComentariosAdmin.jsx  // moderaciÃ³n de comentarios del proyecto con filtros y realtime
+â”‚               â”œâ”€â”€ ConfiguracionAdmin.css
+â”‚               â”œâ”€â”€ ConfiguracionAdmin.jsx  // configuraciÃ³n de cuenta admin, cambio de contraseÃ±a y modo mantenimiento
+â”‚               â”œâ”€â”€ DashboardAdmin.css
+â”‚               â”œâ”€â”€ DashboardAdmin.jsx  // panel inicial admin con estadÃ­sticas globales y notificaciones
+â”‚               â”œâ”€â”€ GestionFAQs.css
+â”‚               â”œâ”€â”€ GestionFAQs.jsx  // CRUD de preguntas frecuentes y sus categorÃ­as
+â”‚               â”œâ”€â”€ GestionTutoriales.css
+â”‚               â”œâ”€â”€ GestionTutoriales.jsx  // CRUD de tutoriales (video/pÃ¡gina)
+â”‚               â”œâ”€â”€ MembresiasAdmin.css
+â”‚               â”œâ”€â”€ MembresiasAdmin.jsx  // gestiÃ³n de membresÃ­as activas de usuarios
+â”‚               â”œâ”€â”€ MensajesSoporte.css
+â”‚               â”œâ”€â”€ MensajesSoporte.jsx  // bandeja de mensajes de soporte con respuesta y filtros
+â”‚               â”œâ”€â”€ PanelAdmin.css
+â”‚               â”œâ”€â”€ PanelAdmin.jsx  // layout del panel admin con sidebar de navegaciÃ³n
+â”‚               â”œâ”€â”€ ReportesAdmin.css
+â”‚               â”œâ”€â”€ ReportesAdmin.jsx  // gestiÃ³n de reportes de servicios/comentarios con acciones de moderaciÃ³n
+â”‚               â”œâ”€â”€ ServiciosAdmin.css
+â”‚               â”œâ”€â”€ ServiciosAdmin.jsx  // administraciÃ³n de todos los servicios publicados (estado, suspensiÃ³n)
+â”‚               â”œâ”€â”€ SolicitudesEliminacion.css
+â”‚               â”œâ”€â”€ SolicitudesEliminacion.jsx  // gestiÃ³n de solicitudes de eliminaciÃ³n de opiniones en tiempo real
+â”‚               â”œâ”€â”€ UsuariosAdmin.css
+â”‚               â”œâ”€â”€ UsuariosAdmin.jsx  // administraciÃ³n de usuarios con bÃºsqueda, ediciÃ³n y suspensiÃ³n
+â”‚           â”œâ”€â”€ usuario
+â”‚               â”œâ”€â”€ AyudaSoporte.css
+â”‚               â”œâ”€â”€ AyudaSoporte.jsx  // secciÃ³n de ayuda del panel usuario con FAQs y formulario de soporte
+â”‚               â”œâ”€â”€ BotonPagarMembresia.css
+â”‚               â”œâ”€â”€ BotonPagarMembresia.jsx  // botÃ³n que inicia el pago de una membresÃ­a vÃ­a edge function
+â”‚               â”œâ”€â”€ Configuracion.css
+â”‚               â”œâ”€â”€ Configuracion.jsx  // ediciÃ³n de datos de cuenta del usuario y cambio de contraseÃ±a
+â”‚               â”œâ”€â”€ Dashboard.css
+â”‚               â”œâ”€â”€ Dashboard.jsx  // panel inicial del usuario con resumen de servicios y notificaciones
+â”‚               â”œâ”€â”€ MiMembresia.css
+â”‚               â”œâ”€â”€ MiMembresia.jsx  // muestra la membresÃ­a actual del usuario y permite cancelarla
+â”‚               â”œâ”€â”€ MisServicios.css
+â”‚               â”œâ”€â”€ MisServicios.jsx  // listado de servicios publicados por el usuario con acceso a publicar
+â”‚               â”œâ”€â”€ Notificaciones.css
+â”‚               â”œâ”€â”€ Notificaciones.jsx  // listado de notificaciones del usuario con lectura/eliminaciÃ³n en tiempo real
+â”‚               â”œâ”€â”€ Opiniones.css
+â”‚               â”œâ”€â”€ Opiniones.jsx  // placeholder de secciÃ³n de opiniones recibidas
+â”‚               â”œâ”€â”€ PanelUsuario.css
+â”‚               â”œâ”€â”€ PanelUsuario.jsx  // layout del panel usuario con sidebar de navegaciÃ³n
+â”‚               â”œâ”€â”€ Perfil.css
+â”‚               â”œâ”€â”€ Perfil.jsx  // ediciÃ³n del perfil personal del usuario (datos y foto)
+â”‚               â”œâ”€â”€ PlanesDisponibles.css
+â”‚               â”œâ”€â”€ PlanesDisponibles.jsx  // vidriera de planes de membresÃ­a disponibles desde la base de datos
+â”‚               â”œâ”€â”€ PublicarServicio.css
+â”‚               â”œâ”€â”€ PublicarServicio.jsx  // verifica lÃ­mites de membresÃ­a antes de mostrar el formulario de publicar
+â”‚               â”œâ”€â”€ ServicioCard.css
+â”‚               â”œâ”€â”€ ServicioCard.jsx  // tarjeta simple de un servicio del usuario
+â”‚               â”œâ”€â”€ Solicitudes.jsx  // listado de solicitudes de eliminaciÃ³n del usuario
+â”‚               â”œâ”€â”€ components
+â”‚                   â”œâ”€â”€ icons.jsx  // Ã­conos SVG reutilizables (cerrar, menÃº, dashboard, etc.)
+â”‚       â”œâ”€â”€ publicar
+â”‚           â”œâ”€â”€ FinalizacionExitosa.css
+â”‚           â”œâ”€â”€ FinalizacionExitosa.jsx  // pantalla de confirmaciÃ³n tras publicar/actualizar un servicio
+â”‚           â”œâ”€â”€ ModalMapa.css
+â”‚           â”œâ”€â”€ ModalMapa.jsx  // modal con mapa de Google para seleccionar la ubicaciÃ³n del servicio
+â”‚           â”œâ”€â”€ Paso1InfoBasica.css
+â”‚           â”œâ”€â”€ Paso1InfoBasica.jsx  // paso 1 del formulario: nombre, tipo, categorÃ­a y descripciÃ³n con validaciones
+â”‚           â”œâ”€â”€ Paso2ImagenesUbicacion.css
+â”‚           â”œâ”€â”€ Paso2ImagenesUbicacion.jsx  // paso 2: carga/compresiÃ³n de imÃ¡genes y selecciÃ³n de ubicaciÃ³n
+â”‚           â”œâ”€â”€ Paso3DetallesDisponibilidad.css
+â”‚           â”œâ”€â”€ Paso3DetallesDisponibilidad.jsx  // paso 3: configuraciÃ³n de horarios/disponibilidad del servicio
+â”‚           â”œâ”€â”€ Paso4ContactoOpciones.css
+â”‚           â”œâ”€â”€ Paso4ContactoOpciones.jsx  // paso 4: formulario de WhatsApp, email y redes
+â”‚           â”œâ”€â”€ Paso5ResumenConfirmacion.css
+â”‚           â”œâ”€â”€ Paso5ResumenConfirmacion.jsx  // paso 5: resumen final del servicio antes de confirmar publicaciÃ³n
+â”‚           â”œâ”€â”€ PublicarServicioForm.css
+â”‚           â”œâ”€â”€ PublicarServicioForm.jsx  // formulario multipaso completo de publicaciÃ³n/ediciÃ³n de servicios
+â”‚           â”œâ”€â”€ SeccionFormulario.css
+â”‚           â”œâ”€â”€ SeccionFormulario.jsx  // contenedor de secciÃ³n con tÃ­tulo para el formulario de publicaciÃ³n
+â”‚           â”œâ”€â”€ utils
+â”‚               â”œâ”€â”€ helpers.js
+â”‚               â”œâ”€â”€ serviciosService.js
+â”‚               â”œâ”€â”€ validacionesServicio.js
+â”‚   â”œâ”€â”€ contexts
+â”‚       â”œâ”€â”€ NotificationsProvider.css
+â”‚       â”œâ”€â”€ NotificationsProvider.jsx
+â”‚   â”œâ”€â”€ hooks
+â”‚       â”œâ”€â”€ useMantenimiento.js
+â”‚   â”œâ”€â”€ index.css
+â”‚   â”œâ”€â”€ main.jsx
+â”‚   â”œâ”€â”€ utils
+â”‚       â”œâ”€â”€ materialIconsList.js
+â”‚       â”œâ”€â”€ supabaseClient.js
+â”‚       â”œâ”€â”€ suspensionUtils.js
+â”‚       â”œâ”€â”€ validacionesReportes.js
+â”œâ”€â”€ vite.config.js

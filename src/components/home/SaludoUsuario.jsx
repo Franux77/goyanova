@@ -122,7 +122,7 @@ const obtenerSecundarioClima = (clima) => {
   if (temperaturaCategoria === 'fresco') {
     return [
       `Refrescó, estamos a ${tempRedondeada}°. Abrigate si salís`,
-      'Bajaron las temperaturas, buen día para quedarte buscando cositas'
+      'Bajaron las temperaturas, buen día para quedarte buscando todo desde adentro'
     ];
   }
 

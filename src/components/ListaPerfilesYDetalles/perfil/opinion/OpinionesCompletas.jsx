@@ -42,7 +42,6 @@ const OpinionesCompletas = () => {
     if (perfilId) fetchOpiniones();
   }, [perfilId]);
 
-  // PAGINACIÓN
   const totalPaginas = Math.ceil(opiniones.length / comentariosPorPagina);
   const comentariosPaginados = opiniones.slice(
     (paginaActual - 1) * comentariosPorPagina,
@@ -77,109 +76,124 @@ const OpinionesCompletas = () => {
   };
 
   if (cargando) {
-  return <Loading message="Cargando opiniones..." />;
-}
+    return <Loading message="Cargando opiniones..." />;
+  }
 
-  // RETURN COMPLETO de OpinionesCompletas.jsx con clases únicas
-
-return (
-  <div className="opiniones-completas-wrapper-main">
-    <div className="opiniones-completas-encabezado">
-      <h2>Todas las Opiniones</h2>
-      <button
-        className="opiniones-completas-btn-volver"
-        onClick={() => navigate(-1)}
-      >
-        ← Volver
-      </button>
-    </div>
-
-    {opiniones.length === 0 ? (
-      <p className="opiniones-completas-sin-mensaje">⚠️ No hay opiniones todavía.</p>
-    ) : (
-      <ul className="opiniones-completas-lista">
-        {comentariosPaginados.map((op, i) => {
-          const texto = op?.comentario || '';
-          const esLargo = texto.length > 200;
-          const mostrarCompleto = expandida[i];
-          const nombreCompleto = op?.usuario ? `${op.usuario.nombre} ${op.usuario.apellido || ''}` : op?.nombre_completo || 'Anónimo';
-          const esMiComentario = op.usuario_id === usuarioLogueadoId;
-
-          return (
-            <li key={op.id || i} className="opinion-completa-card">
-              <div className="opinion-completa-header">
-                <span className="opinion-completa-nombre-usuario">{nombreCompleto}</span>
-                <div className="opinion-completa-estrellas">
-                  {[...Array(5)].map((_, idx) => (
-                    <FaStar
-                      key={idx}
-                      size={14}
-                      color={idx < (op?.puntuacion || 0) ? '#f5a623' : '#ddd'}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <p className={`opinion-completa-texto ${mostrarCompleto ? 'expandida' : ''}`}>
-                {mostrarCompleto || !esLargo ? texto : `${texto.slice(0, 200)}...`}
-              </p>
-
-              {esLargo && (
-                <button
-                  className="opinion-completa-btn-ver-mas"
-                  onClick={() => toggleExpandir(i)}
-                  type="button"
-                >
-                  {mostrarCompleto ? 'Ver menos' : 'Ver más'}
-                </button>
-              )}
-
-              <div className="opinion-completa-footer">
-                <span className="opinion-completa-fecha">
-                  {op?.fecha ? new Date(op.fecha).toLocaleDateString('es-AR') : 'Sin fecha'}
-                </span>
-
-                {esMiComentario && (
-                  <button
-                    className="opinion-completa-btn-eliminar"
-                    onClick={() => eliminarComentario(op.id)}
-                    type="button"
-                  >
-                    Eliminar
-                  </button>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    )}
-
-    {totalPaginas > 1 && (
-      <div className="opiniones-completas-paginacion">
+  return (
+    <div className="opiniones-completas-wrapper-main">
+      <div className="opiniones-completas-encabezado">
+        <h2>Todas las Opiniones</h2>
         <button
-          onClick={handlePaginaAnterior}
-          disabled={paginaActual === 1}
-          className="opiniones-completas-btn-paginacion"
-          type="button"
+          className="opiniones-completas-btn-volver"
+          onClick={() => navigate(-1)}
         >
-          Anterior
-        </button>
-        <span className="opiniones-completas-pagina-actual">
-          {`Página ${paginaActual} de ${totalPaginas}`}
-        </span>
-        <button
-          onClick={handlePaginaSiguiente}
-          disabled={paginaActual === totalPaginas}
-          className="opiniones-completas-btn-paginacion"
-          type="button"
-        >
-          Siguiente
+          ← Volver
         </button>
       </div>
-    )}
-  </div>
-);
+
+      {opiniones.length === 0 ? (
+        <p className="opiniones-completas-sin-mensaje">⚠️ No hay opiniones todavía.</p>
+      ) : (
+        <ul className="opiniones-completas-lista">
+          {comentariosPaginados.map((op, i) => {
+            const texto = op?.comentario || '';
+            const esLargo = texto.length > 200;
+            const mostrarCompleto = expandida[i];
+            const nombreCompleto = op?.usuario ? `${op.usuario.nombre} ${op.usuario.apellido || ''}` : op?.nombre_completo || 'Anónimo';
+            const esMiComentario = op.usuario_id === usuarioLogueadoId;
+
+            return (
+              <li key={op.id || i} className="opinion-completa-card">
+                <div className="opinion-completa-header">
+                  <span className="opinion-completa-nombre-usuario">{nombreCompleto}</span>
+                  <div className="opinion-completa-estrellas">
+                    {[...Array(5)].map((_, idx) => (
+                      <FaStar
+                        key={idx}
+                        size={14}
+                        color={idx < (op?.puntuacion || 0) ? '#f5a623' : '#ddd'}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <p className={`opinion-completa-texto ${mostrarCompleto ? 'expandida' : ''}`}>
+                  {mostrarCompleto || !esLargo ? texto : `${texto.slice(0, 200)}...`}
+                </p>
+
+                {esLargo && (
+                  <button
+                    className="opinion-completa-btn-ver-mas"
+                    onClick={() => toggleExpandir(i)}
+                    type="button"
+                  >
+                    {mostrarCompleto ? 'Ver menos' : 'Ver más'}
+                  </button>
+                )}
+
+                {/* 🆕 Foto adjunta */}
+                {op.foto_url && (
+                  <a
+                    href={op.foto_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="opinion-completa-foto-link"
+                  >
+                    <img
+                      src={op.foto_url}
+                      alt="Foto adjunta a la opinión"
+                      className="opinion-completa-foto"
+                      loading="lazy"
+                    />
+                  </a>
+                )}
+
+                <div className="opinion-completa-footer">
+                  <span className="opinion-completa-fecha">
+                    {op?.fecha ? new Date(op.fecha).toLocaleDateString('es-AR') : 'Sin fecha'}
+                  </span>
+
+                  {esMiComentario && (
+                    <button
+                      className="opinion-completa-btn-eliminar"
+                      onClick={() => eliminarComentario(op.id)}
+                      type="button"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {totalPaginas > 1 && (
+        <div className="opiniones-completas-paginacion">
+          <button
+            onClick={handlePaginaAnterior}
+            disabled={paginaActual === 1}
+            className="opiniones-completas-btn-paginacion"
+            type="button"
+          >
+            Anterior
+          </button>
+          <span className="opiniones-completas-pagina-actual">
+            {`Página ${paginaActual} de ${totalPaginas}`}
+          </span>
+          <button
+            onClick={handlePaginaSiguiente}
+            disabled={paginaActual === totalPaginas}
+            className="opiniones-completas-btn-paginacion"
+            type="button"
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default OpinionesCompletas;

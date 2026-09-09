@@ -276,3 +276,23 @@
     min-width: 90px;
   }
 }
+
+/* ============================================
+   AGREGAR AL FINAL DE OpinionesCompletas.css
+   ============================================ */
+
+.opinion-completa-foto-link {
+  display: block;
+  margin: 0.6rem 0;
+}
+
+.opinion-completa-foto {
+  max-width: 240px;
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  object-fit: cover;
+  cursor: zoom-in;
+}
