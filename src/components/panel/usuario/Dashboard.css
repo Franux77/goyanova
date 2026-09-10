@@ -535,3 +535,44 @@
         display: inline;
       }
     }
+
+    /* ---------- Saludo dinámico ---------- */
+.dash-saludo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dash-saludo-icon {
+  font-size: 1.7rem !important;
+  color: var(--accent-1);
+  animation: saludoPulso 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.dash-saludo-texto {
+  color: var(--text-lo);
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.dash-saludo-nombre {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-1));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: saludoGradiente 3s linear infinite;
+  font-weight: 800;
+}
+
+@keyframes saludoGradiente {
+  to { background-position: 200% center; }
+}
+
+@keyframes saludoPulso {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-14deg) scale(1.1); }
+  50% { transform: rotate(0deg) scale(1); }
+  75% { transform: rotate(14deg) scale(1.1); }
+}

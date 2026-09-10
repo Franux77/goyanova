@@ -66,6 +66,7 @@ const ConfiguracionAdmin = lazy(() => import('./components/panel/admin/Configura
 const GestionFAQs = lazy(() => import('./components/panel/admin/GestionFAQs'));
 const GestionTutoriales = lazy(() => import('./components/panel/admin/GestionTutoriales'));
 const GestionMensajesSoporte = lazy(() => import('./components/panel/admin/MensajesSoporte'));
+const SuspensionesAdmin = lazy(() => import('./components/panel/admin/SuspensionesAdmin'));
 
 const RouteLoadingIndicator = ({ children }) => {
   const location = useLocation();
@@ -263,6 +264,7 @@ const AppContent = () => {
                 <Route path="solicitudes-eliminacion" element={<SolicitudesEliminacion />} />
                 <Route path="reportes" element={<ReportesAdmin />} />
                 <Route path="codigos" element={<CodigosPromocionalesAdmin />} />
+                <Route path="suspensiones" element={<SuspensionesAdmin />} />
                                 <Route path="membresias" element={<MembresiasAdmin />} />
                 <Route path="verificaciones" element={<VerificacionesAdmin />} />
                 <Route path="faqs" element={<GestionFAQs />} />

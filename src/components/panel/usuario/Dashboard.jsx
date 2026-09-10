@@ -22,7 +22,17 @@ const Dashboard = () => {
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [notifExpandida, setNotifExpandida] = useState(null);
 
+    const obtenerSaludo = () => {
+    const hora = new Date().getHours();
+    if (hora >= 5 && hora < 12) return { texto: 'Buenos días', icono: 'wb_sunny' };
+    if (hora >= 12 && hora < 19) return { texto: 'Buenas tardes', icono: 'wb_twilight' };
+    return { texto: 'Buenas noches', icono: 'nights_stay' };
+  };
+
+  const saludo = obtenerSaludo();
+
   const notifCtx = useNotifications();
+  
   const { notifications: ctxNotifications = [], unreadCount = 0 } = notifCtx || {};
 
   useEffect(() => {
@@ -206,7 +216,13 @@ const Dashboard = () => {
   return (
     <div className="dash-root">
       <div className="dash-header">
-        <h1>Hola, {nombreUsuario}</h1>
+        <div className="dash-saludo">
+          <span className="material-icons dash-saludo-icon">{saludo.icono}</span>
+          <h1>
+            <span className="dash-saludo-texto">{saludo.texto},</span>{' '}
+            <span className="dash-saludo-nombre">{nombreUsuario}</span>
+          </h1>
+        </div>
         <p>Este es el estado de tu cuenta en GoyaNova.</p>
       </div>
 

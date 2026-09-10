@@ -14,14 +14,15 @@ const Home = () => {
   const [selectedType, setSelectedType] = useState('servicio');
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, perfil, loading } = useAuth();
+  const { user, perfil } = useAuth();
 
   const [mostrarModalCodigo, setMostrarModalCodigo] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(null);
   const [esPremium, setEsPremium] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [mostrarBotonInstalar, setMostrarBotonInstalar] = useState(false);
-  
+    const [mostrarTutoriales, setMostrarTutoriales] = useState(false);
+      const [mostrarHero, setMostrarHero] = useState(false);
   const verificacionRealizada = useRef(false);
   const intervaloCuentaRegresiva = useRef(null);
 
@@ -90,7 +91,7 @@ const Home = () => {
         const tieneMembresiaActiva = data?.estado === 'activa';
         setEsPremium(tieneMembresiaActiva);
 
-      } catch (err) {
+      } catch {
         setEsPremium(false);
       }
     };
@@ -347,38 +348,66 @@ const Home = () => {
         </section>
       )}
 
-      <section className="goya-tutorial-section">
-        <h2 className="goya-tutorial-title">¿Primera vez en GoyaNova?</h2>
-        <p className="goya-tutorial-subtitle">Mirá estos tutoriales rápidos para ver como funciona GoyaNova</p>
-        
-        <div className="goya-tutorial-grid">
-          <a href="https://youtube.com/shorts/bCaEG8LHVas?si=lf55jmfh6iYVdGiS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
-            <span className="material-icons goya-card-icon">play_circle_filled</span>
-            <div className="goya-card-content">
-              <strong>Como usar GoyaNova</strong>
-              <span>Para toda persona que necesita algo</span>
-            </div>
-            <div className="goya-card-badge">Ver video</div>
-          </a>
+            <section className={`goya-tutorial-section ${mostrarTutoriales ? 'abierta' : ''}`}>
+        <button
+          className="goya-tutorial-toggle"
+          onClick={() => setMostrarTutoriales(!mostrarTutoriales)}
+        >
+          <span className="goya-tutorial-toggle-icon material-icons">school</span>
+          <div className="goya-tutorial-toggle-text">
+            <strong>¿Primera vez en GoyaNova?</strong>
+            <span>Mirá tutoriales rápidos de cómo funciona</span>
+          </div>
+          <span className={`material-icons goya-tutorial-chevron ${mostrarTutoriales ? 'rotado' : ''}`}>
+            expand_more
+          </span>
+        </button>
 
-          <a href="https://youtube.com/shorts/hiLk1hVl6Kc?si=gdAuLmKyr0t01VMS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
-            <span className="material-icons goya-card-icon">play_circle_filled</span>
-            <div className="goya-card-content">
-              <strong>Como publicar servicios</strong>
-              <span>Para toda persona que ofrece algo</span>
-            </div>
-            <div className="goya-card-badge">Ver video</div>
-          </a>
+        <div className={`goya-tutorial-collapse ${mostrarTutoriales ? 'abierta' : ''}`}>
+          <div className="goya-tutorial-grid">
+            <a href="https://youtube.com/shorts/bCaEG8LHVas?si=lf55jmfh6iYVdGiS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-cliente">
+              <span className="material-icons goya-card-icon">play_circle_filled</span>
+              <div className="goya-card-content">
+                <strong>Como usar GoyaNova</strong>
+                <span>Para toda persona que necesita algo</span>
+              </div>
+              <div className="goya-card-badge">Ver video</div>
+            </a>
+
+            <a href="https://youtube.com/shorts/hiLk1hVl6Kc?si=gdAuLmKyr0t01VMS" target="_blank" rel="noopener noreferrer" className="goya-tutorial-card goya-card-prestador">
+              <span className="material-icons goya-card-icon">play_circle_filled</span>
+              <div className="goya-card-content">
+                <strong>Como publicar servicios</strong>
+                <span>Para toda persona que ofrece algo</span>
+              </div>
+              <div className="goya-card-badge">Ver video</div>
+            </a>
+          </div>
+
+          <p className="goya-tutorial-note">
+            <span className="material-icons">lightbulb</span>
+            Podés usar GoyaNova de ambas formas: buscar Y publicar servicios
+          </p>
         </div>
-
-        <p className="goya-tutorial-note">
-          <span className="material-icons">lightbulb</span>
-          Podés usar GoyaNova de ambas formas: buscar Y publicar servicios
-        </p>
       </section>
      
 
-      <section className="goya-hero-section">
+            <section className={`goya-hero-section ${mostrarHero ? 'abierta' : ''}`}>
+        <button
+          className="goya-hero-toggle"
+          onClick={() => setMostrarHero(!mostrarHero)}
+        >
+          <span className="material-icons goya-hero-toggle-icon">location_on</span>
+          <div className="goya-hero-toggle-text">
+            <strong>Servicios en Goya, Corrientes</strong>
+            <span>Encontrá lo que buscás, rápido</span>
+          </div>
+          <span className={`material-icons goya-hero-chevron ${mostrarHero ? 'rotado' : ''}`}>
+            expand_more
+          </span>
+        </button>
+
+        <div className={`goya-hero-collapse ${mostrarHero ? 'abierta' : ''}`}>
         <div className="goya-hero-content">
           <div className="goya-hero-badge">
             <span className="material-icons">location_on</span>
@@ -394,26 +423,7 @@ const Home = () => {
             Profesionales, comida y oficios. <strong>Trato directo por WhatsApp</strong>, sin vueltas.
           </p>
           
-          <div className="goya-hero-benefits">
-            <div className="goya-benefit-item">
-              <span className="material-icons">check_circle</span>
-              <span>Gratis</span>
-            </div>
-            <div className="goya-benefit-item">
-              <span className="material-icons">check_circle</span>
-              <span>Sin comisiones</span>
-            </div>
-            <div className="goya-benefit-item">
-              <span className="material-icons">check_circle</span>
-              <span>Directo</span>
-            </div>
-          </div>
-          
-          <p className="goya-hero-descriptionn">
-            <strong>Comienza ahora por</strong>
-          </p>
-
-          <div className="goya-hero-actions">
+                    <div className="goya-hero-actions">
             <a
               href="#categorias"
               className="goya-btn-hero-primary"
@@ -440,7 +450,7 @@ const Home = () => {
               ¿Dudas? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link>
             </p>
             
-            {mostrarBotonInstalar && (
+                        {mostrarBotonInstalar && (
               <button className="goya-hero-install-btn" onClick={handleInstalarApp}>
                 <span className="material-icons">get_app</span>
                 Descargar App
@@ -448,7 +458,8 @@ const Home = () => {
             )}
           </div>
         </div>
-      </section>
+        </div>
+      </section>  
 
       {/* <section className="goya-howworks-section">
         <h2 className="goya-section-title">¿Cómo funciona?</h2>
@@ -579,7 +590,7 @@ const Home = () => {
                 .maybeSingle();
 
               setEsPremium(data?.estado === 'activa');
-            } catch (err) {
+            } catch {
               // Error silencioso
             }
           }}

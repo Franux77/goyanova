@@ -5,7 +5,7 @@ import './DashboardAdmin.css';
 
 const ACCESOS = [
   { key: 'verificaciones', icon: 'verified', label: 'Verificaciones', url: '/panel/admin/verificaciones' },
-  { key: 'codigos', icon: 'local_offer', label: 'Códigos Promocionales', url: '/panel/admin/codigos-promocionales' },
+  { key: 'codigos', icon: 'local_offer', label: 'Códigos Promocionales', url: '/panel/admin/codigos' },
   { key: 'membresias', icon: 'card_membership', label: 'Membresías', url: '/panel/admin/membresias' },
   { key: 'usuarios', icon: 'group', label: 'Usuarios', url: '/panel/admin/usuarios' },
   { key: 'servicios', icon: 'work', label: 'Servicios', url: '/panel/admin/servicios' },
