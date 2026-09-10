@@ -1,79 +1,204 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import Loading from '../../loading/Loading';
-import { 
-  FiBriefcase, 
-  FiStar, 
-  FiMessageSquare, 
-  FiBell,
-  FiAlertCircle,
-  FiCheckCircle,
-  FiChevronDown,
-  FiChevronUp,
-  FiTrash2
-} from 'react-icons/fi';
 import './DashboardAdmin.css';
 
-const Dashboard = () => {
+const ACCESOS = [
+  { key: 'verificaciones', icon: 'verified', label: 'Verificaciones', url: '/panel/admin/verificaciones' },
+  { key: 'codigos', icon: 'local_offer', label: 'Códigos Promocionales', url: '/panel/admin/codigos-promocionales' },
+  { key: 'membresias', icon: 'card_membership', label: 'Membresías', url: '/panel/admin/membresias' },
+  { key: 'usuarios', icon: 'group', label: 'Usuarios', url: '/panel/admin/usuarios' },
+  { key: 'servicios', icon: 'work', label: 'Servicios', url: '/panel/admin/servicios' },
+  { key: 'suspensiones', icon: 'gavel', label: 'Sanciones', url: '/panel/admin/suspensiones' }
+];
+
+const DashboardAdmin = () => {
+  const [filtro, setFiltro] = useState('mes');
   const [stats, setStats] = useState({
+    totalUsuarios: 0,
     totalServicios: 0,
     serviciosActivos: 0,
     totalOpiniones: 0,
     promedioRating: 0,
-    totalUsuarios: 0
+    usuariosPremium: 0,
+    ingresoTotal: 0,
+    verificacionesPendientes: 0,
+    suspensionesTotales: 0,
+    usuariosNuevos: 0,
+    serviciosNuevos: 0,
+    pagosCompletados: 0
+  });
+
+  const [distribPlanes, setDistribPlanes] = useState({
+    free: 0,
+    impulso: 0,
+    destacado: 0,
+    elite: 0
   });
 
   const [notificaciones, setNotificaciones] = useState([]);
-  const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('visión');
+  const [accesoSeleccionado, setAccesoSeleccionado] = useState(null);
+
+    const [nombreAdmin, setNombreAdmin] = useState('');
+
+  const obtenerSaludo = () => {
+    const hora = new Date().getHours();
+    if (hora >= 5 && hora < 12) return { texto: 'Buenos días', icono: 'wb_sunny' };
+    if (hora >= 12 && hora < 19) return { texto: 'Buenas tardes', icono: 'wb_twilight' };
+    return { texto: 'Buenas noches', icono: 'nights_stay' };
+  };
+
+  const saludo = obtenerSaludo();
 
   useEffect(() => {
     cargarDatos();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtro]);
+
+  const getFechaRango = () => {
+    const ahora = new Date();
+    const inicio = new Date();
+
+    switch (filtro) {
+      case 'dia':
+        inicio.setHours(0, 0, 0, 0);
+        break;
+      case 'semana': {
+        const dia = ahora.getDay();
+        inicio.setDate(ahora.getDate() - dia);
+        inicio.setHours(0, 0, 0, 0);
+        break;
+      }
+      case 'mes':
+        inicio.setDate(1);
+        inicio.setHours(0, 0, 0, 0);
+        break;
+      case 'año':
+        inicio.setMonth(0);
+        inicio.setDate(1);
+        inicio.setHours(0, 0, 0, 0);
+        break;
+      default:
+        break;
+    }
+
+    return { inicio: inicio.toISOString() };
+  };
 
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      // Obtener usuario actual
       const { data: { user } } = await supabase.auth.getUser();
+      const { inicio } = getFechaRango();
 
-      // 📊 Total servicios en toda la plataforma
+            const { data: perfilAdmin } = await supabase
+        .from('perfiles_usuarios')
+        .select('nombre')
+        .eq('id', user.id)
+        .single();
+      setNombreAdmin(perfilAdmin?.nombre || 'Admin');
+
+      // 👤 Usuarios
+      const { data: usuarios } = await supabase
+        .from('perfiles_usuarios')
+        .select('id, creado_en');
+
+      const usuariosNuevos = usuarios?.filter(u =>
+        new Date(u.creado_en) >= new Date(inicio)
+      ).length || 0;
+
+      // 📊 Servicios
       const { data: servicios } = await supabase
         .from('servicios')
-        .select('id, estado');
+        .select('id, estado, creado_en');
 
       const serviciosActivos = servicios?.filter(s => s.estado === 'activo').length || 0;
+      const serviciosNuevos = servicios?.filter(s =>
+        new Date(s.creado_en) >= new Date(inicio)
+      ).length || 0;
 
-      // ⭐ Total opiniones en toda la plataforma
+      // ⭐ Opiniones (columna correcta: fecha, no creada_en)
       const { data: opiniones } = await supabase
         .from('opiniones')
-        .select('puntuacion');
+        .select('puntuacion, fecha');
 
       const totalOpiniones = opiniones?.length || 0;
       const sumaRatings = opiniones?.reduce((sum, op) => sum + (op.puntuacion || 0), 0) || 0;
+      const promedio = totalOpiniones > 0 ? (sumaRatings / totalOpiniones).toFixed(2) : 0;
 
-      // 👤 Total usuarios
-      const { data: usuarios } = await supabase
-        .from('perfiles_usuarios')
-        .select('id');
+      // 💎 Membresías activas (columna correcta: estado, no activa)
+      const { data: membresiasActivas } = await supabase
+        .from('membresias')
+        .select('id, plan_id')
+        .eq('estado', 'activa');
 
-      // 🔔 Cargar notificaciones del admin
+      const usuariosPremium = membresiasActivas?.length || 0;
+
+      // 💰 Pagos (columnas correctas: monto, created_at)
+      const { data: pagos } = await supabase
+        .from('pagos_mp')
+        .select('monto, created_at')
+        .eq('estado', 'completado');
+
+      const pagosFiltrados = pagos?.filter(p =>
+        new Date(p.created_at) >= new Date(inicio)
+      ) || [];
+
+      const pagosCompletados = pagosFiltrados.length;
+      const ingresoTotal = pagosFiltrados.reduce((sum, p) => sum + (Number(p.monto) || 0), 0).toFixed(2);
+
+      // ✅ Verificaciones pendientes
+      const { count: verifPendientes } = await supabase
+        .from('solicitudes_verificacion')
+        .select('*', { count: 'exact', head: true })
+        .eq('estado', 'pendiente_admin');
+
+      // ⛔ Suspensiones totales
+      const { count: suspTotal } = await supabase
+        .from('suspensiones')
+        .select('*', { count: 'exact', head: true })
+        .eq('activa', true);
+
+      // 📈 Distribución de planes (columna correcta: estado)
+      const { data: todasMembresias } = await supabase
+        .from('membresias')
+        .select('plan_id')
+        .eq('estado', 'activa');
+
+      const distribucion = { free: 0, impulso: 0, destacado: 0, elite: 0 };
+      todasMembresias?.forEach(m => {
+        if (m.plan_id === 1) distribucion.free++;
+        else if (m.plan_id === 2) distribucion.impulso++;
+        else if (m.plan_id === 3) distribucion.destacado++;
+        else if (m.plan_id === 4) distribucion.elite++;
+      });
+
+      setStats({
+        totalUsuarios: usuarios?.length || 0,
+        totalServicios: servicios?.length || 0,
+        serviciosActivos,
+        totalOpiniones,
+        promedioRating: promedio,
+        usuariosPremium,
+        ingresoTotal,
+        verificacionesPendientes: verifPendientes || 0,
+        suspensionesTotales: suspTotal || 0,
+        usuariosNuevos,
+        serviciosNuevos,
+        pagosCompletados
+      });
+
+      setDistribPlanes(distribucion);
+
+      // 🔔 Notificaciones
       const { data: notifs } = await supabase
         .from('notificaciones')
         .select('*')
         .eq('usuario_id', user.id)
-        .order('creada_en', { ascending: false });
-
-      const notificacionesNoLeidas = notifs?.filter(n => !n.leida).length || 0;
-
-      setStats({
-        totalServicios: servicios?.length || 0,
-        serviciosActivos,
-        totalOpiniones,
-        promedioRating: totalOpiniones > 0 ? (sumaRatings / totalOpiniones).toFixed(1) : 0,
-        totalUsuarios: usuarios?.length || 0,
-        notificacionesNoLeidas
-      });
+        .order('creada_en', { ascending: false })
+        .limit(5);
 
       setNotificaciones(notifs || []);
 
@@ -82,97 +207,6 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const marcarComoLeida = async (notifId) => {
-    try {
-      await supabase
-        .from('notificaciones')
-        .update({ leida: true })
-        .eq('id', notifId);
-
-      setNotificaciones(prev =>
-        prev.map(n => n.id === notifId ? { ...n, leida: true } : n)
-      );
-
-      setStats(prev => ({
-        ...prev,
-        notificacionesNoLeidas: Math.max(0, prev.notificacionesNoLeidas - 1)
-      }));
-    } catch (err) {
-      console.error('Error al marcar notificación:', err);
-    }
-  };
-
-  const marcarTodasComoLeidas = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      await supabase
-        .from('notificaciones')
-        .update({ leida: true })
-        .eq('usuario_id', user.id)
-        .eq('leida', false);
-
-      setNotificaciones(prev =>
-        prev.map(n => ({ ...n, leida: true }))
-      );
-
-      setStats(prev => ({ ...prev, notificacionesNoLeidas: 0 }));
-    } catch (err) {
-      console.error('Error al marcar todas:', err);
-    }
-  };
-
-  const eliminarNotificacion = async (notifId) => {
-    if (!window.confirm('¿Eliminar esta notificación?')) return;
-
-    try {
-      await supabase.from('notificaciones').delete().eq('id', notifId);
-      
-      const notifEliminada = notificaciones.find(n => n.id === notifId);
-      
-      setNotificaciones(prev => prev.filter(n => n.id !== notifId));
-      
-      if (!notifEliminada?.leida) {
-        setStats(prev => ({
-          ...prev,
-          notificacionesNoLeidas: Math.max(0, prev.notificacionesNoLeidas - 1)
-        }));
-      }
-    } catch (err) {
-      console.error('Error al eliminar notificación:', err);
-    }
-  };
-
-  const eliminarTodas = async () => {
-    if (!window.confirm('¿Eliminar TODAS las notificaciones? Esta acción no se puede deshacer.')) return;
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      await supabase
-        .from('notificaciones')
-        .delete()
-        .eq('usuario_id', user.id);
-
-      setNotificaciones([]);
-      setStats(prev => ({ ...prev, notificacionesNoLeidas: 0 }));
-    } catch (err) {
-      console.error('Error al eliminar todas:', err);
-    }
-  };
-
-  const getIconoNotificacion = (tipo) => {
-    const iconos = {
-      'advertencia': <FiAlertCircle size={20} color="#ff9800" />,
-      'suspension': <FiAlertCircle size={20} color="#f44336" />,
-      'eliminacion': <FiAlertCircle size={20} color="#d32f2f" />,
-      'info': <FiCheckCircle size={20} color="#4caf50" />,
-      'opinion': <FiMessageSquare size={20} color="#2196f3" />,
-      'respuesta': <FiMessageSquare size={20} color="#9c27b0" />
-    };
-    return iconos[tipo] || <FiBell size={20} color="#757575" />;
   };
 
   const formatearFecha = (fecha) => {
@@ -184,165 +218,252 @@ const Dashboard = () => {
     const diffHoras = Math.floor(diffMs / 3600000);
     const diffDias = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Ahora mismo';
-    if (diffMins < 60) return `Hace ${diffMins} min`;
-    if (diffHoras < 24) return `Hace ${diffHoras}h`;
-    if (diffDias < 7) return `Hace ${diffDias}d`;
-    
+    if (diffMins < 1) return 'Ahora';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHoras < 24) return `${diffHoras}h`;
+    if (diffDias < 7) return `${diffDias}d`;
     return date.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
   };
 
-  const notificacionesMostradas = mostrandoTodas 
-    ? notificaciones 
-    : notificaciones.slice(0, 5);
+  const toggleAcceso = (key) => {
+    setAccesoSeleccionado(prev => (prev === key ? null : key));
+  };
 
   if (loading) {
-    return <Loading message="Cargando panel de administración..." />;
+    return <Loading message="Cargando panel..." />;
   }
 
+  const totalPlanes = Object.values(distribPlanes).reduce((a, b) => a + b, 0) || 1;
+  const accesoActivo = ACCESOS.find(a => a.key === accesoSeleccionado);
+
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Panel de Control</h1>
-        <p className="dashboard-subtitle">Resumen de tu actividad</p>
+    <div className="admin-dashboard">
+      <div className="admin-header">
+        <div className="admin-saludo">
+          <span className="material-icons admin-saludo-icon">{saludo.icono}</span>
+          <h1>
+            <span className="admin-saludo-texto">{saludo.texto},</span>{' '}
+            <span className="admin-saludo-nombre">{nombreAdmin}</span>
+          </h1>
+        </div>
+        <p>Panel de Control · Gestión de GoyaNova</p>
       </div>
 
-      {/* 📊 ESTADÍSTICAS */}
-      <div className="stats-grid">
-        <div className="stat-cardd">
-          <div className="stat-icon briefcase">
-            <FiBriefcase size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.totalServicios}</h3>
-            <p>Servicios Totales</p>
-            <span className="stat-detail">{stats.serviciosActivos} activos</span>
-          </div>
-        </div>
-
-        <div className="stat-cardd">
-          <div className="stat-icon star">
-            <FiStar size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.promedioRating}</h3>
-            <p>Calificación Promedio</p>
-            <span className="stat-detail">De {stats.totalOpiniones} opiniones</span>
-          </div>
-        </div>
-
-        <div className="stat-cardd">
-          <div className="stat-icon message">
-            <FiMessageSquare size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.totalUsuarios}</h3>
-            <p>Usuarios Registrados</p>
-            <span className="stat-detail">En toda la plataforma</span>
-          </div>
-        </div>
-
-        <div className="stat-cardd">
-          <div className="stat-icon bell">
-            <FiBell size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.notificacionesNoLeidas}</h3>
-            <p>Notificaciones Nuevas</p>
-            <span className="stat-detail">Sin leer</span>
-          </div>
-        </div>
+      {/* FILTROS DE FECHA */}
+      <div className="admin-filtros">
+        {['dia', 'semana', 'mes', 'año'].map(f => (
+          <button
+            key={f}
+            className={`filtro-btn ${filtro === f ? 'activo' : ''}`}
+            onClick={() => setFiltro(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
       </div>
 
-      {/* 🔔 NOTIFICACIONES */}
-      <div className="notificaciones-section">
-        <div className="notificaciones-header">
-          <h2>
-            <FiBell size={22} />
-            Notificaciones Recientes
-          </h2>
-          {notificaciones.length > 0 && (
-            <div className="notif-acciones-header">
-              {stats.notificacionesNoLeidas > 0 && (
-                <button 
-                  className="btn-marcar-todas"
-                  onClick={marcarTodasComoLeidas}
-                >
-                  <FiCheckCircle size={16} />
-                  Marcar todas leídas
-                </button>
-              )}
-              <button 
-                className="btn-eliminar-todas"
-                onClick={eliminarTodas}
-              >
-                <FiTrash2 size={16} />
-                Eliminar todas
-              </button>
+      {/* TABS */}
+      <div className="admin-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'visión' ? 'active' : ''}`}
+          onClick={() => setActiveTab('visión')}
+        >
+          <span className="material-icons">dashboard</span>
+          Visión
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'planes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('planes')}
+        >
+          <span className="material-icons">pie_chart</span>
+          Planes
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'alertas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('alertas')}
+        >
+          <span className="material-icons">warning</span>
+          Alertas
+        </button>
+      </div>
+
+      {/* TAB CONTENT */}
+      {activeTab === 'visión' && (
+        <div className="tab-content">
+          {/* STATS GRID COMPACTO */}
+          <div className="admin-stats-compact">
+            <div className="stat-mini">
+              <span className="material-icons">people</span>
+              <div>
+                <p>Usuarios</p>
+                <h4>{stats.totalUsuarios}</h4>
+                <span className="stat-mini-detail">+{stats.usuariosNuevos} nuevo</span>
+              </div>
             </div>
-          )}
-        </div>
 
-        {notificaciones.length === 0 ? (
-          <div className="notificaciones-vacio">
-            <FiBell size={48} color="#ccc" />
-            <p>No tienes notificaciones</p>
+            <div className="stat-mini">
+              <span className="material-icons">inventory_2</span>
+              <div>
+                <p>Servicios</p>
+                <h4>{stats.serviciosActivos}</h4>
+                <span className="stat-mini-detail">+{stats.serviciosNuevos} nuevo</span>
+              </div>
+            </div>
+
+            <div className="stat-mini">
+              <span className="material-icons">diamond</span>
+              <div>
+                <p>Premium</p>
+                <h4>{stats.usuariosPremium}</h4>
+                <span className="stat-mini-detail">{((stats.usuariosPremium / stats.totalUsuarios) * 100 || 0).toFixed(0)}%</span>
+              </div>
+            </div>
+
+            <div className="stat-mini">
+              <span className="material-icons">trending_up</span>
+              <div>
+                <p>Ingresos</p>
+                <h4>${stats.ingresoTotal}</h4>
+                <span className="stat-mini-detail">{stats.pagosCompletados} pagos</span>
+              </div>
+            </div>
+
+            <div className="stat-mini">
+              <span className="material-icons">star_rate</span>
+              <div>
+                <p>Rating</p>
+                <h4>{stats.promedioRating}</h4>
+                <span className="stat-mini-detail">{stats.totalOpiniones} opiniones</span>
+              </div>
+            </div>
+
+            <div className="stat-mini">
+              <span className="material-icons">verified</span>
+              <div>
+                <p>Verificar</p>
+                <h4>{stats.verificacionesPendientes}</h4>
+                <span className="stat-mini-detail">pendientes</span>
+              </div>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="notificaciones-lista">
-              {notificacionesMostradas.map((notif) => (
-                <div 
-                  key={notif.id} 
-                  className={`notificacion-item ${!notif.leida ? 'no-leida' : ''}`}
+
+          {/* ACCESOS RÁPIDOS con panel expandible */}
+          <div className="admin-shortcuts">
+            <h3>Accesos Rápidos</h3>
+            <div className="shortcuts-mini-grid">
+              {ACCESOS.map(a => (
+                <button
+                  key={a.key}
+                  className={`shortcut-mini ${accesoSeleccionado === a.key ? 'seleccionado' : ''}`}
+                  onClick={() => toggleAcceso(a.key)}
                 >
-                  <div className="notif-icon">
-                    {getIconoNotificacion(notif.tipo)}
-                  </div>
-                  <div 
-                    className="notif-content"
-                    onClick={() => !notif.leida && marcarComoLeida(notif.id)}
-                    style={{ cursor: !notif.leida ? 'pointer' : 'default' }}
-                  >
-                    <h4>{notif.titulo}</h4>
-                    <p>{notif.mensaje}</p>
-                    <span className="notif-fecha">{formatearFecha(notif.creada_en)}</span>
-                  </div>
-                  {!notif.leida && <div className="notif-badge"></div>}
-                  <button
-                    className="btn-eliminar-notif"
-                    onClick={() => eliminarNotificacion(notif.id)}
-                    title="Eliminar notificación"
-                  >
-                    <FiTrash2 size={14} />
-                  </button>
-                </div>
+                  <span className="material-icons">{a.icon}</span>
+                </button>
               ))}
             </div>
 
-            {notificaciones.length > 5 && (
-              <button 
-                className="btn-ver-mas"
-                onClick={() => setMostrandoTodas(!mostrandoTodas)}
-              >
-                {mostrandoTodas ? (
-                  <>
-                    <FiChevronUp size={18} />
-                    Ver menos
-                  </>
-                ) : (
-                  <>
-                    <FiChevronDown size={18} />
-                    Ver todas ({notificaciones.length - 5} más)
-                  </>
-                )}
-              </button>
+            <div className={`shortcut-expand ${accesoActivo ? 'abierto' : ''}`}>
+              {accesoActivo && (
+                <a href={accesoActivo.url} className="shortcut-expand-link">
+                  <span className="material-icons">{accesoActivo.icon}</span>
+                  <span className="shortcut-expand-text">Entrar a {accesoActivo.label}</span>
+                  <span className="material-icons shortcut-expand-arrow">arrow_forward</span>
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* NOTIFICACIONES */}
+          <div className="admin-notif-compact">
+            <h3>Últimas</h3>
+            {notificaciones.length === 0 ? (
+              <p className="notif-empty-text">Sin notificaciones</p>
+            ) : (
+              <div className="notif-list-compact">
+                {notificaciones.map((notif) => (
+                  <div key={notif.id} className="notif-item-compact">
+                    <span className="material-icons">
+                      {notif.tipo === 'advertencia' ? 'warning' : 'info'}
+                    </span>
+                    <div>
+                      <p>{notif.titulo}</p>
+                      <span>{formatearFecha(notif.creada_en)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'planes' && (
+        <div className="tab-content">
+          <div className="distrib-compact">
+            {Object.entries(distribPlanes).map(([plan, count]) => {
+              const colores = {
+                free: '#6B7280',
+                impulso: '#3B82F6',
+                destacado: '#8B5CF6',
+                elite: '#F59E0B'
+              };
+              const porcentaje = (count / totalPlanes) * 100 || 0;
+
+              return (
+                <div key={plan} className="distrib-item-compact">
+                  <div className="distrib-header-compact">
+                    <span>{plan.charAt(0).toUpperCase() + plan.slice(1)}</span>
+                    <strong>{count}</strong>
+                  </div>
+                  <div className="distrib-bar-mini">
+                    <div
+                      className="distrib-fill"
+                      style={{ width: `${porcentaje}%`, background: colores[plan] }}
+                    />
+                  </div>
+                  <span className="distrib-pct">{porcentaje.toFixed(0)}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'alertas' && (
+        <div className="tab-content">
+          <div className="alerts-compact">
+            {stats.verificacionesPendientes > 0 && (
+              <div className="alert-badge warning">
+                <span className="material-icons">assignment</span>
+                <div>
+                  <strong>{stats.verificacionesPendientes}</strong>
+                  <p>Verificaciones</p>
+                </div>
+              </div>
+            )}
+            {stats.suspensionesTotales > 0 && (
+              <div className="alert-badge critical">
+                <span className="material-icons">block</span>
+                <div>
+                  <strong>{stats.suspensionesTotales}</strong>
+                  <p>Suspensiones</p>
+                </div>
+              </div>
+            )}
+            {stats.verificacionesPendientes === 0 && stats.suspensionesTotales === 0 && (
+              <div className="alert-badge success">
+                <span className="material-icons">check_circle</span>
+                <div>
+                  <strong>Todo OK</strong>
+                  <p>Sin alertas</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Dashboard;
+export default DashboardAdmin;

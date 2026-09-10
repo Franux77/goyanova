@@ -107,6 +107,7 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
   const [fotoPreview, setFotoPreview] = useState(null);
   const [comprimiendoFoto, setComprimiendoFoto] = useState(false);
   const [enviando, setEnviando] = useState(false);
+    const [zoomAbierto, setZoomAbierto] = useState(null); // 🆕 url de la foto en zoom
 
   const { user } = useContext(AuthContext);
   const isLoggedIn = !!user;
@@ -427,13 +428,12 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
                   </button>
                 )}
 
-                {/* 🆕 Foto adjunta a la opinión */}
+                                {/* 🆕 Foto adjunta a la opinión — abre en zoom, no en pestaña nueva */}
                 {opinion.foto_url && (
-                  <a
-                    href={opinion.foto_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
                     className="opinion-foto-link"
+                    onClick={() => setZoomAbierto(opinion.foto_url)}
                   >
                     <img
                       src={opinion.foto_url}
@@ -441,7 +441,7 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
                       className="opinion-foto-adjunta"
                       loading="lazy"
                     />
-                  </a>
+                  </button>
                 )}
 
                 <div className="opinion-footer-acciones">
@@ -674,6 +674,15 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
             : 'Enviar'}
         </button>
       </div>
+      {/* 🆕 Zoom de la foto de opinión */}
+      {zoomAbierto && (
+        <div className="opinion-zoom-overlay" onClick={() => setZoomAbierto(null)}>
+          <button className="opinion-zoom-cerrar" onClick={() => setZoomAbierto(null)}>
+            <span className="material-icons">close</span>
+          </button>
+          <img src={zoomAbierto} alt="Foto ampliada" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </section>
   );
 };

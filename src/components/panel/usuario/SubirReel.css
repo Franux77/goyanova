@@ -78,3 +78,52 @@
 .subirreel-error .material-icons {
   font-size: 1rem;
 }
+
+.subirreel-activo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.subirreel-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0; /* permite que el texto se achique en vez de empujar el botón afuera */
+}
+
+.subirreel-info strong,
+.subirreel-info p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subirreel-btn-eliminar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #FEE2E2;
+  color: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.subirreel-btn-eliminar:hover {
+  background: #FECACA;
+}
+
+.subirreel-btn-eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subirreel-btn-eliminar .material-icons {
+  font-size: 1rem;
+}

@@ -10,6 +10,7 @@ const SubirReel = ({ servicioId }) => {
   const [pasoActual, setPasoActual] = useState(''); // texto de progreso
   const [avisoRecorte, setAvisoRecorte] = useState(null);
   const [error, setError] = useState(null);
+  const [eliminando, setEliminando] = useState(false); // 🆕
 
   const cargarReelActivo = async () => {
     setCargandoEstado(true);
@@ -26,7 +27,37 @@ const SubirReel = ({ servicioId }) => {
     setCargandoEstado(false);
   };
 
-  useEffect(() => { cargarReelActivo(); }, [servicioId]);
+    // 🆕 Borrar la historia antes de que se cumplan las 24hs
+  const handleEliminar = async () => {
+    if (!window.confirm('¿Borrar tu historia activa? No se puede deshacer.')) return;
+
+    setEliminando(true);
+    try {
+      const { data, error: rpcError } = await supabase.rpc('eliminar_mi_reel', {
+        p_servicio_id: servicioId
+      });
+
+      if (rpcError) throw rpcError;
+      if (!data.success) throw new Error(data.error);
+
+      // Borramos también el archivo del Storage
+      if (data.video_path) {
+        await supabase.storage.from('reels').remove([data.video_path]);
+      }
+
+      await cargarReelActivo();
+    } catch (err) {
+      console.error('Error eliminando reel:', err);
+      alert(err.message || 'No se pudo borrar la historia');
+    } finally {
+      setEliminando(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarReelActivo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servicioId]);
 
   const horasRestantes = (expiraEn) => {
     const ms = new Date(expiraEn).getTime() - Date.now();
@@ -88,13 +119,24 @@ const SubirReel = ({ servicioId }) => {
 
   return (
     <div className="subirreel-container">
-      {reelActivo ? (
+                  {reelActivo ? (
         <div className="subirreel-activo">
-          <span className="material-icons">play_circle</span>
-          <div>
-            <strong>Historia activa</strong>
-            <p>Se borra sola en {horasRestantes(reelActivo.expira_en)}hs</p>
+          <div className="subirreel-info">
+            <span className="material-icons">play_circle</span>
+            <div>
+              <strong>Historia activa</strong>
+              <p>Se borra sola en {horasRestantes(reelActivo.expira_en)}hs</p>
+            </div>
           </div>
+          <button
+            type="button"
+            className="subirreel-btn-eliminar"
+            onClick={handleEliminar}
+            disabled={eliminando}
+            title="Borrar historia ahora"
+          >
+            <span className="material-icons">{eliminando ? 'hourglass_empty' : 'delete'}</span>
+          </button>
         </div>
       ) : (
         <p className="subirreel-sin-reel">No tenés una historia activa</p>

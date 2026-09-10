@@ -99,6 +99,7 @@ const MembresiasAdmin = () => {
 
   useEffect(() => {
     cargarDatos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 🆕 Asignar plan real (reemplaza "crear VIP")
@@ -234,15 +235,34 @@ const MembresiasAdmin = () => {
             <span className="stat-label">Total Activas</span>
           </div>
         </div>
-        {planes.filter(p => p.tipo !== 'gratis').map(plan => (
-          <div className="stat-card" key={plan.id}>
-            <div className="stat-icon"><span className="material-icons">verified</span></div>
-            <div className="stat-content">
-              <span className="stat-value">{estadisticas[plan.tipo] || 0}</span>
-              <span className="stat-label">{plan.nombre}</span>
+                {planes.filter(p => p.tipo !== 'gratis').map(plan => {
+          // 🆕 Ícono y color distinto por plan (antes quedaban en blanco
+          // porque no tenían ninguna clase de color asignada)
+          const iconoPorTipo = {
+            impulso: 'rocket_launch',
+            destacado: 'star',
+            elite: 'workspace_premium'
+          };
+          const colorPorTipo = {
+            impulso: '#0EA5E9',
+            destacado: '#2563EB',
+            elite: '#7C3AED'
+          };
+          const icono = iconoPorTipo[plan.tipo] || 'verified';
+          const color = colorPorTipo[plan.tipo] || '#64748B';
+
+          return (
+            <div className="stat-card" key={plan.id}>
+              <div className="stat-icon" style={{ background: color }}>
+                <span className="material-icons">{icono}</span>
+              </div>
+              <div className="stat-content">
+                <span className="stat-value">{estadisticas[plan.tipo] || 0}</span>
+                <span className="stat-label">{plan.nombre}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="filtros-section">

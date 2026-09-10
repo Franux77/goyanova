@@ -16,6 +16,7 @@ const OpinionesCompletas = () => {
   const [expandida, setExpandida] = useState({});
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
+    const [zoomAbierto, setZoomAbierto] = useState(null);
 
   const comentariosPorPagina = 6;
 
@@ -131,13 +132,12 @@ const OpinionesCompletas = () => {
                   </button>
                 )}
 
-                {/* 🆕 Foto adjunta */}
+                                {/* 🆕 Foto adjunta */}
                 {op.foto_url && (
-                  <a
-                    href={op.foto_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
                     className="opinion-completa-foto-link"
+                    onClick={() => setZoomAbierto(op.foto_url)}
                   >
                     <img
                       src={op.foto_url}
@@ -145,7 +145,7 @@ const OpinionesCompletas = () => {
                       className="opinion-completa-foto"
                       loading="lazy"
                     />
-                  </a>
+                  </button>
                 )}
 
                 <div className="opinion-completa-footer">
@@ -190,6 +190,15 @@ const OpinionesCompletas = () => {
           >
             Siguiente
           </button>
+        </div>
+        
+      )}
+          {zoomAbierto && (
+        <div className="opinion-zoom-overlay" onClick={() => setZoomAbierto(null)}>
+          <button className="opinion-zoom-cerrar" onClick={() => setZoomAbierto(null)}>
+            <span className="material-icons">close</span>
+          </button>
+          <img src={zoomAbierto} alt="Foto ampliada" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </div>
