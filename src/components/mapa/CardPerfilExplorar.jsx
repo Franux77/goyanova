@@ -4,6 +4,8 @@ import './CardPerfilExplorar.css';
 import { Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaWhatsapp } from 'react-icons/fa';
+import { supabase } from '../../utils/supabaseClient';
+import { getNivelWhatsapp } from '../../utils/whatsappPlan';
 
 const coloresPastel = [
   '#FFE5E5', '#E5F5FF', '#FFE5F5', '#FFFBE5', '#E5FFE5', '#F5E5FF', '#E5F5F5'
@@ -51,9 +53,20 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
 
   const handleVerPerfil = () => navigate(`/perfil/${id}`);
 
-  const descripcionCorta = descripcion && descripcion.length > 120
+    const descripcionCorta = descripcion && descripcion.length > 120
     ? descripcion.substring(0, 120) + '...'
     : descripcion;
+
+  const nivelWsp = getNivelWhatsapp(badge_texto);
+
+    const handleClicWhatsapp = async (e) => {
+    e.stopPropagation();
+    const { error } = await supabase.rpc('registrar_evento_servicio', {
+      p_servicio_id: id,
+      p_tipo: 'clic_whatsapp'
+    });
+    if (error) console.error('Error al registrar clic WhatsApp:', error);
+  };
 
   return (
     <div
@@ -90,7 +103,12 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
       {/* Contenido */}
       <div className="card-perfil-contenido">
         <div className="card-perfil-header">
-          <h3 className="card-perfil-titulo">{nombre}</h3>
+                             <h3 className="card-perfil-titulo">
+            <span className="card-perfil-titulo-texto">{nombre}</span>
+            {es_premium && badge_texto && (
+              <span className="material-icons insignia-verificado-explorar" title="Cuenta verificada">verified</span>
+            )}
+          </h3>
           {nombreCategoria && (
             <span className="card-perfil-categoria-badge">
               {nombreCategoria}
@@ -119,14 +137,14 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
         )}
 
         <div className="card-perfil-acciones">
-          {contacto_whatsapp && (
+                    {contacto_whatsapp && (
             <a
               href={`https://wa.me/${contacto_whatsapp.replace(/\D/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-accion btn-whatsapp"
+              className={`btn-accion btn-whatsapp ${nivelWsp ? `btn-whatsapp-${nivelWsp}` : ''}`}
               title="WhatsApp"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleClicWhatsapp}
             >
               <FaWhatsapp size={18} />
             </a>

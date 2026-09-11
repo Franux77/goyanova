@@ -140,11 +140,18 @@
 
 /* Nombre */
 .detalles-nombre {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   font-size: 1.75rem;
   font-weight: 700;
   color: #222;
   margin: 0 0 1rem;
   line-height: 1.2;
+}
+
+.detalles-nombre-texto {
   word-wrap: break-word;
 }
 
@@ -261,6 +268,7 @@
   text-align: center;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -270,6 +278,7 @@
 
 .descripcion-texto.expandida {
   -webkit-line-clamp: unset;
+  line-clamp: unset;
   overflow: visible;
 }
 
@@ -488,4 +497,40 @@
     0 0 40px rgba(23, 116, 246, 0.4);
   transform: scale(1.05);
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------- WhatsApp destacado por plan ---------- */
+.btn-contacto.whatsapp-impulso {
+  animation: wspDetallesPulseSuave 2.8s ease-in-out infinite;
+}
+
+.btn-contacto.whatsapp-destacado {
+  animation: wspDetallesPulseMedio 2.2s ease-in-out infinite;
+}
+
+.btn-contacto.whatsapp-elite {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 60%, #7C3AED 140%) !important;
+  animation: wspDetallesPulseFuerte 1.8s ease-in-out infinite;
+}
+
+@keyframes wspDetallesPulseSuave {
+  0%, 100% { box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3); }
+  50% { box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3), 0 0 0 6px rgba(37, 211, 102, 0); }
+}
+
+@keyframes wspDetallesPulseMedio {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.1) translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.5); }
+}
+
+@keyframes wspDetallesPulseFuerte {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.14) translateY(-3px); box-shadow: 0 8px 20px rgba(124, 58, 237, 0.55); }
+}
+
+.insignia-verificado-detalles {
+  font-size: 1.3rem !important;
+  color: #3897F0;
+  flex-shrink: 0;
+  Margin-left: -4px;
 }

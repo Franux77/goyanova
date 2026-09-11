@@ -6,6 +6,7 @@ import { useMantenimiento } from './hooks/useMantenimiento';
 import { useRegistrarActividad } from './hooks/useRegistrarActividad';
 import ModalMantenimiento from './components/ModalMantenimiento';
 import InstallPWAModal from './components/InstallPWAModal';
+import AsistenteChat from './components/asistente/AsistenteChat';
 
 // Componentes de carga inmediata
 import Navbar from './components/home/Navbar';
@@ -142,6 +143,7 @@ const AppContent = () => {
   return (
     <>
       <InstallPWAModal />
+      <AsistenteChat />
       
       {/* 🆕 BANNER UPGRADE arriba de todo */}
       {isHome && <BannerUpgrade user={user} />}

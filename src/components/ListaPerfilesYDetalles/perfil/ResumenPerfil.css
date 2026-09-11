@@ -57,11 +57,18 @@
 
 /* Nombre */
 .resumen-titulo-perfil {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 1.6rem;
   color: #1774f6;
   margin: 0;
   font-weight: 700;
   letter-spacing: -0.5px;
+}
+
+.resumen-titulo-texto {
+  word-wrap: break-word;
 }
 
 /* Descripción con "Ver más" */
@@ -364,4 +371,70 @@
 
 .resumen-historia-badge .material-icons {
   font-size: 0.85rem;
+}
+
+  /* ---------- WhatsApp destacado por plan ---------- */
+.resumen-btn-contacto-impulso {
+  animation: resumenWspPulseSuave 2.8s ease-in-out infinite;
+}
+
+.resumen-btn-contacto-destacado {
+  position: relative;
+  overflow: hidden;
+  animation: resumenWspPulseMedio 2.2s ease-in-out infinite;
+}
+
+.resumen-btn-contacto-destacado::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: resumenWspShine 2.5s infinite;
+}
+
+.resumen-btn-contacto-elite {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1774f6 0%, #7C3AED 100%) !important;
+  animation: resumenWspPulseFuerte 1.8s ease-in-out infinite;
+}
+
+.resumen-btn-contacto-elite::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: resumenWspShine 1.8s infinite;
+}
+
+@keyframes resumenWspPulseSuave {
+  0%, 100% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3); }
+  50% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3), 0 0 0 6px rgba(23, 116, 246, 0); }
+}
+
+@keyframes resumenWspPulseMedio {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(23, 116, 246, 0.5); }
+}
+
+@keyframes resumenWspPulseFuerte {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 26px rgba(124, 58, 237, 0.55); }
+}
+
+@keyframes resumenWspShine {
+  0% { left: -100%; }
+  60%, 100% { left: 100%; }
+}
+
+.insignia-verificado-resumen {
+  font-size: 1.5rem !important;
+  color: #3897F0;
+  flex-shrink: 0;
 }

@@ -4,6 +4,8 @@ import './DetallesServicio.css';
 import { X, Star, Mail, Instagram, Facebook } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../utils/supabaseClient';
+import { getNivelWhatsapp } from '../../utils/whatsappPlan';
 
 const coloresSuaves = [
   '#A5D6A7', '#81D4FA', '#CE93D8', '#FFF59D', '#FFAB91', '#B39DDB', '#80CBC4'
@@ -74,6 +76,16 @@ const DetallesServicio = ({ perfil, visible, onClose, categoriasMap }) => {
     }, 200);
   };
 
+  const nivelWsp = getNivelWhatsapp(perfil?.badge_texto);
+
+    const handleClicWhatsapp = async () => {
+    const { error } = await supabase.rpc('registrar_evento_servicio', {
+      p_servicio_id: perfil.id,
+      p_tipo: 'clic_whatsapp'
+    });
+    if (error) console.error('Error al registrar clic WhatsApp:', error);
+  };
+
   return (
     <div 
       className={`detalles-overlay ${animarEntrada ? 'detalles-overlay-visible' : ''}`}
@@ -107,7 +119,12 @@ const DetallesServicio = ({ perfil, visible, onClose, categoriasMap }) => {
   )}
 
   <div className="detalles-contenido">
-    <h2 className="detalles-nombre">{nombre}</h2>
+        <h2 className="detalles-nombre">
+      <span className="detalles-nombre-texto">{nombre}</span>
+      {perfil.es_premium && perfil.badge_texto && (
+        <span className="material-icons insignia-verificado-detalles" title="Cuenta verificada">verified</span>
+      )}
+    </h2>
 
           <div className="detalles-meta">
             <span className="categoria">{categoriaNombre}</span>
@@ -157,13 +174,14 @@ const DetallesServicio = ({ perfil, visible, onClose, categoriasMap }) => {
 
           {(contacto_whatsapp || contacto_email || contacto_instagram || contacto_facebook) && (
             <div className="contactos-botones">
-              {contacto_whatsapp && (
+                            {contacto_whatsapp && (
                 <a
                   href={`https://wa.me/${contacto_whatsapp.replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-contacto whatsapp"
+                  className={`btn-contacto whatsapp ${nivelWsp ? `whatsapp-${nivelWsp}` : ''}`}
                   title="WhatsApp"
+                  onClick={handleClicWhatsapp}
                 >
                   <FaWhatsapp size={20} />
                 </a>

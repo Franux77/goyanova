@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import './PerfilCard.css';
 import { FaStar, FaStarHalfAlt, FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../utils/supabaseClient';
+import { getNivelWhatsapp } from '../../utils/whatsappPlan';
 
 
 const generarColor = (str) => {
@@ -55,11 +57,25 @@ const PerfilCard = ({
     ? descripcionServicio.slice(0, 100)
     : 'Sin descripción disponible';
 
-  const whatsappLink = contacto.whatsapp
+    const whatsappLink = contacto.whatsapp
     ? `https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(
         `Hola ${nombre || 'Hola'}, vi tu perfil y me interesa tu servicio.`
       )}`
     : '#';
+
+  const nivelWsp = getNivelWhatsapp(badgeTexto);
+
+     const handleClicWhatsapp = async () => {
+    const { data, error } = await supabase.rpc('registrar_evento_servicio', {
+      p_servicio_id: id,
+      p_tipo: 'clic_whatsapp'
+    });
+    if (error) {
+      console.error('🔴 ERROR al registrar clic WhatsApp:', error);
+    } else {
+      console.log('✅ Clic WhatsApp registrado OK', data);
+    }
+  };
 
   return (
     <div className="perfil-card-nuevo">
@@ -86,7 +102,12 @@ const PerfilCard = ({
 
       <div className="perfil-card-contenido">
         <div className="perfil-card-texto">
-          <h3>{nombre || 'Sin nombre'}</h3>
+                    <h3>
+            <span className="perfil-card-titulo-texto">{nombre || 'Sin nombre'}</span>
+            {esPremium && badgeTexto && (
+              <span className="material-icons insignia-verificado-card" title="Cuenta verificada">verified</span>
+            )}
+          </h3>
 
           <p className={`descripcion ${mostrarMas ? 'expandida' : ''}`}>
             {mostrarMas ? descripcionServicio : descripcionCorta}
@@ -125,12 +146,13 @@ const PerfilCard = ({
             Ver perfil
           </button>
 
-          {contacto.whatsapp && (
+                   {contacto.whatsapp && (
             <a
-              className="btn-wsp"
+              className={`btn-wsp ${nivelWsp ? `btn-wsp-${nivelWsp}` : ''}`}
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleClicWhatsapp}
             >
               <FaWhatsapp /> Contactar
             </a>

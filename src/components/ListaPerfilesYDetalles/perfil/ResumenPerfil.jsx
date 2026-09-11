@@ -6,6 +6,7 @@ import ModalAvisoLogin from './ModalAvisoLogin';
 import VisorHistorias from './VisorHistorias';
 import { AuthContext } from '../../../auth/AuthContext';
 import { supabase } from '../../../utils/supabaseClient';
+import { getNivelWhatsapp } from '../../../utils/whatsappPlan';
 import EstadoActividad from './EstadoActividad';
 import './ResumenPerfil.css';
 
@@ -81,7 +82,7 @@ const ResumenPerfil = ({ perfil }) => {
   const contactoUrl = mensajePredefinido
     ? `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensajePredefinido)}`
     : `https://wa.me/${whatsappNumero}`;
-  const whatsappAnimado = perfil.badge_texto === 'Destacado' || perfil.badge_texto === 'Elite';
+    const nivelWsp = getNivelWhatsapp(perfil.badge_texto);
 
   const handleCompartir = async () => {
     const url = window.location.href;
@@ -156,7 +157,12 @@ const ResumenPerfil = ({ perfil }) => {
         )}
 
         <div className="resumen-contenido-perfil">
-          <h2 className="resumen-titulo-perfil">{perfil.nombre}</h2>
+                    <h2 className="resumen-titulo-perfil">
+            <span className="resumen-titulo-texto">{perfil.nombre}</span>
+            {perfil.es_premium && perfil.badge_texto && (
+              <span className="material-icons insignia-verificado-resumen" title="Cuenta verificada">verified</span>
+            )}
+          </h2>
                     <EstadoActividad
             ultimaActividad={perfil.usuario?.ultima_actividad}
             esPremium={perfil.es_premium}
@@ -186,12 +192,13 @@ const ResumenPerfil = ({ perfil }) => {
               href={contactoUrl}
               target="_blank"
               rel="noreferrer"
-              className={`resumen-btn-contacto ${whatsappAnimado ? 'resumen-btn-contacto-animado' : ''}`}
-              onClick={() => {
-                supabase.rpc('registrar_evento_servicio', {
+                            className={`resumen-btn-contacto ${nivelWsp ? `resumen-btn-contacto-${nivelWsp}` : ''}`}
+                            onClick={async () => {
+                const { error } = await supabase.rpc('registrar_evento_servicio', {
                   p_servicio_id: perfil.id,
                   p_tipo: 'clic_whatsapp'
                 });
+                if (error) console.error('Error al registrar clic WhatsApp:', error);
               }}
             >
               <FaWhatsapp /> Contactar

@@ -157,17 +157,23 @@
 }
 
 .card-perfil-titulo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 1.125rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin: 0;
   line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin: 1.1rem 0 0.25rem 0;
+}
+
+.card-perfil-titulo-texto {
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 1.1rem 0 0.25rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .card-perfil-categoria-badge {
@@ -207,6 +213,7 @@
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -462,7 +469,60 @@
    ============================================ */
 
 .card-perfil-destacada {
-  border: 2px solid var(--color-destaque, #2563EB);
-  box-shadow: 0 0 0 1px var(--color-destaque, #2563EB) inset,
-              0 4px 14px rgba(0, 0, 0, 0.08);
+  position: relative;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+.card-perfil-destacada::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-destaque, #2563EB);
+  border-radius: 16px 0 0 16px;
+}
+
+.card-perfil-destacada:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1),
+              0 0 0 1px var(--color-destaque, #2563EB) inset;
+}
+
+/* ---------- WhatsApp destacado por plan ---------- */
+.btn-whatsapp-impulso {
+  animation: wspExplorarPulseSuave 2.8s ease-in-out infinite;
+}
+
+.btn-whatsapp-destacado {
+  animation: wspExplorarPulseMedio 2.2s ease-in-out infinite;
+}
+
+.btn-whatsapp-elite {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 60%, #7C3AED 140%) !important;
+  animation: wspExplorarPulseFuerte 1.8s ease-in-out infinite;
+}
+
+@keyframes wspExplorarPulseSuave {
+  0%, 100% { box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3); }
+  50% { box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3), 0 0 0 5px rgba(37, 211, 102, 0); }
+}
+
+@keyframes wspExplorarPulseMedio {
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 6px rgba(37, 211, 102, 0.35); }
+  50% { transform: scale(1.12); box-shadow: 0 4px 14px rgba(37, 211, 102, 0.55); }
+}
+
+@keyframes wspExplorarPulseFuerte {
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4); }
+  50% { transform: scale(1.16); box-shadow: 0 6px 16px rgba(124, 58, 237, 0.65); }
+}
+
+.insignia-verificado-explorar {
+  font-size: 1rem !important;
+  color: #3897F0;
+  flex-shrink: 0;
+  margin-left: -2px;
+  margin-bottom: 6px;
 }
