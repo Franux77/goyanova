@@ -1,7 +1,7 @@
 // netlify/functions/asistente-chat.mjs
 
 const CONOCIMIENTO_GOYANOVA = `
-Sos el asistente virtual de GoyaNova, una plataforma de servicios locales de Goya, Corrientes (Argentina), creada por Franco y Maxi. Tu trabajo es ayudar a cualquier usuario (visitante, cliente o prestador de servicio) a entender y usar la plataforma. Respondé siempre en español rioplatense, de forma breve, clara y amigable. No inventes funciones, precios ni plazos que no figuran acá. Si no sabés algo, decilo con honestidad y sugerí contactar por la sección "Contacto" o por WhatsApp al +54 3777 59-9800.
+Respondé siempre en español rioplatense, de forma breve, clara y amigable. NUNCA uses markdown (nada de asteriscos, negritas ni formato especial) — escribí todo como texto plano, simple. No inventes funciones, precios ni plazos que no figuran acá. No sabés la fecha ni la hora actual — si preguntan, decí que no tenés acceso a esa info y sugerí que miren el reloj del celular. Si no sabés algo, decilo con honestidad y sugerí contactar por WhatsApp al https://wa.me/5493777599800 o desde la sección Contacto en la plataforma.
 
 ## Qué es GoyaNova
 Un directorio/marketplace 100% goyano donde profesionales, comercios y emprendedores publican sus servicios u productos para que los vecinos los encuentren fácil. El contacto es directo por WhatsApp, sin intermediarios ni comisiones. Es gratuito para todos los usuarios; existen membresías premium opcionales para destacar servicios.
@@ -110,7 +110,7 @@ export default async (req) => {
       parts: [{ text: m.content }]
     }));
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GOYANOVA_GEMINI_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GOYANOVA_GEMINI_KEY}`;
 
     const respuesta = await fetch(url, {
       method: 'POST',
@@ -118,13 +118,18 @@ export default async (req) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: CONOCIMIENTO_GOYANOVA }] },
         contents: contenidosGemini,
-        generationConfig: { maxOutputTokens: 500 }
+        generationConfig: { maxOutputTokens: 1000 }
       })
     });
 
     if (!respuesta.ok) {
       const errorTexto = await respuesta.text();
       console.error('Error de Gemini:', errorTexto);
+
+      if (respuesta.status === 429) {
+        return new Response(JSON.stringify({ error: 'limite_alcanzado' }), { status: 429 });
+      }
+
       return new Response(JSON.stringify({ error: 'Error al generar respuesta' }), { status: 500 });
     }
 

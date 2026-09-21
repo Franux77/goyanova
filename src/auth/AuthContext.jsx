@@ -82,6 +82,65 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const obtenerDescripcionDispositivo = () => {
+    const ua = navigator.userAgent;
+    let navegador = 'Navegador desconocido';
+    if (ua.includes('Edg/')) navegador = 'Edge';
+    else if (ua.includes('Chrome/') && !ua.includes('Edg/')) navegador = 'Chrome';
+    else if (ua.includes('Firefox/')) navegador = 'Firefox';
+    else if (ua.includes('Safari/') && !ua.includes('Chrome/')) navegador = 'Safari';
+
+    let so = 'sistema desconocido';
+    if (ua.includes('Windows')) so = 'Windows';
+    else if (ua.includes('Mac OS')) so = 'Mac';
+    else if (ua.includes('Android')) so = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) so = 'iOS';
+    else if (ua.includes('Linux')) so = 'Linux';
+
+    return `${navegador} en ${so}`;
+  };
+
+  const notificarNuevoLogin = (usuario, metodo) => {
+    try {
+      const dispositivo = obtenerDescripcionDispositivo();
+      const fecha = new Date().toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' });
+
+      // Guardar el registro del login (no bloqueante)
+      supabase.from('logins_registrados').insert({
+        usuario_id: usuario.id,
+        email: usuario.email,
+        dispositivo_desc: dispositivo,
+        metodo
+      });
+
+      // Mandar el email de aviso (no bloqueante, no frena el login)
+      fetch('/.netlify/functions/enviar-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderName: 'GoyaNova Seguridad',
+          to: { email: usuario.email, name: usuario.email },
+          subject: 'Nuevo inicio de sesión en tu cuenta de GoyaNova',
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+              <h2 style="color: #1774f6;">Nuevo inicio de sesión detectado</h2>
+              <p>Se inició sesión en tu cuenta de GoyaNova:</p>
+              <ul style="line-height: 1.8;">
+                <li><strong>Dispositivo:</strong> ${dispositivo}</li>
+                <li><strong>Método:</strong> ${metodo === 'google' ? 'Google' : 'Correo y contraseña'}</li>
+                <li><strong>Fecha:</strong> ${fecha}</li>
+              </ul>
+              <p>Si fuiste vos, no necesitás hacer nada.</p>
+              <p style="color: #dc2626;"><strong>Si NO fuiste vos</strong>, cambiá tu contraseña ahora mismo desde la pantalla de inicio de sesión, opción "¿Olvidaste tu contraseña?".</p>
+            </div>
+          `
+        })
+      }).catch(() => {});
+    } catch {
+      // Nunca romper el login por esto
+    }
+  };
+
   const extraerNombreApellido = (nombreCompleto) => {
     if (!nombreCompleto || typeof nombreCompleto !== 'string') {
       return { nombre: 'Usuario', apellido: '' };
@@ -595,6 +654,8 @@ export const AuthProvider = ({ children }) => {
           if (provider === 'google') {
             await crearPerfilDesdeGoogle(session.user);
           }
+
+          notificarNuevoLogin(session.user, provider === 'google' ? 'google' : 'password');
           
           setUser(session.user);
           

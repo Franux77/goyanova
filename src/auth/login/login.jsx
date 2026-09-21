@@ -103,7 +103,7 @@ const Login = () => {
       setMostrarModalSuspension(true);
       await supabase.auth.signOut();
 
-    } catch (error) {
+    } catch {
       navegacionRealizada.current = true;
       navigate('/', { replace: true });
     } finally {
@@ -168,7 +168,7 @@ const Login = () => {
     
     try {
       await loginWithGoogle();
-    } catch (err) {
+    } catch {
       setFormError('Error al conectar con Google. Intenta de nuevo.');
       setLoadingAction(false);
       setIsRedirectingToGoogle(false);
@@ -192,7 +192,7 @@ const Login = () => {
         titulo: '✅ Correo enviado',
         mensaje: `Te enviamos un enlace de recuperación a:\n\n${email.trim()}\n\nRevisa tu bandeja de entrada y también la carpeta de spam.\n\nEl enlace expira en 1 hora.`
       });
-    } catch (err) {
+    } catch {
       setModalInfo({
         tipo: 'error',
         titulo: '❌ Error',

@@ -210,3 +210,42 @@
     padding: 0.2rem;
   }
 }
+
+.psf-borrador-aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  margin: 1rem;
+  font-size: 0.85rem;
+}
+
+.psf-borrador-aviso .material-icons {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.psf-borrador-aviso span:nth-child(2) {
+  flex: 1;
+}
+
+.psf-borrador-aviso button {
+  background: white;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.psf-borrador-aviso button:hover {
+  background: #dbeafe;
+}

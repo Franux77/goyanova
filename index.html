@@ -138,26 +138,9 @@
     }
     </script>
     <style>
-      /* 🔒 Evita seleccionar texto o imágenes */
-      * {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      /* 🔒 Bloquea arrastrar imágenes */
+      /* 🔒 Bloquea arrastrar imágenes (evita que se arrastren fuera de la página sin querer) */
       img, a img {
         -webkit-user-drag: none;
-        /* pointer-events: none; */
-      }
-
-      /* ✅ Permitir seleccionar texto en inputs y textareas */
-      input, textarea, [contenteditable="true"] {
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
       }
     </style>
   </head>

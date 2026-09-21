@@ -29,47 +29,123 @@ const pasos = [
   { componente: Paso5ResumenConfirmacion, titulo: "Resumen y Confirmación" },
 ];
 
+const CLAVE_BORRADOR = 'goyanova_borrador_publicar';
+
+const CAMPOS_BORRADOR = [
+  'nombre', 'tipo', 'categoria', 'descripcion', 'direccion_escrita', 'ubicacion',
+  'tipoDisponibilidad', 'horarios', 'diasActivos', 'mensaje', 'whatsapp', 'prefijo',
+  'email', 'instagram', 'facebook', 'metodos_pago', 'acepta_cuotas', 'hace_envios',
+  'alcance_envio', 'sitio_web', 'whatsapp_mensaje_personalizado'
+];
+
+const borradorTieneContenido = (borrador) => {
+  if (!borrador) return false;
+  return Boolean(
+    borrador.nombre?.trim() ||
+    borrador.descripcion?.trim() ||
+    borrador.direccion_escrita?.trim() ||
+    borrador.whatsapp?.trim()
+  );
+};
+
+const cargarBorrador = () => {
+  try {
+    const guardado = localStorage.getItem(CLAVE_BORRADOR);
+    if (!guardado) return null;
+    const parseado = JSON.parse(guardado);
+    return borradorTieneContenido(parseado) ? parseado : null;
+  } catch {
+    return null;
+  }
+};
+
 const PublicarServicioForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [formData, setFormData] = useState({
-    nombre: "",
-    tipo: "",
-    categoria: "",
-    descripcion: "",
-    portadaFile: null,
-    imagenesFiles: [],
-    imagenesPreview: [],
-    portadaAEliminar: null,
-    imagenesAEliminar: [],
-    imagenesDB: [],
-    // 🆕 foto de referencia de ubicación (Impulso+)
-    referenciaFile: null,
-    referenciaPreview: null,
-    referenciaDB: null,
-    referenciaAEliminar: null,
-    direccion_escrita: "",
-    ubicacion: { lat: null, lng: null, referencia: "" },
-    tipoDisponibilidad: "",
-    horarios: {},
-    diasActivos: {},
-    mensaje: "",
-    whatsapp: "",
-    prefijo: "",
-    email: "",
-    instagram: "",
-    facebook: "",
-    // 🆕 campos habilitados por plan (Paso 4)
-    metodos_pago: [],
-    acepta_cuotas: false,
-    hace_envios: false,
-    alcance_envio: null,
-    sitio_web: "",
-    whatsapp_mensaje_personalizado: "",
+  const [hayBorradorRestaurado, setHayBorradorRestaurado] = useState(false);
+
+  const [formData, setFormData] = useState(() => {
+    const base = {
+      nombre: "",
+      tipo: "",
+      categoria: "",
+      descripcion: "",
+      portadaFile: null,
+      imagenesFiles: [],
+      imagenesPreview: [],
+      portadaAEliminar: null,
+      imagenesAEliminar: [],
+      imagenesDB: [],
+      // 🆕 foto de referencia de ubicación (Impulso+)
+      referenciaFile: null,
+      referenciaPreview: null,
+      referenciaDB: null,
+      referenciaAEliminar: null,
+      direccion_escrita: "",
+      ubicacion: { lat: null, lng: null, referencia: "" },
+      tipoDisponibilidad: "",
+      horarios: {},
+      diasActivos: {},
+      mensaje: "",
+      whatsapp: "",
+      prefijo: "",
+      email: "",
+      instagram: "",
+      facebook: "",
+      // 🆕 campos habilitados por plan (Paso 4)
+      metodos_pago: [],
+      acepta_cuotas: false,
+      hace_envios: false,
+      alcance_envio: null,
+      sitio_web: "",
+      whatsapp_mensaje_personalizado: "",
+    };
+
+    // Solo restauramos borrador si es un servicio NUEVO (no edición)
+    if (!id) {
+      const borrador = cargarBorrador();
+      if (borrador) {
+        return { ...base, ...borrador };
+      }
+    }
+
+    return base;
   });
 
   const setFormDataSeguro = actualizarDatosSeguro(setFormData);
+
+  // 🆕 Autoguardado del borrador (solo texto, nunca archivos) — cada vez que cambia algo
+  useEffect(() => {
+    if (id) return; // no autoguardar cuando se está EDITANDO un servicio existente
+
+    const timeout = setTimeout(() => {
+      const borrador = {};
+      CAMPOS_BORRADOR.forEach((campo) => {
+        borrador[campo] = formData[campo];
+      });
+
+      try {
+        if (borradorTieneContenido(borrador)) {
+          localStorage.setItem(CLAVE_BORRADOR, JSON.stringify(borrador));
+        } else {
+          localStorage.removeItem(CLAVE_BORRADOR);
+        }
+      } catch {
+        // si falla (ej. localStorage lleno), no rompemos nada
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [formData, id]);
+
+  // 🆕 Detectar si al entrar había un borrador restaurado, para avisar al usuario
+  useEffect(() => {
+    if (!id && cargarBorrador()) {
+      setHayBorradorRestaurado(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [errores, setErrores] = useState({});
   const [publicando, setPublicando] = useState(false);
@@ -221,6 +297,7 @@ const PublicarServicioForm = () => {
       return;
     }
 
+    localStorage.removeItem(CLAVE_BORRADOR);
     await publicarServicio(formData, id, navigate, setErrorModal, setPublicando);
   };
 
@@ -237,6 +314,22 @@ const PublicarServicioForm = () => {
           Volver
         </button>
       </nav>
+
+      {hayBorradorRestaurado && !id && (
+        <div className="psf-borrador-aviso">
+          <span className="material-icons">restore</span>
+          <span>Recuperamos lo que habías completado antes. Las fotos las tenés que volver a cargar.</span>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem(CLAVE_BORRADOR);
+              window.location.reload();
+            }}
+          >
+            Empezar de cero
+          </button>
+        </div>
+      )}
 
       <main className="psf-main">
         {pasos.map(({ componente: PasoComponente }, idx) => (

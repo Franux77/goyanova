@@ -27,6 +27,20 @@ const MENSAJE_BIENVENIDA = {
 const MARGEN = 16;
 const TAMANO_BOTON = 58;
 
+const escaparHtml = (texto) =>
+  texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const formatearMensaje = (texto) =>
+  escaparHtml(texto).replace(
+    /(https?:\/\/[^\s]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 600;">$1</a>'
+  );
+
 const AsistenteChat = () => {
   const [abierto, setAbierto] = useState(false);
   const [mensajes, setMensajes] = useState([MENSAJE_BIENVENIDA]);
@@ -135,13 +149,18 @@ const AsistenteChat = () => {
 
       const data = await res.json();
 
-      if (data.error) {
-        setMensajes(prev => [...prev, { role: 'assistant', content: 'Uy, tuve un problema para responder. Probá de nuevo en un ratito.' }]);
+      if (data.error === 'limite_alcanzado') {
+        setMensajes(prev => [...prev, {
+          role: 'assistant',
+          content: 'Estoy con mucha consulta en este momento 🙏 Mientras tanto, escribinos directo por WhatsApp: https://wa.me/5493777599800'
+        }]);
+      } else if (data.error) {
+        setMensajes(prev => [...prev, { role: 'assistant', content: 'Perdón, no pude procesar eso ahora. Si necesitás una respuesta rápida, escribinos por WhatsApp: https://wa.me/5493777599800' }]);
       } else {
         setMensajes(prev => [...prev, { role: 'assistant', content: data.respuesta }]);
       }
     } catch {
-      setMensajes(prev => [...prev, { role: 'assistant', content: 'No pude conectarme. Revisá tu conexión e intentá de nuevo.' }]);
+      setMensajes(prev => [...prev, { role: 'assistant', content: 'No pude conectarme en este momento. Si necesitás ayuda, escribinos por WhatsApp: https://wa.me/5493777599800' }]);
     } finally {
       setCargando(false);
     }
@@ -199,9 +218,11 @@ const AsistenteChat = () => {
 
           <div className="asistente-mensajes">
             {mensajes.map((m, i) => (
-              <div key={i} className={`asistente-burbuja ${m.role}`}>
-                {m.content}
-              </div>
+              <div
+                key={i}
+                className={`asistente-burbuja ${m.role}`}
+                dangerouslySetInnerHTML={{ __html: formatearMensaje(m.content) }}
+              />
             ))}
             {cargando && (
               <div className="asistente-burbuja assistant asistente-escribiendo">
