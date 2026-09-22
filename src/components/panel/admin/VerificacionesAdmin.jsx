@@ -5,10 +5,11 @@ import './VerificacionesAdmin.css';
 const VerificacionesAdmin = () => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [urls, setUrls] = useState({}); // cache de URLs firmadas por ruta
+  const [urls, setUrls] = useState({});
   const [procesando, setProcesando] = useState(null);
   const [modalRechazo, setModalRechazo] = useState(null);
   const [motivoRechazo, setMotivoRechazo] = useState('');
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const cargar = async () => {
     setLoading(true);
@@ -18,7 +19,6 @@ const VerificacionesAdmin = () => {
       setSolicitudes([]);
     } else {
       setSolicitudes(data || []);
-      // Firmar las URLs de las fotos (bucket privado, vencen en 1 hora)
       const nuevasUrls = {};
       for (const s of data || []) {
         const [doc, selfie] = await Promise.all([
@@ -102,45 +102,48 @@ const VerificacionesAdmin = () => {
         <div className="verifadmin-lista">
           {solicitudes.map((s) => (
             <div key={s.id} className="verifadmin-card">
+              <div className="verifadmin-fotos">
+                {urls[s.id]?.documento && (
+                  <button
+                    type="button"
+                    className="verifadmin-foto-btn"
+                    onClick={() => setPreviewUrl(urls[s.id].documento)}
+                  >
+                    <img src={urls[s.id].documento} alt="Documento" />
+                    <span>Documento</span>
+                  </button>
+                )}
+                {urls[s.id]?.selfie && (
+                  <button
+                    type="button"
+                    className="verifadmin-foto-btn"
+                    onClick={() => setPreviewUrl(urls[s.id].selfie)}
+                  >
+                    <img src={urls[s.id].selfie} alt="Selfie" />
+                    <span>Selfie</span>
+                  </button>
+                )}
+              </div>
+
               <div className="verifadmin-info">
                 <h3>{s.nombre_completo}</h3>
                 <p className="verifadmin-email">{s.email}</p>
                 <p className="verifadmin-doc">
-                  <strong>Documento:</strong> {s.numero_documento}
+                  <strong>Doc:</strong> {s.numero_documento}
+                  <span className="verifadmin-fecha"> · {new Date(s.creado_en).toLocaleDateString('es-AR')}</span>
                 </p>
-                <p className="verifadmin-fecha">
-                  Enviado el {new Date(s.creado_en).toLocaleDateString('es-AR')}
-                </p>
+                <button
+                  type="button"
+                  className="verifadmin-link-perfil"
+                  onClick={() => {
+                    navigator.clipboard.writeText(s.email);
+                    alert(`Email copiado: ${s.email}\n\nPegalo en el buscador de "Servicios" para ver sus publicaciones antes de aprobar.`);
+                  }}
+                >
+                  <span className="material-icons">content_copy</span>
+                  Copiar email
+                </button>
               </div>
-
-                           <div className="verifadmin-fotos">
-                {urls[s.id]?.documento && (
-                  <a href={urls[s.id].documento} target="_blank" rel="noopener noreferrer">
-                    <img src={urls[s.id].documento} alt="Documento" />
-                    <span>Ver documento</span>
-                  </a>
-                )}
-                {urls[s.id]?.selfie && (
-                  <a href={urls[s.id].selfie} target="_blank" rel="noopener noreferrer">
-                    <img src={urls[s.id].selfie} alt="Selfie" />
-                    <span>Ver selfie</span>
-                  </a>
-                )}
-              </div>
-
-              {/* 🆕 Para revisar el perfil real (logo, redes, fotos) antes de
-                  aprobar: copiamos el email así lo buscás en Servicios */}
-              <button
-                type="button"
-                className="verifadmin-link-perfil"
-                onClick={() => {
-                  navigator.clipboard.writeText(s.email);
-                  alert(`Email copiado: ${s.email}\n\nPegalo en el buscador de "Servicios" para ver sus publicaciones antes de aprobar.`);
-                }}
-              >
-                <span className="material-icons">content_copy</span>
-                Copiar email para buscar sus servicios
-              </button>
 
               <div className="verifadmin-acciones">
                 <button
@@ -162,6 +165,20 @@ const VerificacionesAdmin = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {previewUrl && (
+        <div className="verifadmin-preview-overlay" onClick={() => setPreviewUrl(null)}>
+          <button className="verifadmin-preview-cerrar" onClick={() => setPreviewUrl(null)}>
+            <span className="material-icons">close</span>
+          </button>
+          <img
+            src={previewUrl}
+            alt="Vista previa"
+            className="verifadmin-preview-img"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 

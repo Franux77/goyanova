@@ -168,6 +168,10 @@
   color: #999;
 }
 
+.sadmin-card__separador {
+  color: #ccc;
+}
+
 .sadmin-card__suspendido-por {
   font-size: 0.8rem;
   color: #999;
@@ -394,4 +398,9 @@
     font-size: 0.85rem;
     min-width: 36px;
   }
+}
+
+.sadmin-card__separador {
+  color: #ccc;
+  margin: 0 0.1rem;
 }

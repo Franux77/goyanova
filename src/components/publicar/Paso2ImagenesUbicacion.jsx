@@ -24,11 +24,18 @@ const Paso2ImagenesUbicacion = ({
       const options = {
         maxSizeMB: 0.5,
         maxWidthOrHeight: 1920,
-        useWebWorker: true,
+        useWebWorker: false, // 🔧 desactivado: en Brave mobile (Shields) fallaba en silencio y corrompía el archivo
         fileType: 'image/jpeg',
         initialQuality: 0.85
       };
       const imagenComprimida = await imageCompression(file, options);
+
+      // Chequeo de sanidad: si el resultado quedó vacío/corrupto, usamos el original sin comprimir
+      if (!imagenComprimida || imagenComprimida.size === 0) {
+        console.warn('⚠️ Compresión devolvió un archivo vacío, se usa el original');
+        return file;
+      }
+
       return imagenComprimida;
     } catch (error) {
       console.error('❌ Error comprimiendo imagen:', error);
@@ -227,8 +234,13 @@ const Paso2ImagenesUbicacion = ({
               alt="Portada subida"
               className="paso2-imagen paso2-imagen-clickeable"
               onClick={() => abrirModal(formData.portadaPreview || formData.portadaDB)}
+              onError={(e) => { e.target.classList.add('paso2-imagen-rota'); }}
               style={{ cursor: 'pointer' }}
             />
+            <div className="paso2-imagen-fallback">
+              <span className="material-icons">broken_image</span>
+              <span>No se pudo cargar</span>
+            </div>
             <button
               type="button"
               className="paso2-btn-eliminar"
@@ -272,8 +284,13 @@ const Paso2ImagenesUbicacion = ({
                 alt="Referencia de ubicación"
                 className="paso2-imagen paso2-imagen-clickeable"
                 onClick={() => abrirModal(formData.referenciaPreview || formData.referenciaDB)}
+                onError={(e) => { e.target.classList.add('paso2-imagen-rota'); }}
                 style={{ cursor: 'pointer' }}
               />
+              <div className="paso2-imagen-fallback">
+                <span className="material-icons">broken_image</span>
+                <span>No se pudo cargar</span>
+              </div>
               <button
                 type="button"
                 className="paso2-btn-eliminar"
@@ -350,8 +367,13 @@ const Paso2ImagenesUbicacion = ({
               alt={`Imagen subida ${i + 1}`}
               className="paso2-imagen paso2-imagen-clickeable"
               onClick={() => abrirModal(src)}
+              onError={(e) => { e.target.classList.add('paso2-imagen-rota'); }}
               style={{ cursor: 'pointer' }}
             />
+            <div className="paso2-imagen-fallback">
+              <span className="material-icons">broken_image</span>
+              <span>No se pudo cargar</span>
+            </div>
             <button
               type="button"
               className="paso2-btn-eliminar"

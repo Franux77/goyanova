@@ -364,3 +364,37 @@
   cursor: pointer;
   opacity: 0.9;
 }
+
+/* ---------- Fallback cuando una imagen no carga ---------- */
+.paso2-imagen-fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: #F1F5F9;
+  color: #94A3B8;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.paso2-imagen-fallback .material-icons {
+  font-size: 1.6rem;
+}
+
+.paso2-imagen-fallback span:last-child {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Cuando el <img> falla (onError), lo ocultamos y mostramos el fallback en su lugar */
+.paso2-imagen.paso2-imagen-rota {
+  display: none;
+}
+
+.paso2-imagen-wrapper:has(.paso2-imagen-rota) .paso2-imagen-fallback {
+  display: flex;
+}

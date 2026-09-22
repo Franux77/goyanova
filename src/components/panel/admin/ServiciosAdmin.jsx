@@ -24,7 +24,9 @@ const ServiciosAdmin = () => {
           estado,
           suspendido_por,
           categoria_id,
+          usuario_id,
           categorias(nombre),
+          perfiles_usuarios(email),
           disponibilidades(
             id,
             tipo,
@@ -67,6 +69,7 @@ const ServiciosAdmin = () => {
         return {
           ...s,
           categoria: s.categorias?.nombre || 'Sin categoría',
+          emailDueno: s.perfiles_usuarios?.email || '',
           estado: suspendidosIds.includes(s.id) ? 'suspendido' : s.estado || 'activo',
           motivoSuspension: suspension?.motivo || null,
           formDataParaEditar: {
@@ -90,8 +93,12 @@ const ServiciosAdmin = () => {
   }, []);
 
   const filtrarServicios = () => {
+    const termino = busqueda.toLowerCase().trim();
     return servicios.filter(s => {
-      const coincideBusqueda = s.nombre.toLowerCase().includes(busqueda.toLowerCase());
+      const coincideBusqueda =
+        !termino ||
+        s.nombre.toLowerCase().includes(termino) ||
+        s.emailDueno.toLowerCase().includes(termino);
       const coincideEstado = filtroEstado === 'todos' || s.estado === filtroEstado;
       return coincideBusqueda && coincideEstado;
     });
@@ -201,7 +208,7 @@ const ServiciosAdmin = () => {
       <div className="sadmin-servicios__controles">
         <input
           type="search"
-          placeholder="Buscar servicio..."
+          placeholder="Buscar por nombre del servicio o email del dueño..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
           className="sadmin-input"
@@ -246,6 +253,13 @@ const ServiciosAdmin = () => {
                 <p className="sadmin-card__categoria">
                   <span className="material-icons sadmin-card__icon">category</span>
                   {s.categoria}
+                  {s.emailDueno && (
+                    <>
+                      <span className="sadmin-card__separador">·</span>
+                      <span className="material-icons sadmin-card__icon">person</span>
+                      {s.emailDueno}
+                    </>
+                  )}
                 </p>
                 {s.estado === 'suspendido' && s.motivoSuspension && (
                   <p className="sadmin-card__motivo">

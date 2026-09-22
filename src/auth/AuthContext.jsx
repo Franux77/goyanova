@@ -102,6 +102,14 @@ export const AuthProvider = ({ children }) => {
 
   const notificarNuevoLogin = (usuario, metodo) => {
     try {
+      // Evita reavisar el mismo login en cada refresh/remount de la página
+      // (Supabase a veces reemite SIGNED_IN sin que sea un login nuevo real).
+      const clave = `login_notificado_${usuario.id}`;
+      if (sessionStorage.getItem(clave) === 'true') {
+        return;
+      }
+      sessionStorage.setItem(clave, 'true');
+
       const dispositivo = obtenerDescripcionDispositivo();
       const fecha = new Date().toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' });
 
@@ -317,7 +325,8 @@ export const AuthProvider = ({ children }) => {
     }
     
     await supabase.auth.signOut();
-    
+    sessionStorage.removeItem(`login_notificado_${lastUserIdRef.current}`);
+
     if (isMounted.current) {
       setUser(null);
       setPerfil(null);
@@ -334,9 +343,10 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(refreshTimerRef.current);
       refreshTimerRef.current = null;
     }
-    
+
     await supabase.auth.signOut();
-    
+    sessionStorage.removeItem(`login_notificado_${lastUserIdRef.current}`);
+
     if (isMounted.current) {
       setUser(null);
       setPerfil(null);

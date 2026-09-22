@@ -3,6 +3,38 @@ import { supabase } from '../../../utils/supabaseClient';
 import { procesarVideoReel } from '../../../utils/videoHelpers';
 import './SubirReel.css';
 
+// Traduce errores técnicos (de red, de la base, de Storage) a mensajes
+// claros para el usuario, en vez de mostrar el error crudo.
+const interpretarError = (err) => {
+  const msg = err?.message || '';
+
+  // Error de red: el fetch nunca llegó a completarse
+  if (err instanceof TypeError && msg === 'Failed to fetch') {
+    return 'Se cortó la conexión. Revisá tu wifi o datos móviles e intentá de nuevo.';
+  }
+
+  // Bug de funciones duplicadas en la base (ambigüedad de Postgres) — no es culpa del usuario
+  if (msg.includes('Could not choose the best candidate function')) {
+    return 'Hubo un problema técnico interno de la plataforma. Ya quedó registrado, probá de nuevo en unos minutos o escribinos por WhatsApp si sigue pasando.';
+  }
+
+  // Permisos / política de seguridad de Supabase Storage
+  if (msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('permission')) {
+    return 'No tenés permiso para hacer esta acción. Probá cerrar sesión y volver a entrar.';
+  }
+
+  // Archivo demasiado pesado (límite de Storage)
+  if (msg.toLowerCase().includes('exceeded the maximum allowed size') || msg.toLowerCase().includes('payload too large')) {
+    return 'El video pesa demasiado. Probá con uno más corto o de menor calidad.';
+  }
+
+  // Mensajes que ya vienen bien redactados desde nuestras propias funciones (RPC)
+  // los dejamos pasar tal cual, ya están en español y son claros.
+  if (msg) return msg;
+
+  return 'No se pudo completar la acción. Intentá de nuevo en un momento.';
+};
+
 const SubirReel = ({ servicioId }) => {
   const [reelActivo, setReelActivo] = useState(null);
   const [cargandoEstado, setCargandoEstado] = useState(true);
@@ -48,7 +80,7 @@ const SubirReel = ({ servicioId }) => {
       await cargarReelActivo();
     } catch (err) {
       console.error('Error eliminando reel:', err);
-      alert(err.message || 'No se pudo borrar la historia');
+      alert(interpretarError(err));
     } finally {
       setEliminando(false);
     }
@@ -107,7 +139,7 @@ const SubirReel = ({ servicioId }) => {
 
     } catch (err) {
       console.error('Error subiendo reel:', err);
-      setError(err.message || 'No se pudo subir el video');
+      setError(interpretarError(err));
     } finally {
       setProcesando(false);
       setPasoActual('');

@@ -40,3 +40,21 @@
 
 .enviarecom-resultado.ok { color: #16A34A; }
 .enviarecom-resultado.error { color: #DC2626; }
+
+.enviarecom-modo-prueba {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0 0 0.5rem;
+  padding: 0.4rem 0.7rem;
+  background: #FEF3C7;
+  color: #92400E;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.enviarecom-modo-prueba .material-icons {
+  font-size: 0.9rem;
+}

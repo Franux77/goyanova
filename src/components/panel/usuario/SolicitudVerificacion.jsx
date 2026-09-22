@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
 import { useCaracteristicasPlan } from '../../../hooks/useCaracteristicasPlan';
 import './SolicitudVerificacion.css';
@@ -10,8 +10,12 @@ const SolicitudVerificacion = () => {
   const [fotoSelfie, setFotoSelfie] = useState(null);
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
+  const [pasoSubida, setPasoSubida] = useState('');
   const [solicitud, setSolicitud] = useState(null);
   const [cargandoSolicitud, setCargandoSolicitud] = useState(true);
+
+  const inputDocumentoRef = useRef(null);
+  const inputSelfieRef = useRef(null);
 
   useEffect(() => {
     const cargarSolicitud = async () => {
@@ -22,15 +26,13 @@ const SolicitudVerificacion = () => {
     cargarSolicitud();
   }, []);
 
-  // Pre-validación en el momento: completitud, formato y tamaño de archivo.
-  // No reemplaza la revisión del admin, solo evita que llegue algo incompleto.
   const validar = () => {
     const nuevosErrores = {};
 
     const doc = numeroDocumento.trim();
     if (!doc || doc.length < 6) {
       nuevosErrores.numeroDocumento = 'Ingresá un número de documento válido';
-    } else if (!/^[0-9A-Za-z.\-]+$/.test(doc)) {
+    } else if (!/^[0-9A-Za-z.-]+$/.test(doc)) {
       nuevosErrores.numeroDocumento = 'Solo números, letras, puntos y guiones';
     }
 
@@ -66,15 +68,19 @@ const SolicitudVerificacion = () => {
 
     try {
       setEnviando(true);
+      setErrores({});
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Tenés que iniciar sesión');
 
-      const [rutaDocumento, rutaSelfie] = await Promise.all([
-        subirArchivo(fotoDocumento, user.id, 'documento'),
-        subirArchivo(fotoSelfie, user.id, 'selfie')
-      ]);
+      // Subida secuencial (no simultánea): más confiable en conexiones móviles débiles
+      setPasoSubida('documento');
+      const rutaDocumento = await subirArchivo(fotoDocumento, user.id, 'documento');
 
+      setPasoSubida('selfie');
+      const rutaSelfie = await subirArchivo(fotoSelfie, user.id, 'selfie');
+
+      setPasoSubida('enviando');
       const { data, error } = await supabase.rpc('crear_solicitud_verificacion', {
         p_numero_documento: numeroDocumento.trim(),
         p_foto_documento_url: rutaDocumento,
@@ -90,14 +96,48 @@ const SolicitudVerificacion = () => {
       setFotoSelfie(null);
 
     } catch (err) {
-      setErrores({ general: err.message || 'Error al enviar la solicitud' });
+      const esErrorDeRed = err instanceof TypeError && err.message === 'Failed to fetch';
+      setErrores({
+        general: esErrorDeRed
+          ? 'Se cortó la conexión mientras subíamos las fotos. Revisá tu señal (wifi o datos) y probá de nuevo — si tenés poca señal, intentá donde tengas mejor cobertura.'
+          : (err.message || 'Error al enviar la solicitud')
+      });
     } finally {
       setEnviando(false);
+      setPasoSubida('');
     }
   };
 
+  const handleSeleccionarDocumento = (e) => {
+    setFotoDocumento(e.target.files[0] || null);
+    setErrores(prev => ({ ...prev, fotoDocumento: undefined }));
+  };
+
+  const handleSeleccionarSelfie = (e) => {
+    setFotoSelfie(e.target.files[0] || null);
+    setErrores(prev => ({ ...prev, fotoSelfie: undefined }));
+  };
+
+  const formatearPeso = (bytes) => {
+    if (!bytes) return '';
+    const mb = bytes / (1024 * 1024);
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`;
+  };
+
+  const textoBoton = () => {
+    if (!enviando) return 'Enviar para revisión';
+    if (pasoSubida === 'documento') return 'Subiendo documento...';
+    if (pasoSubida === 'selfie') return 'Subiendo selfie...';
+    return 'Finalizando...';
+  };
+
   if (cargandoPlan || cargandoSolicitud) {
-    return <div className="verif-cargando">Cargando...</div>;
+    return (
+      <div className="verif-cargando">
+        <div className="verif-spinner"></div>
+        <p>Cargando...</p>
+      </div>
+    );
   }
 
   if (!tiene('requiere_validacion_identidad')) {
@@ -132,14 +172,16 @@ const SolicitudVerificacion = () => {
 
   return (
     <div className="verif-container">
-      <h2>
-        <span className="material-icons">verified</span>
-        Solicitar Badge Verificado
-      </h2>
-      <p className="verif-intro">
-        Subí tu documento y una selfie sosteniéndolo. Lo revisamos manualmente
-        antes de activar el tilde en tu perfil.
-      </p>
+      <div className="verif-header">
+        <span className="verif-header-icon material-icons">verified</span>
+        <div>
+          <h2>Solicitar Badge Verificado</h2>
+          <p className="verif-intro">
+            Subí tu documento y una selfie sosteniéndolo. Lo revisamos manualmente
+            antes de activar el tilde en tu perfil.
+          </p>
+        </div>
+      </div>
 
       {solicitud?.estado === 'rechazada' && (
         <div className="verif-rechazo-aviso">
@@ -154,42 +196,117 @@ const SolicitudVerificacion = () => {
 
       <form onSubmit={handleEnviar} className="verif-form">
         <div className="verif-group">
-          <label>Número de documento *</label>
+          <label htmlFor="verif-doc-numero">Número de documento</label>
           <input
+            id="verif-doc-numero"
             type="text"
             value={numeroDocumento}
             onChange={(e) => setNumeroDocumento(e.target.value)}
             placeholder="Ej: 30123456"
             className={errores.numeroDocumento ? 'input-error' : ''}
+            disabled={enviando}
           />
-          {errores.numeroDocumento && <p className="verif-error">{errores.numeroDocumento}</p>}
+          {errores.numeroDocumento && (
+            <p className="verif-error">
+              <span className="material-icons">error_outline</span>
+              {errores.numeroDocumento}
+            </p>
+          )}
         </div>
 
         <div className="verif-group">
-          <label>Foto de tu documento (frente) *</label>
+          <label>Foto de tu documento (frente)</label>
+          <button
+            type="button"
+            className={`verif-upload-btn ${fotoDocumento ? 'verif-upload-listo' : ''} ${errores.fotoDocumento ? 'verif-upload-error' : ''}`}
+            onClick={() => inputDocumentoRef.current?.click()}
+            disabled={enviando}
+          >
+            <span className="material-icons verif-upload-icon">
+              {fotoDocumento ? 'check_circle' : 'badge'}
+            </span>
+            <span className="verif-upload-texto">
+              {fotoDocumento ? (
+                <>
+                  <strong>{fotoDocumento.name}</strong>
+                  <span>{formatearPeso(fotoDocumento.size)} · Tocá para cambiar</span>
+                </>
+              ) : (
+                <>
+                  <strong>Seleccionar foto</strong>
+                  <span>JPG o PNG, hasta 8MB</span>
+                </>
+              )}
+            </span>
+            <span className="material-icons verif-upload-flecha">chevron_right</span>
+          </button>
           <input
+            ref={inputDocumentoRef}
             type="file"
             accept="image/*"
-            onChange={(e) => setFotoDocumento(e.target.files[0] || null)}
+            onChange={handleSeleccionarDocumento}
+            hidden
           />
-          {errores.fotoDocumento && <p className="verif-error">{errores.fotoDocumento}</p>}
+          {errores.fotoDocumento && (
+            <p className="verif-error">
+              <span className="material-icons">error_outline</span>
+              {errores.fotoDocumento}
+            </p>
+          )}
         </div>
 
         <div className="verif-group">
-          <label>Selfie sosteniendo el documento *</label>
+          <label>Selfie sosteniendo el documento</label>
           <p className="verif-hint">Que se vea tu cara y el documento, ambos legibles</p>
+          <button
+            type="button"
+            className={`verif-upload-btn ${fotoSelfie ? 'verif-upload-listo' : ''} ${errores.fotoSelfie ? 'verif-upload-error' : ''}`}
+            onClick={() => inputSelfieRef.current?.click()}
+            disabled={enviando}
+          >
+            <span className="material-icons verif-upload-icon">
+              {fotoSelfie ? 'check_circle' : 'photo_camera_front'}
+            </span>
+            <span className="verif-upload-texto">
+              {fotoSelfie ? (
+                <>
+                  <strong>{fotoSelfie.name}</strong>
+                  <span>{formatearPeso(fotoSelfie.size)} · Tocá para cambiar</span>
+                </>
+              ) : (
+                <>
+                  <strong>Seleccionar selfie</strong>
+                  <span>JPG o PNG, hasta 8MB</span>
+                </>
+              )}
+            </span>
+            <span className="material-icons verif-upload-flecha">chevron_right</span>
+          </button>
           <input
+            ref={inputSelfieRef}
             type="file"
             accept="image/*"
-            onChange={(e) => setFotoSelfie(e.target.files[0] || null)}
+            onChange={handleSeleccionarSelfie}
+            hidden
           />
-          {errores.fotoSelfie && <p className="verif-error">{errores.fotoSelfie}</p>}
+          {errores.fotoSelfie && (
+            <p className="verif-error">
+              <span className="material-icons">error_outline</span>
+              {errores.fotoSelfie}
+            </p>
+          )}
         </div>
 
-        {errores.general && <p className="verif-error verif-error-general">{errores.general}</p>}
+        {errores.general && (
+          <div className="verif-error-general">
+            <span className="material-icons">wifi_off</span>
+            <p>{errores.general}</p>
+          </div>
+        )}
 
         <button type="submit" className="verif-btn-enviar" disabled={enviando}>
-          {enviando ? 'Enviando...' : 'Enviar para revisión'}
+          {enviando && <span className="verif-btn-spinner"></span>}
+          {textoBoton()}
         </button>
       </form>
     </div>
