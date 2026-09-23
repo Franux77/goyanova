@@ -151,14 +151,8 @@ const Nosotros = () => {
               </div>
               <h2>¿Cómo empezó todo?</h2>
               <p>
-                Somos dos jóvenes de Goya de poco más de 20 años
-. El proyecto nació cuando Franco, apasionado del desarrollo técnico, se capacitó de forma autodidacta en programación y herramientas de IA, mientras que Maxi aportó el impulso clave para la organización y la estrategia comercial en las calles goyanas
-. No somos una multinacional ni una corporación gigante, pero justamente eso hace que GoyaNova sea especial: es una plataforma desarrollada a pulmón, con dedicación real y el genuino deseo de potenciar el trabajo en nuestra comunidad.
+                Franco es el creador de GoyaNova: se capacitó de forma autodidacta en programación y herramientas de IA, y durante 2023, 2024 y 2025 construyó solo toda la base técnica del proyecto. Este año, cuando la plataforma se lanzó, se sumaron Maxi y Claudia como socios. Maxi se encarga del feedback, el testeo constante de la app junto a Franco y Claudia, y el soporte serio, respondiendo consultas de la gente. Claudia aporta marketing, ideas, informes y el trato con las personas, con su experiencia laboral previa. Nos presentamos como equipo porque, gracias a los tres, la plataforma mejora cada semana — solo, esto no se podría sostener igual.
               </p>
-              {/* <p>
-                No soy un profesional con años de experiencia ni una empresa grande, pero justamente eso es lo que hace 
-                este proyecto especial: está hecho con dedicación, pasión y el genuino deseo de ayudar a mi comunidad.
-              </p> */}
             </div>
 
             <div className="story-card">
@@ -167,32 +161,18 @@ const Nosotros = () => {
               </div>
               <h2>¿Por qué GoyaNova?</h2>
               <p>
-                La idea surgió pensando en la vida cotidiana de nuestra ciudad. Si tenés ganas de comer churros, buscás 'churros' y listo: te aparecen al instante las opciones locales. Queríamos llevar ese tradicional 'boca a boca' goyano directamente a la pantalla del celular
-. Creamos un espacio donde todos los oficios, comercios y servicios independientes de Goya están en un solo lugar
-. El prestador publica su trabajo, el vecino o turista lo encuentra al instante y se comunican directo por WhatsApp de forma gratuita y libre de comisiones intermedias
-.
+                La idea surgió pensando en la vida cotidiana de nuestra ciudad. Si tenés ganas de comer churros, buscás 'churros' y listo: te aparecen al instante las opciones locales. Queríamos llevar ese tradicional 'boca a boca' goyano directamente a la pantalla del celular. Creamos un espacio donde todos los oficios, comercios y servicios independientes de Goya están en un solo lugar. El prestador publica su trabajo, el vecino o turista lo encuentra al instante y se comunican directo por WhatsApp de forma gratuita y libre de comisiones intermedias.
               </p>
-              {/* <p>
-                Quería crear algo 100% goyano, donde toda la información esté en un solo lugar y la conexión sea instantánea. 
-                Un emprendedor publica su servicio, la gente lo encuentra fácilmente, y se contactan directo. Así de simple.
-              </p> */}
             </div>
 
             <div className="story-card">
               <div className="story-icon-wrapper">
                 <span className="material-icons">rocket_launch</span>
               </div>
-              <h2>Mi visión del proyecto</h2>
+              <h2>Nuestra visión</h2>
               <p>
-                GoyaNova es nuestro primer gran desarrollo tecnológico y asumimos el compromiso de mejorarlo día a día
-. Creemos firmemente en el poder de la tecnología para innovar y facilitarle la vida a los vecinos de nuestra ciudad
-. Nuestro objetivo es que cualquier persona encuentre lo que necesita de forma rápida y directa, transformándose en la herramienta de referencia para Goya y ayudando a los trabajadores locales a tener la visibilidad digital que merecen
-.
+                GoyaNova es nuestro primer gran desarrollo tecnológico y asumimos el compromiso de mejorarlo día a día. Creemos firmemente en el poder de la tecnología para innovar y facilitarle la vida a los vecinos de nuestra ciudad. Nuestro objetivo es que cualquier persona encuentre lo que necesita de forma rápida y directa, transformándose en la herramienta de referencia para Goya y ayudando a los trabajadores locales a tener la visibilidad digital que merecen.
               </p>
-              {/* <p>
-                Mi objetivo es que cualquier persona pueda encontrar lo que necesita de forma rápida y directa, ya sea lo que necesite (es más natural, servicios/productos ya está implícito) Y de paso, ayudar a emprendedores locales a tener más visibilidad sin costos 
-                excesivos.
-              </p> */}
             </div>
           </div>
         </section>
@@ -256,15 +236,23 @@ const Nosotros = () => {
               <div className="timeline-dot"></div>
               <div className="timeline-content">
                 <h3>Finales de 2024 - Nace la Idea</h3>
-                <p>Con la experiencia de programación consolidada y detectando la desconexión que existía en el ecosistema local, decidimos unir fuerzas con Maxi para crear algo mucho más grande: una plataforma integral y 100% goyana que conecte directamente a los vecinos con los servicios, comercios y oficios de la ciudad.</p>
+                <p>Con la experiencia de programación consolidada y detectando la desconexión que existía en el ecosistema local, Franco decidió crear algo mucho más grande: una plataforma integral y 100% goyana que conecte directamente a los vecinos con los servicios, comercios y oficios de la ciudad.</p>
+              </div>
+            </div>
+
+            <div className="timeline-item">
+              <div className="timeline-dot"></div>
+              <div className="timeline-content">
+                <h3>2025 - Consolidando la base</h3>
+                <p>Franco siguió construyendo y puliendo la plataforma en solitario, sentando las bases técnicas sobre las que hoy funciona todo GoyaNova.</p>
               </div>
             </div>
 
             <div className="timeline-item">
               <div className="timeline-dot active"></div>
               <div className="timeline-content">
-                <h3>2025 - GoyaNova en Marcha</h3>
-                <p>La plataforma hoy ya es una realidad en funcionamiento y constante evolución. Seguimos optimizando el código, mejorando la velocidad de los servidores de Netlify y Supabase, y escuchando con atención el feedback de cada trabajador y vecino de Goya para incorporar mejoras semana tras semana.</p>
+                <h3>2026 - Se suma el equipo y GoyaNova se lanza</h3>
+                <p>Maxi y Claudia se suman como socios, y GoyaNova se lanza al público. Hoy la plataforma es una realidad en funcionamiento y constante evolución: seguimos optimizando el código, mejorando la velocidad de los servidores de Netlify y Supabase, y escuchando con atención el feedback de cada trabajador y vecino de Goya para incorporar mejoras semana tras semana.</p>
               </div>
             </div>
           </div>

@@ -491,7 +491,15 @@ const ExplorarMapa = () => {
             showCoverageOnHover={false}
             spiderfyOnMaxZoom
             zoomToBoundsOnClick
-            maxClusterRadius={zoomLevel < 13 ? 5 : zoomLevel < 15 ? 5 : 20}
+            maxClusterRadius={(mapZoom) => {
+              // Agrupa solo si están a ~8 metros reales entre sí (misma casa/local),
+              // sin importar el zoom: convertimos esos metros a píxeles según el zoom actual.
+              const METROS_MISMA_CASA = 8; // entre 5 y 10 metros
+              const LAT_GOYA = -29.1407;
+              const metrosPorPixel =
+                (156543.03392 * Math.cos((LAT_GOYA * Math.PI) / 180)) / Math.pow(2, mapZoom);
+              return Math.max(1, METROS_MISMA_CASA / metrosPorPixel);
+            }}
             iconCreateFunction={cluster => {
               const count = cluster.getChildCount();
               const baseSize = 36;

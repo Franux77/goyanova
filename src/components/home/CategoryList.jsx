@@ -306,7 +306,8 @@ const CategoryList = ({ type, onSelectCategory }) => {
                   />
                   {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
                     <div className="category-badge">
-                      {cat.serviciosCoincidentes} {cat.serviciosCoincidentes === 1 ? type : `${type}s`}
+                      {cat.serviciosCoincidentes} {type === 'servicio' ? 'oficio' : 'negocio'}
+                      {cat.serviciosCoincidentes === 1 ? '' : 's'}
                     </div>
                   )}
                 </div>

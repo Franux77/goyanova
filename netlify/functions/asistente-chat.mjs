@@ -1,7 +1,7 @@
 // netlify/functions/asistente-chat.mjs
 
 const CONOCIMIENTO_GOYANOVA = `
-Respondé siempre en español rioplatense, de forma breve, clara y amigable. NUNCA uses markdown (nada de asteriscos, negritas ni formato especial) — escribí todo como texto plano, simple. No inventes funciones, precios ni plazos que no figuran acá. No sabés la fecha ni la hora actual — si preguntan, decí que no tenés acceso a esa info y sugerí que miren el reloj del celular. Si no sabés algo, decilo con honestidad y sugerí contactar por WhatsApp al https://wa.me/5493777599800 o desde la sección Contacto en la plataforma.
+Respondé siempre en español rioplatense, de forma breve, clara y amigable. Tus respuestas deben ser cortas: como máximo 5-6 oraciones o unas 120 palabras, salvo que la persona pida explícitamente más detalle (ej: "explicame todos los pasos"). Si el tema tiene muchas partes, resumí lo esencial primero y ofrecé seguir contando si quiere. NUNCA uses markdown (nada de asteriscos, negritas ni formato especial) — escribí todo como texto plano, simple. No inventes funciones, precios ni plazos que no figuran acá. No sabés la fecha ni la hora actual — si preguntan, decí que no tenés acceso a esa info y sugerí que miren el reloj del celular. Si no sabés algo, decilo con honestidad y sugerí contactar por WhatsApp al https://wa.me/5493777599800 o desde la sección Contacto en la plataforma.
 
 ## Qué es GoyaNova
 Un directorio/marketplace 100% goyano donde profesionales, comercios y emprendedores publican sus servicios u productos para que los vecinos los encuentren fácil. El contacto es directo por WhatsApp, sin intermediarios ni comisiones. Es gratuito para todos los usuarios; existen membresías premium opcionales para destacar servicios.
@@ -89,7 +89,7 @@ En el perfil del servicio, tocar el menú de opciones (3 puntos) → "Reportar".
 - No recibo notificaciones: revisar la sección de notificaciones en el panel; las notificaciones solo aparecen dentro de la app web, no por push ni email.
 
 ## Sobre GoyaNova como proyecto
-GoyaNova fue creado por Franco y Maxi, dos jóvenes de Goya de poco más de 20 años. Franco se formó de forma autodidacta en programación y herramientas de IA; Maxi aportó la organización y estrategia comercial. La idea nació a fines de 2024 para conectar a la gente de Goya de forma directa, llevando el tradicional "boca a boca" goyano a la pantalla del celular. Sus valores: conexión directa por WhatsApp, modelo "cero comisiones" (el prestador se queda con el 100% de lo cobrado), identidad 100% goyana, y una plataforma liviana y gratuita para todos.
+GoyaNova fue creada por Franco, quien se formó de forma autodidacta en programación e IA y construyó solo toda la base técnica del proyecto entre 2023 y 2025. En 2026, cuando la plataforma se lanzó al público, se sumaron Maxi y Claudia como socios: Maxi se encarga del feedback, el testeo de la app y el soporte serio (responde consultas de la gente); Claudia aporta marketing, ideas, informes y el trato con las personas. Se presentan como equipo, ya que entre los tres sostienen y mejoran la plataforma semana a semana. La idea nació a fines de 2024 para conectar a la gente de Goya de forma directa, llevando el tradicional "boca a boca" goyano a la pantalla del celular. Sus valores: conexión directa por WhatsApp, modelo "cero comisiones" (el prestador se queda con el 100% de lo cobrado), identidad 100% goyana, y una plataforma liviana y gratuita para todos.
 `;
 
 export default async (req) => {
@@ -111,16 +111,41 @@ export default async (req) => {
     }));
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GOYANOVA_GEMINI_KEY}`;
-
-    const respuesta = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: CONOCIMIENTO_GOYANOVA }] },
-        contents: contenidosGemini,
-        generationConfig: { maxOutputTokens: 1000 }
-      })
+    const cuerpoPedido = JSON.stringify({
+      systemInstruction: { parts: [{ text: CONOCIMIENTO_GOYANOVA }] },
+      contents: contenidosGemini,
+      generationConfig: { maxOutputTokens: 1000 }
     });
+
+    const llamarGemini = async () => {
+      const controlador = new AbortController();
+      const corteTimeout = setTimeout(() => controlador.abort(), 12000); // corta a los 12s, no espera los 30s del timeout de Netlify
+
+      try {
+        return await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: cuerpoPedido,
+          signal: controlador.signal
+        });
+      } finally {
+        clearTimeout(corteTimeout);
+      }
+    };
+
+    let respuesta;
+    try {
+      respuesta = await llamarGemini();
+
+      // Si Google está saturado (503), esperamos 1 segundo y probamos una vez más
+      if (respuesta.status === 503) {
+        await new Promise(r => setTimeout(r, 1000));
+        respuesta = await llamarGemini();
+      }
+    } catch (errFetch) {
+      console.error('Error de red/timeout llamando a Gemini:', errFetch.message);
+      return new Response(JSON.stringify({ error: 'Error al generar respuesta' }), { status: 500 });
+    }
 
     if (!respuesta.ok) {
       const errorTexto = await respuesta.text();
@@ -134,8 +159,15 @@ export default async (req) => {
     }
 
     const data = await respuesta.json();
-    const textoRespuesta = data.candidates?.[0]?.content?.parts?.[0]?.text
+    const candidato = data.candidates?.[0];
+    let textoRespuesta = candidato?.content?.parts?.[0]?.text
       || 'No pude generar una respuesta, intentá de nuevo.';
+
+    // Si Google cortó la respuesta a la fuerza por llegar al límite de tokens,
+    // avisamos en vez de mostrar un texto trunco sin aclarar nada.
+    if (candidato?.finishReason === 'MAX_TOKENS') {
+      textoRespuesta += '\n\n(Se cortó la respuesta por ser muy larga — preguntame algo más puntual y te respondo mejor.)';
+    }
 
     return new Response(JSON.stringify({ respuesta: textoRespuesta }), {
       status: 200,

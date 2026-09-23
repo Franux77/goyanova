@@ -4,12 +4,12 @@ import './EnviarRecomendacion.css';
 
 const NETLIFY_EMAIL_URL = '/.netlify/functions/enviar-email';
 
-// 🧪 MODO PRUEBA — mientras esto esté en `true`, el botón NO le manda a los
-// usuarios reales: solo a los 2 emails de acá abajo. Poné 2 direcciones
-// reales tuyas para probar. Cuando termines de probar y quieras que el
-// botón funcione de verdad para todos, cambiá MODO_PRUEBA a false.
-const MODO_PRUEBA = false;
-const EMAILS_DE_PRUEBA = [];
+// 🧪 Prueba puntual: mientras esto esté en `true`, el envío usa el flujo
+// 100% real y definitivo (misma plantilla, mismas funciones) pero
+// reemplaza la lista de destinatarios por solo tu email. Poné SOLO_A_MI en
+// false cuando quieras que el botón le llegue de verdad a todos los usuarios.
+const SOLO_A_MI = false;
+const MI_EMAIL_DE_PRUEBA = { email: '12torresfranco@gmail.com', nombre: 'Franco' };
 
 // Traduce errores técnicos a mensajes claros para quien use el botón.
 const interpretarError = (err) => {
@@ -34,12 +34,12 @@ const EnviarRecomendacion = ({ servicioId, nombreServicio }) => {
   const [resultado, setResultado] = useState(null);
 
   const handleEnviar = async () => {
-    const avisoPrueba = MODO_PRUEBA
+    const avisoPrueba = SOLO_A_MI
       ? '\n\n🧪 MODO PRUEBA ACTIVO: solo se va a enviar a 2 emails de prueba, NO a los usuarios reales.'
       : '';
 
     if (!window.confirm(
-      `Se va a enviar un email recomendando "${nombreServicio}" ${MODO_PRUEBA ? 'a 2 emails de prueba' : 'a todos los usuarios de GoyaNova'}. ${MODO_PRUEBA ? '' : 'Solo podés hacer esto una vez por mes. '}¿Confirmás?${avisoPrueba}`
+      `Se va a enviar un email recomendando "${nombreServicio}" ${SOLO_A_MI ? 'SOLO a tu correo de prueba' : 'a todos los usuarios de GoyaNova'}. ${SOLO_A_MI ? '' : 'Solo podés hacer esto una vez por mes. '}¿Confirmás?${avisoPrueba}`
     )) return;
 
     setResultado(null);
@@ -56,8 +56,8 @@ const EnviarRecomendacion = ({ servicioId, nombreServicio }) => {
       const envioId = inicio.envio_id;
 
       let lista;
-      if (MODO_PRUEBA) {
-        lista = EMAILS_DE_PRUEBA;
+      if (SOLO_A_MI) {
+        lista = [MI_EMAIL_DE_PRUEBA];
       } else {
         const { data: destinatarios, error: errorDest } = await supabase.rpc(
           'listar_destinatarios_recomendacion',
@@ -153,7 +153,7 @@ const EnviarRecomendacion = ({ servicioId, nombreServicio }) => {
 
   return (
     <div className="enviarecom-container">
-      {MODO_PRUEBA && (
+      {SOLO_A_MI && (
         <p className="enviarecom-modo-prueba">
           <span className="material-icons">science</span>
           Modo prueba activo: solo se enviará a 2 direcciones de prueba
@@ -170,7 +170,7 @@ const EnviarRecomendacion = ({ servicioId, nombreServicio }) => {
           ? progreso
             ? `Enviando ${progreso.actual}/${progreso.total}...`
             : 'Preparando...'
-          : (MODO_PRUEBA ? 'Probar envío (2 destinatarios)' : 'Recomendar por email a todos')}
+          : (SOLO_A_MI ? 'Probar envío (solo a mí)' : 'Recomendar por email a todos')}
       </button>
 
       <p className="enviarecom-nota">Disponible una vez por mes</p>

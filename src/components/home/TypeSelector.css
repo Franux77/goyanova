@@ -1,28 +1,72 @@
 .type-selector {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 320px;
+  margin: 0 auto 1.5rem;
+  background: #e2e8f0;
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.type-selector-pill {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: linear-gradient(135deg, #1774f6, #0d5bbf);
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(23, 116, 246, 0.35);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.type-selector-pill.pill-derecha {
+  transform: translateX(100%);
 }
 
 .type-selector button {
-  padding: 0.6rem 1.5rem;
-  border: 1px solid #0077ff;
-  border-radius: 6px;
-  background-color: white;
-  color: #0077ff;
-  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
   cursor: pointer;
-  transition: 0.2s;
-  font-size: 1.2rem;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+
+.type-selector button .material-icons {
+  font-size: 1.05rem;
 }
 
 .type-selector button.active {
-  background-color: #0077ff;
-  color: white;
+  color: #ffffff;
 }
 
-.type-selector button:hover {
-  background-color: #005fcc;
-  color: white;
+@media (max-width: 480px) {
+  .type-selector {
+    max-width: 280px;
+  }
+
+  .type-selector button {
+    font-size: 0.82rem;
+    padding: 9px 8px;
+    gap: 4px;
+  }
+
+  .type-selector button .material-icons {
+    font-size: 0.95rem;
+  }
 }
