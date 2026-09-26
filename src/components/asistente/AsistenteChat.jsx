@@ -25,7 +25,26 @@ const MENSAJE_BIENVENIDA = {
 };
 
 const MARGEN = 16;
-const TAMANO_BOTON = 58;
+const TAMANO_BOTON = 50;
+const ZONA_CERRAR_ALTO = 70;
+const ZONA_CERRAR_ANCHO = 160;
+
+// Se resetea al recargar la página, pero sobrevive a navegar entre rutas (el componente se desmonta fuera del Inicio)
+let ocultoEnEstaCarga = false;
+
+const limitarAPantalla = ({ top, left }) => ({
+  top: Math.min(Math.max(top, MARGEN), window.innerHeight - TAMANO_BOTON - MARGEN),
+  left: Math.min(Math.max(left, MARGEN), window.innerWidth - TAMANO_BOTON - MARGEN)
+});
+
+const dentroDeZonaCerrar = (clientX, clientY) => {
+  const centro = window.innerWidth / 2;
+  return (
+    clientY > window.innerHeight - ZONA_CERRAR_ALTO &&
+    clientX > centro - ZONA_CERRAR_ANCHO / 2 &&
+    clientX < centro + ZONA_CERRAR_ANCHO / 2
+  );
+};
 
 const escaparHtml = (texto) =>
   texto
@@ -43,6 +62,9 @@ const formatearMensaje = (texto) =>
 
 const AsistenteChat = () => {
   const [abierto, setAbierto] = useState(false);
+  const [ocultoPorUsuario, setOcultoPorUsuario] = useState(ocultoEnEstaCarga);
+  const [mostrandoZonaCerrar, setMostrandoZonaCerrar] = useState(false);
+  const [sobreZonaCerrar, setSobreZonaCerrar] = useState(false);
   const [mensajes, setMensajes] = useState([MENSAJE_BIENVENIDA]);
   const [texto, setTexto] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -52,14 +74,30 @@ const AsistenteChat = () => {
   const [pos, setPos] = useState(() => {
     const guardada = localStorage.getItem('asistente_pos');
     if (guardada) {
-      try { return JSON.parse(guardada); } catch { /* ignorar */ }
+      try {
+        const p = JSON.parse(guardada);
+        // Compatibilidad con el formato viejo {lado, top} → lo convertimos a {top, left}
+        if (p.lado) {
+          const left = p.lado === 'right'
+            ? window.innerWidth - TAMANO_BOTON - MARGEN
+            : MARGEN;
+          return limitarAPantalla({ top: p.top, left });
+        }
+        // Se limita por si la ventana ahora es más chica que cuando se guardó
+        return limitarAPantalla(p);
+      } catch { /* ignorar */ }
     }
-    return { lado: 'right', top: window.innerHeight - TAMANO_BOTON - MARGEN * 2 };
+    return {
+      top: window.innerHeight - TAMANO_BOTON - MARGEN * 2,
+      left: window.innerWidth - TAMANO_BOTON - MARGEN
+    };
   });
 
   const arrastrando = useRef(false);
   const movioSeDeVerdad = useRef(false);
   const offsetInicial = useRef({ x: 0, y: 0 });
+  // Ref además del estado: los listeners de window se registran una sola vez y leerían un estado viejo
+  const sobreZonaCerrarRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,20 +114,31 @@ const AsistenteChat = () => {
     if (!arrastrando.current) return;
     movioSeDeVerdad.current = true;
 
-    const nuevoTop = Math.min(
-      Math.max(clientY - offsetInicial.current.y, MARGEN),
-      window.innerHeight - TAMANO_BOTON - MARGEN
-    );
-    const nuevoLeft = clientX - offsetInicial.current.x;
-    const mitad = window.innerWidth / 2;
-    const lado = nuevoLeft < mitad ? 'left' : 'right';
+    // Recién se muestra al arrastrar, así un simple clic no la hace parpadear
+    setMostrandoZonaCerrar(true);
+    const sobreZona = dentroDeZonaCerrar(clientX, clientY);
+    sobreZonaCerrarRef.current = sobreZona;
+    setSobreZonaCerrar(sobreZona);
 
-    setPos({ lado, top: nuevoTop });
+    setPos(limitarAPantalla({
+      top: clientY - offsetInicial.current.y,
+      left: clientX - offsetInicial.current.x
+    }));
   };
 
   const terminarArrastre = () => {
     if (!arrastrando.current) return;
     arrastrando.current = false;
+    setMostrandoZonaCerrar(false);
+    setSobreZonaCerrar(false);
+
+    if (sobreZonaCerrarRef.current) {
+      sobreZonaCerrarRef.current = false;
+      ocultoEnEstaCarga = true;
+      setOcultoPorUsuario(true);
+      return;
+    }
+
     setPos(prev => {
       localStorage.setItem('asistente_pos', JSON.stringify(prev));
       return prev;
@@ -175,31 +224,44 @@ const AsistenteChat = () => {
 
   const estiloBoton = {
     top: pos.top,
-    [pos.lado]: MARGEN
+    left: pos.left
   };
+
+  // El panel se ancla abajo, del mismo lado de la pantalla donde quedó el botón
+  const ladoPanel = pos.left < window.innerWidth / 2 ? 'left' : 'right';
 
   const estiloPanel = {
     bottom: MARGEN,
-    [pos.lado]: MARGEN
+    [ladoPanel]: MARGEN
   };
 
   return (
     <>
-      <button
-        ref={botonRef}
-        className={`asistente-fab ${abierto ? 'oculto' : ''}`}
-        style={estiloBoton}
-        onMouseDown={(e) => iniciarArrastre(e.clientX, e.clientY)}
-        onTouchStart={(e) => {
-          const t = e.touches[0];
-          if (t) iniciarArrastre(t.clientX, t.clientY);
-        }}
-        onClick={handleClickBoton}
-        aria-label="Abrir asistente"
-      >
-                <IconoAsistente tamano={52} />
-        <span className="asistente-fab-online"></span>
-      </button>
+      {!ocultoPorUsuario && (
+        <div className="asistente-fab-wrapper" style={estiloBoton}>
+          <button
+            ref={botonRef}
+            className={`asistente-fab ${abierto ? 'oculto' : ''}`}
+            onMouseDown={(e) => iniciarArrastre(e.clientX, e.clientY)}
+            onTouchStart={(e) => {
+              const t = e.touches[0];
+              if (t) iniciarArrastre(t.clientX, t.clientY);
+            }}
+            onClick={handleClickBoton}
+            aria-label="Abrir asistente"
+          >
+            <IconoAsistente tamano={38} />
+            <span className="asistente-fab-online"></span>
+          </button>
+        </div>
+      )}
+
+      {mostrandoZonaCerrar && (
+        <div className={`asistente-zona-cerrar ${sobreZonaCerrar ? 'activa' : ''}`}>
+          <span className="material-icons">close</span>
+          Soltar para ocultar
+        </div>
+      )}
 
       {abierto && (
         <div className="asistente-panel" style={estiloPanel}>

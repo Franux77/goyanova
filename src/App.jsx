@@ -143,7 +143,7 @@ const AppContent = () => {
   return (
     <>
       <InstallPWAModal />
-      <AsistenteChat />
+      {isHome && <AsistenteChat />}
       
       {/* 🆕 BANNER UPGRADE arriba de todo */}
       {isHome && <BannerUpgrade user={user} />}
