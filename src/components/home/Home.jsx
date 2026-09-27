@@ -185,6 +185,17 @@ const Home = () => {
       
       window.history.replaceState({}, document.title);
     }
+
+    if (location.state?.scrollToCategorias) {
+      setTimeout(() => {
+        const categoriasSection = document.getElementById('categorias');
+        if (categoriasSection) {
+          categoriasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 400);
+
+      window.history.replaceState({}, document.title);
+    }
   }, [location.state]);
 
   const handleSelectCategory = (category) => {

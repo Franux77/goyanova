@@ -234,12 +234,68 @@ html, body {
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .navbar-container {
-    padding: 1rem 1.25rem;
+  /* Header mobile: reemplaza el blanco plano por un degradé celeste sutil
+     y muy lento, con un brillo difuso flotando detrás del logo — minimalista,
+     sin distraer, solo para que no se sienta un bloque blanco vacío. */
+  .navbar {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(120deg, #eef5ff 0%, #ffffff 45%, #e9f2ff 100%);
+    background-size: 200% 200%;
+    animation: navbarGradientShift 14s ease-in-out infinite;
   }
 
+  .navbar::before {
+    content: '';
+    position: absolute;
+    top: -55px;
+    right: -30px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(23, 116, 246, 0.16) 0%, rgba(23, 116, 246, 0) 70%);
+    pointer-events: none;
+    animation: navbarGlowFloat 9s ease-in-out infinite;
+  }
+
+  @keyframes navbarGradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes navbarGlowFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-12px, 12px) scale(1.15); }
+  }
+
+  .navbar-container {
+    padding: 0.6rem 1.25rem;
+    justify-content: center;
+  }
+
+  /* El hamburguesa y el menú lateral quedan reemplazados por el bottom-nav
+     de abajo — se ocultan en mobile, sin borrar el código por si hace falta
+     volver atrás. */
   .hamburger {
+    display: none !important;
+  }
+
+  .bottom-nav-publico {
     display: flex;
+  }
+
+  /* Logo centrado: imagen arriba, nombre debajo, sin el menú hamburguesa */
+  .navbar-logo {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .navbar-logo-img {
+    height: 34px;
+  }
+
+  .navbar-logo-text {
+    font-size: 1rem;
   }
 
   /* Ocultar auth desktop */

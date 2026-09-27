@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { supabase } from '../../utils/supabaseClient';
 import './AsistenteChat.css';
 
 const IconoAsistente = ({ tamano = 40 }) => (
@@ -75,6 +76,9 @@ const AsistenteChat = () => {
   const [mensajes, setMensajes] = useState([MENSAJE_BIENVENIDA]);
   const [texto, setTexto] = useState('');
   const [cargando, setCargando] = useState(false);
+  // Valoración (1 a 5 estrellas) por cada respuesta del asistente, guardada por índice de mensaje.
+  // Es opcional y silenciosa: no se le pregunta nada por texto, solo puede tocar una estrella si quiere.
+  const [valoraciones, setValoraciones] = useState({});
   const scrollRef = useRef(null);
   const botonRef = useRef(null);
 
@@ -227,6 +231,23 @@ const AsistenteChat = () => {
     }
   };
 
+  const valorarRespuesta = async (indice, estrellas) => {
+    if (valoraciones[indice]) return; // ya se calificó esta respuesta, no se puede cambiar
+    setValoraciones(prev => ({ ...prev, [indice]: estrellas }));
+
+    try {
+      const mensajeAsistente = mensajes[indice]?.content || '';
+      const mensajeUsuarioPrevio = [...mensajes.slice(0, indice)].reverse().find(m => m.role === 'user')?.content || '';
+      await supabase.from('asistente_valoraciones').insert({
+        pregunta: mensajeUsuarioPrevio.slice(0, 2000) || null,
+        respuesta: mensajeAsistente.slice(0, 2000) || null,
+        valoracion: estrellas
+      });
+    } catch {
+      // Silencioso: si falla el guardado de la valoración no afecta la conversación.
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -292,11 +313,35 @@ const AsistenteChat = () => {
 
           <div className="asistente-mensajes">
             {mensajes.map((m, i) => (
-              <div
-                key={i}
-                className={`asistente-burbuja ${m.role}`}
-                dangerouslySetInnerHTML={{ __html: formatearMensaje(m.content) }}
-              />
+              <React.Fragment key={i}>
+                <div
+                  className={`asistente-burbuja ${m.role}`}
+                  dangerouslySetInnerHTML={{ __html: formatearMensaje(m.content) }}
+                />
+                {m.role === 'assistant' && i > 0 && (
+                  <div className="asistente-valoracion">
+                    {valoraciones[i] ? (
+                      <span className="asistente-valoracion-gracias">
+                        <span className="material-icons">favorite</span>
+                        ¡Gracias por tu opinión!
+                      </span>
+                    ) : (
+                      [1, 2, 3, 4, 5].map(estrella => (
+                        <button
+                          key={estrella}
+                          type="button"
+                          className="asistente-valoracion-estrella"
+                          onClick={() => valorarRespuesta(i, estrella)}
+                          aria-label={`Calificar con ${estrella} estrella${estrella > 1 ? 's' : ''}`}
+                          title="¿Qué te pareció esta respuesta?"
+                        >
+                          <span className="material-icons">star</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </React.Fragment>
             ))}
             {cargando && (
               <div className="asistente-burbuja assistant asistente-escribiendo">

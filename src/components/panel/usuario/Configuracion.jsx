@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../auth/AuthContext';
 import { supabase } from '../../../utils/supabaseClient';
 
 import './Configuracion.css';
 
 const Configuracion = () => {
-  const { user, perfil, signOut, cargarPerfil } = useContext(AuthContext);
-  
+  const { user, perfil, signOut } = useContext(AuthContext);
+
   const [form, setForm] = useState({
-    nombre: '',
-    apellido: '',
     email: '',
-    telefono: '',
     nuevaPass: '',
     confirmarPass: '',
   });
@@ -26,14 +24,10 @@ const Configuracion = () => {
   // ============================================
   useEffect(() => {
     if (perfil) {
-      setForm({
-        nombre: perfil.nombre || '',
-        apellido: perfil.apellido || '',
+      setForm(prev => ({
+        ...prev,
         email: perfil.email || user?.email || '',
-        telefono: perfil.telefono || '',
-        nuevaPass: '',
-        confirmarPass: '',
-      });
+      }));
     } else if (user) {
       setForm(prev => ({
         ...prev,
@@ -50,47 +44,6 @@ const Configuracion = () => {
   const mostrarMensaje = (tipo, texto, duracion = 5000) => {
     setMensaje({ tipo, texto });
     setTimeout(() => setMensaje({ tipo: '', texto: '' }), duracion);
-  };
-
-  // ============================================
-  // 💾 GUARDAR DATOS PERSONALES
-  // ============================================
-  const handleGuardarDatos = async () => {
-    if (!user?.id) {
-      mostrarMensaje('error', 'No hay sesión activa');
-      return;
-    }
-
-    const nombreLimpio = form.nombre.trim();
-    if (!nombreLimpio || nombreLimpio.length < 2) {
-      mostrarMensaje('error', 'El nombre debe tener al menos 2 caracteres');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase
-        .from('perfiles_usuarios')
-        .update({
-          nombre: nombreLimpio,
-          apellido: form.apellido.trim(),
-          telefono: form.telefono.trim(),
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      // Recargar el perfil en el contexto
-      await cargarPerfil(user.id);
-
-      mostrarMensaje('success', '✅ Datos guardados correctamente');
-    } catch (error) {
-      console.error('Error guardando datos:', error);
-      mostrarMensaje('error', '❌ Error al guardar los datos: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   // ============================================
@@ -254,7 +207,8 @@ const handleEliminarCuenta = async () => {
       {/* Grid de Cards */}
       <div className="cfg-grid-layout">
         
-        {/* INFORMACIÓN PERSONAL */}
+        {/* DATOS PERSONALES — ahora se editan solo en "Mi Perfil" para no
+            duplicar el mismo formulario en dos pantallas distintas */}
         <div className="cfg-card">
           <div className="cfg-card-header">
             <div className="cfg-header-left">
@@ -262,78 +216,21 @@ const handleEliminarCuenta = async () => {
                 <span className="material-icons">person</span>
               </div>
               <div>
-                <h2 className="cfg-card-title">Información Personal</h2>
-                <p className="cfg-card-desc">Actualiza tus datos de contacto</p>
+                <h2 className="cfg-card-title">Datos Personales</h2>
+                <p className="cfg-card-desc">Nombre, teléfono, foto y demás datos de contacto</p>
               </div>
             </div>
           </div>
 
           <div className="cfg-card-body">
-            <div className="cfg-form-row">
-              <div className="cfg-input-group">
-                <label className="cfg-label">
-                  Nombre <span className="cfg-asterisk">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  name="nombre" 
-                  value={form.nombre} 
-                  onChange={handleChange}
-                  className="cfg-input"
-                  placeholder="Tu nombre"
-                />
-              </div>
-
-              <div className="cfg-input-group">
-                <label className="cfg-label">Apellido</label>
-                <input 
-                  type="text" 
-                  name="apellido" 
-                  value={form.apellido} 
-                  onChange={handleChange}
-                  className="cfg-input"
-                  placeholder="Tu apellido"
-                />
-              </div>
+            <div className="cfg-info-box">
+              <span className="material-icons cfg-info-icon">info</span>
+              <p>Tu nombre, apellido, teléfono, edad y foto se editan desde "Mi Perfil".</p>
             </div>
-
-            <div className="cfg-form-row">
-              <div className="cfg-input-group">
-                <label className="cfg-label">
-                  Correo Electrónico <span className="cfg-asterisk">*</span>
-                </label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={form.email} 
-                  className="cfg-input"
-                  disabled
-                  style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
-                  title="El email no se puede modificar"
-                />
-              </div>
-
-              <div className="cfg-input-group">
-                <label className="cfg-label">Teléfono</label>
-                <input 
-                  type="tel" 
-                  name="telefono" 
-                  value={form.telefono} 
-                  onChange={handleChange}
-                  className="cfg-input"
-                  placeholder="3794123456"
-                />
-              </div>
-            </div>
-
-            <button 
-              className="cfg-btn cfg-btn-primary" 
-              onClick={handleGuardarDatos}
-              disabled={loading}
-            >
-              <span className="material-icons cfg-btn-icon">save</span>
-              <span>{loading ? 'Guardando...' : 'Guardar Cambios'}</span>
-            </button>
+            <Link to="/panel/perfil" className="cfg-btn cfg-btn-primary">
+              <span className="material-icons cfg-btn-icon">person</span>
+              <span>Ir a Mi Perfil</span>
+            </Link>
           </div>
         </div>
 

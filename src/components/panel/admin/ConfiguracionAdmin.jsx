@@ -8,12 +8,12 @@ import Loading from '../../loading/Loading';
 const ConfiguracionAdmin = () => {
   const { user, signOut } = useAuth();
   const { config, activarMantenimiento, desactivarMantenimiento, loading: loadingConfig } = useMantenimiento(user?.id);
-  
+
   const [perfil, setPerfil] = useState(null);
   const [loadingPerfil, setLoadingPerfil] = useState(true);
   const [modoOscuro, setModoOscuro] = useState(false);
   const [notificacionesActivas, setNotificacionesActivas] = useState(true);
-  
+
   // Cambio de contraseña
   const [claveActual, setClaveActual] = useState('');
   const [claveNueva, setClaveNueva] = useState('');

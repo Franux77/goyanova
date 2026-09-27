@@ -1,27 +1,141 @@
+/* Marco exterior: borde con gradiente animado + aparición suave al cargar.
+   Fallback (navegadores sin @property): el gradiente diagonal de siempre, desplazándose.
+   Navegadores modernos: un conic-gradient que gira 360° alrededor de todo el marco,
+   como el borde animado de "Gemini/Google AI" — se ve recorriendo el borde, no fijo. */
+.mapa-home-marco {
+  position: relative;
+  display: block;
+  width: 100%;
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  border-radius: 19px;
+  padding: 3px;
+  background: linear-gradient(120deg, #1774f6, #74b0ff, #0d5abf, #1774f6);
+  background-size: 300% 300%;
+  animation: mapaHomeAparecer 0.8s cubic-bezier(0.22, 1, 0.36, 1) both,
+             mapaHomeBorde 7s ease infinite;
+  box-shadow: 0 12px 32px rgba(23, 116, 246, 0.22);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+@property --mapaHomeAngulo {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@supports (background: conic-gradient(from var(--mapaHomeAngulo), red, blue)) {
+  .mapa-home-marco {
+    background: conic-gradient(
+      from var(--mapaHomeAngulo),
+      #1774f6,
+      #74b0ff,
+      #ffffff,
+      #0d5abf,
+      #1774f6,
+      #74b0ff,
+      #1774f6
+    );
+    animation: mapaHomeAparecer 0.8s cubic-bezier(0.22, 1, 0.36, 1) both,
+               mapaHomeGiroBorde 4.5s linear infinite;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mapa-home-marco:hover {
+    transform: translateY(-2px) scale(1.008);
+    box-shadow: 0 18px 40px rgba(23, 116, 246, 0.32);
+  }
+}
+
+@keyframes mapaHomeAparecer {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mapaHomeBorde {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes mapaHomeGiroBorde {
+  to { --mapaHomeAngulo: 360deg; }
+}
+
 .mapa-home-container {
   position: relative;
   width: 100%;
   height: 250px;
   margin: 0;
-  border-radius: 15px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.388);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #fff;
-  transition: width 0.3s ease, height 0.3s ease;
 }
 
-/* El mapa adentro */
+/* El mapa adentro — un leve tinte hacia el azul de marca, para que no se vea al genérico de Google */
 .mapa-home {
   width: 100% !important;
   height: 100% !important;
-  border-radius: 15px;
+  border-radius: 16px;
+  filter: saturate(1.2) contrast(1.04) brightness(1.02) hue-rotate(-2deg);
+}
+
+/* Viñeta suave para que el centro (el pin) se destaque y los bordes se integren con la tarjeta */
+.mapa-home-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 42%, rgba(23, 116, 246, 0) 30%, rgba(13, 39, 74, 0.16) 100%);
+  z-index: 500;
+}
+
+/* Pin con forma de marcador de lugar (no un punto de "ubicación en vivo" tipo GPS) —
+   solo cae una vez al cargar, sin pulso continuo, para que quede claro que es un punto
+   fijo de la ciudad y no una señal de rastreo en tiempo real. */
+.mapa-home-pin-wrapper {
+  position: relative;
+}
+
+.mapa-home-pin-svg {
+  display: block;
+  filter: drop-shadow(0 3px 6px rgba(13, 39, 74, 0.45));
+  transform-origin: bottom center;
+  animation: mapaHomePinCaida 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.5s;
+}
+
+@keyframes mapaHomePinCaida {
+  0% {
+    transform: translateY(-18px) scale(0.7);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-home-pin-svg {
+    animation: none;
+  }
 }
 
 /* Responsive: en pantallas grandes (PC) hacerlo más ancho */
 @media (min-width: 768px) {
-  .mapa-home-container {
+  .mapa-home-marco {
     width: 1200px;
+  }
+
+  .mapa-home-container {
     height: 300px;
   }
 }
@@ -69,16 +183,19 @@
 }
 
 
-/* Vista previa */
+/* Vista previa — efecto vidrio esmerilado, se integra con la viñeta en vez de tapar el mapa con blanco liso */
 .vista-previa {
   position: absolute;
   bottom: 15px;
   left: 15px;
-  background: rgba(255, 255, 255, 0.693);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
   padding: 12px 18px;
   border-radius: 15px;
   width: 230px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.282);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.22);
   color: #333;
   user-select: none;
   font-size: 0.9rem;
@@ -96,4 +213,12 @@
 .vista-previa p {
   margin: 0;
   color: #555;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-home-marco,
+  .btn-explorar,
+  .mapa-home-pin-pulso {
+    animation: none !important;
+  }
 }

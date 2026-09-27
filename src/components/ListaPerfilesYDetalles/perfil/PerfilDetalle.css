@@ -2,7 +2,14 @@
   max-width: 900px;
   margin: auto;
   padding: 7px;
+  padding-top: 80px;
   font-family: Arial, sans-serif;
+}
+
+@media (max-width: 768px) {
+  .detalle-container {
+    padding-top: 78px;
+  }
 }
 
 /* PerfilDetalle.css */
@@ -220,8 +227,15 @@
     width: 60px;
     height: 60px;
   }
-  
+
   .perfil-loader-text {
     font-size: 0.95rem;
+  }
+}
+
+/* Espacio para que el bottom-nav fijo no tape el final del contenido */
+@media (max-width: 768px) {
+  .detalle-container {
+    padding-bottom: 104px;
   }
 }

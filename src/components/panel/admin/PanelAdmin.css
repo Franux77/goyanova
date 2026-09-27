@@ -17,27 +17,47 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background-color: white;
+  height: 52px;
+  overflow: hidden;
+  background: linear-gradient(120deg, #eef5ff 0%, #ffffff 45%, #e9f2ff 100%);
+  background-size: 200% 200%;
+  animation: panelHeaderGradientShift 14s ease-in-out infinite;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 1rem;
   z-index: 1000;
 }
 
-.panel-hamburger-btn {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 30px;
-  height: 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
+.admin-mobile-header::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -25px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(23, 116, 246, 0.16) 0%, rgba(23, 116, 246, 0) 70%);
+  pointer-events: none;
+  animation: panelHeaderGlowFloat 9s ease-in-out infinite;
+}
+
+@keyframes panelHeaderGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes panelHeaderGlowFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10px, 8px) scale(1.15); }
+}
+
+/* El menú "Más" ahora se abre desde el bottom-nav de abajo — el hamburguesa
+   de arriba ya no hace falta, se oculta sin borrar el código. */
+.panel-hamburger-btn,
+.admin-mobile-spacer {
+  display: none !important;
 }
 
 .hamburger-line {
@@ -49,37 +69,28 @@
   transition: all 0.3s ease;
 }
 
-.panel-hamburger-btn:hover .hamburger-line {
-  background-color: #0d5abf;
-}
-
-.panel-hamburger-btn:active {
-  transform: scale(0.95);
-}
-
 .admin-mobile-logo {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  flex: 1;
   justify-content: center;
+  gap: 1px;
 }
 
 .admin-logo-img-mobile {
-  height: 38px;
+  height: 24px;
   width: auto;
   object-fit: contain;
 }
 
 .admin-logo-text-mobile {
-  font-size: 1.5rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #1774f6;
-  letter-spacing: -0.5px;
-}
-
-.admin-mobile-spacer {
-  width: 30px;
+  letter-spacing: -0.3px;
+  line-height: 1;
 }
 
 /* ========================================
@@ -393,10 +404,48 @@
    FOOTER DEL SIDEBAR
 ======================================== */
 .admin-sidebar-footer {
-  padding: 1.5rem 1.25rem;
+  padding: 1rem 1.25rem 1.5rem;
   border-top: 1px solid #e9ecef;
   background-color: #f8f9fa;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #1774f6;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-footer-link .material-icons {
+  font-size: 20px;
+}
+
+.admin-footer-link-home:hover {
+  background-color: rgba(23, 116, 246, 0.1);
+}
+
+.admin-footer-link-logout {
+  color: #d92d20;
+}
+
+.admin-footer-link-logout:hover {
+  background-color: rgba(217, 45, 32, 0.08);
 }
 
 .admin-footer-brand {
@@ -464,21 +513,28 @@
 
   .admin-main-content {
     margin-left: 0;
-    margin-top: 60px;
+    margin-top: 52px;
     padding: 1.5rem 1rem;
+    padding-bottom: 104px;
     width: 100%;
+  }
+
+  .bottom-nav-panel-admin {
+    display: flex;
   }
 }
 
 @media (max-width: 768px) {
   .admin-main-content {
     padding: 1rem 0.75rem;
+    padding-bottom: 104px;
   }
 }
 
 @media (max-width: 480px) {
   .admin-main-content {
     padding: 0.75rem 0.5rem;
+    padding-bottom: 104px;
   }
 }
 

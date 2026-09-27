@@ -60,6 +60,109 @@
   box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
 }
 
+/* Reseña rápida por QR */
+.comentariosAdmin-resenaQR-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #eef5ff 0%, #ffffff 60%);
+  border: 1px solid #dbe8ff;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.comentariosAdmin-resenaQR-info {
+  flex: 1;
+  min-width: 240px;
+}
+
+.comentariosAdmin-resenaQR-info h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+
+.comentariosAdmin-resenaQR-info h2 .material-icons {
+  color: #1774f6;
+}
+
+.comentariosAdmin-resenaQR-info p {
+  font-size: 14px;
+  color: #667085;
+  margin: 0 0 14px;
+}
+
+.comentariosAdmin-resenaQR-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comentariosAdmin-resenaQR-linkBox {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comentariosAdmin-resenaQR-linkInput {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #dbe8ff;
+  font-size: 0.85rem;
+  color: #475467;
+  background: #ffffff;
+}
+
+.comentariosAdmin-btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #1774f6;
+  border: 2px solid #1774f6;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.comentariosAdmin-btn-secundario:hover {
+  background: #f0f4ff;
+  transform: translateY(-1px);
+}
+
+.comentariosAdmin-resenaQR-canvas {
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid #dbe8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 560px) {
+  .comentariosAdmin-resenaQR-card {
+    flex-direction: column;
+  }
+
+  .comentariosAdmin-resenaQR-acciones {
+    width: 100%;
+  }
+}
+
 .b-btn-refresh:disabled {
   opacity: 0.6;
   cursor: not-allowed;

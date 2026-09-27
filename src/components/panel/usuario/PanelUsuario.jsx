@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../auth/useAuth';
+import BottomNav from '../../navegacion/BottomNav';
+import MasSheetPanel from '../../navegacion/MasSheetPanel';
 import './PanelUsuario.css';
 
 const ADMIN_EMAILS = [
@@ -26,10 +28,11 @@ const enlaces = [
 
 const PanelUsuario = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [masAbierto, setMasAbierto] = useState(false);
 
   const location = useLocation();
 
@@ -111,6 +114,12 @@ const PanelUsuario = () => {
     closeSidebar();
   };
 
+  const handleSalir = async () => {
+    closeSidebar();
+    await logout();
+    navigate('/');
+  };
+
   // 👇 FUNCIÓN NUEVA PARA VALIDAR ANTES DE PUBLICAR
   const handleIrAPublicar = async () => {
     try {
@@ -145,7 +154,7 @@ const PanelUsuario = () => {
         <header className="panel-mobile-header">
           <button
             className="panel-hamburger-btn"
-            onClick={toggleSidebar}
+            onClick={() => setMasAbierto(true)}
             aria-label="Abrir menú"
           >
             <span className="hamburger-line"></span>
@@ -249,23 +258,25 @@ const PanelUsuario = () => {
     );
   })}
 </div>
-
-          <div className="panel-nav-divider"></div>
-
-          <div className="panel-nav-section">
-            <NavLink 
-              to="/" 
-              className="panel-nav-link panel-nav-link-home"
-              onClick={closeSidebar}
-            >
-              <span className="material-icons panel-nav-icon">home</span>
-              <span className="panel-nav-text">Volver al inicio</span>
-              <span className="material-icons panel-nav-arrow">chevron_right</span>
-            </NavLink>
-          </div>
         </nav>
 
         <div className="panel-sidebar-footer">
+          <NavLink
+            to="/"
+            className="panel-footer-link panel-footer-link-home"
+            onClick={closeSidebar}
+          >
+            <span className="material-icons">home</span>
+            <span>Volver al inicio</span>
+          </NavLink>
+          <button
+            type="button"
+            className="panel-footer-link panel-footer-link-logout"
+            onClick={handleSalir}
+          >
+            <span className="material-icons">logout</span>
+            <span>Salir</span>
+          </button>
           <div className="panel-footer-brand">
             <span className="panel-footer-logo">GoyaNova</span>
           </div>
@@ -283,6 +294,37 @@ const PanelUsuario = () => {
           key={location.pathname}
         />
       </main>
+
+      {isMobile && (
+        <BottomNav
+          variante="bottom-nav-panel-usuario"
+          items={[
+            { to: '/panel/dashboard', label: 'Inicio', icon: 'home', end: true },
+            { to: '/panel/mis-servicios', label: 'Servicios', icon: 'work' },
+            { to: '/panel/notificaciones', label: 'Avisos', icon: 'notifications' },
+          ]}
+          onMas={() => setMasAbierto(true)}
+          masActivo={masAbierto}
+        />
+      )}
+
+      <MasSheetPanel
+        abierto={masAbierto}
+        onClose={() => setMasAbierto(false)}
+        titulo="Mi Panel"
+        subtitulo="Usuario"
+        cambiarModo={
+          isAdmin
+            ? { nombre: 'Cambiar a Panel Admin', icon: 'admin_panel_settings', onClick: handleCambiarAAdmin }
+            : null
+        }
+        items={enlaces.map((item, index) =>
+          item.type === 'button' && item.action === 'publicar'
+            ? { label: 'Publicar Servicio', icon: 'add_circle', onClick: handleIrAPublicar, key: `btn-${index}` }
+            : { to: `/panel/${item.to}`, label: item.label, icon: item.icon }
+        )}
+        onSalir={handleSalir}
+      />
     </div>
   );
 };

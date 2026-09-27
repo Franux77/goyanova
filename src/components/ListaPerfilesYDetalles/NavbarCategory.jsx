@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
+import BottomNav from '../navegacion/BottomNav';
+import MasSheetPublico from '../navegacion/MasSheetPublico';
 import './NavbarCategory.css';
 
 const ADMIN_EMAILS = [
@@ -14,6 +16,7 @@ const NavbarCategory = () => {
   const [rol, setRol] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [masAbierto, setMasAbierto] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef();
@@ -80,6 +83,7 @@ const NavbarCategory = () => {
   };
 
   const navLinks = [
+    { to: '/', label: 'Inicio', icon: 'home' },
     { to: '/nosotros', label: 'Nosotros', icon: 'group' },
     { to: '/contacto', label: 'Contacto', icon: 'phone_in_talk' },
     { to: '/explorar', label: 'Mapa', icon: 'map' },
@@ -148,6 +152,17 @@ const NavbarCategory = () => {
               <span className="nav-shared-hamburger-line"></span>
             </button>
           </div>
+
+          {/* Logo a la derecha, alineado como "Volver" — para que la barra
+              no quede vacía en mobile ahora que se ocultan acciones/menú */}
+          <Link to="/" className="nav-shared-logo-link" aria-label="Ir al inicio">
+            <img
+              src="/assets/GoyaNova_20250918_144009_0000.png"
+              alt="GoyaNova"
+              className="nav-shared-logo-img"
+            />
+            <span className="nav-shared-logo-text">GoyaNova</span>
+          </Link>
         </div>
       </nav>
 
@@ -212,9 +227,26 @@ const NavbarCategory = () => {
       </div>
 
       {/* Overlay oscuro */}
-      <div 
+      <div
         className={`nav-shared-overlay ${menuOpen ? 'nav-shared-overlay-visible' : ''}`}
         onClick={() => setMenuOpen(false)}
+      />
+
+      {/* Bottom nav mobile */}
+      <BottomNav
+        variante="bottom-nav-publico"
+        items={[
+          { to: '/', label: 'Inicio', icon: 'home', end: true, siempreActivo: true },
+          { to: '/explorar', label: 'Mapa', icon: 'map' },
+          { to: '/publicar', label: 'Publicar', icon: 'add_circle' },
+        ]}
+        onMas={() => setMasAbierto(true)}
+        masActivo={masAbierto}
+      />
+      <MasSheetPublico
+        abierto={masAbierto}
+        onClose={() => setMasAbierto(false)}
+        rutaPanel={rutaPanel}
       />
     </>
   );

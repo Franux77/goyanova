@@ -5,6 +5,7 @@ import './ModalCodigoQR.css';
 const ModalCodigoQR = ({ servicioId, nombreServicio, onClose }) => {
   const canvasWrapperRef = useRef(null);
   const [copiado, setCopiado] = useState(false);
+  const [errorCopia, setErrorCopia] = useState(false);
 
   const link = `https://goyanova.com.ar/qr/${servicioId}`;
 
@@ -24,12 +25,32 @@ const ModalCodigoQR = ({ servicioId, nombreServicio, onClose }) => {
   };
 
   const handleCopiarLink = async () => {
+    // navigator.clipboard solo funciona en contexto seguro (https o localhost);
+    // si no está disponible (ej: abriendo por http:// en una IP local desde el
+    // celular) copiamos "a mano" con un textarea temporal + execCommand.
     try {
-      await navigator.clipboard.writeText(link);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        const textareaTemporal = document.createElement('textarea');
+        textareaTemporal.value = link;
+        textareaTemporal.style.position = 'fixed';
+        textareaTemporal.style.opacity = '0';
+        document.body.appendChild(textareaTemporal);
+        textareaTemporal.focus();
+        textareaTemporal.select();
+        const copiadoOk = document.execCommand('copy');
+        document.body.removeChild(textareaTemporal);
+        if (!copiadoOk) throw new Error('execCommand copy falló');
+      }
+      setErrorCopia(false);
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
-    } catch {
-      // Si falla el clipboard (navegador viejo o sin permiso), no rompemos nada
+    } catch (error) {
+      console.error('Error al copiar el link:', error);
+      setCopiado(false);
+      setErrorCopia(true);
+      setTimeout(() => setErrorCopia(false), 3000);
     }
   };
 
@@ -62,6 +83,11 @@ const ModalCodigoQR = ({ servicioId, nombreServicio, onClose }) => {
             {copiado ? 'Copiado' : 'Copiar'}
           </button>
         </div>
+        {errorCopia && (
+          <p className="modalqr-error-copia">
+            No pudimos copiarlo automáticamente. Mantené presionado el link de arriba para copiarlo manualmente.
+          </p>
+        )}
       </div>
     </div>
   );

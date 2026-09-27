@@ -169,7 +169,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  /* Por encima del navbar superior (que usa hasta z-index 1001), así la foto
+     ampliada nunca queda tapada y nada de atrás se puede tocar mientras está abierta */
+  z-index: 9999;
   animation: galeria-fade-in 0.3s ease;
 }
 
@@ -220,7 +222,7 @@
   justify-content: center;
   color: white;
   cursor: pointer;
-  z-index: 1010;
+  z-index: 10000;
   box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
   transition: all 0.2s ease;
 }

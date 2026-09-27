@@ -1,0 +1,111 @@
+/* Oculta por defecto (desktop). Cada página que la usa decide, con su propia
+   media query y la clase pasada en `variante`, a qué ancho se muestra —
+   así el breakpoint de Panel (1024px) no pisa el de las páginas públicas (768px).
+
+   Estilo: píldora flotante en modo claro (misma forma que el ejemplo de
+   referencia, pero con los colores de GoyaNova — blanco y celeste — en vez
+   de modo oscuro), con el ícono principal ("destacado") elevado en un
+   círculo azul. */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 1200;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2px;
+  height: 62px;
+  padding: 0 6px;
+  border-radius: 31px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid #eef1f6;
+  box-shadow:
+    0 10px 26px rgba(23, 116, 246, 0.16),
+    0 2px 6px rgba(16, 24, 40, 0.06);
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 100%;
+  padding: 6px 2px;
+  background: none;
+  border: none;
+  color: #8a94a6;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.bottom-nav-item .material-icons {
+  font-size: 21px;
+  transition: transform 0.15s ease;
+}
+
+.bottom-nav-label {
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.bottom-nav-item-active {
+  color: #1774f6;
+}
+
+.bottom-nav-item-active .bottom-nav-icon-wrap {
+  background: rgba(23, 116, 246, 0.12);
+}
+
+.bottom-nav-item:active .bottom-nav-icon-wrap {
+  transform: scale(0.9);
+}
+
+/* Ícono destacado (ej. "Publicar" en las páginas públicas): círculo sólido
+   en azul GoyaNova, elevado por encima de la píldora, sin texto debajo. */
+.bottom-nav-item-destacado {
+  flex: 0 0 auto;
+  width: 58px;
+  justify-content: flex-start;
+}
+
+.bottom-nav-icon-destacado {
+  width: 44px;
+  height: 44px;
+  margin-top: -12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2f9bff 0%, #1774f6 55%, #0d5bbf 100%);
+  box-shadow:
+    0 4px 12px rgba(23, 116, 246, 0.35),
+    0 0 0 4px #ffffff;
+}
+
+.bottom-nav-icon-destacado .material-icons {
+  color: #ffffff;
+  font-size: 23px;
+}
+
+.bottom-nav-item-destacado:active .bottom-nav-icon-destacado {
+  transform: scale(0.93);
+}
+
+.bottom-nav-item-active .bottom-nav-icon-destacado {
+  background: linear-gradient(135deg, #4facff 0%, #1774f6 55%, #0d5bbf 100%);
+}

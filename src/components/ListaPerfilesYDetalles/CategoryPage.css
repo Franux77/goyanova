@@ -43,6 +43,34 @@ main {
   font-weight: 400;
 }
 
+/* Header más compacto en mobile: el espacio bajo el nav fijo se resuelve con
+   padding-top en el container (ver más abajo), no con un margen enorme en el
+   título — así no queda tanto blanco vacío antes del contenido útil. */
+@media (max-width: 768px) {
+  .category-container {
+    padding-top: 82px;
+  }
+
+  .category-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .category-title {
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+
+  .category-subtitle {
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+  }
+
+  .category-filtros {
+    margin-top: 1.1rem;
+    margin-bottom: 1rem;
+  }
+}
+
 /* ============================================
    FILTROS MODERNOS
    ============================================ */
@@ -396,6 +424,13 @@ main {
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
   transform: scale(1.05);
+}
+
+/* Espacio para que el bottom-nav fijo no tape el final del contenido */
+@media (max-width: 768px) {
+  .category-container {
+    padding-bottom: 104px;
+  }
 }
 
 .pagina-btn:active {

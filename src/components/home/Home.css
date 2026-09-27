@@ -1569,6 +1569,15 @@
   padding: 0 !important;
 }
 
+/* El verdadero final de la página es el Footer (componente aparte, fuera de
+   .home), así que ahí es donde reservamos el espacio del bottom-nav — acá
+   alcanza con un respiro normal. */
+@media (max-width: 768px) {
+  .home {
+    padding-bottom: 24px;
+  }
+}
+
 .goya-hero-collapse .goya-hero-content {
   padding: 0.5rem 1.5rem 1.8rem;
 }

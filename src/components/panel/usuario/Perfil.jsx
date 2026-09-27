@@ -139,12 +139,13 @@ const Perfil = () => {
       icon: 'badge',
       placeholder: 'Tu apellido'
     },
-    { 
-      label: 'Email', 
-      name: 'email', 
-      type: 'email', 
+    {
+      label: 'Email',
+      name: 'email',
+      type: 'email',
       icon: 'email',
-      placeholder: 'tu@email.com'
+      placeholder: 'tu@email.com',
+      disabled: true
     },
     { 
       label: 'Teléfono', 
@@ -245,6 +246,9 @@ const Perfil = () => {
                     placeholder={campo.placeholder}
                     className="goya-perfil-input"
                     min={campo.min || undefined}
+                    disabled={campo.disabled || undefined}
+                    title={campo.disabled ? 'El email no se puede modificar' : undefined}
+                    style={campo.disabled ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : undefined}
                   />
                 ) : (
                   <div className="goya-perfil-value">

@@ -1,0 +1,188 @@
+/* Mismas clases base que MasSheetPublico.css (duplicadas a propósito: Panel
+   es un chunk aparte y no siempre carga ese archivo) + extras para el panel. */
+.massheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 1300;
+  animation: massheet-fade 0.2s ease;
+}
+
+@keyframes massheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.massheet-contenido {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1301;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  padding: 8px 8px calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+  animation: massheet-slide-up 0.25s ease;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@keyframes massheet-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.massheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 14px;
+}
+
+.massheet-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.massheet-cerrar {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.massheet-lista {
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px;
+}
+
+.massheet-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.massheet-item:active {
+  background: #f5f8ff;
+}
+
+.massheet-item-icon {
+  color: #1774f6;
+  font-size: 22px;
+}
+
+.massheet-footer {
+  border-top: 1px solid #eef1f6;
+  margin-top: 8px;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.massheet-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: #1774f6;
+}
+
+.massheet-footer-item .material-icons {
+  font-size: 22px;
+}
+
+.massheet-footer-item:active {
+  background: #f5f8ff;
+}
+
+.massheet-salir {
+  color: #d92d20;
+}
+
+/* ============ Extras del panel ============ */
+
+.massheet-panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.massheet-panel-brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.massheet-panel-subtitulo {
+  display: block;
+  font-size: 0.78rem;
+  color: #8a94a6;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.massheet-panel-cambiar-modo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 8px 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  font-family: inherit;
+  cursor: pointer;
+  width: calc(100% - 16px);
+}
+
+.massheet-panel-cambiar-modo .material-icons {
+  font-size: 20px;
+}
+
+.massheet-panel-lista {
+  max-height: 46vh;
+  overflow-y: auto;
+}

@@ -92,6 +92,13 @@
   gap: 8px;
 }
 
+.modalqr-error-copia {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #d92d20;
+  text-align: center;
+}
+
 .modalqr-link-input {
   flex: 1;
   min-width: 0;

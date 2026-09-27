@@ -142,6 +142,27 @@ const Nosotros = () => {
           </div>
         </section>
 
+        {/* CTA rápido de reseña — arriba de todo, para que dejar una opinión
+            sobre GoyaNova no dependa de bajar hasta el final de la página */}
+        <section className="resena-rapida-cta">
+          <div className="resena-rapida-cta-contenido">
+            <span className="material-icons resena-rapida-cta-icono">star_rate</span>
+            <div className="resena-rapida-cta-texto">
+              <h2>¿Ya probaste GoyaNova?</h2>
+              <p>Contanos qué te pareció, te toma menos de un minuto.</p>
+            </div>
+            <div className="resena-rapida-cta-botones">
+              <Link to="/resena-goyanova" className="resena-rapida-cta-btn resena-rapida-cta-btn-primario">
+                <span className="material-icons">rate_review</span>
+                Dejar mi reseña
+              </Link>
+              <a href="#comentarios-goyanova" className="resena-rapida-cta-btn resena-rapida-cta-btn-secundario">
+                Ver opiniones
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Historia Personal */}
         <section className="story-section">
           <div className="story-container">
@@ -259,7 +280,9 @@ const Nosotros = () => {
         </section>
 
         {/* ===== NUEVA SECCIÓN: COMENTARIOS ===== */}
-        <ComentariosProyecto />
+        <div id="comentarios-goyanova">
+          <ComentariosProyecto />
+        </div>
 
         {/* CTA Section */}
         <section className="cta-section">

@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { supabase } from '../../../utils/supabaseClient';
 import './ComentariosAdmin.css';
 import Loading from '../../loading/Loading';
+
+const LINK_RESENA_GOYANOVA = 'https://goyanova.com.ar/resena-goyanova';
 
 const ComentariosAdmin = () => {
   const [comentarios, setComentarios] = useState([]);
@@ -15,6 +18,8 @@ const ComentariosAdmin = () => {
   const [notas, setNotas] = useState('');
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
+  const [copiadoResena, setCopiadoResena] = useState(false);
+  const qrResenaRef = useRef(null);
 
   useEffect(() => {
     cargarDatos();
@@ -176,6 +181,45 @@ const ComentariosAdmin = () => {
     setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
   };
 
+  const handleCopiarLinkResena = async () => {
+    // navigator.clipboard solo existe en contexto seguro (https o localhost).
+    // Si el panel se abre por http:// en una IP local (celular en la misma red,
+    // por ejemplo) esa API no está disponible y hay que copiar "a mano" con un
+    // textarea temporal + execCommand, que sí funciona ahí.
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(LINK_RESENA_GOYANOVA);
+      } else {
+        const textareaTemporal = document.createElement('textarea');
+        textareaTemporal.value = LINK_RESENA_GOYANOVA;
+        textareaTemporal.style.position = 'fixed';
+        textareaTemporal.style.opacity = '0';
+        document.body.appendChild(textareaTemporal);
+        textareaTemporal.focus();
+        textareaTemporal.select();
+        const copiadoOk = document.execCommand('copy');
+        document.body.removeChild(textareaTemporal);
+        if (!copiadoOk) throw new Error('execCommand copy falló');
+      }
+      setCopiadoResena(true);
+      mostrarMensaje('success', 'Link copiado al portapapeles');
+      setTimeout(() => setCopiadoResena(false), 2000);
+    } catch (error) {
+      console.error('Error al copiar el link:', error);
+      mostrarMensaje('error', `No pudimos copiarlo automáticamente. Copiá manualmente: ${LINK_RESENA_GOYANOVA}`);
+    }
+  };
+
+  const handleDescargarQRResena = () => {
+    const canvas = qrResenaRef.current?.querySelector('canvas');
+    if (!canvas) return;
+    const url = canvas.toDataURL('image/png');
+    const enlaceDescarga = document.createElement('a');
+    enlaceDescarga.href = url;
+    enlaceDescarga.download = 'qr-resena-goyanova.png';
+    enlaceDescarga.click();
+  };
+
   const comentariosFiltrados = comentarios.filter(c => {
     const cumpleFiltro = filtroEstado === 'todos' || c.estado === filtroEstado;
     const cumpleBusqueda = busqueda === '' || 
@@ -225,14 +269,14 @@ const ComentariosAdmin = () => {
       <div className="admin-content-header">
         <div className="header-left">
           <h1 className="admin-page-title">
-            <span className="material-icons title-icon">forum</span>
-            Moderación de Comentarios
+            <span className="material-icons title-icon">reviews</span>
+            Reseñas sobre GoyaNova
           </h1>
           <p className="admin-page-subtitle">
-            Gestiona las opiniones sobre GoyaNova
+            Opiniones sobre la plataforma en sí (no sobre un servicio puntual) — moderalas y compartí el QR para juntar más
           </p>
         </div>
-        <button 
+        <button
           className="b-btn-refresh"
           onClick={cargarDatos}
           disabled={loading}
@@ -240,6 +284,37 @@ const ComentariosAdmin = () => {
           <span className="material-icons">refresh</span>
           Actualizar
         </button>
+      </div>
+
+      {/* Reseña rápida: QR + link directo */}
+      <div className="comentariosAdmin-resenaQR-card">
+        <div className="comentariosAdmin-resenaQR-info">
+          <h2>
+            <span className="material-icons">qr_code_2</span>
+            Reseña rápida por QR
+          </h2>
+          <p>
+            QR y link directo para que cualquiera deje una opinión sobre GoyaNova en segundos,
+            sin tener que buscarla en la página "Nosotros". Ideal para eventos, redes o pedirlo
+            directo a un usuario.
+          </p>
+          <div className="comentariosAdmin-resenaQR-acciones">
+            <button className="comentariosAdmin-btn-secundario" onClick={handleDescargarQRResena}>
+              <span className="material-icons">download</span>
+              Descargar QR
+            </button>
+            <div className="comentariosAdmin-resenaQR-linkBox">
+              <input type="text" value={LINK_RESENA_GOYANOVA} readOnly className="comentariosAdmin-resenaQR-linkInput" />
+              <button className="comentariosAdmin-btn-secundario" onClick={handleCopiarLinkResena}>
+                <span className="material-icons">{copiadoResena ? 'check' : 'content_copy'}</span>
+                {copiadoResena ? 'Copiado' : 'Copiar link'}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="comentariosAdmin-resenaQR-canvas" ref={qrResenaRef}>
+          <QRCodeCanvas value={LINK_RESENA_GOYANOVA} size={150} level="M" marginSize={2} />
+        </div>
       </div>
 
       {/* Mensaje de feedback */}

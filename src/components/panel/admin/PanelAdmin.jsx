@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/useAuth';
+import BottomNav from '../../navegacion/BottomNav';
+import MasSheetPanel from '../../navegacion/MasSheetPanel';
 import './PanelAdmin.css';
 
 const PanelAdmin = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+  const [masAbierto, setMasAbierto] = useState(false);
 
   // Manejo de responsive
   useEffect(() => {
@@ -43,7 +46,8 @@ const PanelAdmin = () => {
     { nombre: 'Usuarios', ruta: '/panel/admin/usuarios', icono: 'people' },
     { nombre: 'Servicios', ruta: '/panel/admin/servicios', icono: 'build' },
     { nombre: 'Categorías', ruta: '/panel/admin/categorias', icono: 'folder' },
-    { nombre: 'Comentarios', ruta: '/panel/admin/comentarios', icono: 'forum' },
+    { nombre: 'Reseñas GoyaNova', ruta: '/panel/admin/comentarios', icono: 'reviews' },
+    { nombre: 'Asistente IA', ruta: '/panel/admin/asistente', icono: 'smart_toy' },
     { nombre: 'Códigos Promo', ruta: '/panel/admin/codigos', icono: 'confirmation_number' },
         { nombre: 'Membresías', ruta: '/panel/admin/membresias', icono: 'card_membership' },
     { nombre: 'Verificaciones', ruta: '/panel/admin/verificaciones', icono: 'verified' },
@@ -62,6 +66,12 @@ const PanelAdmin = () => {
     closeSidebar();
   };
 
+  const handleSalir = async () => {
+    closeSidebar();
+    await logout();
+    navigate('/');
+  };
+
   return (
     <div className="panel-admin-layout">
       {/* Header móvil */}
@@ -69,7 +79,7 @@ const PanelAdmin = () => {
         <header className="admin-mobile-header">
           <button
             className="panel-hamburger-btn"
-            onClick={toggleSidebar}
+            onClick={() => setMasAbierto(true)}
             aria-label="Abrir menú"
           >
             <span className="hamburger-line"></span>
@@ -159,23 +169,26 @@ const PanelAdmin = () => {
             ))}
           </div>
 
-          <div className="admin-nav-divider"></div>
-
-          <div className="admin-nav-section">
-            <NavLink 
-              to="/" 
-              className="admin-nav-link admin-nav-link-home"
-              onClick={closeSidebar}
-            >
-              <span className="material-icons admin-nav-icon">home</span>
-              <span className="admin-nav-text">Volver al inicio</span>
-              <span className="material-icons admin-nav-arrow">chevron_right</span>
-            </NavLink>
-          </div>
         </nav>
 
         {/* Footer del sidebar */}
         <div className="admin-sidebar-footer">
+          <NavLink
+            to="/"
+            className="admin-footer-link admin-footer-link-home"
+            onClick={closeSidebar}
+          >
+            <span className="material-icons">home</span>
+            <span>Volver al inicio</span>
+          </NavLink>
+          <button
+            type="button"
+            className="admin-footer-link admin-footer-link-logout"
+            onClick={handleSalir}
+          >
+            <span className="material-icons">logout</span>
+            <span>Salir</span>
+          </button>
           <div className="admin-footer-brand">
             <span className="admin-footer-logo">GoyaNova</span>
           </div>
@@ -186,6 +199,29 @@ const PanelAdmin = () => {
       <main className="admin-main-content">
         <Outlet />
       </main>
+
+      {isMobile && (
+        <BottomNav
+          variante="bottom-nav-panel-admin"
+          items={[
+            { to: '/panel/admin/dashboard', label: 'Inicio', icon: 'home', end: true },
+            { to: '/panel/admin/usuarios', label: 'Usuarios', icon: 'people' },
+            { to: '/panel/admin/servicios', label: 'Servicios', icon: 'build' },
+          ]}
+          onMas={() => setMasAbierto(true)}
+          masActivo={masAbierto}
+        />
+      )}
+
+      <MasSheetPanel
+        abierto={masAbierto}
+        onClose={() => setMasAbierto(false)}
+        titulo="Panel Admin"
+        subtitulo="Administración"
+        cambiarModo={{ nombre: 'Cambiar a Panel Usuario', icon: 'swap_horiz', onClick: handleCambiarModo }}
+        items={secciones.map((item) => ({ to: item.ruta, label: item.nombre, icon: item.icono }))}
+        onSalir={handleSalir}
+      />
     </div>
   );
 };

@@ -103,7 +103,7 @@ const PerfilDetalle = () => {
   return (
     <>
       <NavbarPerfil />
-      <div className="detalle-container" style={{ marginTop: '80px' }}>
+      <div className="detalle-container">
         <div className="perfil-loader-container">
           <div className="perfil-loader">
             <div className="perfil-loader-ring"></div>
@@ -131,7 +131,7 @@ const PerfilDetalle = () => {
   return (
     <>
       <NavbarPerfil />
-      <div className="detalle-container" style={{ textAlign: 'center', padding: '2rem', marginTop: '80px' }}>
+      <div className="detalle-container" style={{ textAlign: 'center', padding: '2rem' }}>
         <h2>⚠️ Perfil no encontrado</h2>
         <button onClick={handleVolverClick} className="back-buttonn">
           ← Volver
@@ -155,7 +155,7 @@ const PerfilDetalle = () => {
   return (
     <>
       <NavbarPerfil />
-      <div className="detalle-container" style={{ marginTop: '80px' }}>
+      <div className="detalle-container">
         <ResumenPerfil perfil={perfil} />
 
         <SobrePerfil

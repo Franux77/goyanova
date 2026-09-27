@@ -69,6 +69,31 @@
   letter-spacing: 0.3px;
 }
 
+/* Logo a la derecha del nav — solo en mobile, alineado igual que "Volver"
+   (mismo padding/alto), para que la barra no quede vacía de ese lado. */
+.nav-shared-logo-link {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f0f6ff;
+  text-decoration: none;
+}
+
+.nav-shared-logo-img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+}
+
+.nav-shared-logo-text {
+  color: #1774f6;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.2px;
+}
+
 /* ===================================
    LINKS DE NAVEGACIÓN - DESKTOP
    =================================== */
@@ -232,6 +257,76 @@
 
 .nav-shared-hamburger-active .nav-shared-hamburger-line:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
+}
+
+/* El hamburguesa y el menú lateral quedan reemplazados por el bottom-nav
+   de abajo en mobile — se ocultan, sin borrar el código por si hace
+   falta volver atrás. */
+@media (max-width: 767px) {
+  /* Igual que en Home y Panel: degradé celeste sutil y muy lento en vez de
+     blanco plano y quieto, con un brillo difuso flotando en la esquina. */
+  .nav-shared {
+    overflow: hidden;
+    background: linear-gradient(120deg, #eef5ff 0%, #ffffff 45%, #e9f2ff 100%);
+    background-size: 200% 200%;
+    animation: navSharedGradientShift 14s ease-in-out infinite;
+  }
+
+  .nav-shared.nav-shared-scrolled {
+    background: linear-gradient(120deg, #eef5ff 0%, #ffffff 45%, #e9f2ff 100%);
+    background-size: 200% 200%;
+  }
+
+  .nav-shared::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(23, 116, 246, 0.16) 0%, rgba(23, 116, 246, 0) 70%);
+    pointer-events: none;
+    animation: navSharedGlowFloat 9s ease-in-out infinite;
+  }
+
+  .nav-shared-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes navSharedGradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes navSharedGlowFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-12px, 10px) scale(1.15); }
+  }
+
+  .nav-shared-hamburger {
+    display: none !important;
+  }
+
+  .nav-shared-mobile-sidebar,
+  .nav-shared-overlay {
+    display: none !important;
+  }
+
+  /* El login también vive en la hoja de "Más" de abajo — se oculta acá para
+     no dejar un espacio vacío al lado del logo. */
+  .nav-shared-actions {
+    display: none !important;
+  }
+
+  .nav-shared-logo-link {
+    display: flex;
+  }
+
+  .bottom-nav-publico {
+    display: flex;
+  }
 }
 
 /* ===================================

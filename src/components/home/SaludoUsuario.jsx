@@ -176,7 +176,7 @@ const SaludoUsuario = () => {
           { principal: `Hola ${nombre}`, secundario: 'El sitio es todo tuyo a esta hora' },
           { principal: `¿Desvelo, ${nombre}?`, secundario: 'Buscá lo que necesites sin apuro' },
           { principal: `Buenas, ${nombre}`, secundario: 'Silencio absoluto, ideal para leer' },
-          { principal: `Epa, ${nombre}`, secundario: 'Acá seguimos de guardia para vos' }
+          { principal: `Buenas, ${nombre}`, secundario: 'Acá seguimos de guardia para vos' }
         ];
       }
       // BLOQUE 2: MAÑANA (06:00 a 12:59) - Hasta la hora de comer
@@ -198,7 +198,7 @@ const SaludoUsuario = () => {
           { principal: `Che, ${nombre}`, secundario: 'Esquivando el calor, quedate por acá' },
           { principal: `Todo tranqui, ${nombre}`, secundario: 'Aprovechá y mirá lo último que subimos' },
           { principal: `¡Buenas, ${nombre}!`, secundario: 'Todavía queda día, aprovechalo' },
-          { principal: `¡Epa ${nombre}!`, secundario: 'Acá estamos firmes, buscá lo que quieras' },
+          { principal: `Qué tal, ${nombre}`, secundario: 'Acá estamos firmes, buscá lo que quieras' },
           { principal: `Hola de nuevo, ${nombre}`, secundario: 'Seguimos activos por acá' }
         ];
       }

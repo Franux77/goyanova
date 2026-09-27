@@ -222,6 +222,8 @@
   .footer-goyanava {
     padding: 40px 16px 20px;
     margin-top: 50px;
+    /* Espacio para que el bottom-nav flotante no tape el texto legal del final */
+    padding-bottom: 104px;
   }
 
   /* 2 columnas en móvil: Marca + Navegación */
@@ -288,6 +290,9 @@
 @media (max-width: 480px) {
   .footer-goyanava {
     padding: 30px 16px 20px;
+    /* el shorthand de arriba resetea el padding-bottom — se vuelve a reservar
+       acá para que el bottom-nav flotante no tape el texto legal */
+    padding-bottom: 104px;
   }
 
   .footer-grid {

@@ -181,6 +181,52 @@
   border-bottom-right-radius: 4px;
 }
 
+.asistente-valoracion {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: -0.3rem 0 0.2rem 2px;
+}
+
+.asistente-valoracion-estrella {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: #cbd5e1;
+  display: flex;
+  line-height: 0;
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+
+.asistente-valoracion-estrella .material-icons {
+  font-size: 16px;
+}
+
+.asistente-valoracion-estrella:hover,
+.asistente-valoracion-estrella:hover ~ .asistente-valoracion-estrella {
+  color: #cbd5e1;
+}
+
+.asistente-valoracion-estrella:hover {
+  color: #ffb800;
+  transform: scale(1.15);
+}
+
+.asistente-valoracion-gracias {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: #1774f6;
+  font-weight: 600;
+}
+
+.asistente-valoracion-gracias .material-icons {
+  font-size: 13px;
+}
+
 .asistente-escribiendo {
   display: flex;
   gap: 4px;

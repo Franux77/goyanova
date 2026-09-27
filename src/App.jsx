@@ -37,6 +37,7 @@ const InstalarApp = lazy(() => import('./components/instalar/InstalarApp'));   /
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
 const ResenaQR = lazy(() => import('./components/resenaqr/ResenaQR'));
+const ResenaGoyaNova = lazy(() => import('./components/resenaqr/ResenaGoyaNova'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
 
 // Panel Usuario
@@ -58,6 +59,7 @@ const PanelAdmin = lazy(() => import('./components/panel/admin/PanelAdmin'));
 const UsuariosAdmin = lazy(() => import('./components/panel/admin/UsuariosAdmin'));
 const ServiciosAdmin = lazy(() => import('./components/panel/admin/ServiciosAdmin'));
 const ComentariosAdmin = lazy(() => import('./components/panel/admin/ComentariosAdmin'));
+const AsistenteAdmin = lazy(() => import('./components/panel/admin/AsistenteAdmin'));
 const SolicitudesEliminacion = lazy(() => import('./components/panel/admin/SolicitudesEliminacion'));
 const ReportesAdmin = lazy(() => import('./components/panel/admin/ReportesAdmin'));
 const CodigosPromocionalesAdmin = lazy(() => import('./components/panel/admin/CodigosPromocionalesAdmin'));
@@ -197,6 +199,7 @@ const AppContent = () => {
               <Route path="/perfil/:id" element={<PerfilDetalle />} />
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
               <Route path="/qr/:servicioId" element={<ResenaQR />} />
+              <Route path="/resena-goyanova" element={<ResenaGoyaNova />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
               <Route path="/terminos" element={<Terminos />} />       {/* 👈 NUEVA */}
@@ -265,6 +268,7 @@ const AppContent = () => {
                 <Route path="servicios" element={<ServiciosAdmin />} />
                 <Route path="categorias" element={<CategoriasAdmin />} />
                 <Route path="comentarios" element={<ComentariosAdmin />} />
+                <Route path="asistente" element={<AsistenteAdmin />} />
                 <Route path="solicitudes-eliminacion" element={<SolicitudesEliminacion />} />
                 <Route path="reportes" element={<ReportesAdmin />} />
                 <Route path="codigos" element={<CodigosPromocionalesAdmin />} />

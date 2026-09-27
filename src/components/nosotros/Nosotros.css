@@ -381,6 +381,102 @@
   50% { transform: translateY(-30px) scale(1.1); }
 }
 
+/* CTA de reseña rápida (arriba de todo, para que dejar opinión no dependa
+   de bajar hasta el final de la página) */
+.resena-rapida-cta {
+  padding: 0 24px;
+  margin: 0 0 8px;
+}
+
+.resena-rapida-cta-contenido {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 10px 30px rgba(23, 116, 246, 0.25);
+  color: #ffffff;
+}
+
+.resena-rapida-cta-icono {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.resena-rapida-cta-texto {
+  flex: 1;
+  min-width: 200px;
+}
+
+.resena-rapida-cta-texto h2 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.resena-rapida-cta-texto p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.resena-rapida-cta-botones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.resena-rapida-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.resena-rapida-cta-btn:hover {
+  transform: translateY(-1px);
+}
+
+.resena-rapida-cta-btn-primario {
+  background: #ffffff;
+  color: #1774f6;
+}
+
+.resena-rapida-cta-btn-secundario {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 600px) {
+  .resena-rapida-cta-contenido {
+    flex-direction: column;
+    text-align: center;
+    padding: 22px 20px;
+  }
+
+  .resena-rapida-cta-botones {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .resena-rapida-cta-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 /* Story Section */
 .story-section {
   padding: 40px 24px 60px;
