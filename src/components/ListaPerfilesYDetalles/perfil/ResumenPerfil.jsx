@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaStar, FaWhatsapp } from 'react-icons/fa';
 import MenuOpciones from './MenuOpciones';
 import ModalReporte from './ModalReporte';
@@ -30,6 +31,7 @@ const ResumenPerfil = ({ perfil }) => {
   const [descripcionExpandida, setDescripcionExpandida] = useState(false);
   const { user } = useContext(AuthContext);
   const isLoggedIn = !!user;
+  const navigate = useNavigate();
 
   // 🆕 Reel activo de este servicio (si tiene uno vigente)
   const [reelActivo, setReelActivo] = useState(null);
@@ -84,6 +86,10 @@ const ResumenPerfil = ({ perfil }) => {
     : `https://wa.me/${whatsappNumero}`;
     const nivelWsp = getNivelWhatsapp(perfil.badge_texto);
 
+  const handleResenaRapida = () => {
+    navigate(`/qr/${perfil.id}`);
+  };
+
   const handleCompartir = async () => {
     const url = window.location.href;
 
@@ -116,6 +122,7 @@ const ResumenPerfil = ({ perfil }) => {
         <MenuOpciones
           onReportar={handleReportarClick}
           onCompartir={handleCompartir}
+          onResenaRapida={!isLoggedIn ? handleResenaRapida : undefined}
           tipo="servicio"
         />
 

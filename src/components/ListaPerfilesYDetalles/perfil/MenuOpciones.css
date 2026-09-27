@@ -2,7 +2,9 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  z-index: 10;
+  /* Más alto que el badge premium (z-index: 10 en ResumenPerfil.css),
+     así el desplegable siempre queda arriba y nunca se lo tapa */
+  z-index: 20;
 }
 
 .btn-menu-opciones {

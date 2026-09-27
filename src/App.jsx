@@ -36,6 +36,7 @@ const Terminos = lazy(() => import('./components/legal/Terminos'));
 const InstalarApp = lazy(() => import('./components/instalar/InstalarApp'));   // 👈 NUEVA
 const AyudaPublica = lazy(() => import('./components/ayuda/AyudaPublica'));
 const PerfilDetalle = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/PerfilDetalle'));
+const ResenaQR = lazy(() => import('./components/resenaqr/ResenaQR'));
 const OpinionesCompletas = lazy(() => import('./components/ListaPerfilesYDetalles/perfil/opinion/OpinionesCompletas'));
 
 // Panel Usuario
@@ -195,6 +196,7 @@ const AppContent = () => {
               <Route path="/categoria/:tipo/:categoria" element={<CategoryPage />} />
               <Route path="/perfil/:id" element={<PerfilDetalle />} />
               <Route path="/perfil/:perfilId/opiniones" element={<OpinionesCompletas />} />
+              <Route path="/qr/:servicioId" element={<ResenaQR />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/nosotros" element={<Nosotros />} />
               <Route path="/terminos" element={<Terminos />} />       {/* 👈 NUEVA */}

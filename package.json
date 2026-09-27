@@ -17,6 +17,7 @@
     "esbuild": "^0.25.9",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.544.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",

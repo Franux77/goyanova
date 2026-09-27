@@ -5,6 +5,7 @@ import Loading from '../../loading/Loading';
 import PanelProfesional from '../../ListaPerfilesYDetalles/perfil/PanelProfesional';
 import EnviarRecomendacion from './EnviarRecomendacion';
 import SubirReel from './SubirReel';
+import ModalCodigoQR from './ModalCodigoQR';
 import { useCaracteristicasPlan } from '../../../hooks/useCaracteristicasPlan';
 import './MisServicios.css';
 
@@ -16,6 +17,7 @@ const MisServicios = () => {
   const [expandidos, setExpandidos] = useState({});
   const [busqueda, setBusqueda] = useState('');
   const [statsAbiertos, setStatsAbiertos] = useState({});
+  const [servicioQrAbierto, setServicioQrAbierto] = useState(null);
   const navigate = useNavigate();
 
   const handleIrAPublicar = async () => {
@@ -358,6 +360,15 @@ const MisServicios = () => {
                         {statsAbiertos[servicio.id] ? 'Ocultar stats' : 'Estadísticas'}
                       </span>
                     </button>
+
+                    <button
+                      className="goya-btn-accion goya-btn-qr"
+                      onClick={() => setServicioQrAbierto(servicio)}
+                      title="Ver mi código QR"
+                    >
+                      <span className="material-icons">qr_code_2</span>
+                      <span className="goya-btn-text">Mi código QR</span>
+                    </button>
                   </div>
                 </div>
 
@@ -384,6 +395,14 @@ const MisServicios = () => {
             );
           })}
         </div>
+      )}
+
+      {servicioQrAbierto && (
+        <ModalCodigoQR
+          servicioId={servicioQrAbierto.id}
+          nombreServicio={servicioQrAbierto.nombre}
+          onClose={() => setServicioQrAbierto(null)}
+        />
       )}
     </div>
   );

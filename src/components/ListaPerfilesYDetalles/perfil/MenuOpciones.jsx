@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { FiFlag, FiShare2 } from 'react-icons/fi';
+import { FiFlag, FiShare2, FiStar } from 'react-icons/fi';
 import './MenuOpciones.css';
 
-const MenuOpciones = ({ onReportar, onCompartir, tipo = 'servicio' }) => {
+const MenuOpciones = ({ onReportar, onCompartir, onResenaRapida, tipo = 'servicio' }) => {
   const [abierto, setAbierto] = useState(false);
   const menuRef = useRef(null);
 
@@ -33,6 +33,11 @@ const MenuOpciones = ({ onReportar, onCompartir, tipo = 'servicio' }) => {
     onCompartir();
   };
 
+  const handleResenaRapida = () => {
+    setAbierto(false);
+    onResenaRapida();
+  };
+
   return (
     <div className="menu-opciones-container" ref={menuRef}>
       <button
@@ -53,6 +58,12 @@ const MenuOpciones = ({ onReportar, onCompartir, tipo = 'servicio' }) => {
             <FiShare2 size={18} />
             <span>Compartir</span>
           </button>
+          {onResenaRapida && (
+            <button className="menu-opcion-item" onClick={handleResenaRapida}>
+              <FiStar size={18} />
+              <span>Dejar reseña rápida</span>
+            </button>
+          )}
         </div>
       )}
     </div>

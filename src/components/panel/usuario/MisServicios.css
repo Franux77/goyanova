@@ -427,9 +427,11 @@
    ============================================ */
 .goya-card-acciones {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.5rem;
   align-items: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 
 .goya-btn-accion {
@@ -661,6 +663,17 @@
 
 .goya-btn-stats:hover {
   background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+/* Botón de código QR — mismo patrón que goya-btn-stats, color propio */
+.goya-btn-qr {
+  background: #eaf1ff;
+  color: #1774f6;
+}
+
+.goya-btn-qr:hover {
+  background: #d9e7ff;
   transform: translateY(-2px);
 }
 

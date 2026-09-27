@@ -57,7 +57,14 @@ const escaparHtml = (texto) =>
 const formatearMensaje = (texto) =>
   escaparHtml(texto).replace(
     /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 600;">$1</a>'
+    (coincidencia) => {
+      // Separar puntuación final (. , ; : ! ? ) ]) que no es parte real del link,
+      // para que no quede pegada dentro del href ni del texto visible.
+      const puntuacionFinal = coincidencia.match(/[.,;:!?)\]]+$/);
+      const sufijo = puntuacionFinal ? puntuacionFinal[0] : '';
+      const url = sufijo ? coincidencia.slice(0, -sufijo.length) : coincidencia;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 600;">${url}</a>${sufijo}`;
+    }
   );
 
 const AsistenteChat = () => {
@@ -202,6 +209,11 @@ const AsistenteChat = () => {
         setMensajes(prev => [...prev, {
           role: 'assistant',
           content: 'Estoy con mucha consulta en este momento 🙏 Mientras tanto, escribinos directo por WhatsApp: https://wa.me/5493777599800'
+        }]);
+      } else if (data.error === 'servicio_no_disponible') {
+        setMensajes(prev => [...prev, {
+          role: 'assistant',
+          content: 'El servicio de IA está temporalmente caído. Probá de nuevo en un momento, o escribinos directo por WhatsApp: https://wa.me/5493777599800'
         }]);
       } else if (data.error) {
         setMensajes(prev => [...prev, { role: 'assistant', content: 'Perdón, no pude procesar eso ahora. Si necesitás una respuesta rápida, escribinos por WhatsApp: https://wa.me/5493777599800' }]);

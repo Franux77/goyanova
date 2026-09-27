@@ -4,11 +4,20 @@ const CONOCIMIENTO_GOYANOVA = `
 Respondé siempre en español rioplatense, de forma breve, clara y amigable. Tus respuestas deben ser cortas: como máximo 5-6 oraciones o unas 120 palabras, salvo que la persona pida explícitamente más detalle (ej: "explicame todos los pasos"). Si el tema tiene muchas partes, resumí lo esencial primero y ofrecé seguir contando si quiere. NUNCA uses markdown (nada de asteriscos, negritas ni formato especial) — escribí todo como texto plano, simple. No inventes funciones, precios ni plazos que no figuran acá. No sabés la fecha ni la hora actual — si preguntan, decí que no tenés acceso a esa info y sugerí que miren el reloj del celular. Si no sabés algo, decilo con honestidad y sugerí contactar por WhatsApp al https://wa.me/5493777599800 o desde la sección Contacto en la plataforma.
 
 ## Qué es GoyaNova
+La URL oficial y única de la plataforma es https://goyanova.com.ar — es un dato fijo, nunca lo inventes ni lo aproximes.
 Un directorio/marketplace 100% goyano donde profesionales, comercios y emprendedores publican sus servicios u productos para que los vecinos los encuentren fácil. El contacto es directo por WhatsApp, sin intermediarios ni comisiones. Es gratuito para todos los usuarios; existen membresías premium opcionales para destacar servicios.
 
 ## Navegación general
 - Sin iniciar sesión: arriba a la derecha aparecen Contacto, Ayuda, Nosotros y el botón "Iniciar sesión".
 - Con sesión iniciada: se suma "Mi Cuenta", que lleva al panel del usuario.
+
+## Cómo instalar GoyaNova (es una app web instalable, NO está en App Store ni en Play Store)
+La URL de GoyaNova es exactamente https://goyanova.com.ar — usá siempre esta URL tal cual, nunca inventes, completes ni supongas otro dominio (nunca digas "o la URL que uses" ni nada parecido).
+GoyaNova no se descarga de ninguna tienda de aplicaciones. Se instala directo desde el navegador, y queda como un ícono más en la pantalla de inicio, igual que una app normal. Los pasos exactos dependen del dispositivo:
+- **iPhone / iPad (Safari, obligatorio usar Safari, no funciona en Chrome en iOS)**: abrir https://goyanova.com.ar en Safari → tocar el botón Compartir (el cuadrado con la flecha hacia arriba, abajo de la pantalla) → elegir "Agregar a la pantalla de inicio" → confirmar tocando "Agregar".
+- **Android (Chrome)**: abrir https://goyanova.com.ar en Chrome → tocar los 3 puntos de arriba a la derecha → "Instalar aplicación" (o "Agregar a pantalla de inicio") → confirmar. A veces Chrome muestra un cartel de instalación automático abajo, ahí se puede tocar directamente "Instalar".
+- **Computadora (Chrome, Edge u otro navegador con soporte)**: buscar el ícono de instalar en la barra de direcciones (a la derecha, cerca de la estrella de favoritos) y tocarlo, o ir al menú del navegador y buscar "Instalar GoyaNova".
+Si el botón de instalar no aparece, GoyaNova funciona igual perfectamente desde el navegador sin instalar nada — instalarla es solo un acceso más rápido, no es necesario para usarla.
 
 ## Inicio (Home)
 1. Botón "Publicar un Servicio" → lleva al formulario completo de publicación.
@@ -83,6 +92,7 @@ En el perfil del servicio, tocar el menú de opciones (3 puntos) → "Reportar".
 - ¿Cómo activo un código promocional? Desde el inicio hay un banner con cuenta regresiva (solo para usuarios nuevos, por tiempo limitado) para aplicar el código y obtener acceso premium temporal.
 
 **Problemas Técnicos**
+- ¿Cómo instalo GoyaNova en mi celular? No está en App Store ni Play Store: se instala desde el navegador (ver sección "Cómo instalar GoyaNova" más arriba para los pasos exactos según el dispositivo).
 - No puedo subir fotos: verificar que sean JPG o PNG y no superen los 5MB; si persiste, contactar a soporte.
 - Mi servicio no aparece en el mapa: revisar que la ubicación se haya seleccionado bien al publicar; se puede editar desde "Mis Servicios".
 - Olvidé mi contraseña: en la pantalla de inicio de sesión, ingresar el correo y tocar "¿Olvidaste tu contraseña?" para recibir un email y restablecerla.
@@ -104,27 +114,32 @@ export default async (req) => {
       return new Response(JSON.stringify({ error: 'Faltan mensajes' }), { status: 400 });
     }
 
-    // Gemini usa "model" en vez de "assistant", y el formato { parts: [{ text }] }
-    const contenidosGemini = mensajes.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
+    // Groq usa formato compatible con OpenAI: role 'system'/'user'/'assistant'
+    const mensajesGroq = [
+      { role: 'system', content: CONOCIMIENTO_GOYANOVA },
+      ...mensajes.map(m => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content
+      }))
+    ];
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GOYANOVA_GEMINI_KEY}`;
     const cuerpoPedido = JSON.stringify({
-      systemInstruction: { parts: [{ text: CONOCIMIENTO_GOYANOVA }] },
-      contents: contenidosGemini,
-      generationConfig: { maxOutputTokens: 1000 }
+      model: 'openai/gpt-oss-120b',
+      messages: mensajesGroq,
+      max_tokens: 1000
     });
 
-    const llamarGemini = async () => {
+    const llamarGroq = async () => {
       const controlador = new AbortController();
-      const corteTimeout = setTimeout(() => controlador.abort(), 12000); // corta a los 12s, no espera los 30s del timeout de Netlify
+      const corteTimeout = setTimeout(() => controlador.abort(), 12000);
 
       try {
-        return await fetch(url, {
+        return await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.GOYANOVA_GROQ_KEY}`
+          },
           body: cuerpoPedido,
           signal: controlador.signal
         });
@@ -135,37 +150,40 @@ export default async (req) => {
 
     let respuesta;
     try {
-      respuesta = await llamarGemini();
+      respuesta = await llamarGroq();
 
-      // Si Google está saturado (503), esperamos 1 segundo y probamos una vez más
-      if (respuesta.status === 503) {
+      // Si Groq está saturado (503) o con error transitorio (5xx), reintenta una vez
+      if (respuesta.status >= 500) {
         await new Promise(r => setTimeout(r, 1000));
-        respuesta = await llamarGemini();
+        respuesta = await llamarGroq();
       }
     } catch (errFetch) {
-      console.error('Error de red/timeout llamando a Gemini:', errFetch.message);
+      console.error('Error de red/timeout llamando a Groq:', errFetch.message);
       return new Response(JSON.stringify({ error: 'Error al generar respuesta' }), { status: 500 });
     }
 
     if (!respuesta.ok) {
       const errorTexto = await respuesta.text();
-      console.error('Error de Gemini:', errorTexto);
+      console.error('Error de Groq:', errorTexto);
 
       if (respuesta.status === 429) {
         return new Response(JSON.stringify({ error: 'limite_alcanzado' }), { status: 429 });
+      }
+
+      if (respuesta.status === 503) {
+        return new Response(JSON.stringify({ error: 'servicio_no_disponible' }), { status: 503 });
       }
 
       return new Response(JSON.stringify({ error: 'Error al generar respuesta' }), { status: 500 });
     }
 
     const data = await respuesta.json();
-    const candidato = data.candidates?.[0];
-    let textoRespuesta = candidato?.content?.parts?.[0]?.text
+    const opcion = data.choices?.[0];
+    let textoRespuesta = opcion?.message?.content
       || 'No pude generar una respuesta, intentá de nuevo.';
 
-    // Si Google cortó la respuesta a la fuerza por llegar al límite de tokens,
-    // avisamos en vez de mostrar un texto trunco sin aclarar nada.
-    if (candidato?.finishReason === 'MAX_TOKENS') {
+    // Si Groq cortó la respuesta a la fuerza por límite de tokens
+    if (opcion?.finish_reason === 'length') {
       textoRespuesta += '\n\n(Se cortó la respuesta por ser muy larga — preguntame algo más puntual y te respondo mejor.)';
     }
 

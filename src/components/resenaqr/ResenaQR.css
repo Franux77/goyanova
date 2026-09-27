@@ -1,0 +1,157 @@
+.resenaqr-pantalla {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, #f4f8ff 0%, #e8f0ff 100%);
+  box-sizing: border-box;
+}
+
+.resenaqr-cargando {
+  font-size: 15px;
+  color: #667085;
+}
+
+.resenaqr-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 8px 30px rgba(23, 116, 246, 0.12);
+  text-align: center;
+}
+
+.resenaqr-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 16px;
+  display: block;
+  border: 3px solid #eaf1ff;
+}
+
+.resenaqr-card h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.resenaqr-subtitulo {
+  font-size: 15px;
+  color: #667085;
+  margin: 0 0 24px;
+}
+
+.resenaqr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.resenaqr-estrellas {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.resenaqr-estrella {
+  font-size: 40px;
+  color: #d9dee6;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+}
+
+.resenaqr-estrella:hover {
+  transform: scale(1.08);
+}
+
+.resenaqr-estrella[data-activa='true'] {
+  color: #ffb400;
+}
+
+.resenaqr-input,
+.resenaqr-textarea {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  box-sizing: border-box;
+  resize: none;
+  transition: border-color 0.15s ease;
+}
+
+.resenaqr-input:focus,
+.resenaqr-textarea:focus {
+  outline: none;
+  border-color: #1774f6;
+}
+
+.resenaqr-boton {
+  background: #1774f6;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.resenaqr-boton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.resenaqr-boton:not(:disabled):hover {
+  opacity: 0.92;
+}
+
+.resenaqr-error {
+  color: #d92d20;
+  font-size: 14px;
+  margin: 0;
+}
+
+.resenaqr-gracias {
+  flex-direction: column;
+  text-align: center;
+}
+
+.resenaqr-icono-check {
+  font-size: 64px;
+  color: #12b76a;
+  margin-bottom: 12px;
+}
+
+.resenaqr-gracias h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.resenaqr-gracias p {
+  font-size: 15px;
+  color: #475467;
+  margin: 0 0 20px;
+}
+
+.resenaqr-link-inicio {
+  display: inline-block;
+  color: #1774f6;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.resenaqr-link-inicio:hover {
+  text-decoration: underline;
+}

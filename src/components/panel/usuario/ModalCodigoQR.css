@@ -1,0 +1,127 @@
+.modalqr-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10000;
+}
+
+.modalqr-contenido {
+  position: relative;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modalqr-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #475569;
+}
+
+.modalqr-cerrar:hover {
+  background: #e2e8f0;
+}
+
+.modalqr-titulo {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 4px 0 8px;
+  color: #1a1a1a;
+}
+
+.modalqr-subtitulo {
+  font-size: 14px;
+  color: #667085;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.modalqr-canvas-wrapper {
+  display: inline-flex;
+  padding: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+.modalqr-btn-descargar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #1774f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.modalqr-btn-descargar:hover {
+  opacity: 0.92;
+}
+
+.modalqr-link-box {
+  display: flex;
+  gap: 8px;
+}
+
+.modalqr-link-input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #475467;
+  background: #f8fafc;
+}
+
+.modalqr-btn-copiar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1774f6;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.modalqr-btn-copiar:hover {
+  background: #eaf1ff;
+}
+
+.modalqr-btn-copiar .material-icons {
+  font-size: 16px;
+}

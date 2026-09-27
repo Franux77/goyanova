@@ -65,6 +65,9 @@
   margin: 0;
   font-weight: 700;
   letter-spacing: -0.5px;
+  /* Deja espacio libre para que el nombre/tilde de verificado nunca
+     queden debajo del botón ⋮ (que es position:absolute sobre la tarjeta) */
+  padding-right: 48px;
 }
 
 .resumen-titulo-texto {
@@ -221,6 +224,7 @@
 
   .resumen-titulo-perfil {
     font-size: 1.3rem;
+    padding-right: 44px;
   }
 
   .resumen-descripcion-perfil {
@@ -262,6 +266,7 @@
 
   .resumen-titulo-perfil {
     font-size: 1.15rem;
+    padding-right: 40px;
   }
 
   .resumen-descripcion-perfil {
