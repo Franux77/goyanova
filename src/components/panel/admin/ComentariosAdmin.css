@@ -859,3 +859,113 @@
     justify-content: center;
   }
 }
+/* ===== Responder comentarios ===== */
+.respuesta-admin-box {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 16px 0;
+  padding: 14px 16px;
+  background: #eef5ff;
+  border-left: 3px solid #1774f6;
+  border-radius: 8px;
+}
+
+.respuesta-admin-box .material-icons {
+  color: #1774f6;
+  font-size: 20px;
+}
+
+.respuesta-admin-box strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #0d5abf;
+  font-size: 14px;
+}
+
+.respuesta-admin-box p {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.respuesta-admin-box small {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+.b-btn-responder {
+  background: #e8f1ff;
+  color: #1774f6;
+}
+
+.b-btn-responder:hover {
+  background: #1774f6;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.b-btn-confirmar-responder {
+  background: linear-gradient(135deg, #1774f6 0%, #0d5abf 100%);
+  color: white;
+}
+
+.b-btn-confirmar-responder:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.35);
+}
+
+.respuestas-rapidas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 16px 0;
+}
+
+.respuesta-rapida-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid #cfe0fb;
+  border-radius: 999px;
+  background: #f5f9ff;
+  color: #1774f6;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.respuesta-rapida-chip .material-icons {
+  font-size: 16px;
+}
+
+.respuesta-rapida-chip:hover,
+.respuesta-rapida-chip:active {
+  background: #1774f6;
+  border-color: #1774f6;
+  color: white;
+}
+
+.respuesta-contador {
+  display: block;
+  margin-top: 6px;
+  text-align: right;
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+@media (max-width: 768px) {
+  .respuestas-rapidas-grid {
+    gap: 6px;
+  }
+
+  .respuesta-rapida-chip {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+}

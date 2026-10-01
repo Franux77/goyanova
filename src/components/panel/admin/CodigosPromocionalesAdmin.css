@@ -721,3 +721,31 @@
     font-size: 12px;
   }
 }
+/* ===== Campaña de códigos (card del admin) ===== */
+.campadm-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+.campadm-on { border-color: #22c55e; background: #f0fdf4; }
+.campadm-prog { border-color: #f59e0b; background: #fffbeb; }
+.campadm-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.campadm-titulo { display: flex; gap: 10px; align-items: flex-start; }
+.campadm-titulo > .material-icons { color: #7c3aed; font-size: 30px; }
+.campadm-titulo h2 { margin: 0 0 2px; font-size: 18px; }
+.campadm-titulo p { margin: 0; font-size: 13px; color: #64748b; }
+.campadm-switch { flex: 0 0 auto; width: 56px; height: 32px; border: 0; border-radius: 999px; background: #cbd5e1; padding: 3px; cursor: pointer; transition: background .2s; }
+.campadm-switch-on { background: #22c55e; }
+.campadm-switch:disabled { opacity: .6; cursor: wait; }
+.campadm-switch-bolita { display: block; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+.campadm-switch-on .campadm-switch-bolita { transform: translateX(24px); }
+.campadm-estado { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; font-size: 13px; color: #475569; }
+.campadm-chip { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #fff; background: #94a3b8; }
+.campadm-chip-on { background: #16a34a; }
+.campadm-chip-prog { background: #d97706; }
+.campadm-chip-fin { background: #64748b; }
+.campadm-horario { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.campadm-horario input { width: 100%; box-sizing: border-box; }
+.campadm-presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.campadm-presets button { padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; font-size: 13px; cursor: pointer; }
+.campadm-presets button:hover { background: #eff6ff; border-color: #2563eb; }
+.campadm-acciones { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.campadm-acciones small { color: #64748b; flex: 1; min-width: 200px; }
+.campadm-tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #ede9fe; color: #6d28d9; font-size: 11px; font-weight: 700; }
+@media (max-width: 560px) { .campadm-horario { grid-template-columns: 1fr; } }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { formatearBadge } from '../../utils/contadoresPanel';
 import './BottomNav.css';
 
 /**
@@ -10,6 +11,8 @@ import './BottomNav.css';
  *   - con `to` se renderiza como NavLink (navega a una ruta).
  *   - con `onClick` (sin `to`) se renderiza como botón: una acción en la propia
  *     página (ej: abrir un buscador o hacer scroll a una sección).
+ *   - `resaltado: true` pinta el ícono como un botón azul lleno (ej: "Al inicio"
+ *     en los paneles), sin sacarlo de la barra como hace `destacado`.
  *   - `destacado: true` resalta el ícono con un círculo de color (para la acción
  *     principal, ej: "Publicar").
  *   - `siempreActivo: true` fuerza el estilo "seleccionado" (fondito celeste)
@@ -18,17 +21,20 @@ import './BottomNav.css';
  *     se ve naturalmente en Panel).
  * onMas: función que abre el panel/hoja de "Más opciones".
  * masActivo: si el panel de Más está abierto (resalta el ícono).
+ * masBadge: numerito (opcional) sobre el botón "Más", ej: pendientes que hay adentro.
+ *   Cada item también acepta `badge` (número) para mostrar un numerito sobre su ícono.
  * variante: clase extra para que cada página controle su propio breakpoint
  *           sin pisar el CSS de las demás (ej: "bottom-nav-publico", "bottom-nav-panel").
  */
-const BottomNav = ({ items, onMas, masActivo = false, variante }) => {
+const BottomNav = ({ items, onMas, masActivo = false, masBadge = 0, variante }) => {
   return (
     <nav className={`bottom-nav ${variante || ''}`}>
       {items.map((item) => {
         const contenido = (
           <>
-            <span className={`bottom-nav-icon-wrap ${item.destacado ? 'bottom-nav-icon-destacado' : ''}`}>
+            <span className={`bottom-nav-icon-wrap ${item.destacado ? 'bottom-nav-icon-destacado' : ''} ${item.resaltado ? 'bottom-nav-icon-resaltado' : ''}`}>
               <span className="material-icons">{item.icon}</span>
+              {item.badge > 0 && <span className="bottom-nav-badge">{formatearBadge(item.badge)}</span>}
             </span>
             {!item.destacado && <span className="bottom-nav-label">{item.label}</span>}
           </>
@@ -72,6 +78,7 @@ const BottomNav = ({ items, onMas, masActivo = false, variante }) => {
       >
         <span className="bottom-nav-icon-wrap">
           <span className="material-icons">more_horiz</span>
+          {masBadge > 0 && <span className="bottom-nav-badge">{formatearBadge(masBadge)}</span>}
         </span>
         <span className="bottom-nav-label">Más</span>
       </button>

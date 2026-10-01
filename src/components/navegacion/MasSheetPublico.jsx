@@ -60,7 +60,7 @@ const MasSheetPublico = ({ abierto, onClose, rutaPanel }) => {
           {user ? (
             <button className="massheet-footer-item massheet-salir" onClick={handleSalir}>
               <span className="material-icons">logout</span>
-              <span>Salir</span>
+              <span>Cerrar sesión</span>
             </button>
           ) : (
             <Link to="/login" onClick={onClose} className="massheet-footer-item massheet-ingresar">

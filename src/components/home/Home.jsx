@@ -8,6 +8,8 @@ import { useAuth } from '../../auth/useAuth';
 import ModalCodigoPromo from '../../auth/login/ModalCodigoPromo';
 import MapaHome from './MapaHome';
 import HistoriasHome from './HistoriasHome';
+import CampanaCodigos from './CampanaCodigos';
+import useCampanaCodigos from '../../hooks/useCampanaCodigos';
 import { supabase } from '../../utils/supabaseClient';
 
 const Home = () => {
@@ -15,6 +17,7 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, perfil } = useAuth();
+  const campana = useCampanaCodigos();
 
   const [mostrarModalCodigo, setMostrarModalCodigo] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(null);
@@ -103,7 +106,8 @@ const Home = () => {
     };
   }, [user?.id]);
 
-  const mostrarBanner = user && !esPremium && esUsuarioNuevo;
+  // Mientras la campaña de códigos está activa (Panel Admin), manda su botón y se oculta el aviso de 5 días
+  const mostrarBanner = user && !esPremium && esUsuarioNuevo && !campana.activa;
 
   useEffect(() => {
     if (intervaloCuentaRegresiva.current) {
@@ -308,6 +312,13 @@ const Home = () => {
           <span className="btn-shine"></span>
         </button>
       </section>
+
+      <CampanaCodigos
+        campana={campana}
+        user={user}
+        esPremium={esPremium}
+        onCanjeado={() => setEsPremium(true)}
+      />
 
     {mostrarBanner && tiempoRestante && (
         <section className="promo-code-banner">

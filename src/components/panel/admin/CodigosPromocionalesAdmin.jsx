@@ -4,8 +4,21 @@ import { useAuth } from '../../../auth/useAuth';
 import './CodigosPromocionalesAdmin.css';
 import Loading from '../../loading/Loading';
 
+const aLocalInput = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+const aISO = (local) => (local ? new Date(local).toISOString() : null);
+
 const CodigosPromocionalesAdmin = () => {
   const { user } = useAuth();
+  const [campana, setCampana] = useState(null); // fila de campana_codigos
+  const [campInicio, setCampInicio] = useState('');
+  const [campFin, setCampFin] = useState('');
+  const [guardandoCamp, setGuardandoCamp] = useState(false);
+  const [ahora, setAhora] = useState(Date.now());
   const [codigos, setCodigos] = useState([]);
   const [planes, setPlanes] = useState([]); // 🆕
   const [loading, setLoading] = useState(true);
@@ -25,7 +38,8 @@ const CodigosPromocionalesAdmin = () => {
     duracion_dias: 30,
     usos_maximos: 1,
     plan_id: '',
-    descripcion: ''
+    descripcion: '',
+    esCampana: false
   });
 
   const [formEditar, setFormEditar] = useState({
@@ -68,12 +82,88 @@ const CodigosPromocionalesAdmin = () => {
     });
   };
 
-  useEffect(() => { cargarCodigos(); }, []);
+  const cargarCampana = async () => {
+    const { data, error } = await supabase.from('campana_codigos').select('*').eq('id', 1).maybeSingle();
+    if (error) { console.error('Error al cargar campaña:', error); return; }
+    setCampana(data);
+    setCampInicio(aLocalInput(data?.inicio));
+    setCampFin(aLocalInput(data?.fin));
+  };
+
+  useEffect(() => { cargarCodigos(); cargarCampana(); }, []);
+  useEffect(() => {
+    const t = setInterval(() => setAhora(Date.now()), 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const guardarCampana = async (cambios, mensaje) => {
+    try {
+      setGuardandoCamp(true);
+      const { error } = await supabase
+        .from('campana_codigos')
+        .update({ ...cambios, actualizado_en: new Date().toISOString(), actualizado_por: user.id })
+        .eq('id', 1);
+      if (error) throw error;
+      await cargarCampana();
+      if (mensaje) alert(mensaje);
+    } catch (error) {
+      console.error('Error al guardar campaña:', error);
+      alert('No se pudo guardar la campaña: ' + error.message);
+    } finally {
+      setGuardandoCamp(false);
+    }
+  };
+
+  const alternarCampana = () => {
+    const activar = !campana?.habilitada;
+    if (activar && campFin && new Date(campFin).getTime() <= Date.now()) {
+      alert('El horario de fin ya pasó. Ajustá el horario antes de activar.');
+      return;
+    }
+    guardarCampana({ habilitada: activar });
+  };
+
+  const guardarHorario = () => {
+    if (campInicio && campFin && new Date(campFin) <= new Date(campInicio)) {
+      alert('El fin tiene que ser posterior al inicio.');
+      return;
+    }
+    guardarCampana({ inicio: aISO(campInicio), fin: aISO(campFin) }, '✅ Horario guardado');
+  };
+
+  const presetHorario = (tipo) => {
+    const medianoche = new Date();
+    medianoche.setHours(0, 0, 0, 0);
+    if (tipo === 'hoy') {
+      setCampInicio(aLocalInput(medianoche));
+      setCampFin(aLocalInput(new Date(medianoche.getTime() + 86400000)));
+    } else if (tipo === 'manana') {
+      const ini = new Date(medianoche.getTime() + 86400000);
+      setCampInicio(aLocalInput(ini));
+      setCampFin(aLocalInput(new Date(ini.getTime() + 86400000)));
+    } else if (tipo === '24h') {
+      setCampInicio(aLocalInput(new Date()));
+      setCampFin(aLocalInput(new Date(Date.now() + 86400000)));
+    } else {
+      setCampInicio('');
+      setCampFin('');
+    }
+  };
+
+  // Estado visible de la campaña
+  const estadoCampana = (() => {
+    if (!campana?.habilitada) return { clave: 'off', texto: 'Apagada', detalle: 'Nadie ve el botón ni puede canjear.' };
+    const ini = campana.inicio ? new Date(campana.inicio).getTime() : null;
+    const fin = campana.fin ? new Date(campana.fin).getTime() : null;
+    if (ini && ahora < ini) return { clave: 'prog', texto: 'Programada', detalle: `Se enciende el ${new Date(ini).toLocaleString('es-AR')}.` };
+    if (fin && ahora >= fin) return { clave: 'fin', texto: 'Terminada', detalle: `Terminó el ${new Date(fin).toLocaleString('es-AR')}.` };
+    return { clave: 'on', texto: 'Activa ahora', detalle: fin ? `Se apaga el ${new Date(fin).toLocaleString('es-AR')}.` : 'Sin hora de fin: se apaga solo cuando la desactives.' };
+  })();
 
   const generarCodigoAleatorio = (prefijo) => {
     const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let codigo = prefijo;
-    const longitudRestante = Math.max(0, 6 - prefijo.length);
+    const longitudRestante = Math.max(0, 8 - prefijo.length);
     for (let i = 0; i < longitudRestante; i++) {
       codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
@@ -124,6 +214,7 @@ const CodigosPromocionalesAdmin = () => {
           duracion_dias: formCrear.duracion_dias,
           plan_id: Number(formCrear.plan_id),
           activo: true,
+          tipo: formCrear.esCampana ? 'campana' : 'folleto',
           creado_por: user.id
         });
       }
@@ -137,7 +228,7 @@ const CodigosPromocionalesAdmin = () => {
 
       alert(`✅ ${data.length} código(s) creado(s) exitosamente`);
       setModalCrear(false);
-      setFormCrear({ cantidad: 1, prefijo: 'GOYA', duracion_dias: 30, usos_maximos: 1, plan_id: '', descripcion: '' });
+      setFormCrear({ cantidad: 1, prefijo: 'GOYA', duracion_dias: 30, usos_maximos: 1, plan_id: '', descripcion: '', esCampana: false });
       cargarCodigos();
     } catch (error) {
       console.error('Error al crear códigos:', error);
@@ -261,6 +352,59 @@ const CodigosPromocionalesAdmin = () => {
         </button>
       </div>
 
+      <section className={`campadm-card campadm-${estadoCampana.clave}`}>
+        <div className="campadm-top">
+          <div className="campadm-titulo">
+            <span className="material-icons">campaign</span>
+            <div>
+              <h2>Campaña de códigos en el Home</h2>
+              <p>Muestra el botón “Tenemos un regalo para vos” a las cuentas sin plan. Solo se maneja desde acá.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`campadm-switch ${campana?.habilitada ? 'campadm-switch-on' : ''}`}
+            onClick={alternarCampana}
+            disabled={guardandoCamp || !campana}
+            role="switch"
+            aria-checked={!!campana?.habilitada}
+            aria-label="Activar campaña"
+          >
+            <span className="campadm-switch-bolita" />
+          </button>
+        </div>
+
+        <div className="campadm-estado">
+          <span className={`campadm-chip campadm-chip-${estadoCampana.clave}`}>{estadoCampana.texto}</span>
+          <span>{estadoCampana.detalle}</span>
+        </div>
+
+        <div className="campadm-horario">
+          <div className="form-group">
+            <label>Empieza (opcional)</label>
+            <input type="datetime-local" value={campInicio} onChange={(e) => setCampInicio(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Termina (opcional)</label>
+            <input type="datetime-local" value={campFin} onChange={(e) => setCampFin(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="campadm-presets">
+          <button type="button" onClick={() => presetHorario('hoy')}>Hoy todo el día</button>
+          <button type="button" onClick={() => presetHorario('manana')}>Mañana todo el día</button>
+          <button type="button" onClick={() => presetHorario('24h')}>Próximas 24 h</button>
+          <button type="button" onClick={() => presetHorario('sin')}>Sin horario</button>
+        </div>
+
+        <div className="campadm-acciones">
+          <button type="button" className="btn-primary" onClick={guardarHorario} disabled={guardandoCamp}>
+            {guardandoCamp ? 'Guardando...' : 'Guardar horario'}
+          </button>
+          <small>Para que se prenda y apague solo: dejá el interruptor en ON y guardá el horario (ej: hoy 00:00 a mañana 00:00).</small>
+        </div>
+      </section>
+
       <div className="stats-grid">
         <div className="stat-card stat-total">
           <div className="stat-icon"><span className="material-icons">receipt</span></div>
@@ -344,7 +488,7 @@ const CodigosPromocionalesAdmin = () => {
                         </div>
                         {codigo.descripcion && <small className="codigo-descripcion">{codigo.descripcion}</small>}
                       </td>
-                      <td><span className="badge-tipo">{nombrePlan(codigo.plan_id)}</span></td>
+                      <td><span className="badge-tipo">{nombrePlan(codigo.plan_id)}</span>{codigo.tipo === 'campana' && <span className="campadm-tag">Campaña</span>}</td>
                       <td>
                         <span className={`usos-badge ${codigo.usos_actuales >= codigo.usos_maximos ? 'usos-agotados' : ''}`}>
                           {codigo.usos_actuales}/{codigo.usos_maximos}
@@ -449,6 +593,17 @@ const CodigosPromocionalesAdmin = () => {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formCrear.esCampana}
+                    onChange={(e) => setFormCrear({ ...formCrear, esCampana: e.target.checked })}
+                  />
+                  <span>Es de la campaña (solo se puede canjear mientras la campaña esté activa)</span>
+                </label>
               </div>
 
               <div className="form-group">

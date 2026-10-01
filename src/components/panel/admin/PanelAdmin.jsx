@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/useAuth';
+import useContadoresPanelAdmin from '../../../hooks/useContadoresPanelAdmin';
+import { formatearBadge } from '../../../utils/contadoresPanel';
 import BottomNav from '../../navegacion/BottomNav';
 import MasSheetPanel from '../../navegacion/MasSheetPanel';
 import './PanelAdmin.css';
 
+// Secciones que tienen su propio botón en la barra inferior del celular:
+// el numerito de "Más" suma solo lo que queda dentro de ese menú.
+const CLAVES_EN_BARRA_INFERIOR = ['usuarios', 'servicios'];
+
 const PanelAdmin = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const contadores = useContadoresPanelAdmin(user);
+  const totalEnMas = Object.entries(contadores)
+    .filter(([clave]) => !CLAVES_EN_BARRA_INFERIOR.includes(clave))
+    .reduce((suma, [, cantidad]) => suma + cantidad, 0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [masAbierto, setMasAbierto] = useState(false);
@@ -42,21 +52,21 @@ const PanelAdmin = () => {
   }, [isMobile, sidebarOpen]);
 
   const secciones = [
-    { nombre: 'Panel Inicio', ruta: '/panel/admin/dashboard', icono: 'dashboard' },
-    { nombre: 'Usuarios', ruta: '/panel/admin/usuarios', icono: 'people' },
-    { nombre: 'Servicios', ruta: '/panel/admin/servicios', icono: 'build' },
+    { nombre: 'Dashboard', ruta: '/panel/admin/dashboard', icono: 'dashboard' },
+    { nombre: 'Usuarios', ruta: '/panel/admin/usuarios', icono: 'people', clave: 'usuarios' },
+    { nombre: 'Servicios', ruta: '/panel/admin/servicios', icono: 'build', clave: 'servicios' },
     { nombre: 'Categorías', ruta: '/panel/admin/categorias', icono: 'folder' },
-    { nombre: 'Reseñas GoyaNova', ruta: '/panel/admin/comentarios', icono: 'reviews' },
-    { nombre: 'Asistente IA', ruta: '/panel/admin/asistente', icono: 'smart_toy' },
+    { nombre: 'Reseñas GoyaNova', ruta: '/panel/admin/comentarios', icono: 'reviews', clave: 'comentarios' },
+    { nombre: 'Asistente IA', ruta: '/panel/admin/asistente', icono: 'smart_toy', clave: 'asistente' },
     { nombre: 'Códigos Promo', ruta: '/panel/admin/codigos', icono: 'confirmation_number' },
         { nombre: 'Membresías', ruta: '/panel/admin/membresias', icono: 'card_membership' },
-    { nombre: 'Verificaciones', ruta: '/panel/admin/verificaciones', icono: 'verified' },
-    { nombre: 'Solicitudes', ruta: '/panel/admin/solicitudes-eliminacion', icono: 'delete' },
-    { nombre: 'Reportes', ruta: '/panel/admin/reportes', icono: 'warning' },
+    { nombre: 'Verificaciones', ruta: '/panel/admin/verificaciones', icono: 'verified', clave: 'verificaciones' },
+    { nombre: 'Solicitudes', ruta: '/panel/admin/solicitudes-eliminacion', icono: 'delete', clave: 'solicitudes' },
+    { nombre: 'Reportes', ruta: '/panel/admin/reportes', icono: 'warning', clave: 'reportes' },
     // 👇 NUEVAS SECCIONES DE AYUDA Y SOPORTE
     { nombre: 'FAQs', ruta: '/panel/admin/faqs', icono: 'quiz' },
     { nombre: 'Tutoriales', ruta: '/panel/admin/tutoriales', icono: 'video_library' },
-    { nombre: 'Mensajes Soporte', ruta: '/panel/admin/mensajes-soporte', icono: 'support_agent' },
+    { nombre: 'Mensajes Soporte', ruta: '/panel/admin/mensajes-soporte', icono: 'support_agent', clave: 'mensajes' },
     // 👆 FIN NUEVAS SECCIONES
     { nombre: 'Configuración', ruta: '/panel/admin/configuracion', icono: 'settings' },
   ];
@@ -164,6 +174,11 @@ const PanelAdmin = () => {
               >
                 <span className="material-icons admin-nav-icon">{item.icono}</span>
                 <span className="admin-nav-text">{item.nombre}</span>
+                {contadores[item.clave] > 0 && (
+                  <span className="admin-nav-badge" aria-label={`${contadores[item.clave]} pendientes`}>
+                    {formatearBadge(contadores[item.clave])}
+                  </span>
+                )}
                 <span className="material-icons admin-nav-arrow">chevron_right</span>
               </NavLink>
             ))}
@@ -187,7 +202,7 @@ const PanelAdmin = () => {
             onClick={handleSalir}
           >
             <span className="material-icons">logout</span>
-            <span>Salir</span>
+            <span>Cerrar sesión</span>
           </button>
           <div className="admin-footer-brand">
             <span className="admin-footer-logo">GoyaNova</span>
@@ -204,12 +219,14 @@ const PanelAdmin = () => {
         <BottomNav
           variante="bottom-nav-panel-admin"
           items={[
-            { to: '/panel/admin/dashboard', label: 'Inicio', icon: 'home', end: true },
-            { to: '/panel/admin/usuarios', label: 'Usuarios', icon: 'people' },
-            { to: '/panel/admin/servicios', label: 'Servicios', icon: 'build' },
+            { to: '/', label: 'Al inicio', icon: 'home', end: true, resaltado: true },
+            { to: '/panel/admin/dashboard', label: 'Dashboard', icon: 'dashboard', end: true },
+            { to: '/panel/admin/usuarios', label: 'Usuarios', icon: 'people', badge: contadores.usuarios },
+            { to: '/panel/admin/servicios', label: 'Servicios', icon: 'build', badge: contadores.servicios },
           ]}
           onMas={() => setMasAbierto(true)}
           masActivo={masAbierto}
+          masBadge={totalEnMas}
         />
       )}
 
@@ -219,7 +236,7 @@ const PanelAdmin = () => {
         titulo="Panel Admin"
         subtitulo="Administración"
         cambiarModo={{ nombre: 'Cambiar a Panel Usuario', icon: 'swap_horiz', onClick: handleCambiarModo }}
-        items={secciones.map((item) => ({ to: item.ruta, label: item.nombre, icon: item.icono }))}
+        items={secciones.map((item) => ({ to: item.ruta, label: item.nombre, icon: item.icono, badge: contadores[item.clave] }))}
         onSalir={handleSalir}
       />
     </div>

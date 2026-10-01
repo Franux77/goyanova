@@ -858,3 +858,56 @@
     width: 100%;
   }
 }
+/* ===== Respuesta del equipo GoyaNova ===== */
+.comentarios-proyecto-respuesta {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #eef5ff;
+  border-left: 3px solid #1774f6;
+  border-radius: 10px;
+}
+
+.comentarios-proyecto-respuesta-icono {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+
+.comentarios-proyecto-respuesta-contenido {
+  min-width: 0;
+}
+
+.comentarios-proyecto-respuesta-autor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0d5abf;
+}
+
+.comentarios-proyecto-respuesta-fecha {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+.comentarios-proyecto-respuesta-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}

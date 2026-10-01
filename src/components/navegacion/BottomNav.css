@@ -46,6 +46,7 @@
 }
 
 .bottom-nav-icon-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,6 +69,26 @@
 
 .bottom-nav-item-active {
   color: #1774f6;
+}
+
+/* Numerito chico sobre el ícono (avisos, pendientes, etc.) */
+.bottom-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1.5px solid #ffffff;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+  pointer-events: none;
 }
 
 .bottom-nav-item-active .bottom-nav-icon-wrap {
@@ -108,4 +129,25 @@
 
 .bottom-nav-item-active .bottom-nav-icon-destacado {
   background: linear-gradient(135deg, #4facff 0%, #1774f6 55%, #0d5bbf 100%);
+}
+
+/* Ícono "resaltado" (ej. "Al inicio" en los paneles): botón azul lleno dentro de la barra */
+.bottom-nav-icon-resaltado {
+  width: 38px;
+  background: linear-gradient(135deg, #2f9bff 0%, #1774f6 55%, #0d5bbf 100%);
+  box-shadow: 0 3px 8px rgba(23, 116, 246, 0.35);
+}
+
+.bottom-nav-icon-resaltado .material-icons {
+  color: #ffffff;
+}
+
+.bottom-nav-item:has(.bottom-nav-icon-resaltado) .bottom-nav-label {
+  color: #1774f6;
+  font-weight: 700;
+}
+
+/* Al estar en la ruta activa no debe perder el azul lleno */
+.bottom-nav-item-active .bottom-nav-icon-resaltado {
+  background: linear-gradient(135deg, #2f9bff 0%, #1774f6 55%, #0d5bbf 100%);
 }

@@ -6,6 +6,21 @@ import Loading from '../../loading/Loading';
 
 const LINK_RESENA_GOYANOVA = 'https://goyanova.com.ar/resena-goyanova';
 
+const MAX_RESPUESTA = 600;
+
+// Respuestas rápidas: se tocan, se cargan en el cuadro (se pueden retocar) y se confirma.
+// {nombre} se reemplaza por el primer nombre de quien comentó. Editá el texto acá libremente.
+const RESPUESTAS_RAPIDAS = [
+  { id: 'gracias', label: 'Gracias', icono: 'favorite', texto: '¡Gracias por tu comentario, {nombre}! Nos alegra mucho que te guste GoyaNova. 💙' },
+  { id: 'info', label: 'Más info', icono: 'info', texto: '¡Hola {nombre}! Gracias por escribirnos. Te vamos a contactar a la brevedad con toda la información. También podés escribirnos por WhatsApp desde la sección Contacto.' },
+  { id: 'publicar', label: 'Publicar servicio', icono: 'storefront', texto: '¡Hola {nombre}! Publicar tu servicio o comercio en GoyaNova es gratis: registrate, tocá "Publicar" y completá los pasos. Si necesitás ayuda, escribinos.' },
+  { id: 'sugerencia', label: 'Sugerencia', icono: 'lightbulb', texto: '¡Gracias por tu sugerencia, {nombre}! La tomamos en cuenta para seguir mejorando GoyaNova.' },
+  { id: 'disculpas', label: 'Disculpas', icono: 'sentiment_dissatisfied', texto: 'Lamentamos lo que te pasó, {nombre}. Escribinos por Contacto o WhatsApp así lo resolvemos lo antes posible.' },
+  { id: 'bienvenida', label: 'Bienvenido/a', icono: 'waving_hand', texto: '¡Bienvenido/a a GoyaNova, {nombre}! Cualquier duda que tengas, estamos para ayudarte.' },
+];
+
+const primerNombre = (nombreCompleto = '') => nombreCompleto.trim().split(/\s+/)[0] || '';
+
 const ComentariosAdmin = () => {
   const [comentarios, setComentarios] = useState([]);
   const [estadisticas, setEstadisticas] = useState(null);
@@ -23,7 +38,10 @@ const ComentariosAdmin = () => {
 
   useEffect(() => {
     cargarDatos();
-    suscribirseACambios();
+    // Antes el cleanup se devolvía desde suscribirseACambios (nadie lo usaba), así
+    // que el canal quedaba vivo al cambiar de sección y al volver explotaba.
+    const cancelar = suscribirseACambios();
+    return cancelar;
   }, []);
 
   const cargarDatos = async () => {
@@ -81,8 +99,9 @@ const ComentariosAdmin = () => {
   };
 
   const suscribirseACambios = () => {
-    const subscription = supabase
-      .channel('comentarios_changes')
+    // Nombre único por montaje: evita reusar un canal ya suscripto
+    const canal = supabase
+      .channel(`comentarios_changes_${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -98,15 +117,44 @@ const ComentariosAdmin = () => {
       .subscribe();
 
     return () => {
-      subscription.unsubscribe();
+      supabase.removeChannel(canal);
     };
   };
 
   const abrirModalAccion = (comentario, tipoAccion) => {
     setComentarioSeleccionado(comentario);
     setAccion(tipoAccion);
-    setNotas('');
+    // Al editar una respuesta ya enviada, se precarga el texto actual
+    setNotas(tipoAccion === 'responder' ? (comentario.respuesta_admin || '') : '');
     setModalAbierto(true);
+  };
+
+  const usarRespuestaRapida = (plantilla) => {
+    const nombre = primerNombre(comentarioSeleccionado?.nombre_completo);
+    // Si no hay nombre, evita quedar "¡Hola !" / "Gracias, !"
+    const texto = plantilla.texto.replace('{nombre}', nombre).replace(/,?\s+([,!.])/g, '$1');
+    setNotas(texto.slice(0, MAX_RESPUESTA));
+  };
+
+  const quitarRespuesta = async () => {
+    if (!comentarioSeleccionado) return;
+    setProcesando(true);
+    try {
+      const { data, error } = await supabase.rpc('responder_comentario', {
+        p_comentario_id: comentarioSeleccionado.id,
+        p_respuesta: ''
+      });
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error || 'Error al quitar la respuesta');
+      mostrarMensaje('success', 'Respuesta eliminada');
+      cargarDatos();
+      cerrarModal();
+    } catch (error) {
+      console.error('Error al quitar respuesta:', error);
+      mostrarMensaje('error', error.message || 'Error al quitar la respuesta');
+    } finally {
+      setProcesando(false);
+    }
   };
 
   const cerrarModal = () => {
@@ -155,6 +203,26 @@ const ComentariosAdmin = () => {
           cerrarModal();
         } else {
           throw new Error(data.error || 'Error al rechazar');
+        }
+      } else if (accion === 'responder') {
+        if (!notas.trim()) {
+          mostrarMensaje('error', 'Escribí o elegí una respuesta');
+          return;
+        }
+
+        const { data, error } = await supabase.rpc('responder_comentario', {
+          p_comentario_id: comentarioSeleccionado.id,
+          p_respuesta: notas
+        });
+
+        if (error) throw error;
+
+        if (data.success) {
+          mostrarMensaje('success', 'Respuesta publicada');
+          cargarDatos();
+          cerrarModal();
+        } else {
+          throw new Error(data.error || 'Error al responder');
         }
       } else if (accion === 'eliminar') {
         const { error } = await supabase
@@ -489,7 +557,29 @@ const ComentariosAdmin = () => {
                   )}
                 </div>
 
+                {comentario.respuesta_admin && (
+                  <div className="respuesta-admin-box">
+                    <span className="material-icons">reply</span>
+                    <div>
+                      <strong>Respuesta de GoyaNova</strong>
+                      <p>{comentario.respuesta_admin}</p>
+                      {comentario.respuesta_fecha && (
+                        <small>{formatearFecha(comentario.respuesta_fecha)}</small>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="comentario-actions-admin">
+                  {comentario.estado === 'aprobado' && (
+                    <button
+                      className="b-btn-action b-btn-responder"
+                      onClick={() => abrirModalAccion(comentario, 'responder')}
+                    >
+                      <span className="material-icons">reply</span>
+                      {comentario.respuesta_admin ? 'Editar respuesta' : 'Responder'}
+                    </button>
+                  )}
                   {comentario.estado === 'pendiente' && (
                     <>
                       <button
@@ -530,6 +620,7 @@ const ComentariosAdmin = () => {
               <h3>
                 {accion === 'aprobar' && 'Aprobar Comentario'}
                 {accion === 'rechazar' && 'Rechazar Comentario'}
+                {accion === 'responder' && 'Responder Comentario'}
                 {accion === 'eliminar' && 'Eliminar Comentario'}
               </h3>
               <button className="b-btn-close-modal" onClick={cerrarModal}>
@@ -571,6 +662,36 @@ const ComentariosAdmin = () => {
                 </div>
               )}
 
+              {accion === 'responder' && (
+                <div className="form-group-modal">
+                  <label>Respuestas rápidas (tocá una y confirmá):</label>
+                  <div className="respuestas-rapidas-grid">
+                    {RESPUESTAS_RAPIDAS.map((plantilla) => (
+                      <button
+                        key={plantilla.id}
+                        type="button"
+                        className="respuesta-rapida-chip"
+                        onClick={() => usarRespuestaRapida(plantilla)}
+                      >
+                        <span className="material-icons">{plantilla.icono}</span>
+                        {plantilla.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <label htmlFor="respuesta-admin-texto">Respuesta que verá todo el mundo en la página:</label>
+                  <textarea
+                    id="respuesta-admin-texto"
+                    value={notas}
+                    onChange={(e) => setNotas(e.target.value.slice(0, MAX_RESPUESTA))}
+                    placeholder="Escribí tu respuesta o elegí una rápida..."
+                    rows={5}
+                    maxLength={MAX_RESPUESTA}
+                  />
+                  <span className="respuesta-contador">{notas.length} / {MAX_RESPUESTA}</span>
+                </div>
+              )}
+
               {accion === 'eliminar' && (
                 <div className="alert-warning">
                   <span className="material-icons">warning</span>
@@ -587,14 +708,24 @@ const ComentariosAdmin = () => {
               >
                 Cancelar
               </button>
+              {accion === 'responder' && comentarioSeleccionado?.respuesta_admin && (
+                <button
+                  className="b-btn-modal b-btn-cancelar"
+                  onClick={quitarRespuesta}
+                  disabled={procesando}
+                >
+                  Quitar respuesta
+                </button>
+              )}
               <button
                 className={`b-btn-modal ${
                   accion === 'aprobar' ? 'b-btn-confirmar-aprobar' :
                   accion === 'rechazar' ? 'b-btn-confirmar-rechazar' :
+                  accion === 'responder' ? 'b-btn-confirmar-responder' :
                   'b-btn-confirmar-eliminar'
                 }`}
                 onClick={ejecutarAccion}
-                disabled={procesando || (accion === 'rechazar' && !notas.trim())}
+                disabled={procesando || ((accion === 'rechazar' || accion === 'responder') && !notas.trim())}
               >
                 {procesando ? (
                   <>
@@ -605,6 +736,7 @@ const ComentariosAdmin = () => {
                   <>
                     {accion === 'aprobar' && 'Aprobar'}
                     {accion === 'rechazar' && 'Rechazar'}
+                    {accion === 'responder' && 'Confirmar y enviar'}
                     {accion === 'eliminar' && 'Eliminar'}
                   </>
                 )}

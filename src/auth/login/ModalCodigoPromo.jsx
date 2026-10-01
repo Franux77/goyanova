@@ -32,47 +32,26 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
       setVerificandoCodigo(true);
       // console.log('🔍 Verificando código:', codigo);
       
-      const { data, error } = await supabase
-        .from('codigos_promocionales')
-        .select('codigo, descripcion, duracion_dias, usos_maximos, usos_actuales, activo')
-        .eq('codigo', codigo.toUpperCase())
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('consultar_codigo', { p_codigo: codigo.trim() });
 
-      if (error) {
-        console.error('❌ Error consultando código:', error.message);
+      if (error || !data) {
+        console.error('❌ Error consultando código:', error?.message);
         setCodigoValido(false);
         setInfoCodigo({ mensaje: 'Error al verificar código' });
         return;
       }
 
-      if (!data) {
+      if (!data.ok) {
         setCodigoValido(false);
-        setInfoCodigo({ mensaje: 'Código no encontrado' });
-        // console.log('❌ Código no existe:', codigo);
-        return;
-      }
-
-      if (!data.activo) {
-        setCodigoValido(false);
-        setInfoCodigo({ mensaje: 'Código desactivado' });
-        // console.log('⚠️ Código desactivado:', codigo);
-        return;
-      }
-
-      if (data.usos_actuales >= data.usos_maximos) {
-        setCodigoValido(false);
-        setInfoCodigo({ mensaje: 'Código agotado' });
-        // console.log('⚠️ Código sin usos disponibles:', data);
+        setInfoCodigo({ mensaje: data.mensaje });
         return;
       }
 
       setCodigoValido(true);
       setInfoCodigo({
-        mensaje: `¡Válido! ${data.duracion_dias} días Premium gratis`,
-        dias: data.duracion_dias,
-        descripcion: data.descripcion
+        mensaje: `¡Válido! Plan ${data.plan_nombre} por ${data.dias} días gratis`,
+        dias: data.dias
       });
-      // console.log('✅ Código válido:', data);
       
     } catch (err) {
       console.error('❌ Error inesperado verificando código:', err);
@@ -228,7 +207,7 @@ const ModalCodigoPromo = ({ user, onClose, esNuevoUsuario = false }) => {
                 value={codigoInput}
                 onChange={(e) => setCodigoInput(e.target.value.toUpperCase())}
                 placeholder="Ej: GOYA01"
-                maxLength="10"
+                maxLength="20"
                 disabled={aplicando}
                 autoFocus={false}
               />

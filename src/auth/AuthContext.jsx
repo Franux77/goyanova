@@ -92,9 +92,9 @@ export const AuthProvider = ({ children }) => {
 
     let so = 'sistema desconocido';
     if (ua.includes('Windows')) so = 'Windows';
-    else if (ua.includes('Mac OS')) so = 'Mac';
     else if (ua.includes('Android')) so = 'Android';
-    else if (ua.includes('iPhone') || ua.includes('iPad')) so = 'iOS';
+    else if (ua.includes('iPhone') || ua.includes('iPad') || ua.includes('iPod')) so = 'iOS'; // el UA de iPhone dice "like Mac OS X": va antes que Mac
+    else if (ua.includes('Mac OS')) so = 'Mac';
     else if (ua.includes('Linux')) so = 'Linux';
 
     return `${navegador} en ${so}`;
@@ -102,13 +102,23 @@ export const AuthProvider = ({ children }) => {
 
   const notificarNuevoLogin = (usuario, metodo) => {
     try {
-      // Evita reavisar el mismo login en cada refresh/remount de la página
-      // (Supabase a veces reemite SIGNED_IN sin que sea un login nuevo real).
+      // Supabase emite SIGNED_IN también al reabrir la app o volver a la pestaña con la
+      // sesión ya iniciada. Un login REAL cambia `last_sign_in_at`; si es el mismo valor
+      // que ya avisamos en este dispositivo, no es un login nuevo y no se manda nada.
       const clave = `login_notificado_${usuario.id}`;
-      if (sessionStorage.getItem(clave) === 'true') {
+      const marca = usuario.last_sign_in_at || '';
+      let previa = null;
+      try { previa = localStorage.getItem(clave); } catch { /* storage bloqueado */ }
+      if (previa === marca) {
         return;
       }
-      sessionStorage.setItem(clave, 'true');
+      try { localStorage.setItem(clave, marca); } catch { /* storage bloqueado */ }
+      // Primera vez que se ve esta marca en este dispositivo y el login no es reciente:
+      // es una sesión que ya existía, solo se registra la marca sin avisar.
+      const hace = marca ? Date.now() - new Date(marca).getTime() : Infinity;
+      if (!previa && hace > 2 * 60 * 1000) {
+        return;
+      }
 
       const dispositivo = obtenerDescripcionDispositivo();
       const fecha = new Date().toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' });

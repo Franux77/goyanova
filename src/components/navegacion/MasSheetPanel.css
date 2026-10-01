@@ -94,6 +94,25 @@
   font-size: 22px;
 }
 
+/* Numerito al final de la fila (pendientes/nuevos) */
+.massheet-panel-badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .massheet-footer {
   border-top: 1px solid #eef1f6;
   margin-top: 8px;
@@ -185,4 +204,19 @@
 .massheet-panel-lista {
   max-height: 46vh;
   overflow-y: auto;
+}
+
+/* "Volver al inicio": botón azul lleno para que se note que se puede tocar */
+.massheet-footer-home {
+  justify-content: center;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #2f9bff 0%, #1774f6 55%, #0d5bbf 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+}
+
+.massheet-footer-home:active {
+  background: linear-gradient(135deg, #2f9bff 0%, #1774f6 55%, #0d5bbf 100%);
+  filter: brightness(0.95);
+  transform: scale(0.98);
 }

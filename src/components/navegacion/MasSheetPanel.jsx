@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { formatearBadge } from '../../utils/contadoresPanel';
 import './MasSheetPanel.css';
 
 /**
@@ -8,7 +9,8 @@ import './MasSheetPanel.css';
  * nada, "Volver al inicio" y "Salir" fijos al pie), pero con el listado de
  * secciones de cada panel en vez del menú público.
  *
- * items: [{ to, label, icon } | { onClick, label, icon }]
+ * items: [{ to, label, icon, badge? } | { onClick, label, icon, badge? }]
+ *   `badge` (número, opcional): numerito al final de la fila.
  * cambiarModo (opcional): { nombre, icon, onClick } — ej. "Cambiar a Panel Admin"
  */
 const MasSheetPanel = ({
@@ -57,6 +59,7 @@ const MasSheetPanel = ({
               <Link key={item.to} to={item.to} onClick={onClose} className="massheet-item">
                 <span className="material-icons massheet-item-icon">{item.icon}</span>
                 <span>{item.label}</span>
+                {item.badge > 0 && <span className="massheet-panel-badge">{formatearBadge(item.badge)}</span>}
               </Link>
             ) : (
               <button
@@ -76,14 +79,14 @@ const MasSheetPanel = ({
         </div>
 
         <div className="massheet-footer">
-          <Link to="/" onClick={onClose} className="massheet-footer-item">
+          <Link to="/" onClick={onClose} className="massheet-footer-item massheet-footer-home">
             <span className="material-icons">home</span>
             <span>Volver al inicio</span>
           </Link>
 
           <button className="massheet-footer-item massheet-salir" onClick={handleSalir}>
             <span className="material-icons">logout</span>
-            <span>Salir</span>
+            <span>Cerrar sesión</span>
           </button>
         </div>
       </div>

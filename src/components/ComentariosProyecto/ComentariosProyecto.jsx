@@ -485,6 +485,23 @@ const ComentariosProyecto = () => {
                         </button>
                       )}
                     </p>
+
+                    {comentario.respuesta_admin && (
+                      <div className="comentarios-proyecto-respuesta">
+                        <span className="material-icons comentarios-proyecto-respuesta-icono">reply</span>
+                        <div className="comentarios-proyecto-respuesta-contenido">
+                          <div className="comentarios-proyecto-respuesta-autor">
+                            <span>Equipo GoyaNova</span>
+                            {comentario.respuesta_fecha && (
+                              <span className="comentarios-proyecto-respuesta-fecha">
+                                {formatearFecha(comentario.respuesta_fecha)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="comentarios-proyecto-respuesta-texto">{comentario.respuesta_admin}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

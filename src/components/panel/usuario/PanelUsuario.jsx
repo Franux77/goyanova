@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../auth/useAuth';
+import useContadoresPanelUsuario from '../../../hooks/useContadoresPanelUsuario';
+import { formatearBadge } from '../../../utils/contadoresPanel';
 import BottomNav from '../../navegacion/BottomNav';
 import MasSheetPanel from '../../navegacion/MasSheetPanel';
 import './PanelUsuario.css';
@@ -14,7 +16,7 @@ const ADMIN_EMAILS = [
 
 // 👇 QUITÉ 'publicar' de aquí
 const enlaces = [
-  { to: 'dashboard', label: 'Inicio', icon: 'dashboard' },
+  { to: 'dashboard', label: 'Mi Panel', icon: 'dashboard' },
   { type: 'button', action: 'publicar' },
   { to: 'mis-servicios', label: 'Mis Servicios', icon: 'work' },
     { to: 'mi-membresia', label: 'Mi Membresía', icon: 'card_membership' },
@@ -40,6 +42,9 @@ const PanelUsuario = () => {
   const [notificaciones, setNotificaciones] = useState([]);
   const [loadingServicios, setLoadingServicios] = useState(true);
   const [loadingNotificaciones, setLoadingNotificaciones] = useState(true);
+
+  // Numeritos del menú: avisos sin leer y reseñas nuevas
+  const contadores = useContadoresPanelUsuario(user, misServicios);
 
   useEffect(() => {
     if (user) {
@@ -253,6 +258,11 @@ const PanelUsuario = () => {
       >
         <span className="material-icons panel-nav-icon">{item.icon}</span>
         <span className="panel-nav-text">{item.label}</span>
+        {contadores[item.to] > 0 && (
+          <span className="panel-nav-badge" aria-label={`${contadores[item.to]} nuevos`}>
+            {formatearBadge(contadores[item.to])}
+          </span>
+        )}
         <span className="material-icons panel-nav-arrow">chevron_right</span>
       </NavLink>
     );
@@ -275,7 +285,7 @@ const PanelUsuario = () => {
             onClick={handleSalir}
           >
             <span className="material-icons">logout</span>
-            <span>Salir</span>
+            <span>Cerrar sesión</span>
           </button>
           <div className="panel-footer-brand">
             <span className="panel-footer-logo">GoyaNova</span>
@@ -299,12 +309,14 @@ const PanelUsuario = () => {
         <BottomNav
           variante="bottom-nav-panel-usuario"
           items={[
-            { to: '/panel/dashboard', label: 'Inicio', icon: 'home', end: true },
+            { to: '/', label: 'Al inicio', icon: 'home', end: true, resaltado: true },
+            { to: '/panel/dashboard', label: 'Mi Panel', icon: 'dashboard', end: true },
             { to: '/panel/mis-servicios', label: 'Servicios', icon: 'work' },
-            { to: '/panel/notificaciones', label: 'Avisos', icon: 'notifications' },
+            { to: '/panel/notificaciones', label: 'Avisos', icon: 'notifications', badge: contadores.notificaciones },
           ]}
           onMas={() => setMasAbierto(true)}
           masActivo={masAbierto}
+          masBadge={contadores.opiniones}
         />
       )}
 
@@ -321,7 +333,7 @@ const PanelUsuario = () => {
         items={enlaces.map((item, index) =>
           item.type === 'button' && item.action === 'publicar'
             ? { label: 'Publicar Servicio', icon: 'add_circle', onClick: handleIrAPublicar, key: `btn-${index}` }
-            : { to: `/panel/${item.to}`, label: item.label, icon: item.icon }
+            : { to: `/panel/${item.to}`, label: item.label, icon: item.icon, badge: contadores[item.to] }
         )}
         onSalir={handleSalir}
       />
