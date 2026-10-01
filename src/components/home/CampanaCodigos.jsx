@@ -138,6 +138,7 @@ const CampanaCodigos = ({ campana, user, esPremium, onCanjeado }) => {
 
             {!exito ? (
               <>
+              <div className="campcod-cuerpo">
                 <header className="campcod-header">
                   <span className="campcod-header-icono"><span className="material-icons">card_giftcard</span></span>
                   <h2>Canjeá tu código</h2>
@@ -176,7 +177,7 @@ const CampanaCodigos = ({ campana, user, esPremium, onCanjeado }) => {
                       type="text"
                       value={codigo}
                       onChange={(e) => { setCodigo(e.target.value.toUpperCase().replace(/\s/g, '')); setErrorCanje(''); }}
-                      placeholder="Ej: IMPULSO30"
+                      placeholder="Ej: GOYAIMP30"
                       maxLength={20}
                       autoComplete="off"
                       autoCapitalize="characters"
@@ -221,18 +222,25 @@ const CampanaCodigos = ({ campana, user, esPremium, onCanjeado }) => {
                   </div>
                 )}
 
+                <p className="campcod-nota">Un código por cuenta. Se puede canjear solo si no tenés un plan pago activo.</p>
+              </div>
+              <div className="campcod-pie">
                 <button
                   type="button"
                   className="campcod-canjear"
                   onClick={canjear}
                   disabled={!info?.ok || canjeando}
                 >
-                  {canjeando ? <><span className="campcod-spinner campcod-spinner-blanco" /> Canjeando...</> : <><span className="material-icons">redeem</span> Canjear código</>}
+                  {canjeando ? <><span className="campcod-spinner campcod-spinner-blanco" /> Canjeando...</> : <><span className="material-icons">redeem</span> Activar beneficio</>}
                 </button>
-                <p className="campcod-nota">Un código por cuenta. Se puede canjear solo si todavía no tenés un plan activo.</p>
+                <button type="button" className="campcod-secundario" onClick={cerrar} disabled={canjeando}>
+                  Ahora no
+                </button>
+              </div>
               </>
             ) : (
               <>
+              <div className="campcod-cuerpo">
                 <header className="campcod-header campcod-header-exito">
                   <span className="campcod-header-icono campcod-header-icono-ok"><span className="material-icons">celebration</span></span>
                   <h2>¡Listo, ya tenés tu plan!</h2>
@@ -268,12 +276,15 @@ const CampanaCodigos = ({ campana, user, esPremium, onCanjeado }) => {
                   </li>
                 </ul>
 
+              </div>
+              <div className="campcod-pie">
                 <button type="button" className="campcod-canjear" onClick={() => irA('/publicar')}>
                   <span className="material-icons">add_circle_outline</span> Publicar mi servicio ahora
                 </button>
                 <button type="button" className="campcod-secundario" onClick={() => irA('/panel/mi-membresia')}>
                   Ver mi membresía
                 </button>
+              </div>
               </>
             )}
           </div>

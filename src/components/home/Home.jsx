@@ -83,6 +83,7 @@ const Home = () => {
           .select('estado, tipo_membresia, fecha_fin')
           .eq('usuario_id', user.id)
           .eq('estado', 'activa')
+          .neq('tipo_membresia', 'gratis') // el plan Free no cuenta como plan activo
           .gte('fecha_fin', new Date().toISOString())
           .maybeSingle();
 
@@ -608,6 +609,7 @@ const Home = () => {
                 .select('estado, fecha_fin')
                 .eq('usuario_id', user.id)
                 .eq('estado', 'activa')
+                .neq('tipo_membresia', 'gratis') // el plan Free no cuenta como plan activo
                 .gte('fecha_fin', new Date().toISOString())
                 .maybeSingle();
 

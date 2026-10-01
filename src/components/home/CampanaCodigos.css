@@ -1,5 +1,10 @@
 /* ===== Campaña de códigos: botón del Home + modal ===== */
-.campcod-banner { padding: 0 16px; margin: 12px auto 4px; max-width: 720px; }
+/* Mismo ancho que el botón "Publicar un Servicio" (en celular ambos ocupan todo el ancho) */
+.campcod-banner { padding: 0; margin: 14px 0 4px; width: 100%; box-sizing: border-box; }
+@media (min-width: 769px) {
+  .campcod-banner { width: 340px; max-width: 100%; margin: 14px auto 4px; }
+  .publicar-servicio-hero .btn-publicar-hero { box-sizing: border-box; min-width: 340px; }
+}
 
 .campcod-boton {
   position: relative; overflow: hidden; width: 100%; display: flex; align-items: center; gap: 14px;
@@ -39,8 +44,9 @@
 @keyframes campcod-sube { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 .campcod-modal {
-  position: relative; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
-  background: #fff; color: #0f172a; border-radius: 24px 24px 0 0; padding: 22px 18px 22px;
+  position: relative; width: 100%; max-width: 680px; max-height: 92vh;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #fff; color: #0f172a; border-radius: 24px 24px 0 0; padding: 0;
   animation: campcod-sube .28s ease; box-sizing: border-box;
 }
 @media (min-width: 640px) {
@@ -135,4 +141,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .campcod-boton, .campcod-boton-brillo, .campcod-boton-icono .material-icons { animation: none; }
+}
+
+/* Cuerpo que se desplaza + pie fijo con los botones */
+.campcod-cuerpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 22px 20px 12px; -webkit-overflow-scrolling: touch; }
+.campcod-pie {
+  flex: 0 0 auto; padding: 12px 20px calc(14px + env(safe-area-inset-bottom));
+  background: #fff; border-top: 1px solid #e2e8f0; box-shadow: 0 -8px 18px rgba(15, 23, 42, .06);
+}
+.campcod-pie .campcod-canjear { margin-top: 0; }
+.campcod-pie .campcod-secundario { margin-top: 4px; padding: 10px; }
+@media (min-width: 640px) {
+  .campcod-cuerpo { padding: 26px 28px 12px; }
+  .campcod-pie { padding: 14px 28px 16px; }
+  .campcod-pasos { flex-direction: row; }
+  .campcod-paso { flex: 1; flex-direction: column; text-align: center; padding: 14px 10px; }
+  .campcod-paso-icono { display: none; }
 }

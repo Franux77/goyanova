@@ -1,5 +1,5 @@
 // src/components/categorias/CategoryList.jsx - CON EMPTY STATE
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import CategoryCard from '../home/CategoryCard';
 import './CategoryList.css';
 import { supabase } from '../../utils/supabaseClient';
@@ -11,6 +11,14 @@ const CategoryList = ({ type, onSelectCategory }) => {
   const [serviciosDB, setServiciosDB] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // ----- Paginación deslizable -----
+  const calcularPorPagina = () => 12;
+  const [porPagina, setPorPagina] = useState(calcularPorPagina);
+  const [pagina, setPagina] = useState(0);
+  const [arrastrando, setArrastrando] = useState(false);
+  const carruselRef = useRef(null);
+  const arrastre = useRef({ activo: false, inicioX: 0, inicioScroll: 0, dx: 0, movido: false });
 
   const placeholderTexts = [
     'Busca una categoría...',
@@ -170,6 +178,80 @@ const CategoryList = ({ type, onSelectCategory }) => {
     });
   }, [categoriasFiltradas, serviciosDB, busqueda]);
 
+  const listaMostrada = busqueda.trim() ? categoriasConConteo : categoriasFiltradas;
+
+  const paginas = useMemo(() => {
+    const grupos = [];
+    for (let i = 0; i < listaMostrada.length; i += porPagina) {
+      grupos.push(listaMostrada.slice(i, i + porPagina));
+    }
+    return grupos;
+  }, [listaMostrada, porPagina]);
+  const totalPaginas = paginas.length;
+
+  useEffect(() => {
+    const alCambiarTamano = () => setPorPagina(calcularPorPagina());
+    window.addEventListener('resize', alCambiarTamano);
+    return () => window.removeEventListener('resize', alCambiarTamano);
+  }, []);
+
+  // Al cambiar de búsqueda, tipo o tamaño de página, vuelve a la primera página
+  useEffect(() => {
+    setPagina(0);
+    if (carruselRef.current) carruselRef.current.scrollTo({ left: 0 });
+  }, [busqueda, type, porPagina]);
+
+  const irAPagina = useCallback((indice) => {
+    const el = carruselRef.current;
+    if (!el) return;
+    const destino = Math.max(0, Math.min(indice, totalPaginas - 1));
+    el.scrollTo({ left: destino * el.clientWidth, behavior: 'smooth' });
+  }, [totalPaginas]);
+
+  const alDeslizar = (e) => {
+    const el = e.currentTarget;
+    if (!el.clientWidth) return;
+    const indice = Math.round(el.scrollLeft / el.clientWidth);
+    setPagina((actual) => (actual === indice ? actual : indice));
+  };
+
+  // Arrastre con mouse (en celular el deslizado es nativo)
+  const alPresionar = (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || !carruselRef.current) return;
+    arrastre.current = { activo: true, inicioX: e.clientX, inicioScroll: carruselRef.current.scrollLeft, dx: 0, movido: false };
+  };
+  const alMover = (e) => {
+    const a = arrastre.current;
+    if (!a.activo) return;
+    a.dx = e.clientX - a.inicioX;
+    if (!a.movido && Math.abs(a.dx) > 6) {
+      a.movido = true;
+      setArrastrando(true);
+    }
+    if (a.movido) carruselRef.current.scrollLeft = a.inicioScroll - a.dx;
+  };
+  const alSoltar = () => {
+    const a = arrastre.current;
+    if (!a.activo) return;
+    a.activo = false;
+    if (a.movido) {
+      const el = carruselRef.current;
+      let destino = Math.round(a.inicioScroll / el.clientWidth);
+      if (a.dx < -60) destino += 1;
+      else if (a.dx > 60) destino -= 1;
+      setArrastrando(false);
+      irAPagina(destino);
+      setTimeout(() => { arrastre.current.movido = false; }, 0);
+    }
+  };
+  // Si fue un arrastre, no se abre la categoría sobre la que se soltó
+  const bloquearClickTrasArrastre = (e) => {
+    if (arrastre.current.movido) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  };
+
   const hayResultados = categoriasFiltradas.length > 0;
   const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
   const sinServiciosEnAbsoluto = !loading && categoriasDB.length === 0 && busqueda.trim() === '';
@@ -294,24 +376,93 @@ const CategoryList = ({ type, onSelectCategory }) => {
             </div>
           )}
 
-          {/* Lista de categorías */}
+          {/* Lista de categorías: páginas que se deslizan */}
           {hayResultados && (
-            <div className="category-list">
-              {(busqueda.trim() ? categoriasConConteo : categoriasFiltradas).map((cat) => (
-                <div key={cat.id} className="category-card-wrapper">
-                  <CategoryCard
-                    title={cat.title}
-                    icon={cat.icon}
-                    onSelect={handleSelectCategory}
-                  />
-                  {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
-                    <div className="category-badge">
-                      {cat.serviciosCoincidentes} {type === 'servicio' ? 'oficio' : 'negocio'}
-                      {cat.serviciosCoincidentes === 1 ? '' : 's'}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="categorias-carrusel-wrap">
+              <div
+                ref={carruselRef}
+                className={`categorias-carrusel ${arrastrando ? 'categorias-carrusel-arrastrando' : ''}`}
+                onScroll={alDeslizar}
+                onPointerDown={alPresionar}
+                onPointerMove={alMover}
+                onPointerUp={alSoltar}
+                onPointerLeave={alSoltar}
+                onPointerCancel={alSoltar}
+                onClickCapture={bloquearClickTrasArrastre}
+              >
+                {paginas.map((grupo, i) => (
+                  <div
+                    key={i}
+                    className="category-list categorias-pagina"
+                    aria-hidden={i !== pagina}
+                    role="group"
+                    aria-label={`Página ${i + 1} de ${totalPaginas}`}
+                  >
+                    {grupo.map((cat) => (
+                      <div key={cat.id} className="category-card-wrapper">
+                        <CategoryCard
+                          title={cat.title}
+                          icon={cat.icon}
+                          onSelect={handleSelectCategory}
+                        />
+                        {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
+                          <div className="category-badge">
+                            {cat.serviciosCoincidentes} {type === 'servicio' ? 'oficio' : 'negocio'}
+                            {cat.serviciosCoincidentes === 1 ? '' : 's'}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {totalPaginas > 1 && (
+                <nav className="categorias-paginacion" aria-label="Páginas de categorías">
+                  <button
+                    type="button"
+                    className="categorias-pag-flecha"
+                    onClick={() => irAPagina(pagina - 1)}
+                    disabled={pagina === 0}
+                    aria-label="Página anterior"
+                  >
+                    <span className="material-icons">chevron_left</span>
+                  </button>
+
+                  <div className="categorias-pag-centro">
+                    <span className="categorias-pag-contador" aria-live="polite">
+                      <strong>{pagina + 1}</strong> / {totalPaginas}
+                    </span>
+                    {totalPaginas <= 8 ? (
+                      <div className="categorias-pag-puntos">
+                        {paginas.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            className={`categorias-pag-punto ${i === pagina ? 'categorias-pag-punto-activo' : ''}`}
+                            onClick={() => irAPagina(i)}
+                            aria-label={`Ir a la página ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="categorias-pag-barra" aria-hidden="true">
+                        <span style={{ width: `${((pagina + 1) / totalPaginas) * 100}%` }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="categorias-pag-flecha"
+                    onClick={() => irAPagina(pagina + 1)}
+                    disabled={pagina === totalPaginas - 1}
+                    aria-label="Página siguiente"
+                  >
+                    <span className="material-icons">chevron_right</span>
+                  </button>
+                </nav>
+              )}
             </div>
           )}
         </>
