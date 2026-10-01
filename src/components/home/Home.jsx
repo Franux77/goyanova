@@ -9,6 +9,7 @@ import ModalCodigoPromo from '../../auth/login/ModalCodigoPromo';
 import MapaHome from './MapaHome';
 import HistoriasHome from './HistoriasHome';
 import CampanaCodigos from './CampanaCodigos';
+import ResenasHome from './ResenasHome';
 import useCampanaCodigos from '../../hooks/useCampanaCodigos';
 import { supabase } from '../../utils/supabaseClient';
 
@@ -321,6 +322,9 @@ const Home = () => {
         onCanjeado={() => setEsPremium(true)}
       />
 
+      <div className="home-fila-pc">
+      <ResenasHome />
+
     {mostrarBanner && tiempoRestante && (
         <section className="promo-code-banner">
           <div className="banner-content">
@@ -483,6 +487,7 @@ const Home = () => {
         </div>
         </div>
       </section>  
+      </div>
 
       {/* <section className="goya-howworks-section">
         <h2 className="goya-section-title">¿Cómo funciona?</h2>

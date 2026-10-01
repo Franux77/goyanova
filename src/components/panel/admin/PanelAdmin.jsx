@@ -55,6 +55,7 @@ const PanelAdmin = () => {
     { nombre: 'Dashboard', ruta: '/panel/admin/dashboard', icono: 'dashboard' },
     { nombre: 'Usuarios', ruta: '/panel/admin/usuarios', icono: 'people', clave: 'usuarios' },
     { nombre: 'Servicios', ruta: '/panel/admin/servicios', icono: 'build', clave: 'servicios' },
+    { nombre: 'Actividad', ruta: '/panel/admin/actividad', icono: 'monitor_heart' },
     { nombre: 'Categorías', ruta: '/panel/admin/categorias', icono: 'folder' },
     { nombre: 'Reseñas GoyaNova', ruta: '/panel/admin/comentarios', icono: 'reviews', clave: 'comentarios' },
     { nombre: 'Asistente IA', ruta: '/panel/admin/asistente', icono: 'smart_toy', clave: 'asistente' },

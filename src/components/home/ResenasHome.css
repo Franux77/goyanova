@@ -1,0 +1,156 @@
+/* Franja de reseñas del Home: mismo ancho que "Publicar un Servicio" y el botón de la campaña
+   (100% en celular, 340px centrado en PC), un solo diseño para todas las pantallas */
+.resenas-home {
+  display: flex; flex-direction: column; gap: 10px;
+  width: 100%; box-sizing: border-box; margin: 14px 0 4px; padding: 14px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 100%);
+  border: 1px solid #bfdbfe; border-radius: 16px; box-shadow: 0 4px 14px rgba(37,99,235,.08);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.resenas-home-izq { display: flex; align-items: center; gap: 12px; }
+.resenas-home-nota {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 3px; padding: 8px 12px; border-radius: 12px;
+  background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(37,99,235,.15);
+}
+.resenas-home-nota .material-icons { font-size: 22px; color: #f59e0b; }
+.resenas-home-nota strong { font-size: 20px; font-weight: 800; line-height: 1; }
+.resenas-home-texto { display: flex; flex-direction: column; line-height: 1.25; text-align: left; min-width: 0; }
+.resenas-home-texto strong { font-size: 15px; color: #0f172a; }
+.resenas-home-texto span { font-size: 12.5px; color: #475569; }
+.resenas-home-cita {
+  margin: 0; padding: 9px 12px; box-sizing: border-box; overflow: hidden;
+  background: rgba(255,255,255,.75); border-left: 3px solid #10b981; border-radius: 10px;
+  font-size: 13px; line-height: 1.4; color: #334155; text-align: left;
+  animation: resenasFade .5s ease;
+}
+/* El recorte de líneas va en el texto (no en la caja con padding), así el nombre nunca queda cortado */
+.resenas-home-cita-texto {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;
+}
+.resenas-home-cita em { display: block; margin-top: 2px; color: #64748b; font-style: normal; font-weight: 600; font-size: 12px; }
+@keyframes resenasFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.resenas-home-btn {
+  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 14px; border: 0; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font: 700 14.5px 'Inter', sans-serif;
+  box-shadow: 0 6px 16px rgba(37,99,235,.3); transition: transform .15s, filter .15s;
+}
+.resenas-home-btn .material-icons { font-size: 20px; }
+.resenas-home-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.resenas-home-btn:active { transform: scale(.98); }
+
+/* PC: franja horizontal del mismo ancho que las tarjetas de abajo (tutoriales, servicios).
+   Así no depende de si el botón de la promo está o no: queda prolija en los dos casos. */
+@media (min-width: 769px) {
+  .resenas-home {
+    width: 100%; max-width: 1200px; margin: 18px auto 4px;
+    flex-direction: row; align-items: center; gap: 22px; padding: 12px 18px; border-radius: 18px;
+  }
+  .resenas-home-izq { flex: 0 0 auto; }
+  .resenas-home-cita { flex: 1 1 auto; min-width: 0; padding: 8px 16px; font-size: 14px; }
+  .resenas-home-cita-texto { -webkit-line-clamp: 1; min-height: 1.4em; }
+  .resenas-home-btn { width: auto; flex: 0 0 auto; padding: 12px 26px; white-space: nowrap; }
+}
+
+/* ===== PC ancho (1200px o más): fila de 3 tarjetas iguales =====
+   ¿Primera vez en GoyaNova? | Reseñas | Servicios en Goya, Corrientes
+   Mismo ancho (1/3 cada una), mismo alto (88px) y alineadas. Abajo de 1200px se mantiene
+   la franja de reseñas de ancho completo y las otras dos tarjetas quedan como siempre. */
+.home-fila-pc { display: contents; }
+.resenas-solo-movil { display: inline; }
+@media (min-width: 1200px) {
+  .home-fila-pc {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start;
+    max-width: none; margin: 22px 32px 1.5rem; /* 32px + 8px del Home = 40px, como el borde del menú de arriba */
+  }
+  .home-fila-pc > .promo-code-banner { grid-column: 1 / -1; order: -1; margin: 0; }
+  .home-fila-pc > .goya-tutorial-section { order: 1; margin: 0; }
+  .home-fila-pc > .resenas-home { order: 2; }
+  .home-fila-pc > .goya-hero-section { order: 3; margin: 0; }
+
+  /* Cabeceras con el mismo alto: tutorial 128 + 2 bordes de 2px = 132; servicios 132; reseñas 132 */
+  .home-fila-pc .goya-tutorial-toggle { height: 128px; padding: 0 20px; box-sizing: border-box; gap: 16px; }
+  .home-fila-pc .goya-hero-toggle { height: 132px; padding: 0 20px; box-sizing: border-box; gap: 16px; }
+  .home-fila-pc .goya-tutorial-toggle-icon { width: 54px; height: 54px; font-size: 1.7rem !important; }
+  .home-fila-pc .goya-hero-toggle-icon { width: 54px; height: 54px; font-size: 1.7rem !important; }
+  .home-fila-pc .goya-tutorial-toggle-text, .home-fila-pc .goya-hero-toggle-text { min-width: 0; }
+  .home-fila-pc .goya-tutorial-toggle-text strong { font-size: 1.05rem; }
+  .home-fila-pc .goya-tutorial-toggle-text span { font-size: 0.82rem; }
+  .home-fila-pc .goya-hero-toggle-text strong { font-size: 1.05rem; }
+  .home-fila-pc .goya-hero-toggle-text span { font-size: 0.82rem; }
+  .home-fila-pc .goya-tutorial-toggle-text strong, .home-fila-pc .goya-tutorial-toggle-text span,
+  .home-fila-pc .goya-hero-toggle-text strong, .home-fila-pc .goya-hero-toggle-text span {
+    white-space: normal; overflow: visible; line-height: 1.25;
+  }
+  /* Al desplegar el tutorial, los videos van uno abajo del otro (la columna es angosta) */
+  .home-fila-pc .goya-tutorial-grid { grid-template-columns: 1fr; gap: 12px; }
+  .home-fila-pc .goya-tutorial-card { flex-direction: row; text-align: left; padding: 12px 14px; gap: 12px; }
+  .home-fila-pc .goya-tutorial-grid { margin-bottom: 14px; }
+  .home-fila-pc .goya-tutorial-collapse.abierta { max-height: 1000px; padding: 0 16px 16px; }
+  .home-fila-pc .goya-tutorial-collapse { padding: 0 16px; }
+
+  /* Tarjeta de reseñas compacta */
+  .home-fila-pc > .resenas-home {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "izq btn" "cita cita";
+    align-items: center; column-gap: 12px; row-gap: 8px;
+    width: auto; max-width: none; height: 132px; box-sizing: border-box; margin: 0; padding: 12px 18px;
+    border-radius: 20px; overflow: hidden;
+  }
+  .home-fila-pc > .resenas-home .resenas-home-izq { grid-area: izq; min-width: 0; gap: 10px; }
+  .home-fila-pc > .resenas-home .resenas-home-nota { padding: 6px 11px; }
+  .home-fila-pc > .resenas-home .resenas-home-texto strong { font-size: 14px; }
+  .home-fila-pc > .resenas-home .resenas-home-texto span { display: none; }
+  .home-fila-pc > .resenas-home .resenas-home-btn { grid-area: btn; width: auto; padding: 10px 14px; font-size: 13.5px; white-space: nowrap; }
+  .home-fila-pc > .resenas-home .resenas-solo-movil { display: none; }
+  .home-fila-pc > .resenas-home .resenas-home-cita {
+    grid-area: cita; align-self: stretch; min-width: 0;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    padding: 4px 12px; font-size: 13px; line-height: 1.28;
+  }
+  .home-fila-pc > .resenas-home .resenas-home-cita-texto { display: inline; min-height: 0; }
+  .home-fila-pc > .resenas-home .resenas-home-cita em { display: inline; margin: 0 0 0 4px; font-size: 12px; white-space: nowrap; }
+}
+
+/* Modal */
+.resenas-modal-fondo {
+  position: fixed; inset: 0; z-index: 2000; background: rgba(15,23,42,.55);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.resenas-modal {
+  position: relative; width: 100%; max-width: 440px; max-height: 92vh; overflow-y: auto;
+  background: #fff; color: #0f172a; border-radius: 22px 22px 0 0; padding: 22px 18px 20px;
+  font-family: 'Inter', sans-serif; box-shadow: 0 -10px 30px rgba(15,23,42,.25);
+}
+@media (min-width: 560px) {
+  .resenas-modal-fondo { align-items: center; }
+  .resenas-modal { border-radius: 22px; }
+}
+.resenas-modal h3 { margin: 0 28px 4px 0; font-size: 19px; font-weight: 800; }
+.resenas-modal-sub { margin: 0 0 12px; font-size: 13px; color: #475569; }
+.resenas-modal-cerrar {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 0; border-radius: 50%;
+  background: #f1f5f9; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.resenas-estrellas { display: flex; justify-content: center; gap: 2px; margin-bottom: 10px; }
+.resenas-estrellas button { border: 0; background: transparent; cursor: pointer; padding: 0; color: #cbd5e1; }
+.resenas-estrellas button.activa { color: #f59e0b; }
+.resenas-estrellas .material-icons { font-size: 40px; }
+.resenas-modal textarea, .resenas-modal input {
+  width: 100%; box-sizing: border-box; padding: 11px 12px; border: 2px solid #e2e8f0; border-radius: 12px;
+  font: 400 14px 'Inter', sans-serif; color: #0f172a; outline: none; background: #fff;
+}
+.resenas-modal textarea { resize: vertical; margin-bottom: 8px; }
+.resenas-modal textarea:focus, .resenas-modal input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+.resenas-modal-fila { display: grid; gap: 8px; grid-template-columns: 1fr; }
+@media (min-width: 560px) { .resenas-modal-fila { grid-template-columns: 1fr 1fr; } }
+.resenas-modal-error { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: #fef2f2; color: #b91c1c; font-size: 13px; }
+.resenas-modal-enviar {
+  width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 14px; cursor: pointer;
+  background: #2563eb; color: #fff; font: 800 15px 'Inter', sans-serif; box-shadow: 0 6px 16px rgba(37,99,235,.3);
+}
+.resenas-modal-enviar:disabled { background: #94a3b8; box-shadow: none; cursor: wait; }
+.resenas-modal-nota { margin: 8px 0 0; text-align: center; font-size: 12px; color: #94a3b8; }
+.resenas-modal-ok { text-align: center; padding: 10px 0; }
+.resenas-modal-ok .material-icons { font-size: 60px; color: #16a34a; }
+.resenas-modal-ok h3 { margin: 6px 0 4px; }
+.resenas-modal-ok p { margin: 0; color: #475569; font-size: 14px; }
