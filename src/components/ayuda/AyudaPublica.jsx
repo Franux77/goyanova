@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../../auth/useAuth';
+import { llamarEmail } from '../../utils/llamarEmail';
 import NavbarGeneral from '../home/NavbarGeneral'; // 🔥 Importar aquí
 import Loading from '../loading/Loading';
 import './AyudaPublica.css';
@@ -73,49 +74,18 @@ const AyudaPublica = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-   const enviarEmailBrevo = async (datos) => {
+  const enviarEmailBrevo = async (datos) => {
     try {
-      const notificacionInterna = await fetch('/.netlify/functions/enviar-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          senderName: 'GoyaNova Ayuda',
-          to: { email: 'goyanovasoporte@gmail.com', name: 'Soporte GoyaNova' },
-          subject: `[Ayuda Pública] ${datos.asunto}`,
-          htmlContent: `
-            <h2>Nueva Consulta desde Ayuda Pública</h2>
-            <p><strong>Nombre:</strong> ${datos.nombre}</p>
-            <p><strong>Email:</strong> ${datos.email}</p>
-            <p><strong>Asunto:</strong> ${datos.asunto}</p>
-            <p><strong>Mensaje:</strong></p>
-            <p>${datos.mensaje.replace(/\n/g, '<br>')}</p>
-            <p><em>Usuario ${user ? 'logueado' : 'no logueado'}</em></p>
-          `,
-          replyTo: { email: datos.email, name: datos.nombre }
-        }),
+      // El servidor arma los mails (aviso a soporte + confirmación al visitante) y decide los destinatarios
+      const { ok } = await llamarEmail({
+        tipo: 'contacto',
+        origen: 'publica',
+        nombre: datos.nombre,
+        email: datos.email,
+        asunto: datos.asunto,
+        mensaje: datos.mensaje,
       });
-
-      if (notificacionInterna.ok) {
-        // Email confirmación al usuario
-        await fetch('/.netlify/functions/enviar-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            senderName: 'Soporte GoyaNova',
-            to: { email: datos.email, name: datos.nombre },
-            subject: 'Recibimos tu consulta - GoyaNova',
-            htmlContent: `
-              <h2>¡Hola ${datos.nombre}!</h2>
-              <p>Hemos recibido tu consulta y te responderemos en menos de 24 horas.</p>
-              <h3>Resumen:</h3>
-              <p><strong>Asunto:</strong> ${datos.asunto}</p>
-              <p><strong>Mensaje:</strong> ${datos.mensaje}</p>
-            `
-          }),
-        });
-        return true;
-      }
-      return false;
+      return ok;
     } catch (error) {
       console.error('Error al enviar email:', error);
       return false;

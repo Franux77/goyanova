@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase, selectWithRetry, updateWithRetry, deleteWithRetry } from '../../../utils/supabaseClient';
 import './MensajesSoporte.css';
 import Loading from '../../loading/Loading';
+import { llamarEmail } from '../../../utils/llamarEmail';
 
 const MensajesSoporte = () => {
   const [mensajes, setMensajes] = useState([]);
@@ -183,9 +184,11 @@ const MensajesSoporte = () => {
 
       if (updateError) throw updateError;
 
-      await enviarEmailRespuesta(mensajeSeleccionado, respuesta);
+      const emailEnviado = await enviarEmailRespuesta(mensajeSeleccionado);
 
-      alert('Respuesta enviada con éxito');
+      alert(emailEnviado
+        ? 'Respuesta enviada con éxito'
+        : 'La respuesta se guardó, pero no se pudo enviar el email. Escribile al usuario desde su correo.');
       setRespuesta('');
       setMensajeSeleccionado(null);
       await cargarMensajes();
@@ -199,74 +202,15 @@ const MensajesSoporte = () => {
     }
   };
 
-   const enviarEmailRespuesta = async (mensaje, respuestaTexto) => {
+  const enviarEmailRespuesta = async (mensaje) => {
     try {
-      await fetch('/.netlify/functions/enviar-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          senderName: 'Soporte GoyaNova',
-          to: { email: mensaje.email, name: mensaje.nombre },
-          subject: `Re: ${mensaje.asunto}`,
-          htmlContent: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
-                .ms-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .ms-header { background: linear-gradient(135deg, #1774f6 0%, #0d5dd9 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                .ms-content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
-                .ms-footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
-                .ms-message-box { background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #1774f6; margin: 20px 0; }
-                .ms-response-box { background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 3px solid #1774f6; margin: 20px 0; }
-              </style>
-            </head>
-            <body>
-              <div class="ms-container">
-                <div class="ms-header">
-                  <h1>✅ Respuesta a tu Consulta</h1>
-                  <p style="margin: 10px 0 0 0; opacity: 0.9;">Equipo de Soporte GoyaNova</p>
-                </div>
-                
-                <div class="ms-content">
-                  <h2 style="color: #1774f6;">¡Hola ${mensaje.nombre}!</h2>
-                  <p>Hemos revisado tu consulta y aquí está nuestra respuesta:</p>
-                  
-                  <div class="ms-message-box">
-                    <strong>Tu consulta original:</strong><br>
-                    <strong>Asunto:</strong> ${mensaje.asunto}<br>
-                    <strong>Mensaje:</strong><br>
-                    ${mensaje.mensaje.replace(/\n/g, '<br>')}
-                  </div>
-                  
-                  <div class="ms-response-box">
-                    <strong>📩 Nuestra Respuesta:</strong><br><br>
-                    ${respuestaTexto.replace(/\n/g, '<br>')}
-                  </div>
-                  
-                  <p>Si necesitas más ayuda o tienes alguna duda adicional, no dudes en contactarnos nuevamente.</p>
-                  
-                  <p style="margin-top: 30px;">
-                    Saludos cordiales,<br>
-                    <strong>Equipo de Soporte GoyaNova</strong>
-                  </p>
-                </div>
-                
-                <div class="ms-footer">
-                  <p><strong>GoyaNova</strong></p>
-                  <p>📧 goyanovasoporte@gmail.com</p>
-                  <p style="margin-top: 10px; color: #999;">Este email fue enviado en respuesta a tu consulta #${mensaje.id.substring(0, 8)}</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `
-        }),
-      });
+      // El servidor lee la respuesta guardada en la base y la manda SOLO al email del mensaje original
+      const { ok, data } = await llamarEmail({ tipo: 'respuesta_soporte', mensaje_id: mensaje.id });
+      if (!ok) console.error('No se pudo enviar el email de respuesta:', data?.message);
+      return ok;
     } catch (error) {
       console.error('Error al enviar email:', error);
+      return false;
     }
   };
 

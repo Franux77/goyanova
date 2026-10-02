@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
+import { limpiarTexto } from '../../utils/limpiarTexto';
 import './ComentariosProyecto.css';
 
 const ComentariosProyecto = () => {
@@ -296,7 +297,7 @@ const ComentariosProyecto = () => {
                 <input
                   type="text"
                   value={formData.nombre_completo}
-                  onChange={(e) => setFormData({ ...formData, nombre_completo: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, nombre_completo: limpiarTexto(e.target.value) })}
                   placeholder="Juan Pérez"
                   required
                   minLength={3}
@@ -354,7 +355,7 @@ const ComentariosProyecto = () => {
               </label>
               <textarea
                 value={formData.comentario}
-                onChange={(e) => setFormData({ ...formData, comentario: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, comentario: limpiarTexto(e.target.value) })}
                 placeholder="Cuéntanos tu experiencia con GoyaNova..."
                 required
                 minLength={10}
@@ -564,7 +565,7 @@ const ComentariosProyecto = () => {
             <textarea
               className="comentarios-proyecto-modal-textarea"
               value={descripcionReporte}
-              onChange={(e) => setDescripcionReporte(e.target.value)}
+              onChange={(e) => setDescripcionReporte(limpiarTexto(e.target.value))}
               placeholder="Describe el problema (opcional)"
             />
 

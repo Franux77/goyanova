@@ -37,8 +37,6 @@ const PerfilDetalle = () => {
                 nombre,
                 apellido,
                 foto_url,
-                email,
-                telefono,
                 ultima_actividad
               ),
               categoria:categorias ( nombre )

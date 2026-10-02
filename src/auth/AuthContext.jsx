@@ -1,6 +1,7 @@
 // src/auth/AuthContext.jsx - VERSIÓN CORREGIDA
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { llamarEmail } from '../utils/llamarEmail';
 
 export const AuthContext = createContext();
 
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     return `${navegador} en ${so}`;
   };
 
-  const notificarNuevoLogin = (usuario, metodo) => {
+  const notificarNuevoLogin = (usuario, metodo, accessToken) => {
     try {
       // Supabase emite SIGNED_IN también al reabrir la app o volver a la pestaña con la
       // sesión ya iniciada. Un login REAL cambia `last_sign_in_at`; si es el mismo valor
@@ -121,7 +122,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       const dispositivo = obtenerDescripcionDispositivo();
-      const fecha = new Date().toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' });
 
       // Guardar el registro del login (no bloqueante)
       supabase.from('logins_registrados').insert({
@@ -131,29 +131,9 @@ export const AuthProvider = ({ children }) => {
         metodo
       });
 
-      // Mandar el email de aviso (no bloqueante, no frena el login)
-      fetch('/.netlify/functions/enviar-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          senderName: 'GoyaNova Seguridad',
-          to: { email: usuario.email, name: usuario.email },
-          subject: 'Nuevo inicio de sesión en tu cuenta de GoyaNova',
-          htmlContent: `
-            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
-              <h2 style="color: #1774f6;">Nuevo inicio de sesión detectado</h2>
-              <p>Se inició sesión en tu cuenta de GoyaNova:</p>
-              <ul style="line-height: 1.8;">
-                <li><strong>Dispositivo:</strong> ${dispositivo}</li>
-                <li><strong>Método:</strong> ${metodo === 'google' ? 'Google' : 'Correo y contraseña'}</li>
-                <li><strong>Fecha:</strong> ${fecha}</li>
-              </ul>
-              <p>Si fuiste vos, no necesitás hacer nada.</p>
-              <p style="color: #dc2626;"><strong>Si NO fuiste vos</strong>, cambiá tu contraseña ahora mismo desde la pantalla de inicio de sesión, opción "¿Olvidaste tu contraseña?".</p>
-            </div>
-          `
-        })
-      }).catch(() => {});
+      // Pedir el aviso por email (no bloqueante, no frena el login).
+      // El servidor arma el mensaje y lo manda SOLO al email de la cuenta con la sesión iniciada.
+      llamarEmail({ tipo: 'login_nuevo', dispositivo, metodo }, accessToken).catch(() => {});
     } catch {
       // Nunca romper el login por esto
     }
@@ -675,7 +655,7 @@ export const AuthProvider = ({ children }) => {
             await crearPerfilDesdeGoogle(session.user);
           }
 
-          notificarNuevoLogin(session.user, provider === 'google' ? 'google' : 'password');
+          notificarNuevoLogin(session.user, provider === 'google' ? 'google' : 'password', session.access_token);
           
           setUser(session.user);
           

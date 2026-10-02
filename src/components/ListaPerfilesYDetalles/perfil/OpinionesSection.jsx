@@ -4,6 +4,7 @@ import { FaStar } from 'react-icons/fa';
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../../../utils/supabaseClient';
 import { AuthContext } from '../../../auth/AuthContext';
+import { limpiarTexto } from '../../../utils/limpiarTexto';
 import './OpinionesSection.css';
 
 // ========== VALIDACIONES PROFESIONALES ==========
@@ -152,7 +153,7 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
   };
 
   const handleCambioComentario = (e) => {
-    const nuevoTexto = e.target.value;
+    const nuevoTexto = limpiarTexto(e.target.value);
     setComentario(nuevoTexto);
     setContadorCaracteres(nuevoTexto.length);
 
@@ -396,7 +397,7 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
             const texto = opinion.comentario || '';
             const esLargo = texto.length > limiteTexto;
             const mostrarCompleto = expandida[i];
-            const esMiComentario = opinion.usuario?.id === usuarioLogueado.id;
+            const esMiComentario = !!usuarioLogueado?.id && !!opinion.usuario?.id && String(opinion.usuario.id) === String(usuarioLogueado.id);
 
             return (
               <li key={opinion.id || i} className="opinion-card-item">
@@ -525,7 +526,7 @@ const OpinionesSection = ({ servicioPropietarioId }) => {
                           onChange={(e) =>
                             setRespuestasEditando(prev => ({
                               ...prev,
-                              [opinion.id]: e.target.value,
+                              [opinion.id]: limpiarTexto(e.target.value),
                             }))
                           }
                           placeholder="Escribí tu respuesta..."

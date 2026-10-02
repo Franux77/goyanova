@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../utils/supabaseClient';
+import { llamarEmail } from '../../../utils/llamarEmail';
 import './AyudaSoporte.css';
 import Loading from '../../loading/Loading';
 
@@ -75,151 +76,18 @@ const AyudaSoporte = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-    const enviarEmailBrevo = async (datos) => {
+  const enviarEmailBrevo = async (datos) => {
     try {
-      const notificacionInterna = await fetch('/.netlify/functions/enviar-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          senderName: 'GoyaNova Ayuda',
-          to: { email: 'goyanovasoporte@gmail.com', name: 'Soporte GoyaNova' },
-          subject: `[Ayuda] ${datos.asunto}`,
-          htmlContent: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
-                .ayuda-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .ayuda-header { background: linear-gradient(135deg, #1774f6 0%, #0d5dd9 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                .ayuda-header h1 { margin: 0; font-size: 24px; }
-                .ayuda-content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
-                .ayuda-field { margin-bottom: 20px; }
-                .ayuda-field-label { font-weight: 600; color: #1774f6; margin-bottom: 5px; }
-                .ayuda-field-value { background: #f8f9fa; padding: 12px; border-radius: 6px; border-left: 3px solid #1774f6; }
-                .ayuda-footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
-                .ayuda-info-box { background: #e3f2fd; border-left: 4px solid #1774f6; padding: 15px; margin-top: 20px; border-radius: 4px; }
-              </style>
-            </head>
-            <body>
-              <div class="ayuda-container">
-                <div class="ayuda-header">
-                  <h1>🆘 Nueva Consulta de Ayuda</h1>
-                  <p style="margin: 10px 0 0 0; opacity: 0.9;">Centro de Soporte - Panel Usuario</p>
-                </div>
-                
-                <div class="ayuda-content">
-                  <div class="ayuda-field">
-                    <div class="ayuda-field-label">👤 Nombre del Usuario:</div>
-                    <div class="ayuda-field-value">${datos.nombre}</div>
-                  </div>
-                  
-                  <div class="ayuda-field">
-                    <div class="ayuda-field-label">📧 Email de Contacto:</div>
-                    <div class="ayuda-field-value">${datos.email}</div>
-                  </div>
-                  
-                  <div class="ayuda-field">
-                    <div class="ayuda-field-label">📋 Asunto:</div>
-                    <div class="ayuda-field-value">${datos.asunto}</div>
-                  </div>
-                  
-                  <div class="ayuda-field">
-                    <div class="ayuda-field-label">💬 Mensaje:</div>
-                    <div class="ayuda-field-value">${datos.mensaje.replace(/\n/g, '<br>')}</div>
-                  </div>
-                  
-                  <div class="ayuda-info-box">
-                    <strong>ℹ️ Información adicional:</strong><br>
-                    Fecha: ${new Date().toLocaleString('es-AR')}<br>
-                    Origen: Panel de Usuario - Sección Ayuda y Soporte
-                  </div>
-                </div>
-                
-                <div class="ayuda-footer">
-                  <p><strong>GoyaNova</strong></p>
-                  <p>Este email fue enviado automáticamente desde el Centro de Ayuda</p>
-                  <p style="color: #999; margin-top: 10px;">Por favor, responde directamente a ${datos.email}</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `,
-          replyTo: { email: datos.email, name: datos.nombre }
-        }),
+      // El servidor arma los mails (aviso a soporte + confirmación al visitante) y decide los destinatarios
+      const { ok } = await llamarEmail({
+        tipo: 'contacto',
+        origen: 'panel',
+        nombre: datos.nombre,
+        email: datos.email,
+        asunto: datos.asunto,
+        mensaje: datos.mensaje,
       });
-
-      if (notificacionInterna.ok) {
-        // Email de confirmación al usuario
-        await fetch('/.netlify/functions/enviar-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            senderName: 'Soporte GoyaNova',
-            to: { email: datos.email, name: datos.nombre },
-            subject: 'Recibimos tu consulta - GoyaNova',
-            htmlContent: `
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <meta charset="UTF-8">
-                <style>
-                  body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
-                  .ayuda-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                  .ayuda-header { background: linear-gradient(135deg, #1774f6 0%, #0d5dd9 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                  .ayuda-content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
-                  .ayuda-success-icon { font-size: 48px; text-align: center; margin: 20px 0; }
-                  .ayuda-message { text-align: center; font-size: 16px; margin: 20px 0; }
-                  .ayuda-details { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
-                  .ayuda-footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
-                  .ayuda-btn { display: inline-block; background: #1774f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-                </style>
-              </head>
-              <body>
-                <div class="ayuda-container">
-                  <div class="ayuda-header">
-                    <h1>✅ Consulta Recibida</h1>
-                  </div>
-                  
-                  <div class="ayuda-content">
-                    <div class="ayuda-success-icon">✓</div>
-                    
-                    <div class="ayuda-message">
-                      <h2 style="color: #1774f6; margin-bottom: 10px;">¡Hola ${datos.nombre}!</h2>
-                      <p>Hemos recibido tu consulta y nuestro equipo la está revisando.</p>
-                      <p><strong>Te responderemos en menos de 24 horas.</strong></p>
-                    </div>
-                    
-                    <div class="ayuda-details">
-                      <h3 style="color: #1774f6; margin-top: 0;">📋 Resumen de tu consulta:</h3>
-                      <p><strong>Asunto:</strong> ${datos.asunto}</p>
-                      <p><strong>Mensaje:</strong></p>
-                      <p style="background: white; padding: 15px; border-radius: 6px; border-left: 3px solid #1774f6;">${datos.mensaje.replace(/\n/g, '<br>')}</p>
-                      <p style="font-size: 12px; color: #666; margin-top: 15px;">Enviado el: ${new Date().toLocaleString('es-AR')}</p>
-                    </div>
-                    
-                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 20px; border-radius: 4px;">
-                      <strong>💡 Consejo:</strong> Revisá tu carpeta de spam por si nuestra respuesta llega ahí.
-                    </div>
-                  </div>
-                  
-                  <div class="ayuda-footer">
-                    <p><strong>GoyaNova</strong></p>
-                    <p>Equipo de Soporte</p>
-                    <p style="margin-top: 10px;">📧 goyanovasoporte@gmail.com</p>
-                  </div>
-                </div>
-              </body>
-              </html>
-            `
-          }),
-        });
-
-        return true;
-      } else {
-        throw new Error('Error al enviar email');
-      }
+      return ok;
     } catch (error) {
       console.error('Error al enviar email:', error);
       return false;

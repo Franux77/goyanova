@@ -8,12 +8,6 @@ import { useAuth } from '../../../auth/useAuth';
 import './UsuariosAdmin.css';
 import Loading from '../../loading/Loading';
 
-const ADMIN_EMAILS = [
-  '12torresfranco@gmail.com',
-  'claudiaoviedo509@gmail.com',
-  'maximocenturion.07@gmail.com'
-];
-
 const UsuariosAdmin = () => {
   const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
@@ -65,7 +59,7 @@ const UsuariosAdmin = () => {
 
       const usuariosConRol = (usuariosData || []).map(u => {
         const tieneServicios = (serviciosData || []).some(s => s.usuario_id === u.id);
-        const esAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === (u.email || '').toLowerCase());
+        const esAdmin = u.rol === 'admin'; // el rol real viene de la base, ya no hay emails escritos en el código
         const rol = esAdmin ? 'admin' : (tieneServicios ? 'prestador' : 'cliente');
         
         const suspensionActiva = (suspData || []).find(
