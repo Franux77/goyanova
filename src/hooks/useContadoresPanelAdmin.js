@@ -17,6 +17,15 @@ const contarFilas = (tabla, filtrar) => async (desde) => {
  * Las claves coinciden con `clave` en las secciones de PanelAdmin.jsx.
  */
 const definiciones = {
+  novedades: {
+    ruta: '/panel/admin/novedades',
+    tipo: 'pendientes',
+    contar: async () => {
+      const { data, error } = await supabase.rpc('admin_novedades_contador');
+      if (error) throw error;
+      return Number(data) || 0;
+    },
+  },
   usuarios: {
     ruta: '/panel/admin/usuarios',
     tipo: 'nuevos',

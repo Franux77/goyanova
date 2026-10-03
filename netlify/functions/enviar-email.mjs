@@ -14,7 +14,7 @@
 //   BREVO_API_KEY, BREVO_SENDER_EMAIL (opcional)
 //   SUPABASE_URL y SUPABASE_ANON_KEY  (o, si ya existen, VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY)
 
-const SITIO = 'https://goyanova.netlify.app';
+const SITIO = (process.env.URL || 'https://goyanova.netlify.app').replace(/\/$/, '');
 const EMAIL_SOPORTE = 'goyanovasoporte@gmail.com';
 
 // ---------- utilidades ----------

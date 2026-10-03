@@ -71,6 +71,7 @@ const GestionFAQs = lazy(() => import('./components/panel/admin/GestionFAQs'));
 const GestionTutoriales = lazy(() => import('./components/panel/admin/GestionTutoriales'));
 const GestionMensajesSoporte = lazy(() => import('./components/panel/admin/MensajesSoporte'));
 const ActividadAdmin = lazy(() => import('./components/panel/admin/ActividadAdmin'));
+const NovedadesAdmin = lazy(() => import('./components/panel/admin/NovedadesAdmin'));
 const SuspensionesAdmin = lazy(() => import('./components/panel/admin/SuspensionesAdmin'));
 
 const RouteLoadingIndicator = ({ children }) => {
@@ -267,6 +268,7 @@ const AppContent = () => {
                 <Route path="dashboard" element={<DashboardAdmin />} />
                 <Route path="usuarios" element={<UsuariosAdmin />} />
                 <Route path="actividad" element={<ActividadAdmin />} />
+                <Route path="novedades" element={<NovedadesAdmin />} />
                 <Route path="servicios" element={<ServiciosAdmin />} />
                 <Route path="categorias" element={<CategoriasAdmin />} />
                 <Route path="comentarios" element={<ComentariosAdmin />} />
@@ -324,4 +326,4 @@ const AppContent = () => {
 
 const App = () => <AppContent />;
 
-export default App;
+export default App;

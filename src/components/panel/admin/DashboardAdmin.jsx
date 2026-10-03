@@ -4,6 +4,7 @@ import Loading from '../../loading/Loading';
 import './DashboardAdmin.css';
 
 const ACCESOS = [
+  { key: 'novedades', icon: 'newspaper', label: 'Novedades', url: '/panel/admin/novedades' },
   { key: 'verificaciones', icon: 'verified', label: 'Verificaciones', url: '/panel/admin/verificaciones' },
   { key: 'codigos', icon: 'local_offer', label: 'Códigos Promocionales', url: '/panel/admin/codigos' },
   { key: 'membresias', icon: 'card_membership', label: 'Membresías', url: '/panel/admin/membresias' },
@@ -40,6 +41,16 @@ const DashboardAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('visión');
   const [accesoSeleccionado, setAccesoSeleccionado] = useState(null);
+  const [novedadesHoy, setNovedadesHoy] = useState(null);
+
+  useEffect(() => {
+    const ahora = new Date();
+    const ar = new Date(ahora.getTime() - 3 * 3600000);
+    const inicio = new Date(Date.UTC(ar.getUTCFullYear(), ar.getUTCMonth(), ar.getUTCDate(), 3));
+    supabase
+      .rpc('admin_novedades', { p_desde: inicio.toISOString(), p_hasta: ahora.toISOString() })
+      .then(({ data, error }) => { if (!error && data) setNovedadesHoy(Number(data.total) || 0); }, () => {});
+  }, []);
 
     const [nombreAdmin, setNombreAdmin] = useState('');
 
@@ -290,6 +301,11 @@ const DashboardAdmin = () => {
       {/* TAB CONTENT */}
       {activeTab === 'visión' && (
         <div className="tab-content">
+          <a href="/panel/admin/novedades" style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', borderRadius: 12, padding: '10px 14px', marginBottom: 12, textDecoration: 'none', fontWeight: 600 }}>
+            <span className="material-icons">newspaper</span>
+            <span style={{ flex: 1 }}>Novedades de hoy{novedadesHoy !== null ? `: ${novedadesHoy}` : ''}</span>
+            <span className="material-icons">chevron_right</span>
+          </a>
           {/* STATS GRID COMPACTO */}
           <div className="admin-stats-compact">
             <div className="stat-mini">
@@ -466,4 +482,4 @@ const DashboardAdmin = () => {
   );
 };
 
-export default DashboardAdmin;
+export default DashboardAdmin;

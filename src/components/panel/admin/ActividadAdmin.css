@@ -64,3 +64,39 @@
 }
 .actividad-vacio { padding: 24px; text-align: center; color: #94a3b8; }
 .actividad-mas { display: block; margin: 14px auto 0; padding: 11px 22px; border: 0; border-radius: 12px; background: #eff6ff; color: #2563eb; font: 700 14px 'Inter', sans-serif; cursor: pointer; }
+
+/* ===== Celular: más compacto, sin textos pisados ni cortados ===== */
+.actividad-datos strong { flex-wrap: wrap; row-gap: 2px; line-height: 1.25; overflow-wrap: anywhere; }
+.actividad-admin-tag { flex: none; }
+.actividad-plan { white-space: nowrap; }
+.actividad-cuando { white-space: nowrap; }
+@media (max-width: 640px) {
+  .actividad-admin { padding: 12px 10px 100px; }
+  .actividad-cab h1 { font-size: 19px; }
+  .actividad-cab p { font-size: 12px; line-height: 1.35; }
+  .actividad-refrescar { width: 34px; height: 34px; border-radius: 10px; }
+  .actividad-tarjetas { gap: 8px; margin-top: 12px; }
+  .actividad-tarjeta { padding: 9px 10px; border-radius: 12px; }
+  .actividad-tarjeta .material-icons { font-size: 18px; }
+  .actividad-tarjeta strong { font-size: 21px; }
+  .actividad-tarjeta .t { font-size: 12px; }
+  .actividad-tarjeta small { font-size: 10.5px; line-height: 1.25; }
+  .actividad-nota { font-size: 11px; }
+  .actividad-filtros button { padding: 6px 11px; font-size: 12px; }
+  .actividad-buscar { width: 100%; min-width: 0; box-sizing: border-box; padding: 9px 12px; font-size: 13px; }
+  .actividad-lista { gap: 6px; }
+  /* cada usuario: arriba avatar + nombre + email; abajo plan a la izquierda y actividad a la derecha */
+  .actividad-fila {
+    display: grid; grid-template-columns: 34px 1fr auto; grid-template-areas: "av datos datos" ". plan cuando";
+    column-gap: 10px; row-gap: 6px; align-items: center; padding: 10px 12px 10px 20px; border-radius: 12px;
+  }
+  .actividad-punto { left: 7px; top: 22px; margin-top: 0; width: 7px; height: 7px; }
+  .actividad-avatar { grid-area: av; width: 34px; height: 34px; font-size: 14px; }
+  .actividad-datos { grid-area: datos; min-width: 0; }
+  .actividad-datos strong { font-size: 13px; }
+  .actividad-datos span { font-size: 11.5px; }
+  .actividad-plan { grid-area: plan; justify-self: start; order: 0; font-size: 10.5px; padding: 2px 9px; }
+  .actividad-cuando { grid-area: cuando; order: 0; margin: 0; min-width: 0; text-align: right; }
+  .actividad-cuando strong { font-size: 12px; }
+  .actividad-cuando small { font-size: 10.5px; }
+}

@@ -1,0 +1,175 @@
+.nov-admin{--az:#1774f6;--tx:#111827;--sub:#6b7280;--bd:#e5e7eb;--bg:#f9fafb;max-width:980px;margin:0 auto;padding:16px;color:var(--tx);box-sizing:border-box}
+.nov-admin *{box-sizing:border-box}
+.nov-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.nov-cab h1,.nov-cab h2{margin:0;font-size:22px;display:flex;align-items:center;gap:8px}
+.nov-refrescar,.nov-icono-btn{border:1px solid var(--bd);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:var(--tx);font-size:14px}
+.nov-refrescar:hover,.nov-icono-btn:hover{background:var(--bg)}
+.nov-icono-btn{padding:6px;width:34px;height:34px;justify-content:center}
+.nov-icono-btn.peligro{color:#dc2626}
+.nov-tabs{display:flex;gap:6px;border-bottom:1px solid var(--bd);margin-bottom:14px;overflow-x:auto}
+.nov-tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;font-size:15px;color:var(--sub);display:inline-flex;align-items:center;gap:6px;border-bottom:3px solid transparent;white-space:nowrap}
+.nov-tabs button.sel{color:var(--az);border-bottom-color:var(--az);font-weight:600}
+.nov-fechas{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.nov-atajos{display:flex;gap:6px;flex-wrap:wrap}
+.nov-atajos button{border:1px solid var(--bd);background:#fff;border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14px}
+.nov-atajos button.sel{background:var(--az);border-color:var(--az);color:#fff}
+.nov-selector input,.nov-buscar input,.nov-form input,.nov-dest-edit input{border:1px solid var(--bd);border-radius:10px;padding:8px 10px;font-size:14px;background:#fff;color:var(--tx);max-width:100%}
+.nov-buscar{margin:10px 0}.nov-buscar input{width:100%}
+.nov-titulo-rango{font-size:14px;color:var(--sub);margin:4px 0 10px;text-transform:capitalize}
+.nov-alertas{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.nov-tarjetas{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+.nov-tarjeta{border:2px solid transparent;border-radius:12px;padding:10px;text-align:left;cursor:pointer;color:#fff;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.nov-tarjeta strong{font-size:22px}
+.nov-tarjeta.sel{border-color:#111827;box-shadow:0 0 0 2px #fff inset}
+.c-azul{background:#1774f6}.c-verde{background:#10b981}.c-ambar{background:#f59e0b}.c-violeta{background:#6366f1}.c-rojo{background:#ef4444}.c-celeste{background:#0ea5e9}.c-gris{background:#6b7280}
+.nov-grupo{margin:16px 0 6px;font-weight:700;font-size:15px}
+.nov-lista,.nov-resumenes,.nov-dest{list-style:none;margin:0;padding:0}
+.nov-fila{display:flex;gap:10px;padding:10px 6px;border-bottom:1px solid #eef0f3;align-items:flex-start}
+.nov-icono{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:none}
+.nov-icono .material-icons{font-size:19px}
+.nov-datos{flex:1;min-width:0}
+.nov-datos strong{display:block;font-size:14px;word-break:break-word}
+.nov-detalle{font-size:13px;color:#4b5563;margin-top:2px;word-break:break-word}
+.nov-cuando{font-size:12px;color:var(--sub);white-space:nowrap;text-align:right}
+.nov-ver,.nov-mas{border:1px solid var(--bd);background:#fff;border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--az);font-size:14px;margin:10px 0}
+.nov-vacio,.nov-estado{text-align:center;color:var(--sub);padding:34px 10px}
+.nov-error{color:#dc2626}
+.nov-nota{font-size:13px;color:var(--sub);margin:8px 0}
+.nov-aviso{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+.nov-acciones{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.nov-btn{background:var(--az);color:#fff;border:0;border-radius:10px;padding:9px 16px;cursor:pointer;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.nov-btn.sec{background:#fff;color:var(--az);border:1px solid var(--az)}
+.nov-btn:disabled{opacity:.55;cursor:not-allowed}
+.nov-cortes{display:flex;flex-direction:column;gap:10px}
+.nov-corte{border:1px solid var(--bd);border-radius:12px;padding:12px;background:#fff}
+.nov-corte-cab{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.nov-corte-cifras{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.nov-corte-botones{display:flex;gap:8px;flex-wrap:wrap}
+.nov-pill{font-size:12px;border-radius:999px;padding:3px 10px;font-weight:600}
+.p-gris{background:#f3f4f6;color:#4b5563}.p-azul{background:#dbeafe;color:#1d4ed8}.p-verde{background:#d1fae5;color:#047857}.p-rojo{background:#fee2e2;color:#b91c1c}.p-ambar{background:#fef3c7;color:#b45309}
+.nov-chip{font-size:12px;color:#fff;border-radius:999px;padding:2px 10px}
+.nov-total{font-weight:700}
+.nov-error-detalle{font-size:12px;color:#b91c1c}
+.nov-correos{display:flex;flex-direction:column;gap:14px}
+.nov-interruptor{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--bd);border-radius:12px;padding:12px;background:#fff}
+.nov-switch{width:46px;height:26px;border-radius:999px;border:0;background:#d1d5db;position:relative;cursor:pointer;flex:none;padding:0;transition:background .2s}
+.nov-switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.nov-switch.on{background:#10b981}.nov-switch.on::after{transform:translateX(20px)}
+.nov-switch.chico{width:38px;height:22px}.nov-switch.chico::after{width:16px;height:16px}.nov-switch.chico.on::after{transform:translateX(16px)}
+.nov-form{display:flex;gap:8px;flex-wrap:wrap}.nov-form input{flex:1;min-width:150px}
+.nov-dest-fila{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--bd);border-radius:12px;margin-bottom:8px;background:#fff}
+.nov-dest-fila.inactivo{opacity:.6}
+.nov-avatar{width:36px;height:36px;border-radius:50%;background:var(--az);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none;text-transform:uppercase}
+.nov-dest-datos{flex:1;min-width:0;font-size:14px;word-break:break-all}
+.nov-dest-edit{flex:1;display:flex;gap:6px;flex-wrap:wrap}
+.nov-dest-botones{display:flex;gap:6px;align-items:center}
+@media(max-width:560px){.nov-admin{padding:10px}.nov-fila{flex-wrap:wrap}.nov-cuando{width:100%;text-align:left}.nov-dest-fila{flex-wrap:wrap}}
+
+/* ===== Ajustes de alineación y espaciado (PC y celular) ===== */
+.nov-admin{padding-bottom:40px}
+.nov-admin h1,.nov-admin h2,.nov-admin h3,.nov-admin p,.nov-admin ul{margin-top:0}
+.nov-cab h1{font-size:24px;line-height:1.2;margin:0 0 4px}
+.nov-cab p{margin:0;color:var(--sub);font-size:14px;line-height:1.4;max-width:640px}
+.nov-cab>div{min-width:0;flex:1}
+.nov-refrescar{flex:none;width:40px;height:40px;justify-content:center}
+
+.nov-admin strong,.nov-admin small,.nov-admin .nov-detalle,.nov-dest-datos span{font-family:inherit}
+
+/* pestañas: repartidas parejo, nunca cortadas */
+.nov-tabs{overflow:visible}
+.nov-tabs button{flex:1 1 0;justify-content:center;padding:10px 6px;min-width:0}
+
+/* fechas */
+.nov-fechas{gap:10px 14px}
+.nov-selector{display:flex;align-items:center;gap:6px}
+.nov-selector button{width:36px;height:36px;border:1px solid var(--bd);background:#fff;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;color:var(--tx)}
+.nov-selector button:disabled{opacity:.4;cursor:not-allowed}
+.nov-selector input{height:36px}
+
+/* título del rango: "Hoy" y fecha separados */
+.nov-titulo-rango{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:18px;font-weight:700;color:var(--tx);text-transform:none;margin:6px 0 12px}
+.nov-titulo-rango small{font-size:14px;font-weight:500;color:var(--sub);text-transform:capitalize}
+
+/* alertas */
+.nov-alertas strong{display:flex;align-items:center;gap:6px}
+.nov-alertas ul{margin:0;padding-left:20px}
+.nov-alertas .material-icons{font-size:18px}
+
+/* tarjetas */
+.nov-tarjeta{font-family:inherit;line-height:1.2;min-height:78px;justify-content:space-between}
+.nov-tarjeta strong{font-size:24px;line-height:1}
+
+/* buscador */
+.nov-admin input.nov-buscar,.nov-admin .nov-buscar{display:block;width:100%;height:42px;padding:0 14px;border:1px solid var(--bd);border-radius:12px;background:#fff;font-size:14px;color:var(--tx);margin:4px 0 14px;outline:none}
+.nov-admin input.nov-buscar:focus{border-color:var(--az);box-shadow:0 0 0 3px rgba(23,116,246,.15)}
+
+/* grupos: título + contador a los lados */
+.nov-grupo{margin:18px 0 0}
+.nov-grupo h3{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:700;margin:0 0 4px;padding:8px 12px;background:var(--bg);border:1px solid var(--bd);border-radius:10px}
+.nov-grupo h3 span{background:var(--az);color:#fff;border-radius:999px;font-size:12px;min-width:24px;height:22px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+
+/* filas */
+.nov-fila{align-items:center;gap:12px;padding:12px 4px}
+.nov-datos{display:flex;flex-direction:column;gap:2px}
+.nov-datos strong{font-size:14px;font-weight:600}
+.nov-datos .nov-detalle{display:block;margin:0}
+.nov-datos small{display:block;font-size:12px;color:var(--sub)}
+.nov-cuando{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:78px}
+.nov-cuando strong{font-size:14px;font-weight:700;color:var(--tx)}
+.nov-cuando small{font-size:12px;color:var(--sub)}
+.nov-admin a.nov-ver,.nov-admin .nov-ver{display:inline-flex;align-items:center;justify-content:center;margin:6px 0 0;padding:5px 14px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--az);border-radius:999px;background:#fff;color:var(--az)}
+.nov-admin .nov-ver:hover{background:var(--az);color:#fff}
+.nov-mas{display:block;margin:14px auto}
+
+/* resúmenes */
+.nov-acciones{align-items:center;justify-content:space-between;gap:12px}
+.nov-acciones p{margin:0;flex:1 1 320px;font-size:14px;line-height:1.5;color:#374151}
+.nov-cortes{list-style:none;margin:0;padding:0}
+.nov-corte-cab>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nov-corte-cab strong{font-size:15px}
+.nov-corte-cab small{font-size:13px;color:var(--sub);text-transform:capitalize}
+.nov-corte-cifras{align-items:center}
+.nov-total{margin-right:4px}
+
+/* correos */
+.nov-interruptor>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.nov-interruptor strong{font-size:15px}
+.nov-interruptor small{font-size:13px;color:var(--sub);line-height:1.4}
+.nov-form input{height:42px;padding:0 12px}
+.nov-form .nov-btn{height:42px}
+.nov-dest-fila{justify-content:space-between;gap:12px}
+.nov-dest-datos{display:flex;align-items:center;gap:12px}
+.nov-dest-datos>div:not(.nov-avatar){display:flex;flex-direction:column;gap:2px;min-width:0}
+.nov-dest-datos strong{font-size:14px}
+.nov-dest-datos span{font-size:13px;color:var(--sub);word-break:break-all}
+.nov-dest-botones{flex:none}
+.nov-dest-edit input{flex:1 1 180px;height:38px}
+.nov-correos .nov-nota{margin-top:12px}
+
+@media(max-width:600px){
+  .nov-admin{padding:12px 12px 110px}
+  .nov-cab h1{font-size:22px}
+  .nov-tabs button{font-size:14px;gap:4px;padding:10px 2px}
+  .nov-tabs .material-icons{font-size:19px}
+  .nov-tarjetas{grid-template-columns:repeat(2,1fr)}
+  .nov-fechas{flex-direction:column;align-items:stretch}
+  .nov-atajos button{flex:1}
+  .nov-selector{justify-content:space-between}
+  .nov-selector input{flex:1;min-width:0}
+  /* fila: contenido arriba, hora · fecha · Ver abajo, todo alineado */
+  .nov-fila{flex-wrap:wrap;align-items:flex-start;gap:8px 12px}
+  .nov-datos{flex:1 1 0;min-width:0}
+  .nov-cuando{flex:1 1 100%;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;min-width:0;padding-left:46px}
+  .nov-cuando small::before{content:"·";margin-right:8px}
+  .nov-admin .nov-ver{margin:0 0 0 auto}
+  .nov-acciones{flex-direction:column;align-items:stretch}
+  .nov-acciones .nov-btn{justify-content:center;width:100%}
+  .nov-corte-botones .nov-btn{flex:1;justify-content:center}
+  .nov-form{flex-direction:column}
+  .nov-form input,.nov-form .nov-btn{width:100%;flex:none}
+  .nov-form .nov-btn{justify-content:center}
+  .nov-dest-fila{flex-wrap:wrap}
+  .nov-dest-datos{flex:1 1 100%}
+  .nov-dest-botones{width:100%;justify-content:flex-end}
+  .nov-dest-edit{flex:1 1 100%}
+}

@@ -53,6 +53,7 @@ const PanelAdmin = () => {
 
   const secciones = [
     { nombre: 'Dashboard', ruta: '/panel/admin/dashboard', icono: 'dashboard' },
+    { nombre: 'Novedades', ruta: '/panel/admin/novedades', icono: 'newspaper', clave: 'novedades' },
     { nombre: 'Usuarios', ruta: '/panel/admin/usuarios', icono: 'people', clave: 'usuarios' },
     { nombre: 'Servicios', ruta: '/panel/admin/servicios', icono: 'build', clave: 'servicios' },
     { nombre: 'Actividad', ruta: '/panel/admin/actividad', icono: 'monitor_heart' },
@@ -244,4 +245,4 @@ const PanelAdmin = () => {
   );
 };
 
-export default PanelAdmin;
+export default PanelAdmin;
