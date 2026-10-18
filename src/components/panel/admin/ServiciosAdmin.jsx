@@ -181,6 +181,10 @@ const ServiciosAdmin = () => {
     navigate(`/panel/admin/publicar/${id}`);
   };
 
+  const verServicio = (id) => {
+    navigate(`/perfil/${id}`);
+  };
+
   // 👇 LÓGICA CORREGIDA
   if (cargandoInicial) {
     return <Loading message="Cargando servicios..." />;
@@ -274,6 +278,13 @@ const ServiciosAdmin = () => {
                 )}
               </div>
               <div className="sadmin-card__acciones">
+                <button
+                  className="sadmin-btn sadmin-btn--ver"
+                  onClick={() => verServicio(s.id)}
+                  title="Ver ficha pública"
+                >
+                  <span className="material-icons">visibility</span>
+                </button>
                 <button 
                   className="sadmin-btn sadmin-btn--editar" 
                   onClick={() => editarServicio(s.id)}

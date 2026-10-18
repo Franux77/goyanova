@@ -13,19 +13,12 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-function calcularDistancia(lat2, lon2) {
-  const lat1 = -29.1407;
-  const lon1 = -59.2654;
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+// Más antiguo primero (el que se sumó antes a GoyaNova). Sin fecha va al final.
+function compararAntiguedad(a, b) {
+  const ta = a.creadoEn ? new Date(a.creadoEn).getTime() : Infinity;
+  const tb = b.creadoEn ? new Date(b.creadoEn).getTime() : Infinity;
+  if (ta !== tb) return ta - tb;
+  return String(a.id).localeCompare(String(b.id));
 }
 
 const CategoryPage = () => {
@@ -76,7 +69,8 @@ const CategoryPage = () => {
           es_premium,
           badge_texto,
           rating_promedio,
-          prioridad
+          prioridad,
+          creado_en
         `)
         .eq('estado', 'activo')
         .eq('tipo', tipo)
@@ -125,7 +119,8 @@ const CategoryPage = () => {
         lng: s.longitud,
         esPremium: s.es_premium || false,
         badgeTexto: s.badge_texto || '',
-        prioridad: s.prioridad || 0
+        prioridad: s.prioridad || 0,
+        creadoEn: s.creado_en || null
       }));
 
       if (!cancelado) setPerfiles(mapped); // 👈 solo actualiza si sigue siendo la petición vigente
@@ -161,12 +156,11 @@ const CategoryPage = () => {
       // La prioridad manda siempre, sin importar qué orden eligió el usuario
       if (b.prioridad !== a.prioridad) return b.prioridad - a.prioridad;
 
-      if (orden === 'rating-desc') return b.rating - a.rating;
-      if (orden === 'rating-asc') return a.rating - b.rating;
+      if (orden === 'rating-desc' && b.rating !== a.rating) return b.rating - a.rating;
+      if (orden === 'rating-asc' && b.rating !== a.rating) return a.rating - b.rating;
 
-      const distA = a.lat !== undefined && a.lng !== undefined ? calcularDistancia(a.lat, a.lng) : Infinity;
-      const distB = b.lat !== undefined && b.lng !== undefined ? calcularDistancia(b.lat, b.lng) : Infinity;
-      return distA - distB;
+      // Mismo plan (y misma calificación si se eligió): gana el más antiguo
+      return compararAntiguedad(a, b);
     });
   }, [perfilesFiltrados, orden]);
 

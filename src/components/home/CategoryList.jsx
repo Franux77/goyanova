@@ -13,7 +13,7 @@ const CategoryList = ({ type, onSelectCategory }) => {
   const [loading, setLoading] = useState(true);
 
   // ----- Paginación deslizable -----
-  const calcularPorPagina = () => 12;
+  const calcularPorPagina = () => 24;
   const [porPagina, setPorPagina] = useState(calcularPorPagina);
   const [pagina, setPagina] = useState(0);
   const [arrastrando, setArrastrando] = useState(false);

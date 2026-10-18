@@ -13,7 +13,11 @@ const MapFlyTo = ({ target, onComplete }) => {
     const lng = target.longitud ?? target.lng ?? target.longitude;
 
     if (lat !== undefined && lng !== undefined) {
-      map.flyTo([lat, lng], 18, { animate: true });
+      map.flyTo([lat, lng], 18, {
+        animate: true,
+        duration: 0.8,
+        easeLinearity: 0.25,
+      });
 
       if (onComplete) {
         const timer = setTimeout(onComplete, 1200);

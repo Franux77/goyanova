@@ -64,20 +64,91 @@
 }
 
 .btn-abrir-mapa {
-  background-color: #007bff;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0;
+  padding: 14px 16px;
   border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff7a18 0%, #ff3d71 100%);
+  color: #fff;
+  text-align: left;
   cursor: pointer;
-  font-size: 15px;
-  transition: background-color 0.3s;
-  width: auto;
-  margin-top: 0 auto;
+  box-shadow: 0 6px 18px rgba(255, 61, 113, 0.4);
+  animation: btnMapaPulso 2s ease-in-out infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-abrir-mapa:hover {
-  background-color: #005dc3;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(255, 61, 113, 0.5);
+}
+
+.btn-abrir-mapa:active {
+  transform: scale(0.98);
+}
+
+.btn-abrir-mapa-icono {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fff;
+  color: #ff3d71;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-abrir-mapa-icono .material-icons {
+  font-size: 30px;
+}
+
+.btn-abrir-mapa-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.btn-abrir-mapa-titulo {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.btn-abrir-mapa-sub {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  opacity: 0.95;
+}
+
+/* Ya marcada: pasa a verde y deja de pulsar */
+.btn-abrir-mapa-listo {
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.4);
+  animation: none;
+}
+
+.btn-abrir-mapa-listo:hover {
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.5);
+}
+
+.btn-abrir-mapa-listo .btn-abrir-mapa-icono {
+  color: #16a34a;
+}
+
+@keyframes btnMapaPulso {
+  0%, 100% { box-shadow: 0 6px 18px rgba(255, 61, 113, 0.4), 0 0 0 0 rgba(255, 61, 113, 0.45); }
+  50% { box-shadow: 0 6px 18px rgba(255, 61, 113, 0.4), 0 0 0 10px rgba(255, 61, 113, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-abrir-mapa { animation: none; }
 }
 
 .coordenadas-info {

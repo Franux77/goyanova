@@ -253,6 +253,15 @@
 }
 
 /* Variantes de botones */
+.sadmin-btn--ver {
+  background: #14b8a6;
+  color: #fff;
+}
+
+.sadmin-btn--ver:hover {
+  background: #0f9488;
+}
+
 .sadmin-btn--editar {
   background: #1774f6;
   color: #fff;

@@ -513,7 +513,7 @@
    ============================================ */
 @media (max-width: 768px) {
   .category-list {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
   }
 
@@ -629,8 +629,23 @@
 }
 
 @media (max-width: 360px) {
+  /* Siempre 2 columnas, aunque la pantalla sea chica o tenga zoom/texto grande */
   .category-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .category-list .category-card {
+    padding: 0.6rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .category-list .category-card .material-icons {
+    font-size: 22px;
+  }
+
+  .category-list .category-card p {
+    font-size: 0.82rem;
   }
 
   .category-empty-icon {
@@ -711,4 +726,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .categorias-pag-punto, .categorias-pag-barra span, .categorias-pag-flecha { transition: none; }
+}
+
+
+/* Textos largos o letra grande: el texto baja de renglón en vez de ensanchar la tarjeta */
+@media (max-width: 768px) {
+  .category-list .category-card p {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
 }

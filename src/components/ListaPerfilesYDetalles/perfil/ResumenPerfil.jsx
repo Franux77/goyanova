@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaStar, FaWhatsapp } from 'react-icons/fa';
 import MenuOpciones from './MenuOpciones';
@@ -36,6 +42,92 @@ const ResumenPerfil = ({ perfil }) => {
   // 🆕 Reel activo de este servicio (si tiene uno vigente)
   const [reelActivo, setReelActivo] = useState(null);
   const [mostrarVisor, setMostrarVisor] = useState(false);
+
+
+const temporizadorPulsacion = useRef(null);
+const pulsacionLarga = useRef(false);
+const posicionInicial = useRef(null);
+
+const cancelarTemporizador = () => {
+  if (temporizadorPulsacion.current) {
+    clearTimeout(temporizadorPulsacion.current);
+    temporizadorPulsacion.current = null;
+  }
+};
+
+
+const iniciarPulsacion = (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+  // Mantiene el seguimiento del puntero aunque salga de la foto.
+  try {
+    e.currentTarget.setPointerCapture(e.pointerId);
+  } catch {
+    // El navegador puede no permitir capturar el puntero.
+  }
+
+  cancelarTemporizador();
+  pulsacionLarga.current = false;
+
+  posicionInicial.current = {
+    x: e.clientX,
+    y: e.clientY,
+  };
+
+  temporizadorPulsacion.current = setTimeout(() => {
+    pulsacionLarga.current = true;
+    setFotoGrande(true);
+    temporizadorPulsacion.current = null;
+  }, 1000);
+};
+
+
+const moverPulsacion = (e) => {
+  if (!posicionInicial.current) return;
+
+  const distanciaX = Math.abs(
+    e.clientX - posicionInicial.current.x
+  );
+  const distanciaY = Math.abs(
+    e.clientY - posicionInicial.current.y
+  );
+
+  if (distanciaX > 10 || distanciaY > 10) {
+    cancelarTemporizador();
+  }
+};
+
+const terminarPulsacion = () => {
+  cancelarTemporizador();
+  posicionInicial.current = null;
+};
+
+const manejarClickFoto = () => {
+  if (pulsacionLarga.current) {
+    pulsacionLarga.current = false;
+    return;
+  }
+
+  if (reelActivo) {
+    setMostrarVisor(true);
+  } else {
+    setFotoGrande(true);
+  }
+};
+
+  const [fotoGrande, setFotoGrande] = useState(false);
+
+useEffect(() => {
+  if (!fotoGrande) return;
+  const alTeclear = (e) => e.key === 'Escape' && setFotoGrande(false);
+  document.addEventListener('keydown', alTeclear);
+  const previo = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  return () => {
+    document.removeEventListener('keydown', alTeclear);
+    document.body.style.overflow = previo;
+  };
+}, [fotoGrande]);
 
   useEffect(() => {
     if (!perfil?.id) return;
@@ -134,34 +226,53 @@ const ResumenPerfil = ({ perfil }) => {
         )}
 
         {/* 🆕 Foto con anillo clickeable si hay historia activa */}
-        {foto ? (
-          <div
-            className={`resumen-foto-wrapper ${reelActivo ? 'con-historia' : ''}`}
-            onClick={() => reelActivo && setMostrarVisor(true)}
-          >
-            <img src={foto} alt={perfil.nombre} className="resumen-foto-perfil" />
-            {reelActivo && (
-              <span className="resumen-historia-badge">
-                <span className="material-icons">play_circle</span>
-                Ver historia
-              </span>
-            )}
-          </div>
-        ) : (
-          <div
-            className={`resumen-placeholder-perfil ${reelActivo ? 'con-historia' : ''}`}
-            style={{ backgroundColor: getColorAleatorio() }}
-            onClick={() => reelActivo && setMostrarVisor(true)}
-          >
-            {getIniciales(perfil.nombre)}
-            {reelActivo && (
-              <span className="resumen-historia-badge">
-                <span className="material-icons">play_circle</span>
-                Ver historia
-              </span>
-            )}
-          </div>
-        )}
+        
+{/* Foto del perfil: toque normal o pulsación larga */}
+{foto ? (
+  <div
+    className={`resumen-foto-wrapper ${
+      reelActivo ? 'con-historia' : ''
+    }`}
+    onPointerDown={iniciarPulsacion}
+    onPointerMove={moverPulsacion}
+    onPointerUp={terminarPulsacion}
+    onPointerCancel={terminarPulsacion}
+    onContextMenu={(e) => e.preventDefault()}
+    onClick={manejarClickFoto}
+  >
+    <img
+      src={foto}
+      alt={perfil.nombre}
+      className="resumen-foto-perfil"
+      draggable={false}
+    />
+
+    {reelActivo && (
+      <span className="resumen-historia-badge">
+        <span className="material-icons">play_circle</span>
+        Ver historia
+      </span>
+    )}
+  </div>
+) : (
+  <div
+    className={`resumen-placeholder-perfil ${
+      reelActivo ? 'con-historia' : ''
+    }`}
+    style={{ backgroundColor: getColorAleatorio() }}
+    onClick={() => reelActivo && setMostrarVisor(true)}
+  >
+    {getIniciales(perfil.nombre)}
+
+    {reelActivo && (
+      <span className="resumen-historia-badge">
+        <span className="material-icons">play_circle</span>
+        Ver historia
+      </span>
+    )}
+  </div>
+)}
+
 
         <div className="resumen-contenido-perfil">
                     <h2 className="resumen-titulo-perfil">
@@ -213,6 +324,36 @@ const ResumenPerfil = ({ perfil }) => {
           )}
         </div>
       </div>
+
+
+      {/* Visor de fotografía ampliada */}
+      {fotoGrande && foto && createPortal(
+        <div
+          className="resumen-foto-visor"
+          onClick={() => setFotoGrande(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Fotografía de ${perfil.nombre}`}
+        >
+          <button
+            type="button"
+            className="resumen-foto-visor-cerrar"
+            onClick={() => setFotoGrande(false)}
+            aria-label="Cerrar fotografía"
+          >
+            <span className="material-icons">close</span>
+          </button>
+
+          <img
+            src={foto}
+            alt={perfil.nombre || 'Fotografía del perfil'}
+            className="resumen-foto-visor-img"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>,
+        document.body
+      )}
+
 
       {/* 🆕 Visor de historia, solo si el usuario tocó "Ver historia" */}
       {mostrarVisor && reelActivo && (

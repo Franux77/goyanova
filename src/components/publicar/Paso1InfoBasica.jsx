@@ -545,9 +545,29 @@ const Paso1InfoBasica = ({ formData, setFormData }) => {
 />
       <div className="char-counter">{referenciaLocal.length}/150</div>
 
-      <button type="button" className="btn-abrir-mapa" onClick={abrirModalMapa}>
-  📍 Tocar acá para marcar en el mapa
-</button>
+      <button
+        type="button"
+        className={`btn-abrir-mapa ${coordenadasMostrar.lat && coordenadasMostrar.lng ? 'btn-abrir-mapa-listo' : ''}`}
+        onClick={abrirModalMapa}
+      >
+        <span className="btn-abrir-mapa-icono">
+          <span className="material-icons">
+            {coordenadasMostrar.lat && coordenadasMostrar.lng ? 'check_circle' : 'place'}
+          </span>
+        </span>
+        <span className="btn-abrir-mapa-textos">
+          <span className="btn-abrir-mapa-titulo">
+            {coordenadasMostrar.lat && coordenadasMostrar.lng
+              ? 'Cambiar ubicación en el mapa'
+              : 'Marcar mi ubicación en el mapa'}
+          </span>
+          <span className="btn-abrir-mapa-sub">
+            {coordenadasMostrar.lat && coordenadasMostrar.lng
+              ? 'Ya está marcada. Tocá si querés moverla'
+              : 'Tocá acá y poné el pin donde está tu negocio'}
+          </span>
+        </span>
+      </button>
 
       {coordenadasMostrar.lat && coordenadasMostrar.lng && (
         <p className="coordenadas-info">

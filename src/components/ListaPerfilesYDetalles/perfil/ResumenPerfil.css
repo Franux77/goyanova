@@ -1,445 +1,501 @@
-/* ============================================
-   RESUMEN PERFIL - Diseño compacto y moderno
-   ============================================ */
+  /* ============================================
+    RESUMEN PERFIL - Diseño compacto y moderno
+    ============================================ */
 
-.resumen-lista {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(23, 116, 246, 0.12);
-  padding: 1.5rem;
-  max-width: 800px;
-  margin: 1.5rem auto;
-  position: relative;
-  border: 2px solid rgba(23, 116, 246, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.resumen-lista:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(23, 116, 246, 0.18);
-}
-
-/* Imagen circular */
-.resumen-foto-perfil,
-.resumen-placeholder-perfil {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #1774f6;
-  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.2);
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.resumen-placeholder-perfil {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: #1774f6;
-  background-color: #e3f2fd;
-}
-
-/* Contenedor del contenido */
-.resumen-contenido-perfil {
-  grid-column: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-/* Nombre */
-.resumen-titulo-perfil {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 1.6rem;
-  color: #1774f6;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  /* Deja espacio libre para que el nombre/tilde de verificado nunca
-     queden debajo del botón ⋮ (que es position:absolute sobre la tarjeta) */
-  padding-right: 48px;
-}
-
-.resumen-titulo-texto {
-  word-wrap: break-word;
-}
-
-/* Descripción con "Ver más" */
-.resumen-descripcion-perfil {
-  font-size: 0.95rem;
-  color: #555;
-  line-height: 1.5;
-  margin: 0;
-  max-height: 3rem; /* 2 líneas aprox */
-  overflow: hidden;
-  position: relative;
-  transition: max-height 0.3s ease;
-}
-
-.resumen-descripcion-perfil.expanded {
-  max-height: 500px;
-}
-
-.resumen-gradient-descripcion {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1.5rem;
-  background: linear-gradient(to bottom, transparent, #f8fbff);
-  pointer-events: none;
-}
-
-.resumen-descripcion-perfil.expanded + .resumen-gradient-descripcion {
-  display: none;
-}
-
-.resumen-ver-mas-btn {
-  color: #1774f6;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  margin-top: 0.3rem;
-  display: inline-block;
-  background: none;
-  border: none;
-  padding: 0;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-
-.resumen-ver-mas-btn:hover {
-  color: #0d5abf;
-}
-
-/* Estrellas */
-.resumen-estrellas-perfil {
-  display: flex;
-  gap: 0.3rem;
-  align-items: center;
-}
-
-/* Botón WhatsApp */
-.resumen-btn-contacto {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #1774f6;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-  font-weight: 600;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
-  align-self: flex-start;
-  margin-top: 0.5rem;
-}
-
-.resumen-btn-contacto:hover {
-  background-color: #0d5abf;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(23, 116, 246, 0.4);
-}
-
-/* ============================================
-   BADGE PREMIUM - Esquina inferior derecha
-   ============================================ */
-
-.resumen-badge-premium-perfil {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 14px;
-  background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  animation: resumen-glow-badge 3s ease-in-out infinite;
-  z-index: 10;
-}
-
-.resumen-badge-star-icon {
-  font-size: 1rem !important;
-  animation: resumen-star-spin 4s ease-in-out infinite;
-}
-
-@keyframes resumen-glow-badge {
-  0%, 100% {
-    box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
-  }
-  50% {
-    box-shadow: 0 6px 20px rgba(23, 116, 246, 0.6), 0 0 30px rgba(23, 116, 246, 0.3);
-  }
-}
-
-@keyframes resumen-star-spin {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  10% { transform: rotate(15deg) scale(1.15); }
-  20% { transform: rotate(0deg) scale(1); }
-}
-
-.resumen-badge-premium-perfil:hover {
-  box-shadow: 0 6px 24px rgba(23, 116, 246, 0.6);
-  transform: scale(1.05);
-  transition: all 0.3s ease;
-}
-
-/* ============================================
-   RESPONSIVE - Mobile (IGUAL QUE PC)
-   ============================================ */
-
-@media (max-width: 768px) {
   .resumen-lista {
-    grid-template-columns: auto 1fr; /* Mantiene layout horizontal */
-    padding: 1.2rem 1.2rem 3.5rem 1.2rem; /* Extra padding-bottom para el badge */
-    gap: 1rem;
-    margin: 1rem auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(23, 116, 246, 0.12);
+    padding: 1.5rem;
+    max-width: 800px;
+    margin: 1.5rem auto;
+    position: relative;
+    border: 2px solid rgba(23, 116, 246, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
   }
 
+  .resumen-lista:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(23, 116, 246, 0.18);
+  }
+
+  /* Imagen circular */
   .resumen-foto-perfil,
   .resumen-placeholder-perfil {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #1774f6;
+    box-shadow: 0 4px 12px rgba(23, 116, 246, 0.2);
+    grid-column: 1;
+    grid-row: 1;
   }
 
+  .resumen-placeholder-perfil {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #1774f6;
+    background-color: #e3f2fd;
+  }
+
+  /* Contenedor del contenido */
+  .resumen-contenido-perfil {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  /* Nombre */
   .resumen-titulo-perfil {
-    font-size: 1.3rem;
-    padding-right: 44px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.6rem;
+    color: #1774f6;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    /* Deja espacio libre para que el nombre/tilde de verificado nunca
+      queden debajo del botón ⋮ (que es position:absolute sobre la tarjeta) */
+    padding-right: 48px;
   }
 
+  .resumen-titulo-texto {
+    word-wrap: break-word;
+  }
+
+  /* Descripción con "Ver más" */
   .resumen-descripcion-perfil {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+    max-height: 3rem; /* 2 líneas aprox */
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.3s ease;
+  }
+
+  .resumen-descripcion-perfil.expanded {
+    max-height: 500px;
+  }
+
+  .resumen-gradient-descripcion {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.5rem;
+    background: linear-gradient(to bottom, transparent, #f8fbff);
+    pointer-events: none;
+  }
+
+  .resumen-descripcion-perfil.expanded + .resumen-gradient-descripcion {
+    display: none;
+  }
+
+  .resumen-ver-mas-btn {
+    color: #1774f6;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    display: inline-block;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+  }
+
+  .resumen-ver-mas-btn:hover {
+    color: #0d5abf;
+  }
+
+  /* Estrellas */
+  .resumen-estrellas-perfil {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  /* Botón WhatsApp */
+  .resumen-btn-contacto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #1774f6;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
     font-size: 0.9rem;
-    max-height: 2.7rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3);
+    align-self: flex-start;
+    margin-top: 0.5rem;
   }
 
-  .resumen-btn-contacto {
-    font-size: 0.85rem;
-    padding: 0.55rem 1rem;
+  .resumen-btn-contacto:hover {
+    background-color: #0d5abf;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(23, 116, 246, 0.4);
   }
 
-  /* Badge IGUAL: abajo derecha */
+  /* ============================================
+    BADGE PREMIUM - Esquina inferior derecha
+    ============================================ */
+
   .resumen-badge-premium-perfil {
-    bottom: 10px;
-    right: 10px;
-    font-size: 0.65rem;
-    padding: 5px 11px;
-    gap: 4px;
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #1774f6 0%, #0d5bbf 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    animation: resumen-glow-badge 3s ease-in-out infinite;
+    z-index: 10;
   }
 
   .resumen-badge-star-icon {
-    font-size: 0.85rem !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .resumen-lista {
-    padding: 1rem 1rem 3rem 1rem;
-    border-radius: 16px;
-    gap: 0.8rem;
+    font-size: 1rem !important;
+    animation: resumen-star-spin 4s ease-in-out infinite;
   }
 
-  .resumen-foto-perfil,
+  @keyframes resumen-glow-badge {
+    0%, 100% {
+      box-shadow: 0 4px 12px rgba(23, 116, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 6px 20px rgba(23, 116, 246, 0.6), 0 0 30px rgba(23, 116, 246, 0.3);
+    }
+  }
+
+  @keyframes resumen-star-spin {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    10% { transform: rotate(15deg) scale(1.15); }
+    20% { transform: rotate(0deg) scale(1); }
+  }
+
+  .resumen-badge-premium-perfil:hover {
+    box-shadow: 0 6px 24px rgba(23, 116, 246, 0.6);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+  }
+
+  /* ============================================
+    RESPONSIVE - Mobile (IGUAL QUE PC)
+    ============================================ */
+
+  @media (max-width: 768px) {
+    .resumen-lista {
+      grid-template-columns: auto 1fr; /* Mantiene layout horizontal */
+      padding: 1.2rem 1.2rem 3.5rem 1.2rem; /* Extra padding-bottom para el badge */
+      gap: 1rem;
+      margin: 1rem auto;
+    }
+
+    .resumen-foto-perfil,
+    .resumen-placeholder-perfil {
+      width: 80px;
+      height: 80px;
+    }
+
+    .resumen-titulo-perfil {
+      font-size: 1.3rem;
+      padding-right: 44px;
+    }
+
+    .resumen-descripcion-perfil {
+      font-size: 0.9rem;
+      max-height: 2.7rem;
+    }
+
+    .resumen-btn-contacto {
+      font-size: 0.85rem;
+      padding: 0.55rem 1rem;
+    }
+
+    /* Badge IGUAL: abajo derecha */
+    .resumen-badge-premium-perfil {
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.65rem;
+      padding: 5px 11px;
+      gap: 4px;
+    }
+
+    .resumen-badge-star-icon {
+      font-size: 0.85rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .resumen-lista {
+      padding: 1rem 1rem 3rem 1rem;
+      border-radius: 16px;
+      gap: 0.8rem;
+    }
+
+    .resumen-foto-perfil,
+    .resumen-placeholder-perfil {
+      width: 70px;
+      height: 70px;
+    }
+
+    .resumen-titulo-perfil {
+      font-size: 1.15rem;
+      padding-right: 40px;
+    }
+
+    .resumen-descripcion-perfil {
+      font-size: 0.85rem;
+      max-height: 2.5rem;
+    }
+
+    .resumen-btn-contacto {
+      font-size: 0.8rem;
+      padding: 0.5rem 0.9rem;
+    }
+
+    /* Badge IGUAL: abajo derecha */
+    .resumen-badge-premium-perfil {
+      bottom: 8px;
+      right: 8px;
+      font-size: 0.6rem;
+      padding: 4px 9px;
+      gap: 3px;
+    }
+
+    .resumen-badge-star-icon {
+      font-size: 0.8rem !important;
+    }
+  }
+
+  /* ============================================
+    AGREGAR AL FINAL DE ResumenPerfil.css
+    (no reemplaza nada, solo suma)
+    ============================================ */
+
+  .resumen-banner-elite {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #7C3AED, #A855F7);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+  }
+
+  .resumen-banner-elite .material-icons {
+    font-size: 1.1rem;
+  }
+
+  /* ============================================
+    AGREGAR AL FINAL DE ResumenPerfil.css
+    (no reemplaza nada, solo suma)
+    ============================================ */
+
+  .resumen-banner-elite {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #7C3AED, #A855F7);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+  }
+
+  .resumen-banner-elite .material-icons {
+    font-size: 1.1rem;
+  }
+
+  /* ============================================
+    AGREGAR AL FINAL DE ResumenPerfil.css (reel)
+    ============================================ */
+
+  .resumen-foto-wrapper,
   .resumen-placeholder-perfil {
-    width: 70px;
-    height: 70px;
+    position: relative;
   }
 
-  .resumen-titulo-perfil {
-    font-size: 1.15rem;
-    padding-right: 40px;
+  .resumen-foto-wrapper.con-historia .resumen-foto-perfil,
+  .resumen-placeholder-perfil.con-historia {
+    cursor: pointer;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 6px #F97316;
+    border-radius: 50%;
   }
 
-  .resumen-descripcion-perfil {
+  .resumen-historia-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: #F97316;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .resumen-historia-badge .material-icons {
     font-size: 0.85rem;
-    max-height: 2.5rem;
   }
 
-  .resumen-btn-contacto {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.9rem;
+    /* ---------- WhatsApp destacado por plan ---------- */
+  .resumen-btn-contacto-impulso {
+    animation: resumenWspPulseSuave 2.8s ease-in-out infinite;
   }
 
-  /* Badge IGUAL: abajo derecha */
-  .resumen-badge-premium-perfil {
-    bottom: 8px;
-    right: 8px;
-    font-size: 0.6rem;
-    padding: 4px 9px;
-    gap: 3px;
+  .resumen-btn-contacto-destacado {
+    position: relative;
+    overflow: hidden;
+    animation: resumenWspPulseMedio 2.2s ease-in-out infinite;
   }
 
-  .resumen-badge-star-icon {
-    font-size: 0.8rem !important;
+  .resumen-btn-contacto-destacado::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: resumenWspShine 2.5s infinite;
   }
+
+  .resumen-btn-contacto-elite {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1774f6 0%, #7C3AED 100%) !important;
+    animation: resumenWspPulseFuerte 1.8s ease-in-out infinite;
+  }
+
+  .resumen-btn-contacto-elite::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: resumenWspShine 1.8s infinite;
+  }
+
+  @keyframes resumenWspPulseSuave {
+    0%, 100% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3); }
+    50% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3), 0 0 0 6px rgba(23, 116, 246, 0); }
+  }
+
+  @keyframes resumenWspPulseMedio {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(23, 116, 246, 0.5); }
+  }
+
+  @keyframes resumenWspPulseFuerte {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 26px rgba(124, 58, 237, 0.55); }
+  }
+
+  @keyframes resumenWspShine {
+    0% { left: -100%; }
+    60%, 100% { left: 100%; }
+  }
+
+  .insignia-verificado-resumen {
+    font-size: 1.5rem !important;
+    color: #3897F0;
+    flex-shrink: 0;
+  }
+
+  
+/* Ampliación de la foto del perfil */
+.resumen-foto-wrapper:not(.con-historia) {
+  cursor: zoom-in;
 }
 
-/* ============================================
-   AGREGAR AL FINAL DE ResumenPerfil.css
-   (no reemplaza nada, solo suma)
-   ============================================ */
-
-.resumen-banner-elite {
+.resumen-foto-visor {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  margin-bottom: 0.75rem;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #7C3AED, #A855F7);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
+  padding: 64px 12px 24px;
+  box-sizing: border-box;
 }
 
-.resumen-banner-elite .material-icons {
-  font-size: 1.1rem;
+.resumen-foto-visor-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
 }
 
-/* ============================================
-   AGREGAR AL FINAL DE ResumenPerfil.css
-   (no reemplaza nada, solo suma)
-   ============================================ */
-
-.resumen-banner-elite {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  margin-bottom: 0.75rem;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #7C3AED, #A855F7);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
-}
-
-.resumen-banner-elite .material-icons {
-  font-size: 1.1rem;
-}
-
-/* ============================================
-   AGREGAR AL FINAL DE ResumenPerfil.css (reel)
-   ============================================ */
-
-.resumen-foto-wrapper,
-.resumen-placeholder-perfil {
-  position: relative;
-}
-
-.resumen-foto-wrapper.con-historia .resumen-foto-perfil,
-.resumen-placeholder-perfil.con-historia {
-  cursor: pointer;
-  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #F97316;
+.resumen-foto-visor-cerrar {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border: 0;
   border-radius: 50%;
-}
-
-.resumen-historia-badge {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #F97316;
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  white-space: nowrap;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.resumen-historia-badge .material-icons {
-  font-size: 0.85rem;
+
+.resumen-foto-wrapper {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-  /* ---------- WhatsApp destacado por plan ---------- */
-.resumen-btn-contacto-impulso {
-  animation: resumenWspPulseSuave 2.8s ease-in-out infinite;
-}
-
-.resumen-btn-contacto-destacado {
-  position: relative;
-  overflow: hidden;
-  animation: resumenWspPulseMedio 2.2s ease-in-out infinite;
-}
-
-.resumen-btn-contacto-destacado::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-  animation: resumenWspShine 2.5s infinite;
-}
-
-.resumen-btn-contacto-elite {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #1774f6 0%, #7C3AED 100%) !important;
-  animation: resumenWspPulseFuerte 1.8s ease-in-out infinite;
-}
-
-.resumen-btn-contacto-elite::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  animation: resumenWspShine 1.8s infinite;
-}
-
-@keyframes resumenWspPulseSuave {
-  0%, 100% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3); }
-  50% { box-shadow: 0 4px 12px rgba(23, 116, 246, 0.3), 0 0 0 6px rgba(23, 116, 246, 0); }
-}
-
-@keyframes resumenWspPulseMedio {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(23, 116, 246, 0.5); }
-}
-
-@keyframes resumenWspPulseFuerte {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 26px rgba(124, 58, 237, 0.55); }
-}
-
-@keyframes resumenWspShine {
-  0% { left: -100%; }
-  60%, 100% { left: 100%; }
-}
-
-.insignia-verificado-resumen {
-  font-size: 1.5rem !important;
-  color: #3897F0;
-  flex-shrink: 0;
+.resumen-foto-perfil {
+  -webkit-user-drag: none;
 }
