@@ -2,6 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import ModalMapa from './ModalMapa';
 import { supabase } from '../../utils/supabaseClient';
 import './Paso1InfoBasica.css';
+import {
+  prepararCategorias,
+  sugerirCategorias,
+  buscarCategorias,
+  puntajeCategoria,
+} from './utils/categoriasSugeridas';
+import { ICONOS_GRUPO } from '../../utils/iconosGrupos';
 
 const caracteresPermitidos = (texto) =>
   /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.,;:()¡!?"' -]+$/.test(texto);
@@ -66,529 +73,657 @@ export const validarPaso1 = (formData) => {
   return errores;
 };
 
-// 🔥 FUZZY SEARCH - Distancia Levenshtein
-const calcularDistanciaLevenshtein = (a, b) => {
-  const matriz = [];
-  for (let i = 0; i <= b.length; i++) {
-    matriz[i] = [i];
-  }
-  for (let j = 0; j <= a.length; j++) {
-    matriz[0][j] = j;
-  }
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matriz[i][j] = matriz[i - 1][j - 1];
-      } else {
-        matriz[i][j] = Math.min(
-          matriz[i - 1][j - 1] + 1,
-          matriz[i][j - 1] + 1,
-          matriz[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  return matriz[b.length][a.length];
-};
 
-// 🔥 Buscar categorías similares
-const buscarSimilares = (busqueda, categorias, limite = 50) => {
-  if (!busqueda || busqueda.length < 2) return categorias;
-  
-  const busquedaLower = busqueda.toLowerCase();
-  
-  const resultados = categorias
-    .map(cat => {
-      const nombreLower = cat.nombre.toLowerCase();
-      const distancia = calcularDistanciaLevenshtein(busquedaLower, nombreLower);
-      const porcentajeSimilitud = 1 - distancia / Math.max(busquedaLower.length, nombreLower.length);
-      
-      return {
-        ...cat,
-        distancia,
-        similitud: porcentajeSimilitud,
-        coincideExacto: nombreLower.includes(busquedaLower),
-        empiezaCon: nombreLower.startsWith(busquedaLower)
-      };
-    })
-    .filter(cat => cat.similitud > 0.4 || cat.coincideExacto)
-    .sort((a, b) => {
-      if (a.coincideExacto && !b.coincideExacto) return -1;
-      if (!a.coincideExacto && b.coincideExacto) return 1;
-      if (a.empiezaCon && !b.empiezaCon) return -1;
-      if (!a.empiezaCon && b.empiezaCon) return 1;
-      return b.similitud - a.similitud;
-    })
-    .slice(0, limite);
-  
-  return resultados;
-};
+const NOMBRE_TIPO = { servicio: 'Oficios', producto: 'Negocios' };
 
-// 🆕 Modal para ver todas las categorías CON FUZZY SEARCH (SIN AGRUPACIONES)
-// 🆕 Modal para ver todas las categorías POR GRUPO CON FUZZY SEARCH
-const ModalCategorias = ({ categorias, categoriaSeleccionada, onSeleccionar, onCerrar }) => {
+/* Modal "Ver todas las categorías": pestañas Oficios / Negocios, buscador que
+   entiende palabras comunes y grupos que se abren con sus categorías. */
+const ModalCategorias = ({ categorias, preparadas, tipoInicial, categoriaSeleccionada, onSeleccionar, onCerrar }) => {
+  const [tipoVista, setTipoVista] = useState(tipoInicial || 'servicio');
   const [busquedaModal, setBusquedaModal] = useState('');
-  const [grupoExpandido, setGrupoExpandido] = useState(null);
+  const [grupoAbierto, setGrupoAbierto] = useState(() => {
+    const actual = categorias.find((c) => c.id === categoriaSeleccionada);
+    return actual?.grupo || null;
+  });
 
-  // Agrupar categorías
-  const categoriasPorGrupo = useMemo(() => {
-    const grupos = {};
-    categorias.forEach(cat => {
-      const grupo = cat.grupo || 'Sin grupo';
-      if (!grupos[grupo]) grupos[grupo] = [];
-      grupos[grupo].push(cat);
-    });
-    return grupos;
-  }, [categorias]);
+  // Bloquear el scroll de la página y cerrar con Escape
+  useEffect(() => {
+    const previo = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const alTeclear = (e) => e.key === 'Escape' && onCerrar();
+    window.addEventListener('keydown', alTeclear);
+    return () => {
+      document.body.style.overflow = previo;
+      window.removeEventListener('keydown', alTeclear);
+    };
+  }, [onCerrar]);
 
-  // Filtrar con fuzzy search
-  const resultadosBusqueda = useMemo(() => {
-    if (!busquedaModal || busquedaModal.length < 2) return null;
-    return buscarSimilares(busquedaModal, categorias, 20);
-  }, [busquedaModal, categorias]);
+  const grupos = useMemo(() => {
+    const porGrupo = {};
+    categorias
+      .filter((c) => c.tipo === tipoVista)
+      .forEach((cat) => {
+        const g = cat.grupo || 'Otros';
+        if (!porGrupo[g]) porGrupo[g] = [];
+        porGrupo[g].push(cat);
+      });
+    return Object.entries(porGrupo).sort(([a], [b]) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+  }, [categorias, tipoVista]);
 
-  const handleSeleccionar = (cat) => {
+  const resultados = useMemo(
+    () => (busquedaModal.trim().length >= 2 ? buscarCategorias(busquedaModal, preparadas, 30) : null),
+    [busquedaModal, preparadas]
+  );
+
+  const totalTipo = (t) => categorias.filter((c) => c.tipo === t).length;
+
+  const elegir = (cat) => {
     onSeleccionar(cat);
     onCerrar();
   };
 
-  const toggleGrupo = (grupo) => {
-    setGrupoExpandido(prev => prev === grupo ? null : grupo);
-  };
-
   return (
-    <div className="modal-categorias-overlay" onClick={onCerrar}>
-      <div className="modal-categorias-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-categorias-header">
-          <h3>Seleccionar categoría</h3>
-          <button className="modal-categorias-close" onClick={onCerrar}>✕</button>
+    <div className="psf-mcat-fondo" onClick={onCerrar}>
+      <div
+        className="psf-mcat"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="psf-mcat-titulo"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="psf-mcat-cabecera">
+          <div className="psf-mcat-titulos">
+            <h3 id="psf-mcat-titulo">Todas las categorías</h3>
+            <p>Elegí la que mejor describe lo principal que hacés</p>
+          </div>
+          <button type="button" className="psf-mcat-cerrar" onClick={onCerrar} aria-label="Cerrar">
+            <span className="material-icons">close</span>
+          </button>
+        </header>
+
+        <div className="psf-mcat-herramientas">
+          <div className="psf-buscador">
+            <span className="material-icons">search</span>
+            <input
+              type="text"
+              value={busquedaModal}
+              onChange={(e) => setBusquedaModal(e.target.value.slice(0, 50))}
+              placeholder="Buscá: plomero, tortas, uñas, flete…"
+              autoComplete="off"
+              aria-label="Buscar categoría"
+            />
+            {busquedaModal && (
+              <button type="button" className="psf-buscador-limpiar" onClick={() => setBusquedaModal('')} aria-label="Borrar búsqueda">
+                <span className="material-icons">close</span>
+              </button>
+            )}
+          </div>
+
+          {!resultados && (
+            <div className="psf-mcat-pestanas" role="tablist">
+              {['servicio', 'producto'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={tipoVista === t}
+                  className={tipoVista === t ? 'activa' : ''}
+                  onClick={() => {
+                    setTipoVista(t);
+                    setGrupoAbierto(null);
+                  }}
+                >
+                  <span className="material-icons">{t === 'servicio' ? 'handyman' : 'storefront'}</span>
+                  {NOMBRE_TIPO[t]}
+                  <small>{totalTipo(t)}</small>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="modal-categorias-busqueda">
-          <input
-            type="text"
-            value={busquedaModal}
-            onChange={(e) => setBusquedaModal(e.target.value)}
-            placeholder="🔍 Buscar categoría... (Ej: remis, comida, plomero)"
-            autoFocus
-          />
-        </div>
-
-        <div className="modal-categorias-lista">
-          {resultadosBusqueda ? (
-            // MOSTRAR RESULTADOS DE BÚSQUEDA
-            resultadosBusqueda.length > 0 ? (
-              <div>
-                <p className="modal-resultados-info">
-                  {resultadosBusqueda.length} {resultadosBusqueda.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+        <div className="psf-mcat-lista">
+          {resultados ? (
+            resultados.length > 0 ? (
+              <>
+                <p className="psf-mcat-info">
+                  {resultados.length === 1 ? '1 categoría encontrada' : `${resultados.length} categorías encontradas`}
                 </p>
-                {resultadosBusqueda.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className={`modal-categoria-item ${categoriaSeleccionada === cat.id ? 'selected' : ''}`}
-                    onClick={() => handleSeleccionar(cat)}
-                  >
-                    <span className="modal-categoria-nombre">
-                      {cat.nombre}
-                      {cat.grupo && (
-                        <span className="modal-categoria-grupo-badge">{cat.grupo}</span>
-                      )}
-                    </span>
-                    {categoriaSeleccionada === cat.id && <span className="modal-categoria-check">✓</span>}
-                  </button>
-                ))}
-              </div>
+                <ul className="psf-mcat-resultados">
+                  {resultados.map((cat) => (
+                    <li key={cat.id}>
+                      <button
+                        type="button"
+                        className={cat.id === categoriaSeleccionada ? 'elegida' : ''}
+                        onClick={() => elegir(cat)}
+                      >
+                        <span className="material-icons psf-mcat-res-icono">
+                          {ICONOS_GRUPO[cat.grupo] || 'sell'}
+                        </span>
+                        <span className="psf-mcat-res-textos">
+                          <strong>{cat.nombre}</strong>
+                          <small>{NOMBRE_TIPO[cat.tipo]}{cat.grupo ? ` · ${cat.grupo}` : ''}</small>
+                        </span>
+                        {cat.id === categoriaSeleccionada && <span className="material-icons psf-mcat-check">check_circle</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
             ) : (
-              <div className="modal-sin-resultados">
-                <p>❌ No se encontró "{busquedaModal}"</p>
-                <p className="modal-sugerencia-texto">Intenta con otra palabra o navega por grupos</p>
+              <div className="psf-mcat-vacio">
+                <span className="material-icons">search_off</span>
+                <p>No encontramos "{busquedaModal}"</p>
+                <small>Probá con otra palabra, o borrá la búsqueda y mirá por grupos.</small>
               </div>
             )
           ) : (
-            // MOSTRAR GRUPOS COLAPSABLES
-            Object.entries(categoriasPorGrupo)
-              .sort(([a], [b]) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
-              .map(([grupo, cats]) => (
-                <div key={grupo} className="modal-grupo-contenedor">
+            grupos.map(([grupo, cats]) => {
+              const abierto = grupoAbierto === grupo;
+              const tieneElegida = cats.some((c) => c.id === categoriaSeleccionada);
+              return (
+                <div key={grupo} className={`psf-mcat-grupo ${abierto ? 'abierto' : ''}`}>
                   <button
-                    className="modal-grupo-header"
-                    onClick={() => toggleGrupo(grupo)}
+                    type="button"
+                    className="psf-mcat-grupo-cabecera"
+                    aria-expanded={abierto}
+                    onClick={() => setGrupoAbierto(abierto ? null : grupo)}
                   >
-                    <span className="modal-grupo-titulo">
-                      {grupo} <span className="modal-grupo-count">({cats.length})</span>
+                    <span className="material-icons psf-mcat-grupo-icono">{ICONOS_GRUPO[grupo] || 'sell'}</span>
+                    <span className="psf-mcat-grupo-nombre">
+                      {grupo}
+                      {tieneElegida && <span className="psf-mcat-punto" aria-label="Tu categoría está acá" />}
                     </span>
-                    <span className={`modal-grupo-icono ${grupoExpandido === grupo ? 'expandido' : ''}`}>
-                      ▼
-                    </span>
+                    <span className="psf-mcat-grupo-cantidad">{cats.length}</span>
+                    <span className="material-icons psf-mcat-flecha" aria-hidden="true">expand_more</span>
                   </button>
-                  
-                  {grupoExpandido === grupo && (
-                    <div className="modal-grupo-categorias">
+                  {abierto && (
+                    <div className="psf-mcat-chips">
                       {cats.map((cat) => (
                         <button
                           key={cat.id}
-                          className={`modal-categoria-item ${categoriaSeleccionada === cat.id ? 'selected' : ''}`}
-                          onClick={() => handleSeleccionar(cat)}
+                          type="button"
+                          className={`psf-mcat-chip ${cat.id === categoriaSeleccionada ? 'elegida' : ''}`}
+                          onClick={() => elegir(cat)}
                         >
-                          <span className="modal-categoria-nombre">{cat.nombre}</span>
-                          {categoriaSeleccionada === cat.id && <span className="modal-categoria-check">✓</span>}
+                          {cat.id === categoriaSeleccionada && <span className="material-icons">check</span>}
+                          {cat.nombre}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
-              ))
+              );
+            })
           )}
         </div>
 
-        <div className="modal-categorias-footer">
-          <p className="modal-categorias-count">
-            {categorias.length} categorías disponibles
-          </p>
-        </div>
+        <footer className="psf-mcat-pie">
+          <span className="material-icons">lightbulb</span>
+          ¿Hacés varias cosas? Elegí la principal y contá el resto en la descripción.
+        </footer>
       </div>
     </div>
   );
 };
 
-const Paso1InfoBasica = ({ formData, setFormData }) => {
-  const [nombreLocal, setNombreLocal] = useState('');
-  const [descripcionLocal, setDescripcionLocal] = useState('');
-  const [direccionLocal, setDireccionLocal] = useState('');
-  const [referenciaLocal, setReferenciaLocal] = useState('');
-  const [tipoSeleccionado, setTipoSeleccionado] = useState('');
+// Cómo se llama cada tipo para la gente (igual que en el Home: Oficios / Negocios)
+const TIPOS = {
+  servicio: {
+    titulo: 'Un oficio o servicio',
+    corto: 'Oficios',
+    icono: 'handyman',
+    ejemplos: 'Lo hacés vos: arreglos, clases, belleza, salud, fletes, eventos…',
+  },
+  producto: {
+    titulo: 'Un negocio o productos',
+    corto: 'Negocios',
+    icono: 'storefront',
+    ejemplos: 'Vendés cosas: comida, ropa, una tienda, artesanías, plantas…',
+  },
+};
+
+const Contador = ({ actual, max }) => (
+  <span className={`psf-contador ${actual > max * 0.9 ? 'casi' : ''}`}>{actual}/{max}</span>
+);
+
+const ErrorCampo = ({ mensaje }) =>
+  mensaje ? (
+    <p className="psf-error" role="alert">
+      <span className="material-icons">error_outline</span>
+      {mensaje}
+    </p>
+  ) : null;
+
+const Paso1InfoBasica = ({ formData, setFormData, errores = {}, parte = 'todo' }) => {
+  const [todasCategorias, setTodasCategorias] = useState([]);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalCategoriasAbierto, setModalCategoriasAbierto] = useState(false);
-  const [categorias, setCategorias] = useState([]);
-  const [loadingCategorias, setLoadingCategorias] = useState(false);
-  const [coordenadasMostrar, setCoordenadasMostrar] = useState({ lat: null, lng: null });
+  const [avisoCambioTipo, setAvisoCambioTipo] = useState('');
 
-  const LIMITE_ACCESO_RAPIDO = 6;
+  const tipo = formData?.tipo || '';
+  const mostrarInfo = parte !== 'ubicacion';
+  const mostrarUbicacion = parte !== 'info';
 
+  // Todas las categorías activas de una sola vez (de los dos tipos), así el
+  // buscador encuentra la categoría aunque la persona haya elegido mal el tipo.
   useEffect(() => {
-    if (!formData) return;
-
-    setNombreLocal(formData.nombre || '');
-    setDescripcionLocal(formData.descripcion || '');
-    setDireccionLocal(formData.direccion_escrita || '');
-    setReferenciaLocal(formData.ubicacion?.referencia || '');
-    setTipoSeleccionado(formData.tipo || '');
-
-    setCoordenadasMostrar({
-      lat: formData.ubicacion?.lat || formData.latitud || null,
-      lng: formData.ubicacion?.lng || formData.longitud || null,
-    });
-  }, [formData]);
-
-  useEffect(() => {
-    if (formData?.categoria && categorias.length > 0) {
-      const cat = categorias.find(c => c.id === formData.categoria);
-      if (cat) {
-        setBusqueda(cat.nombre);
-      }
-    }
-  }, [formData?.categoria, categorias]);
-
-  useEffect(() => {
-    if (formData?.ubicacion) {
-      setCoordenadasMostrar({
-        lat: formData.ubicacion.lat || null,
-        lng: formData.ubicacion.lng || null,
-      });
-      setReferenciaLocal(formData.ubicacion.referencia || '');
-    }
-  }, [formData?.ubicacion]);
-
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      if (!tipoSeleccionado) {
-        setCategorias([]);
-        setBusqueda('');
-        return;
-      }
-      setLoadingCategorias(true);
+    if (!mostrarInfo) return undefined;
+    let activo = true;
+    const cargar = async () => {
       try {
         const { data, error } = await supabase
           .from('categorias')
-          .select('*')
-          .eq('tipo', tipoSeleccionado)
+          .select('id, nombre, tipo, grupo')
           .eq('estado', 'activa')
           .order('nombre', { ascending: true });
-
         if (error) throw error;
-
-        setCategorias(data || []);
-
-        if (formData?.categoria) {
-          const cat = data?.find((c) => c.id === formData.categoria);
-          if (cat) {
-            setBusqueda(cat.nombre);
-          }
-        }
-      } catch (err) {
-        setCategorias([]);
+        if (activo) setTodasCategorias(data || []);
+      } catch {
+        if (activo) setTodasCategorias([]);
       } finally {
-        setLoadingCategorias(false);
+        if (activo) setLoadingCategorias(false);
       }
     };
-    fetchCategorias();
-  }, [tipoSeleccionado, formData?.categoria]);
+    cargar();
+    return () => {
+      activo = false;
+    };
+  }, [mostrarInfo]);
 
-  // 🔥 Categorías de acceso rápido con fuzzy search
-  const categoriasAccesoRapido = useMemo(() => {
-    if (!categorias || categorias.length === 0) return [];
-    
-    if (formData.categoria) {
-      const catSeleccionada = categorias.find(c => c.id === formData.categoria);
-      if (catSeleccionada) return [catSeleccionada];
+  const preparadas = useMemo(() => prepararCategorias(todasCategorias), [todasCategorias]);
+  const categoriasDelTipo = useMemo(
+    () => todasCategorias.filter((c) => c.tipo === tipo),
+    [todasCategorias, tipo]
+  );
+  const seleccionada = useMemo(
+    () => todasCategorias.find((c) => c.id === formData?.categoria) || null,
+    [todasCategorias, formData?.categoria]
+  );
+
+  // Si se editó un servicio viejo, completar el nombre de la categoría
+  useEffect(() => {
+    if (seleccionada && formData.categoriaNombre !== seleccionada.nombre) {
+      setFormData((prev) => ({ ...prev, categoriaNombre: seleccionada.nombre }));
     }
+  }, [seleccionada, formData.categoriaNombre, setFormData]);
 
-    if (busqueda) {
-      return buscarSimilares(busqueda, categorias, LIMITE_ACCESO_RAPIDO);
-    }
+  const textoBase = `${formData?.nombre || ''} ${formData?.descripcion || ''}`;
+  const sugerencias = useMemo(
+    () => sugerirCategorias(textoBase, preparadas, { limite: 4, tipoPreferido: tipo }),
+    [textoBase, preparadas, tipo]
+  );
+  const resultadosBusqueda = useMemo(
+    () => buscarCategorias(busqueda, preparadas, 10),
+    [busqueda, preparadas]
+  );
 
-    return categorias.slice(0, LIMITE_ACCESO_RAPIDO);
-  }, [categorias, busqueda, formData.categoria]);
+  // ¿La categoría elegida no tiene nada que ver con lo que escribió?
+  const sugerenciaMejor = useMemo(() => {
+    if (!seleccionada || textoBase.trim().length < 15) return null;
+    const mejor = sugerencias[0];
+    if (!mejor || mejor.cat.id === seleccionada.id || mejor.puntos < 4) return null;
+    const prep = preparadas.find((p) => p.cat.id === seleccionada.id);
+    return puntajeCategoria(textoBase, prep) < 2 ? mejor.cat : null;
+  }, [seleccionada, sugerencias, preparadas, textoBase]);
 
-  const handleNombreChange = (e) => {
+  // ------------------ cambios ------------------
+  const cambiarCampo = (campo, max) => (e) => {
     const value = e.target.value;
-    if (value.length <= 50) {
-      setNombreLocal(value);
-      setFormData((prev) => ({ ...prev, nombre: value }));
-    }
+    if (value.length <= max) setFormData((prev) => ({ ...prev, [campo]: value }));
   };
 
-  const handleTipoChange = (e) => {
-    const value = e.target.value;
-    setTipoSeleccionado(value);
-    setFormData(prev => ({ ...prev, categoria: '' }));
+  const elegirTipo = (nuevo) => {
+    setAvisoCambioTipo('');
+    setFormData((prev) => {
+      const sigue = seleccionada && seleccionada.tipo === nuevo;
+      return {
+        ...prev,
+        tipo: nuevo,
+        categoria: sigue ? prev.categoria : '',
+        categoriaNombre: sigue ? prev.categoriaNombre : '',
+      };
+    });
+  };
+
+  const elegirCategoria = (cat) => {
+    if (tipo && cat.tipo !== tipo) {
+      setAvisoCambioTipo(`Cambiamos a "${TIPOS[cat.tipo]?.titulo}" porque ahí está la categoría ${cat.nombre}.`);
+    } else {
+      setAvisoCambioTipo('');
+    }
+    setFormData((prev) => ({
+      ...prev,
+      tipo: cat.tipo,
+      categoria: cat.id,
+      categoriaNombre: cat.nombre || '',
+    }));
     setBusqueda('');
-    setFormData(prev => ({ ...prev, tipo: value }));
   };
 
-  const handleDescripcionChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= 300) {
-      setDescripcionLocal(value);
-      setFormData((prev) => ({ ...prev, descripcion: value }));
-    }
+  const quitarCategoria = () => {
+    setAvisoCambioTipo('');
+    setFormData((prev) => ({ ...prev, categoria: '', categoriaNombre: '' }));
   };
 
-  const handleDireccionChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= 120) {
-      setDireccionLocal(value);
-      setFormData((prev) => ({ ...prev, direccion_escrita: value }));
-    }
-  };
-
-  const handleReferenciaChange = (e) => {
+  const cambiarReferencia = (e) => {
     const value = e.target.value;
     if (value.length <= 150) {
-      setReferenciaLocal(value);
       setFormData((prev) => ({
         ...prev,
-        ubicacion: {
-          ...(prev?.ubicacion || {}),
-          referencia: value,
-        },
+        ubicacion: { ...(prev?.ubicacion || {}), referencia: value },
       }));
     }
   };
 
-  const handleCategoriaClick = (categoria) => {
+  const guardarUbicacion = (lat, lng) => {
     setFormData((prev) => ({
       ...prev,
-      categoria: categoria.id,
-      categoriaNombre: categoria.nombre || ''
+      ubicacion: { lat, lng, referencia: prev?.ubicacion?.referencia || '' },
     }));
-    setBusqueda(categoria.nombre || '');
-  };
-
-  const limpiarBusqueda = () => {
-    setBusqueda('');
-    setFormData((prev) => ({ ...prev, categoria: '' }));
-  };
-
-  const abrirModalMapa = () => setModalAbierto(true);
-  const cerrarModalMapa = () => setModalAbierto(false);
-  const guardarUbicacion = (lat, lng) => {
-    setFormData((prev) => ({ ...prev, ubicacion: { lat, lng, referencia: referenciaLocal } }));
-    setCoordenadasMostrar({ lat, lng });
     setModalAbierto(false);
   };
 
-  const mostrarCoordenada = (coord) =>
-    typeof coord === 'number' ? coord.toFixed(6) : 'No definido';
+  const lat = formData?.ubicacion?.lat ?? formData?.latitud ?? null;
+  const lng = formData?.ubicacion?.lng ?? formData?.longitud ?? null;
+  const ubicacionLista = typeof lat === 'number' && typeof lng === 'number';
+
+  const nombre = formData?.nombre || '';
+  const descripcion = formData?.descripcion || '';
+  const direccion = formData?.direccion_escrita || '';
+  const referencia = formData?.ubicacion?.referencia || '';
+
+  const etiquetaCat = (cat) => `${TIPOS[cat.tipo]?.corto || ''}${cat.grupo ? ` · ${cat.grupo}` : ''}`;
 
   return (
-    <div className="paso1-container">
-      <h2 className="titulo-paso">Información básica</h2>
-
-      <label>¿Cómo se llama tu negocio/emprendimiento o vos? *</label>
-      <input
-        type="text"
-        value={nombreLocal}
-        onChange={handleNombreChange}
-        placeholder="Ej: Delicias Jessi, Roberto Gómez"
-        maxLength={50}
-      />
-      <div className="char-counter">{nombreLocal.length}/50</div>
-
-      <label>¿Qué querés publicar? *</label>
-<select value={tipoSeleccionado} onChange={handleTipoChange}>
-  <option value="">Elegí una opción</option>
-  <option value="servicio">Un servicio (plomero, electricista, delivery)</option>
-  <option value="producto">Un producto (ropa, comida, artesanías)</option>
-</select>
-
-      <label>¿A qué te dedicás? *</label>
-<div className="input-busqueda-wrapper">
-  <input
-    type="text"
-    value={busqueda || ''}
-    onChange={(e) => {
-      const value = e.target.value.slice(0, 50);
-      setBusqueda(value);
-      if (!value) {
-        setFormData(prev => ({ ...prev, categoria: '' }));
-      }
-    }}
-    disabled={!tipoSeleccionado}
-    placeholder="Escribí acá: remis, pizzas, plomero, ropa..."
-    maxLength={50}
-  />
-
-        {busqueda && (
-          <button type="button" className="limpiar-btn" onClick={limpiarBusqueda}>
-            &times;
-          </button>
-        )}
-      </div>
-
-      <div className="mg-categoria-list">
-        {loadingCategorias ? (
-          <div className="mg-spinner-wrapper" aria-live="polite">
-            <p className="mg-spinner-text">Cargando categorías...</p>
-            <div className="mg-mini-spinner" role="status" aria-label="Cargando"></div>
-          </div>
-        ) : categoriasAccesoRapido.length > 0 ? (
-          <>
-            {busqueda && !formData.categoria && (
-              <p className="mg-sugerencias-titulo">💡 Sugerencias para "{busqueda}":</p>
-            )}
-            <div className="mg-categoria-grid">
-              {categoriasAccesoRapido.map((cat) => (
+    <div className="paso1-container psf-paso">
+      {mostrarInfo && (
+        <>
+          {/* 1. Tipo */}
+          <div className="psf-campo">
+            <span className="psf-label" id="psf-tipo-label">
+              ¿Qué vas a publicar?
+            </span>
+            <div className="psf-tipos" role="radiogroup" aria-labelledby="psf-tipo-label">
+              {Object.entries(TIPOS).map(([valor, t]) => (
                 <button
-                  key={cat.id}
+                  key={valor}
                   type="button"
-                  className={`mg-categoria-item ${formData.categoria === cat.id ? 'mg-categoria-selected' : ''}`}
-                  onClick={() => handleCategoriaClick(cat)}
+                  name="tipo"
+                  role="radio"
+                  aria-checked={tipo === valor}
+                  className={`psf-tipo ${tipo === valor ? 'activo' : ''}`}
+                  onClick={() => elegirTipo(valor)}
                 >
-                  {cat.nombre}
+                  <span className="material-icons psf-tipo-icono">{t.icono}</span>
+                  <span className="psf-tipo-textos">
+                    <strong>{t.titulo}</strong>
+                    <span>{t.ejemplos}</span>
+                  </span>
+                  <span className="material-icons psf-tipo-check" aria-hidden="true">
+                    {tipo === valor ? 'radio_button_checked' : 'radio_button_unchecked'}
+                  </span>
                 </button>
               ))}
             </div>
-            
-            <button
-              type="button"
-              className="btn-ver-todas-categorias"
-              onClick={() => setModalCategoriasAbierto(true)}
-            >
-              {busqueda ? '🔍 Buscar en todas las categorías' : `📂 Ver todas las categorías (${categorias.length})`}
-            </button>
-          </>
-        ) : tipoSeleccionado && busqueda ? (
-          <div className="sin-resultados-container">
-            <p className="sin-resultados">❌ No se encontró "{busqueda}"</p>
-            <button
-              type="button"
-              className="btn-ver-todas-categorias"
-              onClick={() => setModalCategoriasAbierto(true)}
-            >
-              📂 Ver todas las categorías ({categorias.length})
-            </button>
+            <ErrorCampo mensaje={errores.tipo} />
           </div>
-        ) : tipoSeleccionado ? (
-          <p className="sin-resultados">No se encontraron categorías</p>
-        ) : null}
-      </div>
 
-      <label>Contanos qué hacés/vendés u ofrecés *</label>
-<textarea
-  value={descripcionLocal}
-  onChange={handleDescripcionChange}
-  rows={3}
-  placeholder="Ej: Vendo pizzas caseras. Delivery los fines de semana. Acepto pedidos con 1 día de anticipación"
-  maxLength={300}
-/>
-      <div className="char-counter">{descripcionLocal.length}/300</div>
+          {/* 2. Nombre */}
+          <div className="psf-campo">
+            <label className="psf-label" htmlFor="psf-nombre">
+              ¿Cómo se llama tu negocio o cómo te conocen?
+            </label>
+            <input
+              id="psf-nombre"
+              name="nombre"
+              type="text"
+              value={nombre}
+              onChange={cambiarCampo('nombre', 50)}
+              placeholder="Ej: Delicias Jessi, Roberto Gómez Electricista"
+              maxLength={50}
+              autoComplete="organization"
+              className={errores.nombre ? 'input-error' : ''}
+            />
+            <div className="psf-pie-campo">
+              <ErrorCampo mensaje={errores.nombre} />
+              <Contador actual={nombre.length} max={50} />
+            </div>
+          </div>
 
-      <label>¿Dónde estás? (dirección completa) *</label>
-<input
-  type="text"
-  value={direccionLocal}
-  onChange={handleDireccionChange}
-  placeholder="Ej: Barrio Centro, calle San Martín 456"
-  maxLength={120}
-/>
-      <div className="char-counter">{direccionLocal.length}/120</div>
+          {/* 3. Descripción */}
+          <div className="psf-campo">
+            <label className="psf-label" htmlFor="psf-descripcion">
+              Contá qué hacés o qué vendés
+            </label>
+            <p className="psf-ayuda">Con tus palabras. Esto también nos ayuda a sugerirte la categoría.</p>
+            <textarea
+              id="psf-descripcion"
+              name="descripcion"
+              value={descripcion}
+              onChange={cambiarCampo('descripcion', 300)}
+              rows={4}
+              placeholder="Ej: Hago tortas y alfajores caseros por pedido. Entrego los fines de semana."
+              maxLength={300}
+              className={errores.descripcion ? 'input-error' : ''}
+            />
+            <div className="psf-pie-campo">
+              <ErrorCampo mensaje={errores.descripcion} />
+              <Contador actual={descripcion.length} max={300} />
+            </div>
+          </div>
 
-      <label>¿Hay algo cerca? (opcional)</label>
-<textarea
-  value={referenciaLocal}
-  onChange={handleReferenciaChange}
-  rows={3}
-  maxLength={150}
-  placeholder="Ej: Casa amarilla al lado del kiosco, frente a la plaza"
-/>
-      <div className="char-counter">{referenciaLocal.length}/150</div>
+          {/* 4. Categoría */}
+          <div className="psf-campo" data-campo="categoria">
+            <span className="psf-label">
+              Categoría
+            </span>
+            <p className="psf-ayuda">
+              Es donde te van a buscar. Elegí <strong>lo principal</strong> que hacés; si además ofrecés
+              otra cosa, contalo en la descripción.
+            </p>
 
-      <button
-        type="button"
-        className={`btn-abrir-mapa ${coordenadasMostrar.lat && coordenadasMostrar.lng ? 'btn-abrir-mapa-listo' : ''}`}
-        onClick={abrirModalMapa}
-      >
-        <span className="btn-abrir-mapa-icono">
-          <span className="material-icons">
-            {coordenadasMostrar.lat && coordenadasMostrar.lng ? 'check_circle' : 'place'}
-          </span>
-        </span>
-        <span className="btn-abrir-mapa-textos">
-          <span className="btn-abrir-mapa-titulo">
-            {coordenadasMostrar.lat && coordenadasMostrar.lng
-              ? 'Cambiar ubicación en el mapa'
-              : 'Marcar mi ubicación en el mapa'}
-          </span>
-          <span className="btn-abrir-mapa-sub">
-            {coordenadasMostrar.lat && coordenadasMostrar.lng
-              ? 'Ya está marcada. Tocá si querés moverla'
-              : 'Tocá acá y poné el pin donde está tu negocio'}
-          </span>
-        </span>
-      </button>
+            {seleccionada ? (
+              <div className="psf-cat-elegida">
+                <span className="material-icons psf-cat-elegida-icono">check_circle</span>
+                <div className="psf-cat-elegida-textos">
+                  <span>Vas a aparecer en</span>
+                  <strong>{seleccionada.nombre}</strong>
+                  <small>{etiquetaCat(seleccionada)}</small>
+                </div>
+                <button type="button" className="psf-boton-secundario" onClick={quitarCategoria}>
+                  Cambiar
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Sugerencias según lo que escribió */}
+                {sugerencias.length > 0 && (
+                  <div className="psf-cat-sugeridas">
+                    <p className="psf-cat-sugeridas-titulo">
+                      <span className="material-icons">auto_awesome</span>
+                      Por lo que escribiste, puede ser:
+                    </p>
+                    <div className="psf-chips">
+                      {sugerencias.map(({ cat }) => (
+                        <button key={cat.id} type="button" className="psf-chip-cat" onClick={() => elegirCategoria(cat)}>
+                          <strong>{cat.nombre}</strong>
+                          <small>{etiquetaCat(cat)}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-      {coordenadasMostrar.lat && coordenadasMostrar.lng && (
-        <p className="coordenadas-info">
-          📍 Ubicación guardada: <strong>Lat:</strong> {mostrarCoordenada(coordenadasMostrar.lat)} –{' '}
-          <strong>Lng:</strong> {mostrarCoordenada(coordenadasMostrar.lng)}
-        </p>
+                {/* Buscador en todas las categorías */}
+                <div className="psf-buscador">
+                  <span className="material-icons">search</span>
+                  <input
+                    type="text"
+                    name="categoria"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value.slice(0, 50))}
+                    placeholder="Buscá tu rubro: plomero, tortas, ropa, uñas…"
+                    autoComplete="off"
+                    aria-label="Buscar categoría"
+                  />
+                  {busqueda && (
+                    <button type="button" className="psf-buscador-limpiar" onClick={() => setBusqueda('')} aria-label="Borrar búsqueda">
+                      <span className="material-icons">close</span>
+                    </button>
+                  )}
+                </div>
+
+                {loadingCategorias ? (
+                  <p className="psf-ayuda psf-cargando">Cargando categorías…</p>
+                ) : busqueda.trim().length >= 2 ? (
+                  resultadosBusqueda.length > 0 ? (
+                    <ul className="psf-resultados">
+                      {resultadosBusqueda.map((cat) => (
+                        <li key={cat.id}>
+                          <button type="button" onClick={() => elegirCategoria(cat)}>
+                            <span>{cat.nombre}</span>
+                            <small>{etiquetaCat(cat)}</small>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="psf-sin-resultados">
+                      No encontramos "{busqueda}". Probá con otra palabra o mirá la lista completa.
+                    </p>
+                  )
+                ) : null}
+
+                <button
+                  type="button"
+                  className="psf-link-boton"
+                  onClick={() => setModalCategoriasAbierto(true)}
+                >
+                  <span className="material-icons">list</span>
+                  {tipo
+                    ? `Ver todas las categorías de ${TIPOS[tipo].corto} (${categoriasDelTipo.length})`
+                    : `Ver todas las categorías (${todasCategorias.length})`}
+                </button>
+              </>
+            )}
+
+            {avisoCambioTipo && (
+              <p className="psf-nota">
+                <span className="material-icons">info</span>
+                {avisoCambioTipo}
+              </p>
+            )}
+
+            {sugerenciaMejor && (
+              <div className="psf-alerta">
+                <span className="material-icons">help_outline</span>
+                <div>
+                  <p>
+                    Por lo que contaste, tu publicación parece más de <strong>{sugerenciaMejor.nombre}</strong>.
+                    Si elegís bien la categoría, te encuentra la gente que te busca.
+                  </p>
+                  <button type="button" className="psf-boton-primario-chico" onClick={() => elegirCategoria(sugerenciaMejor)}>
+                    Cambiar a {sugerenciaMejor.nombre}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <ErrorCampo mensaje={errores.categoria} />
+          </div>
+        </>
       )}
 
-      {modalAbierto && (
-        <ModalMapa 
-          onGuardar={guardarUbicacion} 
-          onCerrar={cerrarModalMapa}
-          ubicacion={formData.ubicacion}
-        />
+      {mostrarUbicacion && (
+        <>
+          <div className="psf-campo">
+            <label className="psf-label" htmlFor="psf-direccion">
+              Dirección
+            </label>
+            <input
+              id="psf-direccion"
+              name="direccion_escrita"
+              type="text"
+              value={direccion}
+              onChange={cambiarCampo('direccion_escrita', 120)}
+              placeholder="Ej: San Martín 456, Barrio Centro"
+              maxLength={120}
+              autoComplete="street-address"
+              className={errores.direccion_escrita ? 'input-error' : ''}
+            />
+            <div className="psf-pie-campo">
+              <ErrorCampo mensaje={errores.direccion_escrita} />
+              <Contador actual={direccion.length} max={120} />
+            </div>
+          </div>
+
+          <div className="psf-campo">
+            <span className="psf-label">
+              Marcá el lugar en el mapa
+            </span>
+            <button
+              type="button"
+              name="ubicacion"
+              className={`btn-abrir-mapa psf-boton-mapa ${ubicacionLista ? 'btn-abrir-mapa-listo' : ''}`}
+              onClick={() => setModalAbierto(true)}
+            >
+              <span className="btn-abrir-mapa-icono">
+                <span className="material-icons">{ubicacionLista ? 'check_circle' : 'place'}</span>
+              </span>
+              <span className="btn-abrir-mapa-textos">
+                <span className="btn-abrir-mapa-titulo">
+                  {ubicacionLista ? 'Ubicación marcada' : 'Marcar mi ubicación en el mapa'}
+                </span>
+                <span className="btn-abrir-mapa-sub">
+                  {ubicacionLista
+                    ? 'Tocá si la querés mover'
+                    : 'Así aparecés en el mapa de GoyaNova y te encuentran más fácil'}
+                </span>
+              </span>
+              <span className="material-icons psf-boton-mapa-flecha" aria-hidden="true">chevron_right</span>
+            </button>
+            <ErrorCampo mensaje={errores.ubicacion} />
+          </div>
+
+          <div className="psf-campo">
+            <label className="psf-label" htmlFor="psf-referencia">
+              ¿Algo que ayude a encontrarte? <span className="psf-opcional">Opcional</span>
+            </label>
+            <textarea
+              id="psf-referencia"
+              name="referencia"
+              value={referencia}
+              onChange={cambiarReferencia}
+              rows={2}
+              maxLength={150}
+              placeholder="Ej: Casa amarilla al lado del kiosco, frente a la plaza"
+            />
+            <div className="psf-pie-campo">
+              <ErrorCampo mensaje={errores.referencia} />
+              <Contador actual={referencia.length} max={150} />
+            </div>
+          </div>
+
+          {modalAbierto && (
+            <ModalMapa
+              onGuardar={guardarUbicacion}
+              onCerrar={() => setModalAbierto(false)}
+              ubicacion={formData.ubicacion}
+            />
+          )}
+        </>
       )}
 
       {modalCategoriasAbierto && (
         <ModalCategorias
-          categorias={categorias}
+          categorias={todasCategorias}
+          preparadas={preparadas}
+          tipoInicial={tipo}
           categoriaSeleccionada={formData.categoria}
-          onSeleccionar={handleCategoriaClick}
+          onSeleccionar={elegirCategoria}
           onCerrar={() => setModalCategoriasAbierto(false)}
         />
       )}

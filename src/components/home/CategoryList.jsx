@@ -1,470 +1,361 @@
-// src/components/categorias/CategoryList.jsx - CON EMPTY STATE
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import CategoryCard from '../home/CategoryCard';
-import './CategoryList.css';
-import { supabase } from '../../utils/supabaseClient';
+// src/components/home/CategoryList.jsx
+// Lista de categorías del inicio:
+//  - Un buscador que busca en Oficios y Negocios a la vez, entiende palabras comunes
+//    ("uñas", "pasto", "remis") y también encuentra publicaciones por su nombre.
+//  - "Las más elegidas" arriba y el resto agrupado por rubro.
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../utils/supabaseClient';
+import { iconoDeGrupo } from '../../utils/iconosGrupos';
+import { normalizar, prepararCategorias, buscarCategorias } from '../publicar/utils/categoriasSugeridas';
+import './CategoryListNuevo.css';
+
+const NOMBRE_TIPO = { servicio: 'Oficio', producto: 'Negocio' };
+const POR_GRUPO = 6; // cuántas se ven por grupo antes de "ver más"
+const MAS_ELEGIDAS = 6;
+
+const textoPublicaciones = (n) => (n === 1 ? '1 publicación' : `${n} publicaciones`);
+
+const TarjetaCategoria = ({ cat, onAbrir }) => (
+  <button
+    type="button"
+    className="cl-tarjeta"
+    data-category={cat.nombre}
+    onClick={() => onAbrir(cat)}
+    style={{ '--cl-color': cat.color || '#1774f6' }}
+  >
+    <span className="cl-tarjeta-icono">
+      <span className="material-icons">{cat.icon || 'category'}</span>
+    </span>
+    <span className="cl-tarjeta-textos">
+      <strong>{cat.nombre}</strong>
+      <small>{textoPublicaciones(cat.cantidad)}</small>
+    </span>
+  </button>
+);
 
 const CategoryList = ({ type, onSelectCategory }) => {
   const navigate = useNavigate();
-  const [categoriasDB, setCategoriasDB] = useState([]);
-  const [serviciosDB, setServiciosDB] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [servicios, setServicios] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(false);
   const [busqueda, setBusqueda] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [abiertos, setAbiertos] = useState({});
 
-  // ----- Paginación deslizable -----
-  const calcularPorPagina = () => 24;
-  const [porPagina, setPorPagina] = useState(calcularPorPagina);
-  const [pagina, setPagina] = useState(0);
-  const [arrastrando, setArrastrando] = useState(false);
-  const carruselRef = useRef(null);
-  const arrastre = useRef({ activo: false, inicioX: 0, inicioScroll: 0, dx: 0, movido: false });
-
-  const placeholderTexts = [
-    'Busca una categoría...',
-    'Busca por nombres de servicios...',
-    'Busca por nombres de productos...',
-    'Explora opciones...',
-    'Busca lo que necesitas...',
-  ];
-
+  // Se trae todo una sola vez (los dos tipos): son pocas filas y así el buscador
+  // encuentra cosas aunque estén en la otra pestaña.
   useEffect(() => {
-    fetchData();
-  }, [type]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    
-    try {
-      const { data: categorias, error: errorCat } = await supabase
-        .from('categorias')
-        .select('id, nombre, icon')
-        .eq('estado', 'activa')
-        .eq('tipo', type)
-        .order('nombre', { ascending: true });
-
-      if (errorCat) {
-        console.error('Error cargando categorías:', errorCat);
-        setCategoriasDB([]);
-        setServiciosDB([]);
-        setLoading(false);
+    let activo = true;
+    const cargar = async () => {
+      setCargando(true);
+      const [cats, servs] = await Promise.all([
+        supabase.from('categorias').select('id, nombre, icon, color, grupo, tipo').eq('estado', 'activa'),
+        supabase
+          .from('servicios')
+          .select('id, nombre, descripcion, categoria_id, foto_portada')
+          .eq('estado', 'activo')
+          .eq('oculto_por_reportes', false),
+      ]);
+      if (!activo) return;
+      if (cats.error) {
+        setError(true);
+        setCargando(false);
         return;
       }
-
-      if (!categorias || categorias.length === 0) {
-        setCategoriasDB([]);
-        setServiciosDB([]);
-        setLoading(false);
-        return;
-      }
-
-      const categoriasIds = categorias.map(c => c.id);
-      
-      const { data: servicios, error: errorServ } = await supabase
-        .from('servicios')
-        .select('id, nombre, descripcion, categoria_id')
-        .in('categoria_id', categoriasIds)
-        .eq('estado', 'activo')
-        .eq('oculto_por_reportes', false);
-
-      if (errorServ) {
-        console.error('Error cargando servicios:', errorServ);
-      }
-
-      const categoriasConServicios = new Set(
-        servicios?.map(s => s.categoria_id) || []
-      );
-
-      const categoriasFiltradas = categorias
-        .filter(cat => categoriasConServicios.has(cat.id))
-        .map(cat => ({
-          id: cat.id,
-          title: cat.nombre,
-          icon: cat.icon || 'category',
-        }));
-      
-      setCategoriasDB(categoriasFiltradas);
-      setServiciosDB(servicios || []);
-
-    } catch (err) {
-      console.error('Error inesperado:', err);
-      setCategoriasDB([]);
-      setServiciosDB([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const normalizeText = (text) => {
-    if (!text) return '';
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim();
-  };
-
-  const categoriasFiltradas = useMemo(() => {
-    const busquedaLower = normalizeText(busqueda);
-    
-    if (!busquedaLower) return categoriasDB;
-    
-    const palabrasBusqueda = busquedaLower.split(' ').filter(w => w.length > 2);
-    
-    return categoriasDB.filter(cat => {
-      const categoriaNombre = normalizeText(cat.title);
-      
-      if (categoriaNombre.includes(busquedaLower)) {
-        return true;
-      }
-      
-      const categoriaWords = categoriaNombre.split(' ');
-      const coincideCategoria = palabrasBusqueda.some(searchWord =>
-        categoriaWords.some(catWord => catWord.includes(searchWord))
-      );
-      
-      if (coincideCategoria) {
-        return true;
-      }
-
-      const serviciosDeCategoria = serviciosDB.filter(
-        serv => serv.categoria_id === cat.id
-      );
-
-      const coincideServicio = serviciosDeCategoria.some(servicio => {
-        const servicioNombre = normalizeText(servicio.nombre);
-        const servicioDesc = normalizeText(servicio.descripcion || '');
-        
-        if (servicioNombre.includes(busquedaLower)) {
-          return true;
-        }
-        
-        if (servicioDesc.includes(busquedaLower)) {
-          return true;
-        }
-        
-        const servicioWords = servicioNombre.split(' ');
-        return palabrasBusqueda.some(searchWord =>
-          servicioWords.some(servWord => servWord.includes(searchWord))
-        );
-      });
-
-      return coincideServicio;
-    });
-  }, [categoriasDB, serviciosDB, busqueda]);
-
-  const categoriasConConteo = useMemo(() => {
-    if (!busqueda.trim()) return categoriasFiltradas;
-
-    const busquedaLower = normalizeText(busqueda);
-    
-    return categoriasFiltradas.map(cat => {
-      const serviciosDeCategoria = serviciosDB.filter(
-        serv => serv.categoria_id === cat.id
-      );
-
-      const serviciosCoincidentes = serviciosDeCategoria.filter(servicio => {
-        const servicioNombre = normalizeText(servicio.nombre);
-        const servicioDesc = normalizeText(servicio.descripcion || '');
-        
-        return servicioNombre.includes(busquedaLower) || 
-               servicioDesc.includes(busquedaLower);
-      });
-
-      return {
-        ...cat,
-        serviciosCoincidentes: serviciosCoincidentes.length
-      };
-    });
-  }, [categoriasFiltradas, serviciosDB, busqueda]);
-
-  const listaMostrada = busqueda.trim() ? categoriasConConteo : categoriasFiltradas;
-
-  const paginas = useMemo(() => {
-    const grupos = [];
-    for (let i = 0; i < listaMostrada.length; i += porPagina) {
-      grupos.push(listaMostrada.slice(i, i + porPagina));
-    }
-    return grupos;
-  }, [listaMostrada, porPagina]);
-  const totalPaginas = paginas.length;
-
-  useEffect(() => {
-    const alCambiarTamano = () => setPorPagina(calcularPorPagina());
-    window.addEventListener('resize', alCambiarTamano);
-    return () => window.removeEventListener('resize', alCambiarTamano);
+      setCategorias(cats.data || []);
+      setServicios(servs.data || []);
+      setError(false);
+      setCargando(false);
+    };
+    cargar();
+    return () => {
+      activo = false;
+    };
   }, []);
 
-  // Al cambiar de búsqueda, tipo o tamaño de página, vuelve a la primera página
   useEffect(() => {
-    setPagina(0);
-    if (carruselRef.current) carruselRef.current.scrollTo({ left: 0 });
-  }, [busqueda, type, porPagina]);
+    setAbiertos({});
+  }, [type]);
 
-  const irAPagina = useCallback((indice) => {
-    const el = carruselRef.current;
-    if (!el) return;
-    const destino = Math.max(0, Math.min(indice, totalPaginas - 1));
-    el.scrollTo({ left: destino * el.clientWidth, behavior: 'smooth' });
-  }, [totalPaginas]);
+  // Solo categorías con publicaciones, con su cantidad
+  const conPublicaciones = useMemo(() => {
+    const cuenta = {};
+    servicios.forEach((s) => {
+      cuenta[s.categoria_id] = (cuenta[s.categoria_id] || 0) + 1;
+    });
+    return categorias
+      .filter((c) => cuenta[c.id])
+      .map((c) => ({ ...c, cantidad: cuenta[c.id] }));
+  }, [categorias, servicios]);
 
-  const alDeslizar = (e) => {
-    const el = e.currentTarget;
-    if (!el.clientWidth) return;
-    const indice = Math.round(el.scrollLeft / el.clientWidth);
-    setPagina((actual) => (actual === indice ? actual : indice));
-  };
+  const delTipo = useMemo(() => conPublicaciones.filter((c) => c.tipo === type), [conPublicaciones, type]);
 
-  // Arrastre con mouse (en celular el deslizado es nativo)
-  const alPresionar = (e) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || !carruselRef.current) return;
-    arrastre.current = { activo: true, inicioX: e.clientX, inicioScroll: carruselRef.current.scrollLeft, dx: 0, movido: false };
-  };
-  const alMover = (e) => {
-    const a = arrastre.current;
-    if (!a.activo) return;
-    a.dx = e.clientX - a.inicioX;
-    if (!a.movido && Math.abs(a.dx) > 6) {
-      a.movido = true;
-      setArrastrando(true);
-    }
-    if (a.movido) carruselRef.current.scrollLeft = a.inicioScroll - a.dx;
-  };
-  const alSoltar = () => {
-    const a = arrastre.current;
-    if (!a.activo) return;
-    a.activo = false;
-    if (a.movido) {
-      const el = carruselRef.current;
-      let destino = Math.round(a.inicioScroll / el.clientWidth);
-      if (a.dx < -60) destino += 1;
-      else if (a.dx > 60) destino -= 1;
-      setArrastrando(false);
-      irAPagina(destino);
-      setTimeout(() => { arrastre.current.movido = false; }, 0);
-    }
-  };
-  // Si fue un arrastre, no se abre la categoría sobre la que se soltó
-  const bloquearClickTrasArrastre = (e) => {
-    if (arrastre.current.movido) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  };
+  const masElegidas = useMemo(
+    () => [...delTipo].sort((a, b) => b.cantidad - a.cantidad || a.nombre.localeCompare(b.nombre, 'es')).slice(0, MAS_ELEGIDAS),
+    [delTipo]
+  );
 
-  const hayResultados = categoriasFiltradas.length > 0;
-  const mostrarSinResultados = busqueda.trim() !== '' && !hayResultados;
-  const sinServiciosEnAbsoluto = !loading && categoriasDB.length === 0 && busqueda.trim() === '';
+  const grupos = useMemo(() => {
+    const mapa = {};
+    delTipo.forEach((c) => {
+      const g = c.grupo || 'Otros';
+      if (!mapa[g]) mapa[g] = [];
+      mapa[g].push(c);
+    });
+    const armar = (nombre, cats) => ({
+      nombre,
+      cats: cats.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')),
+      total: cats.reduce((s, c) => s + c.cantidad, 0),
+    });
+    // Los rubros con una sola categoría se juntan al final, así la lista no queda cortada
+    const grandes = [];
+    const sueltas = [];
+    Object.entries(mapa).forEach(([nombre, cats]) => {
+      if (cats.length > 1) grandes.push(armar(nombre, cats));
+      else sueltas.push(...cats);
+    });
+    grandes.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    if (sueltas.length === 1 && grandes.length === 0) return [armar(sueltas[0].grupo || 'Otros', sueltas)];
+    if (sueltas.length > 0) grandes.push({ ...armar('Más rubros', sueltas), icono: 'apps' });
+    return grandes;
+  }, [delTipo]);
 
-  const handleSelectCategory = (categoryTitle) => {
-    const encodedTitle = encodeURIComponent(categoryTitle);
-    
-    if (typeof onSelectCategory === 'function') {
-      onSelectCategory(encodedTitle);
+  // ---------- Búsqueda ----------
+  const preparadas = useMemo(() => prepararCategorias(conPublicaciones), [conPublicaciones]);
+  const q = normalizar(busqueda);
+  const buscando = q.length >= 2;
+
+  const resultados = useMemo(() => {
+    if (!buscando) return { categorias: [], publicaciones: [] };
+
+    // Categorías: por nombre, grupo y palabras que usa la gente
+    const porSinonimo = buscarCategorias(busqueda, preparadas, 12);
+    const porNombre = conPublicaciones.filter((c) => normalizar(`${c.nombre} ${c.grupo || ''}`).includes(q));
+    const ids = new Set();
+    const cats = [];
+    [...porNombre, ...porSinonimo].forEach((c) => {
+      if (!ids.has(c.id)) {
+        ids.add(c.id);
+        cats.push(conPublicaciones.find((x) => x.id === c.id) || c);
+      }
+    });
+
+    // Publicaciones: por nombre (primero) o descripción
+    const pubs = servicios
+      .map((s) => {
+        const nombre = normalizar(s.nombre);
+        const desc = normalizar(s.descripcion);
+        const puntos = nombre.startsWith(q) ? 3 : nombre.includes(q) ? 2 : desc.includes(q) ? 1 : 0;
+        return { s, puntos };
+      })
+      .filter((r) => r.puntos > 0)
+      .sort((a, b) => b.puntos - a.puntos)
+      .slice(0, 6)
+      .map((r) => ({ ...r.s, categoria: categorias.find((c) => c.id === r.s.categoria_id) }));
+
+    // Las categorías de las publicaciones encontradas también suman
+    pubs.forEach((p) => {
+      const c = conPublicaciones.find((x) => x.id === p.categoria_id);
+      if (c && !ids.has(c.id)) {
+        ids.add(c.id);
+        cats.push(c);
+      }
+    });
+
+    // Primero las del tipo de la pestaña abierta
+    cats.sort((a, b) => (a.tipo === type ? 0 : 1) - (b.tipo === type ? 0 : 1));
+    return { categorias: cats.slice(0, 10), publicaciones: pubs };
+  }, [buscando, busqueda, q, preparadas, conPublicaciones, servicios, categorias, type]);
+
+  // ---------- Abrir ----------
+  const abrirCategoria = (cat) => {
+    const nombre = encodeURIComponent(cat.nombre);
+    if (cat.tipo === type && typeof onSelectCategory === 'function') {
+      onSelectCategory(nombre);
     } else {
-      console.error('onSelectCategory no es una función válida');
+      navigate(`/categoria/${cat.tipo}/${nombre}`, {
+        state: { fromHome: true, type: cat.tipo, categoryName: nombre },
+      });
     }
   };
+
+  // ---------- Vista ----------
+  if (cargando) {
+    return (
+      <div className="cl">
+        <div className="cl-esqueleto" aria-label="Cargando categorías">
+          {Array.from({ length: 6 }).map((_, i) => <span key={i} />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="cl">
+        <div className="cl-vacio">
+          <span className="material-icons">cloud_off</span>
+          <p>No pudimos cargar las categorías. Revisá tu conexión.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="category-buscador-wrapper">
-      {loading && (
-        <div className="category-loader-container">
-          <div className="category-loader">
-            <div className="category-loader-ring"></div>
-            <div className="category-loader-ring"></div>
-            <div className="category-loader-ring"></div>
-            <div className="category-loader-pulse"></div>
-          </div>
-          <p className="category-loader-text">Cargando categorías...</p>
-        </div>
-      )}
+    <div className="cl">
+      {/* Buscador */}
+      <div className="cl-buscador">
+        <span className="material-icons">search</span>
+        <input
+          type="search"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value.slice(0, 60))}
+          placeholder="¿Qué necesitás? Ej: plomero, tortas, uñas…"
+          aria-label="Buscar oficios, negocios o publicaciones"
+          enterKeyHint="search"
+        />
+        {busqueda && (
+          <button type="button" className="cl-buscador-limpiar" onClick={() => setBusqueda('')} aria-label="Borrar búsqueda">
+            <span className="material-icons">close</span>
+          </button>
+        )}
+      </div>
 
-      {/* 🆕 EMPTY STATE - Sin servicios/productos */}
-      {sinServiciosEnAbsoluto && (
-        <div className="category-empty-state">
-          <div className="category-empty-content">
-            <span className="material-symbols-outlined category-empty-icon">
-              {type === 'servicio' ? 'work_off' : 'inventory_2'}
-            </span>
-            <h3 className="category-empty-title">
-              {type === 'servicio' 
-                ? 'No hay servicios disponibles' 
-                : 'No hay productos disponibles'}
-            </h3>
-            <p className="category-empty-description">
-              {type === 'servicio'
-                ? 'Aún no se han publicado servicios en la plataforma.'
-                : 'Aún no se han publicado productos en la plataforma.'}
-            </p>
-            <button 
-              className="category-empty-button"
-              onClick={() => navigate('/publicar')}
-            >
-              <span className="material-symbols-outlined">add_circle</span>
-              Publicar {type === 'servicio' ? 'Servicio' : 'Producto'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {!loading && !sinServiciosEnAbsoluto && (
-        <>
-          {/* Buscador */}
-          <div className="search-categoria-box">
-            <svg className="search-categoria-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            
-            {busqueda === '' && (
-              <div className="animated-placeholder">
-                <div className="placeholder-text">
-                  {placeholderTexts.map((text, index) => (
-                    <span key={index}>
-                      {text}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <input
-              type="text"
-              className="buscador-categorias-input"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-
-            {busqueda && (
-              <button
-                className="search-categoria-clear"
-                onClick={() => setBusqueda('')}
-                aria-label="Limpiar búsqueda"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            )}
-          </div>
-
-          {/* Mensaje de resultados encontrados */}
-          {busqueda.trim() && hayResultados && (
-            <div className="search-results-info">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span>
-                <strong>{categoriasFiltradas.length}</strong> {categoriasFiltradas.length === 1 ? 'categoría encontrada' : 'categorías encontradas'} con {type === 'servicio' ? 'servicios' : 'productos'} relacionados a "<strong>{busqueda}</strong>"
-              </span>
-            </div>
-          )}
-
-          {/* Sin resultados de búsqueda */}
-          {mostrarSinResultados && (
-            <div className="categoria-sin-resultados">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              <span>No se encontraron categorías ni {type === 'servicio' ? 'servicios' : 'productos'}</span>
-              <p className="categoria-sin-resultados-sugerencias">
-                Intenta con otros términos de búsqueda
+      {buscando ? (
+        <div className="cl-resultados" aria-live="polite">
+          {resultados.categorias.length === 0 && resultados.publicaciones.length === 0 ? (
+            <div className="cl-vacio">
+              <span className="material-icons">search_off</span>
+              <p>
+                No encontramos "<strong>{busqueda}</strong>" en Goya todavía.
               </p>
+              <small>Probá con otra palabra o mirá el mapa.</small>
+              <button type="button" className="cl-boton-sec" onClick={() => navigate('/explorar')}>
+                <span className="material-icons">map</span>
+                Ver el mapa
+              </button>
             </div>
-          )}
-
-          {/* Lista de categorías: páginas que se deslizan */}
-          {hayResultados && (
-            <div className="categorias-carrusel-wrap">
-              <div
-                ref={carruselRef}
-                className={`categorias-carrusel ${arrastrando ? 'categorias-carrusel-arrastrando' : ''}`}
-                onScroll={alDeslizar}
-                onPointerDown={alPresionar}
-                onPointerMove={alMover}
-                onPointerUp={alSoltar}
-                onPointerLeave={alSoltar}
-                onPointerCancel={alSoltar}
-                onClickCapture={bloquearClickTrasArrastre}
-              >
-                {paginas.map((grupo, i) => (
-                  <div
-                    key={i}
-                    className="category-list categorias-pagina"
-                    aria-hidden={i !== pagina}
-                    role="group"
-                    aria-label={`Página ${i + 1} de ${totalPaginas}`}
-                  >
-                    {grupo.map((cat) => (
-                      <div key={cat.id} className="category-card-wrapper">
-                        <CategoryCard
-                          title={cat.title}
-                          icon={cat.icon}
-                          onSelect={handleSelectCategory}
-                        />
-                        {busqueda.trim() && cat.serviciosCoincidentes > 0 && (
-                          <div className="category-badge">
-                            {cat.serviciosCoincidentes} {type === 'servicio' ? 'oficio' : 'negocio'}
-                            {cat.serviciosCoincidentes === 1 ? '' : 's'}
-                          </div>
-                        )}
-                      </div>
+          ) : (
+            <>
+              {resultados.categorias.length > 0 && (
+                <section>
+                  <h3 className="cl-subtitulo">Categorías</h3>
+                  <ul className="cl-lista-resultados">
+                    {resultados.categorias.map((c) => (
+                      <li key={c.id}>
+                        <button type="button" onClick={() => abrirCategoria(c)} style={{ '--cl-color': c.color || '#1774f6' }}>
+                          <span className="cl-tarjeta-icono">
+                            <span className="material-icons">{c.icon || 'category'}</span>
+                          </span>
+                          <span className="cl-resultado-textos">
+                            <strong>{c.nombre}</strong>
+                            <small>{textoPublicaciones(c.cantidad)}</small>
+                          </span>
+                          <span className={`cl-etiqueta cl-etiqueta-${c.tipo}`}>{NOMBRE_TIPO[c.tipo]}</span>
+                          <span className="material-icons cl-flecha">chevron_right</span>
+                        </button>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
+                </section>
+              )}
+
+              {resultados.publicaciones.length > 0 && (
+                <section>
+                  <h3 className="cl-subtitulo">Publicaciones</h3>
+                  <ul className="cl-lista-resultados">
+                    {resultados.publicaciones.map((p) => (
+                      <li key={p.id}>
+                        <button type="button" onClick={() => navigate(`/perfil/${p.id}`)}>
+                          {p.foto_portada ? (
+                            <img src={p.foto_portada} alt="" className="cl-foto" loading="lazy" />
+                          ) : (
+                            <span className="cl-tarjeta-icono" style={{ '--cl-color': p.categoria?.color || '#64748b' }}>
+                              <span className="material-icons">{p.categoria?.icon || 'storefront'}</span>
+                            </span>
+                          )}
+                          <span className="cl-resultado-textos">
+                            <strong>{p.nombre}</strong>
+                            <small>{p.categoria?.nombre || 'Publicación'}</small>
+                          </span>
+                          <span className="material-icons cl-flecha">chevron_right</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
+          )}
+        </div>
+      ) : delTipo.length === 0 ? (
+        <div className="cl-vacio">
+          <span className="material-icons">{type === 'servicio' ? 'handyman' : 'storefront'}</span>
+          <p>Todavía no hay {type === 'servicio' ? 'oficios' : 'negocios'} publicados.</p>
+          <button type="button" className="cl-boton" onClick={() => navigate('/publicar')}>
+            <span className="material-icons">add_circle</span>
+            Publicar el primero
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Las más elegidas */}
+          {masElegidas.length >= 3 && (
+            <section className="cl-destacadas">
+              <h3 className="cl-subtitulo">
+                <span className="material-icons">local_fire_department</span>
+                Las más elegidas
+              </h3>
+              <div className="cl-chips">
+                {masElegidas.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="cl-chip"
+                    onClick={() => abrirCategoria(c)}
+                    style={{ '--cl-color': c.color || '#1774f6' }}
+                  >
+                    <span className="material-icons">{c.icon || 'category'}</span>
+                    {c.nombre}
+                    <b>{c.cantidad}</b>
+                  </button>
                 ))}
               </div>
-
-              {totalPaginas > 1 && (
-                <nav className="categorias-paginacion" aria-label="Páginas de categorías">
-                  <button
-                    type="button"
-                    className="categorias-pag-flecha"
-                    onClick={() => irAPagina(pagina - 1)}
-                    disabled={pagina === 0}
-                    aria-label="Página anterior"
-                  >
-                    <span className="material-icons">chevron_left</span>
-                  </button>
-
-                  <div className="categorias-pag-centro">
-                    <span className="categorias-pag-contador" aria-live="polite">
-                      <strong>{pagina + 1}</strong> / {totalPaginas}
-                    </span>
-                    {totalPaginas <= 8 ? (
-                      <div className="categorias-pag-puntos">
-                        {paginas.map((_, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            className={`categorias-pag-punto ${i === pagina ? 'categorias-pag-punto-activo' : ''}`}
-                            onClick={() => irAPagina(i)}
-                            aria-label={`Ir a la página ${i + 1}`}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="categorias-pag-barra" aria-hidden="true">
-                        <span style={{ width: `${((pagina + 1) / totalPaginas) * 100}%` }} />
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="categorias-pag-flecha"
-                    onClick={() => irAPagina(pagina + 1)}
-                    disabled={pagina === totalPaginas - 1}
-                    aria-label="Página siguiente"
-                  >
-                    <span className="material-icons">chevron_right</span>
-                  </button>
-                </nav>
-              )}
-            </div>
+            </section>
           )}
+
+          {/* Todas, por rubro */}
+          <div className="cl-grupos">
+            {grupos.map((g) => {
+              const abierto = abiertos[g.nombre];
+              const visibles = abierto ? g.cats : g.cats.slice(0, POR_GRUPO);
+              const resto = g.cats.length - visibles.length;
+              return (
+                <section key={g.nombre} className="cl-grupo">
+                  <h3 className="cl-grupo-titulo">
+                    <span className="material-icons">{g.icono || iconoDeGrupo(g.nombre)}</span>
+                    {g.nombre}
+                    <small>{textoPublicaciones(g.total)}</small>
+                  </h3>
+                  <div className="cl-grilla">
+                    {visibles.map((c) => <TarjetaCategoria key={c.id} cat={c} onAbrir={abrirCategoria} />)}
+                  </div>
+                  {(resto > 0 || abierto) && g.cats.length > POR_GRUPO && (
+                    <button
+                      type="button"
+                      className="cl-ver-mas"
+                      onClick={() => setAbiertos((a) => ({ ...a, [g.nombre]: !a[g.nombre] }))}
+                      aria-expanded={!!abierto}
+                    >
+                      {abierto ? 'Ver menos' : `Ver ${resto} más de ${g.nombre}`}
+                      <span className="material-icons">{abierto ? 'expand_less' : 'expand_more'}</span>
+                    </button>
+                  )}
+                </section>
+              );
+            })}
+          </div>
         </>
       )}
     </div>

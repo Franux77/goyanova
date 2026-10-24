@@ -5,6 +5,7 @@ import { FaStar, FaStarHalfAlt, FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
 import { getNivelWhatsapp } from '../../utils/whatsappPlan';
+import { numeroParaWhatsapp } from '../../utils/whatsapp';
 
 
 const generarColor = (str) => {
@@ -58,7 +59,7 @@ const PerfilCard = ({
     : 'Sin descripción disponible';
 
     const whatsappLink = contacto.whatsapp
-    ? `https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(
+    ? `https://wa.me/${numeroParaWhatsapp(contacto.whatsapp)}?text=${encodeURIComponent(
         `Hola ${nombre || 'Hola'}, vi tu perfil y me interesa tu servicio.`
       )}`
     : '#';

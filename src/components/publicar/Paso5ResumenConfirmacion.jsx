@@ -1,8 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Paso5ResumenConfirmacion.css";
+import { supabase } from "../../utils/supabaseClient";
+import { useCaracteristicasPlan } from "../../hooks/useCaracteristicasPlan";
+import { analizarWhatsapp } from "../../utils/whatsapp";
 
 const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
   const [modalImagen, setModalImagen] = useState(null);
+  const { tiene, cargando: cargandoPlan } = useCaracteristicasPlan();
+  const [etiquetasPago, setEtiquetasPago] = useState({});
+
+  // Qué habilita el plan (lo mismo que se usa al guardar: si el plan no lo
+  // incluye, ese dato no se guarda, así que tampoco se muestra acá)
+  const puedePagos = !cargandoPlan && tiene("metodos_pago_formulario");
+  const puedeEnvios = !cargandoPlan && tiene("envios_formulario");
+  const puedeSitioWeb = !cargandoPlan && tiene("link_sitio_web");
+  const puedeMensajeWsp = !cargandoPlan && tiene("whatsapp_mensaje_personalizado");
+  const puedeReglas = !cargandoPlan && tiene("reglas_devoluciones");
+  const puedeFotoReferencia = !cargandoPlan && tiene("foto_referencia_ubicacion");
+
+  const metodosElegidos = formData.metodos_pago || [];
+
+  // Nombres lindos de los métodos de pago ("transferencia" → "Transferencia bancaria")
+  useEffect(() => {
+    if (!puedePagos || metodosElegidos.length === 0) return;
+    let activo = true;
+    supabase
+      .from("metodos_pago_catalogo")
+      .select("codigo, etiqueta")
+      .then(({ data }) => {
+        if (!activo || !data) return;
+        const mapa = {};
+        data.forEach((m) => (mapa[m.codigo] = m.etiqueta));
+        setEtiquetasPago(mapa);
+      });
+    return () => {
+      activo = false;
+    };
+  }, [puedePagos, metodosElegidos.length]);
+
+  const ALCANCES = { ciudad: "Dentro de la ciudad", provincia: "Dentro de la provincia", nacional: "A todo el país" };
+  const fotoReferencia = formData.referenciaPreview || formData.referenciaDB;
+
+  const extrasPlan = [
+    puedeSitioWeb && formData.sitio_web && { icono: "language", titulo: "Sitio web", texto: formData.sitio_web },
+    puedePagos && metodosElegidos.length > 0 && {
+      icono: "payments",
+      titulo: "Métodos de pago",
+      texto: metodosElegidos.map((c) => etiquetasPago[c] || c).join(", ") + (formData.acepta_cuotas ? " · Acepta cuotas" : ""),
+    },
+    puedePagos && metodosElegidos.length === 0 && formData.acepta_cuotas && { icono: "payments", titulo: "Pagos", texto: "Acepta cuotas" },
+    puedeEnvios && formData.hace_envios && {
+      icono: "local_shipping",
+      titulo: "Envíos",
+      texto: ALCANCES[formData.alcance_envio] || "Hace envíos (falta elegir a dónde)",
+    },
+    puedeMensajeWsp && formData.whatsapp_mensaje_personalizado?.trim() && {
+      icono: "chat",
+      titulo: "Mensaje automático de WhatsApp",
+      texto: `"${formData.whatsapp_mensaje_personalizado.trim()}"`,
+    },
+    puedeReglas && formData.reglas_devoluciones?.trim() && {
+      icono: "gavel",
+      titulo: "Reglas, devoluciones y condiciones",
+      texto: formData.reglas_devoluciones.trim(),
+    },
+  ].filter(Boolean);
+
+  const hayAlgoDelPlan = puedePagos || puedeEnvios || puedeSitioWeb || puedeMensajeWsp || puedeReglas;
 
   const {
     nombre,
@@ -128,12 +192,11 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
 
   return (
     <div className="paso5-resumen-container">
-      <h3>Paso 5: Revisá todo antes de publicar</h3>
 
       <div className="paso5-group">
         <h4>Datos principales</h4>
         <p><strong>Nombre:</strong> {nombre || "No proporcionado"}</p>
-        <p><strong>Tipo:</strong> {tipo || "No proporcionado"}</p>
+        <p><strong>Tipo:</strong> {tipo === "servicio" ? "Oficio o servicio" : tipo === "producto" ? "Negocio o productos" : "No proporcionado"}</p>
         <p><strong>Categoría:</strong> {formData.categoriaNombre || "No proporcionada"}</p>
         <p><strong>Descripción:</strong> {descripcion || "No proporcionada"}</p>
         <p><strong>Dirección:</strong> {direccion_escrita || "No proporcionada"}</p>
@@ -185,7 +248,7 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
       </div>
 
       <div className="paso5-group">
-        <h4>IMás fotos</h4>
+        <h4>Más fotos</h4>
         {formData.imagenesPreview && formData.imagenesPreview.length > 0 ? (
           <div className="paso5-imagenes-carrusel">
             {formData.imagenesPreview.map((src, i) => (
@@ -208,6 +271,25 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
         )}
       </div>
 
+      {puedeFotoReferencia && (
+        <div className="paso5-group">
+          <h4>Foto del frente o del lugar</h4>
+          {fotoReferencia ? (
+            <div className="paso5-imagenes-carrusel">
+              <div
+                className="paso5-imagen-wrapper"
+                onClick={() => setModalImagen(fotoReferencia)}
+                style={{ cursor: "pointer" }}
+              >
+                <img src={fotoReferencia} alt="Foto de referencia del lugar" className="paso5-imagen" />
+              </div>
+            </div>
+          ) : (
+            <p className="paso5-sin-imagen">No agregaste foto de referencia (es opcional).</p>
+          )}
+        </div>
+      )}
+
       <div className="paso5-group">
         <h4>Cuándo trabajás</h4>
         {renderDisponibilidad()}
@@ -215,11 +297,37 @@ const Paso5ResumenConfirmacion = ({ formData, setErroresGlobales }) => {
 
       <div className="paso5-group">
         <h4>Cómo te contactan</h4>
-        <p><strong>WhatsApp:</strong> {whatsapp || <span style={{ color: "red" }}>No proporcionado</span>}</p>
+        <p><strong>WhatsApp:</strong> {whatsapp ? (formData.whatsappExtranjero ? `+${whatsapp}` : analizarWhatsapp(whatsapp).visible || whatsapp) : <span style={{ color: "#dc2626" }}>Falta completar</span>}</p>
         <p><strong>Email:</strong> {email || "No proporcionado"}</p>
         <p><strong>Instagram:</strong> {instagram || "No proporcionado"}</p>
         <p><strong>Facebook:</strong> {facebook || "No proporcionado"}</p>
       </div>
+
+      {hayAlgoDelPlan && (
+        <div className="paso5-group psf-resumen-plan">
+          <h4>
+            <span className="material-icons">workspace_premium</span>
+            Lo que suma tu plan
+          </h4>
+          {extrasPlan.length > 0 ? (
+            <ul className="psf-resumen-extras">
+              {extrasPlan.map((x) => (
+                <li key={x.titulo}>
+                  <span className="material-icons">{x.icono}</span>
+                  <div>
+                    <strong>{x.titulo}</strong>
+                    <p>{x.texto}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="paso5-sin-imagen">
+              Tu plan te deja agregar pagos, envíos y más en la sección "Redes y más datos". Todavía no completaste nada.
+            </p>
+          )}
+        </div>
+      )}
 
       {modalImagen && (
         <div className="paso5-modal-overlay" onClick={() => setModalImagen(null)}>

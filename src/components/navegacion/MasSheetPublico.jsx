@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
+import { useInstalarApp } from '../../utils/instalarApp';
 import './MasSheetPublico.css';
 
 /**
@@ -13,6 +14,7 @@ const MasSheetPublico = ({ abierto, onClose, rutaPanel }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const yaEstaEnInicio = location.pathname === '/';
+  const { yaInstalada } = useInstalarApp();
 
   if (!abierto) return null;
 
@@ -26,6 +28,7 @@ const MasSheetPublico = ({ abierto, onClose, rutaPanel }) => {
     { to: '/nosotros', label: 'Nosotros', icon: 'group' },
     { to: '/contacto', label: 'Contacto', icon: 'phone_in_talk' },
     { to: '/ayuda', label: 'Ayuda', icon: 'help' },
+    ...(yaInstalada ? [] : [{ to: '/instalar', label: 'Instalar la app', icon: 'install_mobile' }]),
     ...(user ? [{ to: rutaPanel, label: 'Mi Cuenta', icon: 'dashboard' }] : []),
   ];
 

@@ -2,6 +2,7 @@
   "name": "GoyaNova - Servicios Locales en Goya",
   "short_name": "GoyaNova",
   "description": "Encontrá plomeros, electricistas, pintores, casas de comidas y más en Goya. Contacto directo por WhatsApp, gratis y sin comisiones.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,6 +11,10 @@
   "theme_color": "#1774f6",
   "lang": "es-AR",
   "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [
+    { "platform": "webapp", "url": "https://goyanova.com.ar/manifest.json" }
+  ],
   "categories": ["business", "lifestyle", "shopping"],
   "icons": [
     {

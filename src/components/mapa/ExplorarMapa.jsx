@@ -1,22 +1,19 @@
 // src/components/mapa/ExplorarMapa.jsx
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './ExplorarMapa.css';
-import { ArrowLeft, Menu, X } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { X } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-import CardPerfilExplorar from './CardPerfilExplorar';
-import BarraBusquedaExplorar from './BarraBusquedaExplorar';
-import FiltrosExplorar from './FiltrosExplorar';
-import ListaPerfilesExplorar from './ListaPerfilesExplorar';
-import DetallesServicio from './DetallesServicio';
 import ScrollControl from './ScrollControl';
 import MapFlyTo from './MapFlyTo';
 import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../../auth/useAuth';
 import UbicacionActual from './UbicacionActual';
+import { BarraMapa, FichaLugar, ListaLugares } from './ui/PanelMapa';
+import MenuMapa from './ui/MenuMapa';
 
 const ADMIN_EMAILS = [
   '12torresfranco@gmail.com',
@@ -55,23 +52,35 @@ const mapearServicio = (serv) => ({
 
 /* ============================================================
    MARCADORES SEGÚN EL ZOOM (comportamiento tipo Google Maps)
-   - Zoom lejano: puntitos chicos, separados entre sí.
-   - Al acercar: aparecen más, y se agrandan hasta mostrar el pin con su ícono.
-   - Zoom máximo (>= ZOOM_TODOS): se ven todos, pin completo.
+   - Zoom lejano (el de apertura): puntitos chicos de color, dibujados en canvas
+     (rápido aunque haya miles). Si dos se pisan, queda solo el de mayor prioridad.
+   - Desde ZOOM_ICONOS: los que entran se ven como pin con ícono, y en el espacio
+     que sobra los demás siguen como puntitos.
+   - Zoom máximo (>= ZOOM_TODOS): se ven todos con pin; los que están en el mismo
+     lugar se abren en ronda.
    `espacio` = distancia mínima en píxeles entre dos marcadores visibles.
-   Cuando dos se pisan, queda el de mayor prioridad (plan > calificación).
+   Cuando dos se pisan, gana el de mayor prioridad (plan > calificación).
    ============================================================ */
+const ZOOM_ICONOS = 15;
 const ZOOM_TODOS = 20;
 
 const NIVELES = [
-  { zoomMin: 0,          tam: 20, icono: true, espacio: 25 }, // zoom estándar (13 y menos)
-  { zoomMin: 14,         tam: 22, icono: true, espacio: 28 },
-  { zoomMin: 15,         tam: 26, icono: true, espacio: 32 },
-  { zoomMin: 16,         tam: 30, icono: true, espacio: 36 },
-  { zoomMin: 17,         tam: 34, icono: true, espacio: 38 },
-  { zoomMin: 18,         tam: 38, icono: true, espacio: 40 },
-  { zoomMin: ZOOM_TODOS, tam: 38, icono: true, espacio: 0 },  // 0 = se muestran todos
+  { zoomMin: 0,          icono: false, tam: 8,  espacio: 10 },
+  { zoomMin: 13,         icono: false, tam: 9,  espacio: 11 }, // zoom de apertura
+  { zoomMin: 14,         icono: false, tam: 11, espacio: 13 },
+  { zoomMin: ZOOM_ICONOS, icono: true, tam: 24, espacio: 30 },
+  { zoomMin: 16,         icono: true,  tam: 28, espacio: 34 },
+  { zoomMin: 17,         icono: true,  tam: 32, espacio: 38 },
+  { zoomMin: 18,         icono: true,  tam: 36, espacio: 42 },
+  { zoomMin: ZOOM_TODOS, icono: true,  tam: 38, espacio: 0 },  // 0 = se muestran todos
 ];
+
+// Puntitos de relleno entre los pines (zoom con íconos)
+const PUNTO_RELLENO = { tam: 9, espacio: 11 };
+// Tamaño del pin para el marcador seleccionado cuando el zoom está en modo puntitos
+const TAM_PIN_FORZADO = 30;
+// Lado de cada celda de la grilla de colisiones (>= suma de dos radios posibles)
+const CELDA = 48;
 
 const nivelDeZoom = (zoom) => {
   let nivel = NIVELES[0];
@@ -81,55 +90,88 @@ const nivelDeZoom = (zoom) => {
   return nivel;
 };
 
-// Elige qué marcadores mostrar para que no se encimen. `proyectar` devuelve {x, y} en píxeles.
-// Los "forzados" (el seleccionado / el que se está localizando) siempre se muestran.
-const seleccionarSinEncimar = (marcadores, proyectar, espacio, forzados) => {
-  if (!espacio) return marcadores;
-
-  const grilla = new Map();
-  const visibles = [];
-
-  const hayCerca = (p) => {
-    const cx = Math.floor(p.x / espacio);
-    const cy = Math.floor(p.y / espacio);
-    for (let dx = -1; dx <= 1; dx += 1) {
-      for (let dy = -1; dy <= 1; dy += 1) {
-        const lista = grilla.get(`${cx + dx}_${cy + dy}`);
-        if (lista && lista.some((q) => Math.hypot(q.x - p.x, q.y - p.y) < espacio)) return true;
+// Grilla para saber rápido si un círculo (x, y, r) se pisa con otro ya colocado
+const crearGrilla = () => {
+  const celdas = new Map();
+  const clave = (cx, cy) => `${cx}_${cy}`;
+  return {
+    choca(x, y, r) {
+      const cx = Math.floor(x / CELDA);
+      const cy = Math.floor(y / CELDA);
+      for (let dx = -1; dx <= 1; dx += 1) {
+        for (let dy = -1; dy <= 1; dy += 1) {
+          const lista = celdas.get(clave(cx + dx, cy + dy));
+          if (lista && lista.some((q) => Math.hypot(q.x - x, q.y - y) < q.r + r)) return true;
+        }
       }
-    }
-    return false;
+      return false;
+    },
+    agregar(x, y, r) {
+      const k = clave(Math.floor(x / CELDA), Math.floor(y / CELDA));
+      if (!celdas.has(k)) celdas.set(k, []);
+      celdas.get(k).push({ x, y, r });
+    },
   };
-
-  const registrar = (p) => {
-    const clave = `${Math.floor(p.x / espacio)}_${Math.floor(p.y / espacio)}`;
-    if (!grilla.has(clave)) grilla.set(clave, []);
-    grilla.get(clave).push(p);
-  };
-
-  marcadores.forEach((m) => {
-    if (!forzados.has(m.id)) return;
-    registrar(proyectar(m));
-    visibles.push(m);
-  });
-
-  marcadores.forEach((m) => {
-    if (forzados.has(m.id)) return;
-    const p = proyectar(m);
-    if (hayCerca(p)) return;
-    registrar(p);
-    visibles.push(m);
-  });
-
-  return visibles;
 };
 
-// Ícono según categoría, nivel de zoom, color de plan (anillo) y si está destacado.
-const construirIcono = (categoria, nivel, pinColor, destacado, cantidad = 1, rama = null) => {
+// Registra un pin en la grilla: el cuerpo (arriba del punto) y la punta
+const registrarPin = (grilla, p, tam, espacio) => {
+  grilla.agregar(p.x, p.y - tam * 0.8, espacio / 2);
+  grilla.agregar(p.x, p.y, 4);
+};
+
+/* Decide qué se ve como pin y qué como puntito, sin que se encimen.
+   `marcadores` viene ordenado por prioridad. Los "forzados" (seleccionado o
+   recién localizado) siempre se ven como pin. */
+const elegirVisibles = (marcadores, proyectar, nivel, forzados) => {
+  if (!nivel.espacio) return { pines: marcadores, puntos: [] };
+
+  const grilla = crearGrilla();
+  const pines = [];
+  const puntos = [];
+  const usados = new Set();
+  const tamPin = nivel.icono ? nivel.tam : TAM_PIN_FORZADO;
+  const espacioPin = nivel.icono ? nivel.espacio : TAM_PIN_FORZADO + 6;
+
+  // 1) Forzados: siempre como pin
+  marcadores.forEach((m) => {
+    if (!forzados.has(m.id)) return;
+    registrarPin(grilla, proyectar(m), tamPin, espacioPin);
+    pines.push(m);
+    usados.add(m.id);
+  });
+
+  // 2) Pines con ícono (solo con zoom cercano)
+  if (nivel.icono) {
+    marcadores.forEach((m) => {
+      if (usados.has(m.id)) return;
+      const p = proyectar(m);
+      if (grilla.choca(p.x, p.y - nivel.tam * 0.8, nivel.espacio / 2) || grilla.choca(p.x, p.y, 4)) return;
+      registrarPin(grilla, p, nivel.tam, nivel.espacio);
+      pines.push(m);
+      usados.add(m.id);
+    });
+  }
+
+  // 3) Puntitos en el espacio libre
+  const punto = nivel.icono ? PUNTO_RELLENO : nivel;
+  marcadores.forEach((m) => {
+    if (usados.has(m.id)) return;
+    const p = proyectar(m);
+    const r = punto.espacio / 2;
+    if (grilla.choca(p.x, p.y, r)) return;
+    grilla.agregar(p.x, p.y, r);
+    puntos.push(m);
+  });
+
+  return { pines, puntos };
+};
+
+// Pin con ícono según categoría, color de plan (anillo) y si está destacado.
+const construirIcono = (categoria, tamBase, pinColor, destacado, cantidad = 1, rama = null) => {
   const color = categoria?.color || '#607d8b';
   const icon = categoria?.icon || 'location_on';
-  const tam = destacado ? Math.max(nivel.tam, 34) : nivel.tam;
-  const conIcono = destacado ? true : nivel.icono;
+  const tam = destacado ? Math.max(tamBase, 34) : tamBase;
   const grosorAnillo = tam >= 30 ? 3 : 2;
 
   const anillo = pinColor
@@ -144,18 +186,6 @@ const construirIcono = (categoria, nivel, pinColor, destacado, cantidad = 1, ram
     : '';
   const brillo = destacado ? 'filter: drop-shadow(0 0 6px rgba(0,119,255,0.9));' : '';
 
-  // Puntito chico (zoom lejano)
-  if (!conIcono) {
-    return L.divIcon({
-      className: 'custom-icon-pin',
-      html: `<div class="pin" style="background:${color}; width:${tam}px; height:${tam}px; border:2px solid #fff; box-sizing:border-box; ${anillo}"></div>`,
-      iconSize: [tam, tam],
-      iconAnchor: [tam / 2, tam / 2],
-      popupAnchor: [0, -tam / 2],
-    });
-  }
-
-  // Pin con ícono y punta
   const cola = Math.round(tam * 0.3);
   const ladoCola = Math.round(tam * 0.17);
   return L.divIcon({
@@ -198,10 +228,19 @@ const CapaMarcadores = ({
 }) => {
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
+  const [limites, setLimites] = useState(() => map.getBounds().pad(0.4));
   const cacheIconos = useRef(new Map());
+  const cacheEstilos = useRef(new Map());
+  // Canvas propio para los puntitos: miles de puntos sin trabar el mapa.
+  // `tolerance` agranda la zona tocable (útil en celular).
+  const lienzo = useMemo(() => L.canvas({ padding: 0.5, tolerance: 7 }), []);
 
   useMapEvents({
-    zoomend: () => setZoom(map.getZoom()),
+    zoomend: () => {
+      setZoom(map.getZoom());
+      setLimites(map.getBounds().pad(0.4));
+    },
+    moveend: () => setLimites(map.getBounds().pad(0.4)),
   });
 
   const nivel = nivelDeZoom(zoom);
@@ -213,34 +252,51 @@ const CapaMarcadores = ({
     return ids;
   }, [markerDestacado, perfilSeleccionadoId]);
 
-  const obtenerIcono = (categoria, pinColor, destacado, cantidad, rama) => {
+  const obtenerIcono = (categoria, tam, pinColor, destacado, cantidad, rama) => {
     const clave = [
-      categoria?.color, categoria?.icon, nivel.tam, nivel.icono, pinColor, destacado ? 1 : 0, cantidad,
+      categoria?.color, categoria?.icon, tam, pinColor, destacado ? 1 : 0, cantidad,
       rama ? `${Math.round(rama.dx)}_${Math.round(rama.dy)}` : '',
     ].join('|');
     let icono = cacheIconos.current.get(clave);
     if (!icono) {
-      icono = construirIcono(categoria, nivel, pinColor, destacado, cantidad, rama);
+      icono = construirIcono(categoria, tam, pinColor, destacado, cantidad, rama);
       cacheIconos.current.set(clave, icono);
     }
     return icono;
   };
 
-  // Qué marcadores se ven y dónde (solo depende del zoom, no del desplazamiento del mapa)
-  const posiciones = useMemo(() => {
-    const visibles = seleccionarSinEncimar(
+  // Estilo del puntito (cacheado: si el objeto cambia, Leaflet redibuja)
+  const obtenerEstilo = (color, pinColor, agrupado) => {
+    const clave = `${color}|${pinColor || ''}|${agrupado ? 1 : 0}`;
+    let estilo = cacheEstilos.current.get(clave);
+    if (!estilo) {
+      estilo = {
+        fillColor: color,
+        fillOpacity: 1,
+        color: pinColor || (agrupado ? '#1e293b' : '#ffffff'),
+        weight: pinColor || agrupado ? 2 : 1.5,
+        opacity: 1,
+      };
+      cacheEstilos.current.set(clave, estilo);
+    }
+    return estilo;
+  };
+
+  // Qué se ve y cómo (solo depende del zoom, no del desplazamiento del mapa)
+  const { pines, puntos } = useMemo(() => {
+    const { pines: elegidos, puntos: libres } = elegirVisibles(
       marcadores,
-      (m) => map.project([m.latitud, m.longitud], zoom),
-      nivel.espacio,
+      (m) => map.project([m.anclaLat, m.anclaLng], zoom),
+      nivel,
       forzados
     );
 
-    return visibles.map((m) => {
-      // Varios negocios en el mismo punto: recién al zoom máximo se abren en ronda
+    const pinesConPos = elegidos.map((m) => {
+      // Varios negocios en el mismo lugar: recién al zoom máximo se abren en ronda
       if (zoom < ZOOM_TODOS || m.grupoTam < 2) {
-        return { m, pos: [m.latitud, m.longitud], aproximado: false, rama: null };
+        return { m, pos: [m.anclaLat, m.anclaLng], aproximado: false, rama: null };
       }
-      const centro = map.project([m.latitud, m.longitud], zoom);
+      const centro = map.project([m.anclaLat, m.anclaLng], zoom);
       const n = m.grupoTam;
       const radio = Math.max(nivel.tam * 1.1, (nivel.tam * 0.95) / Math.sin(Math.PI / n));
       const angulo = -Math.PI / 2 + (2 * Math.PI * m.grupoIdx) / n;
@@ -248,21 +304,64 @@ const CapaMarcadores = ({
       const ll = map.unproject(punto, zoom);
       return { m, pos: [ll.lat, ll.lng], aproximado: true, rama: { dx: centro.x - punto.x, dy: centro.y - punto.y } };
     });
+
+    return { pines: pinesConPos, puntos: libres };
   }, [marcadores, zoom, nivel, forzados, map]);
+
+  const abrirOAcercar = (m) => {
+    // Varios en el mismo lugar: se acerca hasta abrirlos en ronda
+    if (m.grupoTam > 1 && zoom < ZOOM_TODOS) {
+      map.flyTo([m.anclaLat, m.anclaLng], ZOOM_TODOS, { duration: 0.6 });
+    } else {
+      onClickMarcador(m);
+    }
+  };
+  const refAbrir = useRef(abrirOAcercar);
+  refAbrir.current = abrirOAcercar;
+
+  // Puntitos: se arman solo cuando cambia la selección (no al mover el mapa)
+  const elementosPuntos = useMemo(() => puntos.map((m) => {
+    const categoria = categoriasMap[m.categoria_id];
+    if (!categoria) return null;
+    const agrupado = m.grupoTam > 1;
+    const tam = nivel.icono ? PUNTO_RELLENO.tam : nivel.tam;
+    return (
+      <CircleMarker
+        key={`p-${m.id}`}
+        center={[m.anclaLat, m.anclaLng]}
+        radius={tam / 2 + (agrupado ? 1 : 0)}
+        renderer={lienzo}
+        pathOptions={obtenerEstilo(categoria.color || '#607d8b', m.pin_color, agrupado)}
+        eventHandlers={{ click: () => refAbrir.current(m) }}
+      >
+        <Tooltip direction="top" offset={[0, -tam / 2]}>
+          {agrupado ? `${m.nombre} y ${m.grupoTam - 1} más` : m.nombre}
+        </Tooltip>
+      </CircleMarker>
+    );
+  }), [puntos, categoriasMap, nivel, lienzo]);
+
+  // Pines: solo los que están cerca de la pantalla (menos elementos en la página)
+  const pinesEnPantalla = pines.filter(
+    ({ m, pos }) => forzados.has(m.id) || limites.contains(pos)
+  );
+  const tamPin = nivel.icono ? nivel.tam : TAM_PIN_FORZADO;
 
   return (
     <>
+      {elementosPuntos}
+
       {/* Punto central de cada grupo abierto en ramas */}
-      {posiciones.filter(p => p.aproximado && p.m.grupoIdx === 0).map(({ m }) => (
+      {pinesEnPantalla.filter(p => p.aproximado && p.m.grupoIdx === 0).map(({ m }) => (
         <Marker
           key={`centro-${m.id}`}
-          position={[m.latitud, m.longitud]}
+          position={[m.anclaLat, m.anclaLng]}
           icon={ICONO_CENTRO}
           interactive={false}
           zIndexOffset={-500}
         />
       ))}
-      {posiciones.map(({ m, pos, aproximado, rama }) => {
+      {pinesEnPantalla.map(({ m, pos, aproximado, rama }) => {
         const categoria = categoriasMap[m.categoria_id];
         if (!categoria) return null;
         const destacado = m.id === markerDestacado;
@@ -271,15 +370,9 @@ const CapaMarcadores = ({
           <Marker
             key={m.id}
             position={pos}
-            icon={obtenerIcono(categoria, m.pin_color, destacado, apilado ? m.grupoTam : 1, rama)}
+            icon={obtenerIcono(categoria, tamPin, m.pin_color, destacado, apilado ? m.grupoTam : 1, rama)}
             zIndexOffset={destacado ? 1000 : (m.pin_color ? 500 : 0)}
-            eventHandlers={{
-              click: () => {
-                // Varios en el mismo punto: se acerca hasta abrirlos en ronda
-                if (apilado) map.flyTo([m.latitud, m.longitud], ZOOM_TODOS, { duration: 0.6 });
-                else onClickMarcador(m);
-              },
-            }}
+            eventHandlers={{ click: () => abrirOAcercar(m) }}
           >
             <Popup>
               {m.nombre}
@@ -313,7 +406,7 @@ const ExplorarMapa = () => {
   const [servicios, setServicios] = useState([]);
   const [categoriasMap, setCategoriasMap] = useState({});
   const [cargando, setCargando] = useState(true);
-  const [totalServicios, setTotalServicios] = useState(0);
+  const [, setTotalServicios] = useState(0);
   const [cargandoMas, setCargandoMas] = useState(false);
   const [limiteLista, setLimiteLista] = useState(POR_PAGINA_LISTA);
 
@@ -342,7 +435,10 @@ const ExplorarMapa = () => {
     return rol === 'admin' ? '/panel/admin' : '/panel/dashboard';
   };
 
-  useEffect(() => setPanelVisible(query.trim().length > 0), [query]);
+  // Al escribir se abre la lista; al borrar la búsqueda no se cierra sola
+  useEffect(() => {
+    if (query.trim()) setPanelVisible(true);
+  }, [query]);
 
   // ✅ FETCH INICIAL: categorías + primer lote de servicios; el resto sigue en segundo plano
   useEffect(() => {
@@ -486,12 +582,14 @@ const ExplorarMapa = () => {
   const hayMasEnLista = perfilesFiltrados.length > limiteLista;
   const cargarMasLista = () => setLimiteLista(n => n + POR_PAGINA_LISTA);
 
-  // Marcadores: solo los que tienen coordenadas. Los que comparten punto (~11 m)
-  // se agrupan para abrirlos en ronda cuando el zoom es máximo.
+  // Marcadores: solo los que tienen coordenadas. Los que están en el mismo lugar
+  // (a menos de ~15 m) forman un grupo: se muestran juntos en el punto del de mayor
+  // prioridad (con el número) y se abren en ronda con el zoom máximo.
   const marcadores = useMemo(() => {
-    const UMBRAL = 0.00015; // ~16 metros: "mismo punto"
+    const UMBRAL = 0.00014; // ~15 metros: "mismo lugar"
 
-    const grupos = new Map();
+    const celdas = new Map(); // celda -> grupos con ancla en esa celda
+    const grupos = [];
     filtradosBase.forEach(perfil => {
       if (perfil?.latitud == null || perfil?.longitud == null) return;
       const lat = Number(perfil.latitud);
@@ -499,22 +597,45 @@ const ExplorarMapa = () => {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
       if (!categoriasMap[perfil.categoria_id]) return;
 
-      const clave = `${Math.round(lat / UMBRAL)}_${Math.round(lng / UMBRAL)}`;
-      if (!grupos.has(clave)) grupos.set(clave, []);
-      grupos.get(clave).push({ ...perfil, latitud: lat, longitud: lng });
+      const cx = Math.floor(lat / UMBRAL);
+      const cy = Math.floor(lng / UMBRAL);
+
+      // Busca un grupo cercano mirando la celda y sus vecinas (así no se cortan
+      // grupos que caen justo en el borde de una celda)
+      let grupo = null;
+      for (let dx = -1; dx <= 1 && !grupo; dx += 1) {
+        for (let dy = -1; dy <= 1 && !grupo; dy += 1) {
+          const lista = celdas.get(`${cx + dx}_${cy + dy}`);
+          if (lista) {
+            grupo = lista.find(g => Math.abs(g.lat - lat) < UMBRAL && Math.abs(g.lng - lng) < UMBRAL) || null;
+          }
+        }
+      }
+
+      if (!grupo) {
+        grupo = { lat, lng, miembros: [] };
+        grupos.push(grupo);
+        const k = `${cx}_${cy}`;
+        if (!celdas.has(k)) celdas.set(k, []);
+        celdas.get(k).push(grupo);
+      }
+      grupo.miembros.push({ ...perfil, latitud: lat, longitud: lng });
     });
 
-    const resultado = [];
-    grupos.forEach(grupo => {
-      grupo.forEach((perfil, i) => {
-        resultado.push({ ...perfil, grupoIdx: i, grupoTam: grupo.length });
+    // filtradosBase ya viene por prioridad, así que el resultado mantiene ese orden
+    const porId = new Map();
+    grupos.forEach(g => {
+      g.miembros.forEach((perfil, i) => {
+        porId.set(perfil.id, {
+          ...perfil,
+          anclaLat: g.lat,
+          anclaLng: g.lng,
+          grupoIdx: i,
+          grupoTam: g.miembros.length,
+        });
       });
     });
-
-    // Se mantiene el orden de prioridad original
-    const orden = new Map(filtradosBase.map((p, i) => [p.id, i]));
-    resultado.sort((a, b) => orden.get(a.id) - orden.get(b.id));
-    return resultado;
+    return filtradosBase.filter(p => porId.has(p.id)).map(p => porId.get(p.id));
   }, [filtradosBase, categoriasMap]);
 
   const handleLocalizar = (perfil) => {
@@ -535,16 +656,36 @@ const ExplorarMapa = () => {
   };
 
   const hayResultados = perfilesFiltrados.length > 0;
-  const categoriasDisponibles = useMemo(() =>
-    Object.values(categoriasMap).filter(cat => !tipo || cat.tipo === tipo),
-    [categoriasMap, tipo]
-  );
 
-  const navLinks = [
-    { to: '/', label: 'Inicio', icon: 'home' },
-    { to: '/nosotros', label: 'Nosotros', icon: 'group' },
-    { to: '/contacto', label: 'Contacto', icon: 'phone_in_talk' },
-  ];
+  // Solo categorías que tienen algo en el mapa (y del tipo elegido)
+  const categoriasDisponibles = useMemo(() => {
+    const conLugares = new Set(servicios.map((s) => s.categoria_id));
+    return Object.values(categoriasMap)
+      .filter((cat) => (!tipo || cat.tipo === tipo) && conLugares.has(cat.id))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }, [categoriasMap, tipo, servicios]);
+
+  const [esPC, setEsPC] = useState(() => window.innerWidth >= 1024);
+  useEffect(() => {
+    const alCambiar = () => setEsPC(window.innerWidth >= 1024);
+    window.addEventListener('resize', alCambiar);
+    return () => window.removeEventListener('resize', alCambiar);
+  }, []);
+
+  // Abrir la ficha de un lugar desde la lista: muestra la ficha y lleva el mapa hasta ahí
+  const abrirFicha = (perfil) => {
+    setPerfilSeleccionado(perfil);
+    handleLocalizar(perfil);
+  };
+  const cerrarFicha = useCallback(() => setPerfilSeleccionado(null), []);
+  const cerrarMenu = useCallback(() => setMenuOpen(false), []);
+
+  const limpiarTodo = () => {
+    setQuery('');
+    setTipo('');
+    setCategoria('');
+    setCalificacion('');
+  };
 
   const handleVolverClick = () => {
     if (window.history.length > 2) {
@@ -555,188 +696,152 @@ const ExplorarMapa = () => {
     }
   };
 
+  const propsBarra = {
+    query, setQuery, tipo, setTipo, categoria, setCategoria, calificacion, setCalificacion,
+    categoriasDisponibles,
+    onVolver: handleVolverClick,
+    onMenu: () => setMenuOpen((v) => !v),
+  };
+
+  const propsLista = {
+    perfiles: perfilesLista,
+    total: perfilesFiltrados.length,
+    categoriasMap,
+    hayMas: hayMasEnLista,
+    onCargarMas: cargarMasLista,
+    onAbrir: abrirFicha,
+    onLocalizar: handleLocalizar,
+    query,
+    onLimpiar: limpiarTodo,
+  };
+
+  const total = perfilesFiltrados.length;
+  const textoTotal = `${total} ${total === 1 ? 'lugar' : 'lugares'}`;
+
   return (
-    <div className="explorar-mapa-container">
-      <div className="superior-fijo-explorar">
-        <div className="header-explorar-actions">
-          <button className="boton-volver-explorar" onClick={handleVolverClick}>
-            <ArrowLeft size={20} /> Volver
-          </button>
-
-          <button
-            className="boton-menu-explorar"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menú"
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-
-        <div className="contenedor-busqueda-filtros">
-          <BarraBusquedaExplorar query={query} setQuery={setQuery} />
-          <FiltrosExplorar
-            tipo={tipo}
-            setTipo={setTipo}
-            categoria={categoria}
-            setCategoria={setCategoria}
-            calificacion={calificacion}
-            setCalificacion={setCalificacion}
-            categoriasDisponibles={categoriasDisponibles}
-          />
-        </div>
-      </div>
-
-      <div className={`menu-lateral-explorar ${menuOpen ? 'menu-lateral-open' : ''}`}>
-        <div className="menu-lateral-header">
-          <h3>Navegación</h3>
-          <button
-            className="menu-lateral-close"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Cerrar menú"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        <ul className="menu-lateral-links">
-          {navLinks.map((link) => (
-            <li key={link.to}>
-              <Link
-                to={link.to}
-                onClick={() => setMenuOpen(false)}
-                className="menu-lateral-link"
-              >
-                <span className="material-icons">{link.icon}</span>
-                <span>{link.label}</span>
-              </Link>
-            </li>
-          ))}
-
-          {rol && (
-            <li>
-              <Link
-                to={obtenerRutaPanel()}
-                onClick={() => setMenuOpen(false)}
-                className="menu-lateral-link"
-              >
-                <span className="material-icons">dashboard</span>
-                <span>Mi Cuenta</span>
-              </Link>
-            </li>
-          )}
-        </ul>
-      </div>
-
-      <div
-        className={`menu-overlay-explorar ${menuOpen ? 'menu-overlay-visible' : ''}`}
-        onClick={() => setMenuOpen(false)}
-      />
-
-      {cargando ? (
-        <div className="explorar-loading-overlay">
-          <div className="explorar-loader">
-            <div className="explorar-loader-ring"></div>
-            <div className="explorar-loader-ring"></div>
-            <div className="explorar-loader-ring"></div>
-            <div className="explorar-loader-pulse"></div>
+    <div className={`explorar-mapa-container pm-pagina ${esPC ? 'pm-pc' : 'pm-cel'}`}>
+      {esPC ? (
+        <aside className="pm-lateral" aria-label="Buscar en el mapa">
+          <div className="pm-lateral-marca">
+            <img src="/assets/GoyaNova_20250918_144009_0000.png" alt="" />
+            <div>
+              <strong>Mapa de Goya</strong>
+              <span>{cargando ? 'Cargando…' : `${textoTotal}${cargandoMas ? ' (cargando más…)' : ''}`}</span>
+            </div>
           </div>
-          <p className="explorar-loader-text">Cargando el mapa...</p>
-        </div>
+          <BarraMapa {...propsBarra} />
+          <div className="pm-lateral-contenido">
+            {perfilSeleccionado ? (
+              <FichaLugar
+                perfil={perfilSeleccionado}
+                categoria={categoriasMap[perfilSeleccionado.categoria_id]}
+                onCerrar={cerrarFicha}
+                enPanel
+              />
+            ) : !cargando ? (
+              <ListaLugares {...propsLista} />
+            ) : null}
+          </div>
+        </aside>
       ) : (
-        <MapContainer
-          center={[-29.1425, -59.2625]}
-          zoom={13}
-          maxZoom={21}
-          scrollWheelZoom
-          className="mapa-leaflet"
-        >
-          <ScrollControl />
-          <TileLayer
-            attribution='&copy; <a href="https://osm.org">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            maxNativeZoom={18}
-            maxZoom={21}
-            updateWhenIdle={true}
-            keepBuffer={2}
-          />
-          <UbicacionActual />
-
-          {localizarPerfil && (
-            <MapFlyTo
-              target={localizarPerfil}
-              onComplete={() => setLocalizarPerfil(null)}
-            />
-          )}
-
-          <CapaMarcadores
-            marcadores={marcadores}
-            categoriasMap={categoriasMap}
-            markerDestacado={markerDestacado}
-            perfilSeleccionadoId={perfilSeleccionado?.id}
-            onClickMarcador={handleClickMarcador}
-          />
-        </MapContainer>
-      )}
-
-      <ListaPerfilesExplorar
-        perfiles={perfilesLista}
-        visible={panelVisible}
-        onClose={() => setPanelVisible(false)}
-        categoriasMap={categoriasMap}
-        onLocalizar={handleLocalizar}
-        cargando={cargando}
-        mensajeVacio={!perfilesFiltrados.length ? 'No hay resultados' : ''}
-        hayMasServicios={hayMasEnLista}
-        cargandoMas={false}
-        onCargarMas={cargarMasLista}
-        totalServicios={perfilesFiltrados.length}
-        serviciosCargados={perfilesLista.length}
-      />
-
-      {hayResultados && (
-        <div className="lista-perfiles-container lista-perfiles-desktop">
-          <div className="lista-perfiles-scroll">
-            {perfilesLista.map(perfil => {
-              const catNombre = categoriasMap[perfil.categoria_id]?.nombre;
-              if (!catNombre) return null;
-              return (
-                <CardPerfilExplorar
-                  key={perfil.id}
-                  perfil={perfil}
-                  categoriasMap={categoriasMap}
-                  onLocalizar={handleLocalizar}
-                />
-              );
-            })}
-            {hayMasEnLista && (
-              <button
-                type="button"
-                onClick={cargarMasLista}
-                style={{ flex: '0 0 auto', margin: '8px auto', padding: '10px 18px', border: 0, borderRadius: 999, background: '#0077ff', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
-              >
-                Cargar más ({perfilesLista.length}/{perfilesFiltrados.length})
-              </button>
-            )}
-          </div>
+        <div className="pm-flotante">
+          <BarraMapa {...propsBarra} />
         </div>
       )}
 
-      {!panelVisible && (
-        <button
-          className={`boton-abrir-lista ${!hayResultados ? 'sin-resultados' : ''}`}
-          onClick={() => hayResultados && setPanelVisible(true)}
-          disabled={!hayResultados}
-        >
-          {hayResultados ? 'Explorar Resultados' : 'No hay resultados'}
-        </button>
-      )}
-
-      <DetallesServicio
-        perfil={perfilSeleccionado}
-        visible={!!perfilSeleccionado}
-        onClose={() => setPerfilSeleccionado(null)}
-        categoriasMap={categoriasMap}
+      <MenuMapa
+        abierto={menuOpen}
+        onCerrar={cerrarMenu}
+        rutaPanel={obtenerRutaPanel()}
+        esPC={esPC}
       />
+
+      <div className="pm-mapa">
+        {cargando ? (
+          <div className="explorar-loading-overlay">
+            <div className="explorar-loader">
+              <div className="explorar-loader-ring"></div>
+              <div className="explorar-loader-ring"></div>
+              <div className="explorar-loader-ring"></div>
+              <div className="explorar-loader-pulse"></div>
+            </div>
+            <p className="explorar-loader-text">Cargando el mapa...</p>
+          </div>
+        ) : (
+          <MapContainer
+            center={[-29.1425, -59.2625]}
+            zoom={13}
+            maxZoom={21}
+            scrollWheelZoom
+            className="mapa-leaflet"
+          >
+            <ScrollControl />
+            <TileLayer
+              attribution='&copy; <a href="https://osm.org">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxNativeZoom={18}
+              maxZoom={21}
+              updateWhenIdle={true}
+              keepBuffer={2}
+            />
+            <UbicacionActual />
+
+            {localizarPerfil && (
+              <MapFlyTo
+                target={localizarPerfil}
+                onComplete={() => setLocalizarPerfil(null)}
+              />
+            )}
+
+            <CapaMarcadores
+              marcadores={marcadores}
+              categoriasMap={categoriasMap}
+              markerDestacado={markerDestacado}
+              perfilSeleccionadoId={perfilSeleccionado?.id}
+              onClickMarcador={handleClickMarcador}
+            />
+          </MapContainer>
+        )}
+      </div>
+
+      {/* Celular: ficha o lista que suben desde abajo */}
+      {!esPC && !cargando && (
+        perfilSeleccionado ? (
+          <div className="pm-hoja pm-hoja-ficha">
+            <span className="pm-hoja-manija" aria-hidden="true" />
+            <FichaLugar
+              perfil={perfilSeleccionado}
+              categoria={categoriasMap[perfilSeleccionado.categoria_id]}
+              onCerrar={cerrarFicha}
+            />
+          </div>
+        ) : panelVisible ? (
+          <>
+            <div className="pm-hoja-fondo" onClick={() => setPanelVisible(false)} />
+            <div className="pm-hoja pm-hoja-lista" role="dialog" aria-label="Lugares encontrados">
+              <div className="pm-hoja-cabecera">
+                <span className="pm-hoja-manija" aria-hidden="true" />
+                <strong>{textoTotal}{query ? ` para "${query}"` : ''}</strong>
+                <button type="button" className="pm-icono-boton" onClick={() => setPanelVisible(false)} aria-label="Ver el mapa">
+                  <span className="material-icons">map</span>
+                </button>
+              </div>
+              <div className="pm-hoja-cuerpo">
+                <ListaLugares {...propsLista} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <button
+            type="button"
+            className={`pm-ver-lista ${hayResultados ? '' : 'vacio'}`}
+            onClick={() => setPanelVisible(true)}
+          >
+            <span className="material-icons">{hayResultados ? 'format_list_bulleted' : 'search_off'}</span>
+            {hayResultados ? `Ver ${textoTotal}` : 'Sin resultados'}
+          </button>
+        )
+      )}
     </div>
   );
 };

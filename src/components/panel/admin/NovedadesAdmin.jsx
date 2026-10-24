@@ -11,7 +11,7 @@ const DIA_MS = 24 * HORA_MS;
 
 // ---------- fechas (siempre hora de Argentina, igual que los mails) ----------
 
-export const diaArgentina = (fecha = new Date()) =>
+const diaArgentina = (fecha = new Date()) =>
   new Date(fecha).toLocaleDateString('en-CA', { timeZone: ZONA }); // AAAA-MM-DD
 
 // Argentina es UTC-3 todo el año
@@ -28,7 +28,7 @@ const horaDe = (iso) => Number(new Date(iso).toLocaleTimeString('en-GB', { timeZ
 
 // ---------- catálogo de tipos ----------
 
-export const BLOQUES = [
+const BLOQUES = [
   { clave: 'usuarios', texto: 'Usuarios', icono: 'people', color: 'azul' },
   { clave: 'servicios', texto: 'Servicios', icono: 'build', color: 'verde' },
   { clave: 'opiniones', texto: 'Reseñas y comentarios', icono: 'reviews', color: 'ambar' },
@@ -101,35 +101,96 @@ const NOMBRE_CORTE = { manana: 'Resumen de las 9:00', noche: 'Resumen de las 20:
 const FUNCION_MAIL = '/.netlify/functions/novedades-resumen';
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-// ---------- agrupar eventos ----------
+// ---------- agrupar y ordenar ----------
 
-const bandaDelDia = (iso) => {
-  const h = horaDe(iso);
-  if (h < 9) return { orden: 0, texto: 'Hasta las 9:00 (resumen de la mañana)' };
-  if (h < 20) return { orden: 1, texto: 'De 9:00 a 20:00 (resumen de la noche)' };
-  return { orden: 2, texto: 'Después de las 20:00 (va en el resumen de mañana 9:00)' };
+// Cambios chicos (ediciones): se juntan por publicación/persona y van plegados al final
+const TIPOS_MENORES = new Set(['servicio_editado', 'perfil_editado']);
+
+// Los números grandes de arriba (y su comparación con el período anterior)
+const METRICAS = [
+  { clave: 'usuarios', texto: 'Usuarios nuevos', uno: 'usuario nuevo', varios: 'usuarios nuevos', icono: 'person_add', tipos: ['usuario_nuevo'], color: 'azul' },
+  { clave: 'publicaciones', texto: 'Publicaciones nuevas', uno: 'publicación nueva', varios: 'publicaciones nuevas', icono: 'add_business', tipos: ['servicio_nuevo'], color: 'verde' },
+  { clave: 'resenas', texto: 'Reseñas', uno: 'reseña', varios: 'reseñas', icono: 'star', tipos: ['opinion_nueva', 'comentario_nuevo'], color: 'ambar' },
+  { clave: 'planes', texto: 'Planes activados', uno: 'plan activado', varios: 'planes activados', icono: 'workspace_premium', tipos: ['membresia_nueva'], color: 'celeste' },
+];
+
+const contarTipos = (porTipo, tipos) => tipos.reduce((s, t) => s + (Number(porTipo?.[t]) || 0), 0);
+
+const partes = (detalle) => String(detalle || '').split(' · ').map((p) => p.trim()).filter(Boolean);
+
+// "Cortar Pastos · nombre, categoría" + "Cortar Pastos · categoría" → 1 fila con 2 cambios
+const juntarMenores = (eventos) => {
+  const mapa = new Map();
+  eventos.forEach((e) => {
+    const [quien, ...resto] = partes(e.detalle);
+    const clave = `${e.tipo}|${e.ref_id || quien || e.titulo}`;
+    if (!mapa.has(clave)) {
+      mapa.set(clave, { ...e, quien: quien || e.titulo, campos: new Set(), actores: new Set(), veces: 0, ultima: e.fecha });
+    }
+    const g = mapa.get(clave);
+    g.veces += 1;
+    resto.join(', ').split(',').map((c) => c.trim()).filter(Boolean).forEach((c) => g.campos.add(c));
+    if (e.actor) g.actores.add(e.actor);
+    if (new Date(e.fecha) > new Date(g.ultima)) g.ultima = e.fecha;
+  });
+  return [...mapa.values()].sort((a, b) => new Date(b.ultima) - new Date(a.ultima));
 };
 
-const agrupar = (eventos, modo) => {
+const porDia = (eventos) => {
   const grupos = new Map();
   eventos.forEach((e) => {
-    let clave;
-    let texto;
-    let orden;
-    if (modo === 'dia') {
-      const b = bandaDelDia(e.fecha);
-      clave = `b${b.orden}`;
-      texto = b.texto;
-      orden = -b.orden; // lo más reciente primero
-    } else {
-      clave = diaArgentina(e.fecha);
-      texto = fmtDiaLargo(e.fecha);
-      orden = -inicioDia(clave).getTime();
-    }
-    if (!grupos.has(clave)) grupos.set(clave, { clave, texto, orden, items: [] });
+    const clave = diaArgentina(e.fecha);
+    if (!grupos.has(clave)) grupos.set(clave, { clave, items: [] });
     grupos.get(clave).items.push(e);
   });
-  return [...grupos.values()].sort((a, b) => a.orden - b.orden);
+  return [...grupos.values()].sort((a, b) => (a.clave < b.clave ? 1 : -1));
+};
+
+const hace = (iso) => {
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / MIN_MS);
+  if (min < 1) return 'recién';
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  return fmtHora(iso);
+};
+
+// Fila de un evento: qué pasó (etiqueta), quién/qué (principal) y el resto
+const FilaEvento = ({ e }) => {
+  const bloque = BLOQUES.find((b) => b.clave === e.bloque);
+  const enlace = enlaceDe(e);
+  const [principal, ...resto] = partes(e.detalle);
+  const contenido = (
+    <>
+      <span className={`nov-icono c-${bloque?.color || 'gris'}`}>
+        <span className="material-icons">{ICONO_TIPO[e.tipo] || 'notifications'}</span>
+      </span>
+      <span className="nov-datos">
+        <span className={`nov-etiqueta c-${bloque?.color || 'gris'}`}>{e.titulo}</span>
+        <strong>{principal || e.titulo}</strong>
+        {(resto.length > 0 || e.actor) && (
+          <small>
+            {resto.join(' · ')}
+            {resto.length > 0 && e.actor ? ' · ' : ''}
+            {e.actor ? `por ${e.actor}` : ''}
+          </small>
+        )}
+      </span>
+      <span className="nov-cuando">
+        <span>{hace(e.fecha)}</span>
+        {enlace && <span className="material-icons">chevron_right</span>}
+      </span>
+    </>
+  );
+  return (
+    <li>
+      {enlace ? (
+        <Link to={enlace} className="nov-fila">{contenido}</Link>
+      ) : (
+        <div className="nov-fila">{contenido}</div>
+      )}
+    </li>
+  );
 };
 
 // ---------- pantalla ----------
@@ -137,39 +198,49 @@ const agrupar = (eventos, modo) => {
 const NovedadesAdmin = () => {
   const [tab, setTab] = useState('novedades'); // novedades | resumenes | correos
   const [dia, setDia] = useState(diaArgentina());
-  const [modo, setModo] = useState('dia'); // dia | semana | ventana
+  const [modo, setModo] = useState('dia'); // dia | semana | mes | ventana
   const [ventana, setVentana] = useState(null); // { desde, hasta, texto } al venir de un resumen
   const [datos, setDatos] = useState(null);
+  const [anterior, setAnterior] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [filtroBloque, setFiltroBloque] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
+  const [verMenores, setVerMenores] = useState(false);
   const [pagina, setPagina] = useState(1);
-  const POR_PAGINA = 80;
+  const POR_PAGINA = 60;
 
   const rango = useMemo(() => {
     if (modo === 'ventana' && ventana) return { desde: new Date(ventana.desde), hasta: new Date(ventana.hasta) };
-    if (modo === 'semana') {
+    if (modo === 'semana' || modo === 'mes') {
       const hasta = new Date();
-      return { desde: new Date(hasta.getTime() - 7 * DIA_MS), hasta };
+      return { desde: new Date(hasta.getTime() - (modo === 'semana' ? 7 : 30) * DIA_MS), hasta };
     }
     const desde = inicioDia(dia);
     return { desde, hasta: new Date(desde.getTime() + DIA_MS) };
   }, [modo, dia, ventana]);
 
   const cargar = useCallback(async () => {
-    const { data, error: err } = await supabase.rpc('admin_novedades', {
-      p_desde: rango.desde.toISOString(),
-      p_hasta: rango.hasta.toISOString(),
-    });
-    if (err) {
+    const largo = rango.hasta.getTime() - rango.desde.getTime();
+    const [actual, previo] = await Promise.all([
+      supabase.rpc('admin_novedades', { p_desde: rango.desde.toISOString(), p_hasta: rango.hasta.toISOString() }),
+      // Mismo largo, justo antes: para comparar (↑ / ↓)
+      modo === 'ventana'
+        ? Promise.resolve({ data: null })
+        : supabase.rpc('admin_novedades', {
+            p_desde: new Date(rango.desde.getTime() - largo).toISOString(),
+            p_hasta: rango.desde.toISOString(),
+          }),
+    ]);
+    if (actual.error) {
       setError('No se pudieron cargar las novedades.');
     } else {
-      setDatos(data);
+      setDatos(actual.data);
       setError('');
     }
+    setAnterior(previo?.data || null);
     setCargando(false);
-  }, [rango]);
+  }, [rango, modo]);
 
   useEffect(() => {
     setCargando(true);
@@ -190,7 +261,7 @@ const NovedadesAdmin = () => {
 
   useEffect(() => { setPagina(1); }, [filtroBloque, busqueda, modo, dia, ventana]);
 
-  const eventos = useMemo(() => {
+  const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     return (datos?.eventos || []).filter(
       (e) =>
@@ -199,20 +270,33 @@ const NovedadesAdmin = () => {
     );
   }, [datos, filtroBloque, busqueda]);
 
-  const visibles = eventos.slice(0, pagina * POR_PAGINA);
-  const grupos = useMemo(() => agrupar(visibles, modo === 'dia' ? 'dia' : 'semana'), [visibles, modo]);
-  const hoy = diaArgentina();
+  const importantes = useMemo(() => filtrados.filter((e) => !TIPOS_MENORES.has(e.tipo)), [filtrados]);
+  const menores = useMemo(() => juntarMenores(filtrados.filter((e) => TIPOS_MENORES.has(e.tipo))), [filtrados]);
+  const visibles = importantes.slice(0, pagina * POR_PAGINA);
+  const dias = useMemo(() => porDia(visibles), [visibles]);
 
+  // Actividad por hora (hora de Argentina)
+  const porHora = useMemo(() => {
+    const horas = Array(24).fill(0);
+    (datos?.eventos || []).forEach((e) => { horas[horaDe(e.fecha)] += 1; });
+    return horas;
+  }, [datos]);
+  const maxHora = Math.max(1, ...porHora);
+  const horaPico = porHora.indexOf(Math.max(...porHora));
+
+  const hoy = diaArgentina();
   const irADia = (d) => { setModo('dia'); setVentana(null); setDia(d); };
+  const elegirModo = (m) => { setModo(m); setVentana(null); };
 
   const tituloRango = () => {
     if (modo === 'ventana' && ventana) return ventana.texto;
     if (modo === 'semana') return 'Últimos 7 días';
+    if (modo === 'mes') return 'Últimos 30 días';
     if (dia === hoy) return 'Hoy';
     if (dia === sumarDias(hoy, -1)) return 'Ayer';
-    if (dia === sumarDias(hoy, -2)) return 'Anteayer';
     return fmtDiaLargo(inicioDia(dia));
   };
+  const textoAnterior = modo === 'dia' ? 'el día anterior' : modo === 'semana' ? 'los 7 días anteriores' : 'los 30 días anteriores';
 
   const verVentana = (r) => {
     setVentana({
@@ -224,23 +308,34 @@ const NovedadesAdmin = () => {
     setTab('novedades');
   };
 
+  // Frase de resumen: "53 usuarios nuevos, 2 publicaciones y 3 reseñas"
+  const frase = useMemo(() => {
+    if (!datos) return '';
+    const piezas = METRICAS.map((m) => ({ n: contarTipos(datos.por_tipo, m.tipos), m }))
+      .filter((p) => p.n > 0)
+      .map((p) => `${p.n} ${p.n === 1 ? p.m.uno : p.m.varios}`);
+    if (piezas.length === 0) return datos.total > 0 ? 'Solo hubo cambios menores (ediciones).' : 'No pasó nada en este período.';
+    const ultima = piezas.pop();
+    return `${piezas.length ? `${piezas.join(', ')} y ` : ''}${ultima}.`;
+  }, [datos]);
+
   return (
     <div className="nov-admin">
       <header className="nov-cab">
         <div>
           <h1>Novedades</h1>
-          <p>Todo lo que pasa en GoyaNova en un solo lugar: usuarios, servicios, reseñas, soporte, moderación y pagos.</p>
+          <p>Lo que pasa en GoyaNova, ordenado por importancia.</p>
         </div>
-        <button type="button" className="nov-refrescar" onClick={cargar} title="Actualizar">
+        <button type="button" className="nov-refrescar" onClick={cargar} title="Actualizar" aria-label="Actualizar">
           <span className="material-icons">refresh</span>
         </button>
       </header>
 
       <div className="nov-tabs" role="tablist">
         {[
-          ['novedades', 'Novedades', 'newspaper'],
+          ['novedades', 'Actividad', 'bolt'],
           ['resumenes', 'Resúmenes', 'history'],
-          ['correos', 'Correos', 'forward_to_inbox'],
+          ['correos', 'Mails', 'forward_to_inbox'],
         ].map(([clave, texto, icono]) => (
           <button
             key={clave}
@@ -258,128 +353,194 @@ const NovedadesAdmin = () => {
 
       {tab === 'novedades' && (
         <>
-          <div className="nov-fechas">
-            <div className="nov-atajos">
+          {/* Período */}
+          <div className="nov-periodo">
+            <div className="nov-segmento" role="group" aria-label="Período">
               <button type="button" className={modo === 'dia' && dia === hoy ? 'sel' : ''} onClick={() => irADia(hoy)}>Hoy</button>
               <button type="button" className={modo === 'dia' && dia === sumarDias(hoy, -1) ? 'sel' : ''} onClick={() => irADia(sumarDias(hoy, -1))}>Ayer</button>
-              <button type="button" className={modo === 'dia' && dia === sumarDias(hoy, -2) ? 'sel' : ''} onClick={() => irADia(sumarDias(hoy, -2))}>Anteayer</button>
-              <button type="button" className={modo === 'semana' ? 'sel' : ''} onClick={() => { setModo('semana'); setVentana(null); }}>7 días</button>
+              <button type="button" className={modo === 'semana' ? 'sel' : ''} onClick={() => elegirModo('semana')}>7 días</button>
+              <button type="button" className={modo === 'mes' ? 'sel' : ''} onClick={() => elegirModo('mes')}>30 días</button>
             </div>
             <div className="nov-selector">
-              <button type="button" onClick={() => irADia(sumarDias(dia, -1))} aria-label="Día anterior">
+              <button type="button" onClick={() => irADia(sumarDias(modo === 'dia' ? dia : hoy, -1))} aria-label="Día anterior">
                 <span className="material-icons">chevron_left</span>
               </button>
-              <input
-                type="date"
-                value={dia}
-                max={hoy}
-                onChange={(e) => e.target.value && irADia(e.target.value)}
-                aria-label="Elegir fecha"
-              />
-              <button type="button" onClick={() => irADia(sumarDias(dia, 1))} disabled={dia >= hoy} aria-label="Día siguiente">
+              <input type="date" value={dia} max={hoy} onChange={(e) => e.target.value && irADia(e.target.value)} aria-label="Elegir fecha" />
+              <button type="button" onClick={() => irADia(sumarDias(dia, 1))} disabled={modo !== 'dia' || dia >= hoy} aria-label="Día siguiente">
                 <span className="material-icons">chevron_right</span>
               </button>
             </div>
           </div>
 
-          <h2 className="nov-titulo-rango">
-            {tituloRango()}
-            {modo === 'dia' && <small>{fmtDiaLargo(inicioDia(dia))}</small>}
-          </h2>
-
-          {cargando && <p className="nov-estado">Cargando…</p>}
           {error && <p className="nov-estado nov-error">{error}</p>}
+          {cargando && !datos && <p className="nov-estado">Cargando…</p>}
 
           {datos && (
-            <>
-              {Array.isArray(datos.alertas) && datos.alertas.length > 0 && (
-                <div className="nov-alertas">
-                  <strong><span className="material-icons">warning_amber</span> Para atender</strong>
-                  <ul>
-                    {datos.alertas.map((a) => (
-                      <li key={a.clave}>
-                        <Link to={a.ruta}>{a.texto}: <b>{a.cantidad}</b></Link>
-                      </li>
-                    ))}
-                  </ul>
+            <div className={cargando ? 'nov-cargando' : ''}>
+              {/* Resumen */}
+              <section className="nov-resumen">
+                <p className="nov-resumen-rango">{tituloRango()}</p>
+                <h2>{frase}</h2>
+                <div className="nov-metricas">
+                  {METRICAS.map((m) => {
+                    const n = contarTipos(datos.por_tipo, m.tipos);
+                    const antes = anterior ? contarTipos(anterior.por_tipo, m.tipos) : null;
+                    const dif = antes === null ? null : n - antes;
+                    return (
+                      <div key={m.clave} className={`nov-metrica c-${m.color}`}>
+                        <span className="material-icons">{m.icono}</span>
+                        <strong>{n}</strong>
+                        <span>{m.texto}</span>
+                        {dif !== null && (
+                          <small className={dif > 0 ? 'sube' : dif < 0 ? 'baja' : ''} title={`Comparado con ${textoAnterior}: ${antes}`}>
+                            {dif > 0 ? `↑ ${dif}` : dif < 0 ? `↓ ${Math.abs(dif)}` : '='} vs {textoAnterior}
+                          </small>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+              </section>
+
+              {/* Para atender */}
+              {Array.isArray(datos.alertas) && datos.alertas.length > 0 && (
+                <section className="nov-atender">
+                  <h3><span className="material-icons">priority_high</span> Para atender ahora</h3>
+                  <div className="nov-atender-lista">
+                    {datos.alertas.map((a) => (
+                      <Link key={a.clave} to={a.ruta} className="nov-atender-item">
+                        <strong>{a.cantidad}</strong>
+                        <span>{a.texto}</span>
+                        <span className="material-icons">chevron_right</span>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               )}
 
-              <div className="nov-tarjetas">
-                <button
-                  type="button"
-                  className={`nov-tarjeta c-gris ${filtroBloque === 'todos' ? 'sel' : ''}`}
-                  onClick={() => setFiltroBloque('todos')}
-                >
-                  <span className="material-icons">dashboard</span>
-                  <strong>{datos.total}</strong>
-                  <span className="t">Todo</span>
-                </button>
-                {BLOQUES.map((b) => (
-                  <button
-                    key={b.clave}
-                    type="button"
-                    className={`nov-tarjeta c-${b.color} ${filtroBloque === b.clave ? 'sel' : ''}`}
-                    onClick={() => setFiltroBloque(filtroBloque === b.clave ? 'todos' : b.clave)}
-                  >
-                    <span className="material-icons">{b.icono}</span>
-                    <strong>{datos.por_bloque?.[b.clave] || 0}</strong>
-                    <span className="t">{b.texto}</span>
+              {/* Actividad por hora */}
+              {datos.total > 0 && (
+                <section className="nov-horas">
+                  <div className="nov-horas-cab">
+                    <h3>¿A qué hora se mueve GoyaNova?</h3>
+                    <span>Pico: {String(horaPico).padStart(2, '0')}:00 h</span>
+                  </div>
+                  <div className="nov-horas-barras" role="img" aria-label={`Actividad por hora. El momento con más movimiento es a las ${horaPico} horas.`}>
+                    {porHora.map((n, h) => (
+                      <span key={h} className={h === horaPico ? 'pico' : ''} style={{ height: `${Math.max(4, (n / maxHora) * 100)}%` }} title={`${h}:00 · ${n}`} />
+                    ))}
+                  </div>
+                  <div className="nov-horas-eje"><span>0 h</span><span>6 h</span><span>12 h</span><span>18 h</span><span>23 h</span></div>
+                </section>
+              )}
+
+              {/* Filtros */}
+              <div className="nov-filtros">
+                <div className="nov-chips">
+                  <button type="button" className={filtroBloque === 'todos' ? 'sel' : ''} onClick={() => setFiltroBloque('todos')}>
+                    Todo <b>{datos.total}</b>
                   </button>
-                ))}
+                  {BLOQUES.filter((b) => (datos.por_bloque?.[b.clave] || 0) > 0).map((b) => (
+                    <button
+                      key={b.clave}
+                      type="button"
+                      className={`c-${b.color} ${filtroBloque === b.clave ? 'sel' : ''}`}
+                      onClick={() => setFiltroBloque(filtroBloque === b.clave ? 'todos' : b.clave)}
+                    >
+                      <span className="material-icons">{b.icono}</span>
+                      {b.texto} <b>{datos.por_bloque[b.clave]}</b>
+                    </button>
+                  ))}
+                </div>
+                <div className="nov-buscar">
+                  <span className="material-icons">search</span>
+                  <input
+                    type="search"
+                    placeholder="Buscar persona, publicación o texto…"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(limpiarTexto(e.target.value))}
+                    aria-label="Buscar en novedades"
+                  />
+                </div>
               </div>
 
-              <input
-                type="search"
-                className="nov-buscar"
-                placeholder="Buscar por usuario, servicio o texto…"
-                value={busqueda}
-                onChange={(e) => setBusqueda(limpiarTexto(e.target.value))}
-              />
-
               {datos.truncado && (
-                <p className="nov-nota">Hay muchísimas novedades en este período: se muestran las 1500 más recientes.</p>
+                <p className="nov-nota">Hubo muchísimo movimiento: se muestran las 1500 novedades más recientes.</p>
               )}
 
-              {grupos.map((g) => (
-                <section key={g.clave} className="nov-grupo">
-                  <h3>{g.texto}<span>{g.items.length}</span></h3>
-                  <ul className="nov-lista">
-                    {g.items.map((e, i) => {
-                      const bloque = BLOQUES.find((b) => b.clave === e.bloque);
-                      const enlace = enlaceDe(e);
-                      return (
-                        <li key={`${e.tipo}-${e.ref_id}-${e.fecha}-${i}`} className="nov-fila">
-                          <span className={`nov-icono c-${bloque?.color || 'gris'}`}>
-                            <span className="material-icons">{ICONO_TIPO[e.tipo] || 'notifications'}</span>
-                          </span>
-                          <div className="nov-datos">
-                            <strong>{e.titulo}</strong>
-                            {e.detalle && <span className="nov-detalle">{e.detalle}</span>}
-                            {e.actor && <small>Por {e.actor}</small>}
-                          </div>
-                          <div className="nov-cuando">
-                            <strong>{fmtHora(e.fecha)}</strong>
-                            <small>{fmtDiaCorto(e.fecha)}</small>
-                            {enlace && <Link to={enlace} className="nov-ver">Ver</Link>}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+              {/* Lo importante */}
+              <section className="nov-bloque">
+                <h3 className="nov-bloque-titulo">
+                  <span className="material-icons">star</span>
+                  Lo importante <span>{importantes.length}</span>
+                </h3>
+                {importantes.length === 0 ? (
+                  <p className="nov-vacio">
+                    {filtroBloque !== 'todos' || busqueda
+                      ? 'Nada importante con ese filtro.'
+                      : 'Sin registros nuevos, publicaciones ni reseñas en este período.'}
+                  </p>
+                ) : (
+                  dias.map((g) => (
+                    <div key={g.clave} className="nov-dia">
+                      {(modo !== 'dia' || dias.length > 1) && (
+                        <h4>{g.clave === hoy ? 'Hoy' : g.clave === sumarDias(hoy, -1) ? 'Ayer' : fmtDiaLargo(inicioDia(g.clave))}</h4>
+                      )}
+                      <ul className="nov-lista">
+                        {g.items.map((e, i) => <FilaEvento key={`${e.tipo}-${e.ref_id}-${e.fecha}-${i}`} e={e} />)}
+                      </ul>
+                    </div>
+                  ))
+                )}
+                {visibles.length < importantes.length && (
+                  <button type="button" className="nov-mas" onClick={() => setPagina((p) => p + 1)}>
+                    Ver más ({importantes.length - visibles.length})
+                  </button>
+                )}
+              </section>
+
+              {/* Cambios menores */}
+              {menores.length > 0 && (
+                <section className="nov-bloque nov-menores">
+                  <button type="button" className="nov-menores-cab" onClick={() => setVerMenores((v) => !v)} aria-expanded={verMenores}>
+                    <span className="material-icons">edit_note</span>
+                    <span>
+                      <strong>Cambios menores</strong>
+                      <small>
+                        {menores.reduce((s, m) => s + m.veces, 0)} ediciones de perfiles y publicaciones
+                      </small>
+                    </span>
+                    <span className="material-icons">{verMenores ? 'expand_less' : 'expand_more'}</span>
+                  </button>
+                  {verMenores && (
+                    <ul className="nov-lista">
+                      {menores.map((m) => {
+                        const enlace = enlaceDe(m);
+                        const cuerpo = (
+                          <>
+                            <span className="nov-icono c-gris"><span className="material-icons">{ICONO_TIPO[m.tipo]}</span></span>
+                            <span className="nov-datos">
+                              <span className="nov-etiqueta c-gris">{m.tipo === 'servicio_editado' ? 'Publicación editada' : 'Perfil editado'}{m.veces > 1 ? ` · ${m.veces} veces` : ''}</span>
+                              <strong>{m.quien}</strong>
+                              <small>
+                                {[...m.campos].join(', ') || 'cambios'}
+                                {m.actores.size > 0 ? ` · por ${[...m.actores].join(', ')}` : ''}
+                              </small>
+                            </span>
+                            <span className="nov-cuando"><span>{hace(m.ultima)}</span>{enlace && <span className="material-icons">chevron_right</span>}</span>
+                          </>
+                        );
+                        return (
+                          <li key={`${m.tipo}-${m.ref_id || m.quien}`}>
+                            {enlace ? <Link to={enlace} className="nov-fila">{cuerpo}</Link> : <div className="nov-fila">{cuerpo}</div>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </section>
-              ))}
-
-              {!cargando && eventos.length === 0 && (
-                <p className="nov-vacio">No hay novedades en este período{filtroBloque !== 'todos' || busqueda ? ' con ese filtro' : ''}.</p>
               )}
-
-              {visibles.length < eventos.length && (
-                <button type="button" className="nov-mas" onClick={() => setPagina((p) => p + 1)}>
-                  Ver más ({eventos.length - visibles.length} restantes)
-                </button>
-              )}
-            </>
+            </div>
           )}
         </>
       )}

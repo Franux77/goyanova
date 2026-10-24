@@ -6,6 +6,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
 import { getNivelWhatsapp } from '../../utils/whatsappPlan';
+import { numeroParaWhatsapp } from '../../utils/whatsapp';
 
 const coloresSuaves = [
   '#A5D6A7', '#81D4FA', '#CE93D8', '#FFF59D', '#FFAB91', '#B39DDB', '#80CBC4'
@@ -176,7 +177,7 @@ const DetallesServicio = ({ perfil, visible, onClose, categoriasMap }) => {
             <div className="contactos-botones">
                             {contacto_whatsapp && (
                 <a
-                  href={`https://wa.me/${contacto_whatsapp.replace(/\D/g, '')}`}
+                  href={`https://wa.me/${numeroParaWhatsapp(contacto_whatsapp)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`btn-contacto whatsapp ${nivelWsp ? `whatsapp-${nivelWsp}` : ''}`}

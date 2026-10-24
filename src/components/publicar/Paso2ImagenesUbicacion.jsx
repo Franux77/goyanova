@@ -199,10 +199,9 @@ const Paso2ImagenesUbicacion = ({
 
   return (
     <div className="paso2-container">
-      <h2 className="paso2-titulo">Paso 2: Imágenes</h2>
 
       <div className="paso2-portada-section">
-        <h3 className='h33'>Foto principal (Opcional)</h3>
+        <h3 className='h33'>Foto principal</h3>
         <p className="paso2-descripcion">
           Esta es la foto que todos van a ver primero
           <span style={{ fontSize: '0.85em', color: '#666', display: 'block', marginTop: '0.3rem' }}>
@@ -255,7 +254,7 @@ const Paso2ImagenesUbicacion = ({
       {/* 🆕 Foto de referencia de ubicación — Plan Impulso en adelante */}
       {puedeFotoReferencia && (
         <div className="paso2-portada-section">
-          <h3 className='h33'>Foto de referencia de tu ubicación (Opcional)</h3>
+          <h3 className='h33'>Foto del frente o del lugar</h3>
           <p className="paso2-descripcion">
             Una foto del frente, cartel o punto de referencia, para que te encuentren más fácil
           </p>
@@ -303,7 +302,7 @@ const Paso2ImagenesUbicacion = ({
         </div>
       )}
 
-      <h3 className='h33'>Más fotos de lo que hacés (Opcional)</h3>
+      <h3 className='h33'>Más fotos de lo que hacés</h3>
       <div className="paso2-adicionales-info">
         <div className="paso2-limite-info">
           <p className="paso2-descripcion">

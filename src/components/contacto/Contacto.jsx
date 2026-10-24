@@ -1,36 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Contacto.css';
+import NavbarGeneral from '../home/NavbarGeneral';
 
 const Contacto = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
   const [form, setForm] = useState({ nombre: '', email: '', mensaje: '' });
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState('');
-  const navRef = useRef();
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) setMenuOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [menuOpen]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -62,22 +39,6 @@ const Contacto = () => {
     }
   };
 
-  const handleVolverClick = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate('/');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const navLinks = [
-    { to: '/', label: 'Inicio', icon: 'home' },
-    { to: '/nosotros', label: 'Nosotros', icon: 'group' },
-    { to: '/explorar', label: 'Mapa', icon: 'map' },
-    { to: '/panel/dashboard', label: 'Mi Cuenta', icon: 'dashboard' },
-  ];
-
   const contactInfo = [
     { 
       icon: 'phone', 
@@ -104,76 +65,7 @@ const Contacto = () => {
 
   return (
     <div className="contacto-page">
-      <nav ref={navRef} className={`navbar-contacto ${scrolled ? 'navbar-scrolled' : ''}`}>
-        <div className="navbar-container">
-          <button className="navbar-back-btn" onClick={handleVolverClick} aria-label="Volver">
-            <span className="material-icons">arrow_back</span>
-            <span className="back-label">Volver</span>
-          </button>
-
-          <ul className="navbar-links-desktop">
-            {navLinks.map((link) => (
-              <li key={link.to} className="nav-item">
-                <Link 
-                  to={link.to}
-                  className={`nav-link ${location.pathname === link.to ? 'nav-link-active' : ''}`}
-                >
-                  <span className="material-icons nav-link-icon">{link.icon}</span>
-                  <span className="nav-link-text">{link.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <button
-            className={`navbar-hamburger ${menuOpen ? 'hamburger-active' : ''}`}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menú"
-          >
-            <span className="hamburger-linee"></span>
-            <span className="hamburger-linee"></span>
-            <span className="hamburger-linee"></span>
-          </button>
-        </div>
-      </nav>
-
-      {/* Menú móvil */}
-      <div className={`mobile-sidebar ${menuOpen ? 'mobile-sidebar-open' : ''}`}>
-        <div className="mobile-sidebar-header">
-          <div className="sidebar-brand">
-            <span className="material-icons brand-icon-mobile">menu_book</span>
-            <h3>Navegación</h3>
-          </div>
-          <button 
-            className="sidebar-close-btn"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Cerrar menú"
-          >
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-        
-        <ul className="mobile-sidebar-links">
-          {navLinks.map((link) => (
-            <li key={link.to} className="mobile-nav-item">
-              <Link 
-                to={link.to}
-                onClick={() => setMenuOpen(false)}
-                className={`mobile-nav-link ${location.pathname === link.to ? 'mobile-nav-active' : ''}`}
-              >
-                <span className="material-icons mobile-nav-icon">{link.icon}</span>
-                <span className="mobile-nav-text">{link.label}</span>
-                <span className="material-icons mobile-nav-arrow">chevron_right</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div 
-        className={`navbar-overlay ${menuOpen ? 'navbar-overlay-visible' : ''}`}
-        onClick={() => setMenuOpen(false)}
-      />
+      <NavbarGeneral />
 
       {/* Contenido Principal */}
       <div className="contacto-content">

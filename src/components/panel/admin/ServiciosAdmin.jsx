@@ -1,340 +1,445 @@
-// src/components/panel/admin/ServiciosAdmin.jsx - VERSIÓN CORREGIDA
-import React, { useState, useEffect } from 'react';
+// src/components/panel/admin/ServiciosAdmin.jsx — Publicaciones (admin)
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../utils/supabaseClient';
-import { useNavigate } from 'react-router-dom';
-import './ServiciosAdmin.css';
+import { analizarWhatsapp, enlaceWhatsapp } from '../../../utils/whatsapp';
 import Loading from '../../loading/Loading';
+import { Modal, useAvisos, hace, fechaCorta, normalizarTexto } from './adminComun';
+
+const MOTIVO_GENERAL =
+  'Motivo de suspensión de su servicio fue por incumplimiento de normativas de la web y servicios a la comunidad.';
+
+const MOTIVOS = [
+  'La publicación está en una categoría que no corresponde.',
+  'La información o las fotos no corresponden a un servicio real.',
+  'Recibimos reportes de la comunidad sobre esta publicación.',
+  'El número de WhatsApp no funciona. Actualizalo para volver a aparecer.',
+  MOTIVO_GENERAL,
+];
+
+const ORDENES = {
+  nuevos: { titulo: 'Más nuevos', fn: (a, b) => new Date(b.creado_en) - new Date(a.creado_en) },
+  viejos: { titulo: 'Más viejos', fn: (a, b) => new Date(a.creado_en) - new Date(b.creado_en) },
+  nombre: { titulo: 'A → Z', fn: (a, b) => a.nombre.localeCompare(b.nombre, 'es') },
+  rating: { titulo: 'Mejor calificados', fn: (a, b) => (b.rating_promedio || 0) - (a.rating_promedio || 0) },
+};
+
+// Qué le falta o qué está mal en una publicación
+const problemasDe = (s) => {
+  const lista = [];
+  if (!s.contacto_whatsapp) lista.push({ clave: 'wsp', texto: 'Sin WhatsApp', grave: true });
+  else if (!analizarWhatsapp(s.contacto_whatsapp).valido)
+    lista.push({ clave: 'wsp', texto: 'WhatsApp con problemas', grave: true });
+  if (!s.foto_portada) lista.push({ clave: 'foto', texto: 'Sin foto' });
+  if ((s.reportes_acumulados || 0) > 0)
+    lista.push({ clave: 'reportes', texto: `${s.reportes_acumulados} ${s.reportes_acumulados === 1 ? 'reporte' : 'reportes'}`, grave: true });
+  if (s.oculto_por_reportes) lista.push({ clave: 'oculto', texto: 'Oculto por reportes', grave: true });
+  return lista;
+};
 
 const ServiciosAdmin = () => {
-  const [servicios, setServicios] = useState([]);
-  const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('todos');
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [cargandoInicial, setCargandoInicial] = useState(true); // 👈 NUEVO
-  const serviciosPorPagina = 15;
   const navigate = useNavigate();
+  const { avisar, Avisos } = useAvisos();
+  const [servicios, setServicios] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [estado, setEstado] = useState('todos');
+  const [tipo, setTipo] = useState('todos');
+  const [soloProblemas, setSoloProblemas] = useState(false);
+  const [orden, setOrden] = useState('nuevos');
+  const [mostrar, setMostrar] = useState(20);
+  const [suspendiendo, setSuspendiendo] = useState(null);
+  const [motivo, setMotivo] = useState('');
+  const [eliminando, setEliminando] = useState(null);
+  const [trabajando, setTrabajando] = useState(false);
 
-  const fetchServicios = async () => {
-    try {
-      const { data: serviciosData, error } = await supabase
+  const cargar = useCallback(async () => {
+    const [{ data, error: err }, { data: suspensiones }] = await Promise.all([
+      supabase
         .from('servicios')
         .select(`
-          id,
-          nombre,
-          estado,
-          suspendido_por,
-          categoria_id,
-          usuario_id,
-          categorias(nombre),
-          perfiles_usuarios(email),
-          disponibilidades(
-            id,
-            tipo,
-            mensaje,
-            dia,
-            turno,
-            hora_inicio,
-            hora_fin
-          )
+          id, nombre, estado, tipo, suspendido_por, categoria_id, usuario_id, creado_en,
+          foto_portada, contacto_whatsapp, es_premium, badge_texto, rating_promedio,
+          reportes_acumulados, oculto_por_reportes,
+          categorias(nombre, icon, color),
+          perfiles_usuarios(nombre, apellido, email)
         `)
-        .order('creado_en', { ascending: false });
+        .order('creado_en', { ascending: false }),
+      supabase.from('suspensiones').select('entidad_id, motivo').eq('entidad', 'servicio'),
+    ]);
 
-      if (error) {
-        console.error('Error al cargar servicios:', error);
-        return;
-      }
+    if (err) {
+      setError('No se pudieron cargar las publicaciones.');
+      setCargando(false);
+      return;
+    }
 
-      const { data: suspensionesData } = await supabase
-        .from('suspensiones')
-        .select('entidad_id, motivo')
-        .eq('entidad', 'servicio');
-
-      const suspendidosIds = suspensionesData?.map(s => s.entidad_id) || [];
-
-      const serviciosMapeados = (serviciosData || []).map(s => {
-        const suspension = suspensionesData?.find(x => x.entidad_id === s.id);
-
-        const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-        const horarios = diasSemana.reduce((acc, dia) => {
-          const turnosDia = (s.disponibilidades || [])
-            .filter(d => d.dia?.toLowerCase() === dia.toLowerCase())
-            .map(d => ({ inicio: d.hora_inicio || '', fin: d.hora_fin || '' }));
-          if (turnosDia.length) acc[dia] = turnosDia;
-          return acc;
-        }, {});
-
-        let tipoDisponibilidad = s.disponibilidades?.[0]?.tipo || "horarios";
-        let mensaje = s.disponibilidades?.[0]?.mensaje || "";
-
+    const idsSuspendidos = new Set((suspensiones || []).map((x) => x.entidad_id));
+    setServicios(
+      (data || []).map((s) => {
+        const duenio = s.perfiles_usuarios || {};
         return {
           ...s,
           categoria: s.categorias?.nombre || 'Sin categoría',
-          emailDueno: s.perfiles_usuarios?.email || '',
-          estado: suspendidosIds.includes(s.id) ? 'suspendido' : s.estado || 'activo',
-          motivoSuspension: suspension?.motivo || null,
-          formDataParaEditar: {
-            tipoDisponibilidad,
-            mensaje,
-            horarios
-          }
+          categoriaIcono: s.categorias?.icon || 'category',
+          categoriaColor: s.categorias?.color || '#64748b',
+          duenio: `${duenio.nombre || ''} ${duenio.apellido || ''}`.trim() || duenio.email || 'Sin dueño',
+          emailDuenio: duenio.email || '',
+          estado: idsSuspendidos.has(s.id) ? 'suspendido' : s.estado || 'activo',
+          motivoSuspension: (suspensiones || []).find((x) => x.entidad_id === s.id)?.motivo || null,
         };
-      });
-
-      setServicios(serviciosMapeados);
-    } catch (error) {
-      console.error('Error inesperado:', error);
-    } finally {
-      setCargandoInicial(false); // 👈 SIEMPRE se ejecuta
-    }
-  };
-
-  useEffect(() => {
-    fetchServicios();
+      })
+    );
+    setError('');
+    setCargando(false);
   }, []);
 
-  const filtrarServicios = () => {
-    const termino = busqueda.toLowerCase().trim();
-    return servicios.filter(s => {
-      const coincideBusqueda =
-        !termino ||
-        s.nombre.toLowerCase().includes(termino) ||
-        s.emailDueno.toLowerCase().includes(termino);
-      const coincideEstado = filtroEstado === 'todos' || s.estado === filtroEstado;
-      return coincideBusqueda && coincideEstado;
-    });
-  };
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
 
-  const serviciosFiltrados = filtrarServicios();
-  const totalPaginas = Math.ceil(serviciosFiltrados.length / serviciosPorPagina);
-  const serviciosPaginados = serviciosFiltrados.slice(
-    (paginaActual - 1) * serviciosPorPagina,
-    paginaActual * serviciosPorPagina
+  useEffect(() => {
+    setMostrar(20);
+  }, [busqueda, estado, tipo, soloProblemas, orden]);
+
+  const conProblemas = useMemo(() => servicios.map((s) => ({ ...s, problemas: problemasDe(s) })), [servicios]);
+
+  const resumen = useMemo(
+    () => ({
+      total: servicios.length,
+      activos: servicios.filter((s) => s.estado === 'activo').length,
+      suspendidos: servicios.filter((s) => s.estado === 'suspendido').length,
+      premium: servicios.filter((s) => s.es_premium).length,
+      problemas: conProblemas.filter((s) => s.problemas.length > 0).length,
+    }),
+    [servicios, conProblemas]
   );
 
-  const resumen = {
-    total: servicios.length,
-    suspendidos: servicios.filter(s => s.estado === 'suspendido').length,
-    activos: servicios.filter(s => s.estado === 'activo').length,
+  const filtrados = useMemo(() => {
+    const q = normalizarTexto(busqueda);
+    return conProblemas
+      .filter((s) => estado === 'todos' || (estado === 'premium' ? s.es_premium : s.estado === estado))
+      .filter((s) => tipo === 'todos' || s.tipo === tipo)
+      .filter((s) => !soloProblemas || s.problemas.length > 0)
+      .filter((s) => !q || normalizarTexto(`${s.nombre} ${s.duenio} ${s.emailDuenio} ${s.categoria}`).includes(q))
+      .sort(ORDENES[orden].fn);
+  }, [conProblemas, busqueda, estado, tipo, soloProblemas, orden]);
+
+  const hayFiltros = busqueda || estado !== 'todos' || tipo !== 'todos' || soloProblemas;
+  const limpiar = () => {
+    setBusqueda('');
+    setEstado('todos');
+    setTipo('todos');
+    setSoloProblemas(false);
   };
 
-  const eliminarServicio = async (id) => {
-    if (!window.confirm('¿Deseas eliminar este servicio?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('servicios')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        alert(`No se pudo eliminar el servicio: ${error.message}`);
-        return;
-      }
-
-      await fetchServicios();
-      alert('Servicio eliminado con éxito.');
-    } catch {
-      alert('Error inesperado al intentar eliminar el servicio.');
-    }
-  };
-
-  const suspenderServicio = async (id) => {
-    if (!window.confirm('¿Deseas suspender este servicio?')) return;
-
-    let motivo = prompt(
-      'Ingrese el motivo de la suspensión (opcional):',
-      'Motivo de suspensión de su servicio fue por incumplimiento de normativas de la web y servicios a la comunidad.'
-    );
-    if (!motivo)
-      motivo = 'Motivo de suspensión de su servicio fue por incumplimiento de normativas de la web y servicios a la comunidad.';
-
-    await supabase
+  // ---------- Acciones (misma lógica de antes) ----------
+  const confirmarSuspension = async () => {
+    const s = suspendiendo;
+    setTrabajando(true);
+    const motivoFinal = motivo.trim() || MOTIVO_GENERAL;
+    const { error: e1 } = await supabase
       .from('servicios')
       .update({ estado: 'suspendido', suspendido_por: 'admin' })
-      .eq('id', id);
-
-    await supabase
-      .from('suspensiones')
-      .insert([{ entidad: 'servicio', entidad_id: id, motivo, fecha: new Date().toISOString() }]);
-
-    fetchServicios();
+      .eq('id', s.id);
+    const { error: e2 } = e1
+      ? { error: e1 }
+      : await supabase
+          .from('suspensiones')
+          .insert([{ entidad: 'servicio', entidad_id: s.id, motivo: motivoFinal, fecha: new Date().toISOString() }]);
+    setTrabajando(false);
+    if (e1 || e2) {
+      avisar('No se pudo suspender', 'error');
+      return;
+    }
+    setSuspendiendo(null);
+    avisar(`"${s.nombre}" quedó suspendida`);
+    cargar();
   };
 
-  const habilitarServicio = async (id) => {
-    if (!window.confirm('¿Deseas habilitar este servicio?')) return;
-
-    await supabase
+  const reactivar = async (s) => {
+    setTrabajando(true);
+    const { error: e1 } = await supabase
       .from('servicios')
       .update({ estado: 'activo', suspendido_por: null })
-      .eq('id', id);
-
-    await supabase
-      .from('suspensiones')
-      .delete()
-      .eq('entidad', 'servicio')
-      .eq('entidad_id', id);
-
-    fetchServicios();
+      .eq('id', s.id);
+    if (!e1) {
+      await supabase.from('suspensiones').delete().eq('entidad', 'servicio').eq('entidad_id', s.id);
+    }
+    setTrabajando(false);
+    if (e1) {
+      avisar('No se pudo reactivar', 'error');
+      return;
+    }
+    avisar(`"${s.nombre}" está activa de nuevo`);
+    cargar();
   };
 
-  const editarServicio = (id) => {
-    navigate(`/panel/admin/publicar/${id}`);
+  const confirmarEliminar = async () => {
+    const s = eliminando;
+    setTrabajando(true);
+    const { error: err } = await supabase.from('servicios').delete().eq('id', s.id);
+    setTrabajando(false);
+    if (err) {
+      avisar(`No se pudo eliminar: ${err.message}`, 'error');
+      return;
+    }
+    setEliminando(null);
+    setServicios((prev) => prev.filter((x) => x.id !== s.id));
+    avisar(`"${s.nombre}" eliminada`);
   };
 
-  const verServicio = (id) => {
-    navigate(`/perfil/${id}`);
-  };
+  if (cargando) return <Loading message="Cargando publicaciones..." />;
 
-  // 👇 LÓGICA CORREGIDA
-  if (cargandoInicial) {
-    return <Loading message="Cargando servicios..." />;
-  }
+  const visibles = filtrados.slice(0, mostrar);
 
   return (
-    <section className="sadmin-servicios">
-      <h2 className="sadmin-servicios__titulo">Gestión de Servicios</h2>
-
-      <div className="sadmin-servicios__resumen">
-        <div className="sadmin-resumen-card">
-          <span className="sadmin-resumen-card__label">Total</span>
-          <strong className="sadmin-resumen-card__value">{resumen.total}</strong>
+    <section className="adm">
+      <header className="adm-cabecera">
+        <div>
+          <h2>Publicaciones</h2>
+          <p>Revisá, editá o suspendé lo que se publica en GoyaNova.</p>
         </div>
-        <div className="sadmin-resumen-card sadmin-resumen-card--suspendidos">
-          <span className="sadmin-resumen-card__label">Suspendidos</span>
-          <strong className="sadmin-resumen-card__value">{resumen.suspendidos}</strong>
+        <div className="adm-cabecera-acciones">
+          <button type="button" className="adm-boton-sec" onClick={cargar}>
+            <span className="material-icons">refresh</span>
+            Actualizar
+          </button>
         </div>
-        <div className="sadmin-resumen-card sadmin-resumen-card--activos">
-          <span className="sadmin-resumen-card__label">Activos</span>
-          <strong className="sadmin-resumen-card__value">{resumen.activos}</strong>
-        </div>
-      </div>
+      </header>
 
-      <div className="sadmin-servicios__controles">
-        <input
-          type="search"
-          placeholder="Buscar por nombre del servicio o email del dueño..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          className="sadmin-input"
-        />
-        <select
-          value={filtroEstado}
-          onChange={e => setFiltroEstado(e.target.value)}
-          className="sadmin-select"
-        >
-          <option value="todos">Todos</option>
-          <option value="activo">Activo</option>
-          <option value="suspendido">Suspendido</option>
-        </select>
-      </div>
-
-      <div className="sadmin-servicios__lista">
-        {serviciosPaginados.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            color: '#666'
-          }}>
-            <span className="material-icons" style={{ fontSize: '80px', opacity: 0.3 }}>
-              inbox
-            </span>
-            <p className="sadmin-sin-resultados">
-              {servicios.length === 0 
-                ? 'No hay servicios registrados aún.' 
-                : 'No se encontraron servicios con esos filtros.'}
-            </p>
-          </div>
-        ) : (
-          serviciosPaginados.map(s => (
-            <article key={s.id} className="sadmin-card">
-              <div className="sadmin-card__info">
-                <div className="sadmin-card__header">
-                  <h3 className="sadmin-card__nombre">{s.nombre}</h3>
-                  <span className={`sadmin-badge sadmin-badge--${s.estado}`}>
-                    {s.estado}
-                  </span>
-                </div>
-                <p className="sadmin-card__categoria">
-                  <span className="material-icons sadmin-card__icon">category</span>
-                  {s.categoria}
-                  {s.emailDueno && (
-                    <>
-                      <span className="sadmin-card__separador">·</span>
-                      <span className="material-icons sadmin-card__icon">person</span>
-                      {s.emailDueno}
-                    </>
-                  )}
-                </p>
-                {s.estado === 'suspendido' && s.motivoSuspension && (
-                  <p className="sadmin-card__motivo">
-                    <span className="material-icons sadmin-card__icon">info</span>
-                    {s.motivoSuspension}
-                  </p>
-                )}
-                {s.suspendido_por && (
-                  <p className="sadmin-card__suspendido-por">
-                    Suspendido por: <strong>{s.suspendido_por}</strong>
-                  </p>
-                )}
-              </div>
-              <div className="sadmin-card__acciones">
-                <button
-                  className="sadmin-btn sadmin-btn--ver"
-                  onClick={() => verServicio(s.id)}
-                  title="Ver ficha pública"
-                >
-                  <span className="material-icons">visibility</span>
-                </button>
-                <button 
-                  className="sadmin-btn sadmin-btn--editar" 
-                  onClick={() => editarServicio(s.id)}
-                  title="Editar"
-                >
-                  <span className="material-icons">edit</span>
-                </button>
-                <button 
-                  className="sadmin-btn sadmin-btn--eliminar" 
-                  onClick={() => eliminarServicio(s.id)}
-                  title="Eliminar"
-                >
-                  <span className="material-icons">delete</span>
-                </button>
-                {s.estado === 'activo' ? (
-                  <button 
-                    className="sadmin-btn sadmin-btn--suspender" 
-                    onClick={() => suspenderServicio(s.id)}
-                    title="Suspender"
-                  >
-                    <span className="material-icons">block</span>
-                  </button>
-                ) : (
-                  <button 
-                    className="sadmin-btn sadmin-btn--habilitar" 
-                    onClick={() => habilitarServicio(s.id)}
-                    title="Habilitar"
-                  >
-                    <span className="material-icons">check_circle</span>
-                  </button>
-                )}
-              </div>
-            </article>
-          ))
+      <div className="adm-resumen">
+        <button type="button" className={`adm-dato ${!hayFiltros ? 'activo' : ''}`} onClick={limpiar}>
+          <strong>{resumen.total}</strong>
+          <span>En total</span>
+        </button>
+        <button type="button" className={`adm-dato ${estado === 'activo' ? 'activo' : ''}`} onClick={() => setEstado('activo')}>
+          <strong>{resumen.activos}</strong>
+          <span>Activas</span>
+        </button>
+        <button type="button" className={`adm-dato ${estado === 'suspendido' ? 'activo' : ''}`} onClick={() => setEstado('suspendido')}>
+          <strong>{resumen.suspendidos}</strong>
+          <span>Suspendidas</span>
+        </button>
+        <button type="button" className={`adm-dato ${estado === 'premium' ? 'activo' : ''}`} onClick={() => setEstado('premium')}>
+          <strong>{resumen.premium}</strong>
+          <span>Con plan</span>
+        </button>
+        {resumen.problemas > 0 && (
+          <button type="button" className={`adm-dato alerta ${soloProblemas ? 'activo' : ''}`} onClick={() => setSoloProblemas((v) => !v)}>
+            <strong>{resumen.problemas}</strong>
+            <span>Para revisar</span>
+          </button>
         )}
       </div>
 
-      {totalPaginas > 1 && (
-        <nav className="sadmin-paginacion">
-          {Array.from({ length: totalPaginas }, (_, i) => (
-            <button
-              key={i}
-              className={`sadmin-paginacion__btn ${paginaActual === i + 1 ? 'sadmin-paginacion__btn--activo' : ''}`}
-              onClick={() => setPaginaActual(i + 1)}
-            >
-              {i + 1}
+      <div className="adm-herramientas">
+        <div className="adm-buscador">
+          <span className="material-icons">search</span>
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por publicación, dueño, email o categoría…"
+            aria-label="Buscar publicaciones"
+          />
+        </div>
+        <div className="adm-filtros">
+          <select value={tipo} onChange={(e) => setTipo(e.target.value)} aria-label="Tipo">
+            <option value="todos">Oficios y negocios</option>
+            <option value="servicio">Solo oficios</option>
+            <option value="producto">Solo negocios</option>
+          </select>
+          <select value={estado} onChange={(e) => setEstado(e.target.value)} aria-label="Estado">
+            <option value="todos">Cualquier estado</option>
+            <option value="activo">Activas</option>
+            <option value="suspendido">Suspendidas</option>
+            <option value="premium">Con plan</option>
+          </select>
+          <select value={orden} onChange={(e) => setOrden(e.target.value)} aria-label="Orden">
+            {Object.entries(ORDENES).map(([v, o]) => <option key={v} value={v}>{o.titulo}</option>)}
+          </select>
+        </div>
+        {hayFiltros && (
+          <div className="adm-info-filtro">
+            <span>{filtrados.length} {filtrados.length === 1 ? 'publicación' : 'publicaciones'}</span>
+            <button type="button" className="adm-link" onClick={limpiar}>Quitar filtros</button>
+          </div>
+        )}
+      </div>
+
+      {error ? (
+        <div className="adm-vacio">
+          <span className="material-icons">cloud_off</span>
+          <p>{error}</p>
+          <button type="button" className="adm-boton" onClick={cargar}>Reintentar</button>
+        </div>
+      ) : filtrados.length === 0 ? (
+        <div className="adm-vacio">
+          <span className="material-icons">inventory_2</span>
+          <p>{servicios.length === 0 ? 'Todavía no hay publicaciones.' : 'No hay publicaciones con estos filtros.'}</p>
+        </div>
+      ) : (
+        <>
+          <ul className="adm-lista">
+            {visibles.map((s) => {
+              const suspendida = s.estado === 'suspendido';
+              const wsp = s.contacto_whatsapp ? enlaceWhatsapp(s.contacto_whatsapp, `Hola ${s.duenio.split(' ')[0]}, te escribimos de GoyaNova por tu publicación "${s.nombre}".`) : null;
+              return (
+                <li key={s.id} className={`adm-tarjeta ${suspendida ? 'apagada' : ''}`}>
+                  <div className="adm-tarjeta-principal">
+                    {s.foto_portada ? (
+                      <img src={s.foto_portada} alt="" className="adm-foto" loading="lazy" />
+                    ) : (
+                      <span className="adm-foto adm-foto-vacia" style={{ background: s.categoriaColor }}>
+                        <span className="material-icons">{s.categoriaIcono}</span>
+                      </span>
+                    )}
+                    <div className="adm-cuerpo">
+                      <div className="adm-titulo-fila">
+                        <h3>{s.nombre}</h3>
+                        <span className={`adm-etiqueta ${suspendida ? 'e-rojo' : 'e-verde'}`}>
+                          {suspendida ? 'Suspendida' : 'Activa'}
+                        </span>
+                        {s.es_premium && (
+                          <span className="adm-etiqueta e-violeta">
+                            <span className="material-icons">workspace_premium</span>
+                            {s.badge_texto || 'Plan'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="adm-meta">
+                        <span className="adm-cat" style={{ color: s.categoriaColor }}>
+                          <span className="material-icons">{s.categoriaIcono}</span>
+                          {s.categoria}
+                        </span>
+                        <span className={`adm-etiqueta ${s.tipo === 'producto' ? 'e-naranja' : 'e-azul'}`}>
+                          {s.tipo === 'producto' ? 'Negocio' : 'Oficio'}
+                        </span>
+                      </div>
+                      <div className="adm-meta">
+                        <span><span className="material-icons">person</span>{s.duenio}</span>
+                        <span title={fechaCorta(s.creado_en)}><span className="material-icons">schedule</span>{hace(s.creado_en)}</span>
+                        {s.rating_promedio > 0 && (
+                          <span><span className="material-icons" style={{ color: '#f5b301' }}>star</span>{Number(s.rating_promedio).toFixed(1)}</span>
+                        )}
+                      </div>
+                      {s.problemas.length > 0 && (
+                        <div className="adm-avisos">
+                          {s.problemas.map((p) => (
+                            <span key={p.clave} className={`adm-aviso ${p.grave ? 'rojo' : ''}`}>
+                              <span className="material-icons">{p.grave ? 'error' : 'info'}</span>
+                              {p.texto}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {suspendida && s.motivoSuspension && <p className="adm-motivo">{s.motivoSuspension}</p>}
+                    </div>
+                  </div>
+                  <div className="adm-acciones">
+                    <Link to={`/perfil/${s.id}`} className="adm-accion">
+                      <span className="material-icons">visibility</span>
+                      <span className="adm-accion-texto">Ver</span>
+                    </Link>
+                    <button type="button" className="adm-accion" onClick={() => navigate(`/panel/admin/publicar/${s.id}`)}>
+                      <span className="material-icons">edit</span>
+                      <span className="adm-accion-texto">Editar</span>
+                    </button>
+                    {wsp && (
+                      <a href={wsp} target="_blank" rel="noopener noreferrer" className="adm-accion verde">
+                        <span className="material-icons">chat</span>
+                        <span className="adm-accion-texto">Escribirle</span>
+                      </a>
+                    )}
+                    {suspendida ? (
+                      <button type="button" className="adm-accion verde" onClick={() => reactivar(s)} disabled={trabajando}>
+                        <span className="material-icons">check_circle</span>
+                        <span className="adm-accion-texto">Reactivar</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="adm-accion ambar"
+                        onClick={() => { setSuspendiendo(s); setMotivo(''); }}
+                      >
+                        <span className="material-icons">block</span>
+                        <span className="adm-accion-texto">Suspender</span>
+                      </button>
+                    )}
+                    <button type="button" className="adm-accion rojo" onClick={() => setEliminando(s)} aria-label={`Eliminar ${s.nombre}`}>
+                      <span className="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {visibles.length < filtrados.length && (
+            <button type="button" className="adm-mas" onClick={() => setMostrar((m) => m + 20)}>
+              Ver más ({filtrados.length - visibles.length})
             </button>
-          ))}
-        </nav>
+          )}
+        </>
       )}
+
+      {suspendiendo && (
+        <Modal
+          titulo={`Suspender "${suspendiendo.nombre}"`}
+          subtitulo="Deja de aparecer en GoyaNova hasta que la reactives."
+          onCerrar={() => setSuspendiendo(null)}
+          pie={
+            <>
+              <button type="button" className="adm-boton-sec" onClick={() => setSuspendiendo(null)}>Cancelar</button>
+              <button type="button" className="adm-boton-peligro" onClick={confirmarSuspension} disabled={trabajando}>
+                <span className="material-icons">block</span>
+                {trabajando ? 'Suspendiendo…' : 'Suspender'}
+              </button>
+            </>
+          }
+        >
+          <div className="adm-campo">
+            <span>Motivos frecuentes</span>
+            <div className="adm-motivos">
+              {MOTIVOS.map((m) => (
+                <button key={m} type="button" onClick={() => setMotivo(m)}>{m}</button>
+              ))}
+            </div>
+          </div>
+          <div className="adm-campo">
+            <label htmlFor="adm-motivo">Motivo que va a ver el dueño</label>
+            <textarea id="adm-motivo" value={motivo} onChange={(e) => setMotivo(e.target.value.slice(0, 400))} placeholder="Si lo dejás vacío, se usa el motivo general." />
+          </div>
+        </Modal>
+      )}
+
+      {eliminando && (
+        <Modal
+          titulo={`Eliminar "${eliminando.nombre}"`}
+          subtitulo={`De ${eliminando.duenio}`}
+          onCerrar={() => setEliminando(null)}
+          pie={
+            <>
+              {eliminando.estado !== 'suspendido' && (
+                <button type="button" className="adm-boton-sec" onClick={() => { setSuspendiendo(eliminando); setMotivo(''); setEliminando(null); }}>
+                  Suspender en vez de borrar
+                </button>
+              )}
+              <button type="button" className="adm-boton-peligro" onClick={confirmarEliminar} disabled={trabajando}>
+                <span className="material-icons">delete</span>
+                {trabajando ? 'Eliminando…' : 'Eliminar para siempre'}
+              </button>
+            </>
+          }
+        >
+          <p className="adm-alerta-texto">
+            La publicación se borra de GoyaNova. <strong>No se puede deshacer.</strong> Si es algo que se puede corregir, mejor suspendela.
+          </p>
+        </Modal>
+      )}
+
+      <Avisos />
     </section>
   );
 };

@@ -5,6 +5,7 @@ import useContadoresPanelAdmin from '../../../hooks/useContadoresPanelAdmin';
 import { formatearBadge } from '../../../utils/contadoresPanel';
 import BottomNav from '../../navegacion/BottomNav';
 import MasSheetPanel from '../../navegacion/MasSheetPanel';
+import { BarraMovilPanel, MigasPanel } from '../EncabezadoSeccion';
 import './PanelAdmin.css';
 
 // Secciones que tienen su propio botón en la barra inferior del celular:
@@ -73,6 +74,12 @@ const PanelAdmin = () => {
     { nombre: 'Configuración', ruta: '/panel/admin/configuracion', icono: 'settings' },
   ];
 
+  // Pantallas que no están en el menú pero necesitan título arriba
+  const seccionesConExtras = [
+    ...secciones,
+    { nombre: 'Sanciones', ruta: '/panel/admin/suspensiones', icono: 'gavel' },
+  ];
+
   const handleCambiarModo = () => {
     navigate('/panel/dashboard');
     closeSidebar();
@@ -89,26 +96,23 @@ const PanelAdmin = () => {
       {/* Header móvil */}
       {isMobile && (
         <header className="admin-mobile-header">
-          <button
-            className="panel-hamburger-btn"
-            onClick={() => setMasAbierto(true)}
-            aria-label="Abrir menú"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-          
-          <div className="admin-mobile-logo">
-            <img 
-              src="/assets/GoyaNova_20250918_144009_0000.png" 
-              alt="Logo GoyaNova" 
-              className="admin-logo-img-mobile"
-            />
-            <span className="admin-logo-text-mobile">GoyaNova</span>
-          </div>
-
-          <div className="admin-mobile-spacer"></div>
+          <BarraMovilPanel
+            secciones={seccionesConExtras}
+            rutaInicio="/panel/admin/dashboard"
+            nombreInicio="Panel"
+            ocultarEn={['/panel/admin/publicar']}
+            onMenu={() => setMasAbierto(true)}
+            logo={
+              <div className="admin-mobile-logo">
+                <img
+                  src="/assets/GoyaNova_20250918_144009_0000.png"
+                  alt="Logo GoyaNova"
+                  className="admin-logo-img-mobile"
+                />
+                <span className="admin-logo-text-mobile">GoyaNova</span>
+              </div>
+            }
+          />
         </header>
       )}
 
@@ -214,7 +218,10 @@ const PanelAdmin = () => {
 
       {/* Main Content */}
       <main className="admin-main-content">
-        <Outlet />
+        {!isMobile && (
+          <MigasPanel secciones={seccionesConExtras} rutaInicio="/panel/admin/dashboard" nombreInicio="Panel" ocultarEn={['/panel/admin/publicar']} />
+        )}
+        <Outlet context={{ contadores, secciones }} />
       </main>
 
       {isMobile && (
@@ -245,4 +252,4 @@ const PanelAdmin = () => {
   );
 };
 
-export default PanelAdmin;
+export default PanelAdmin;

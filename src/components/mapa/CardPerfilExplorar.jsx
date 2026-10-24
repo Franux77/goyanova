@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '../../utils/supabaseClient';
 import { getNivelWhatsapp } from '../../utils/whatsappPlan';
+import { numeroParaWhatsapp } from '../../utils/whatsapp';
 
 const coloresPastel = [
   '#FFE5E5', '#E5F5FF', '#FFE5F5', '#FFFBE5', '#E5FFE5', '#F5E5FF', '#E5F5F5'
@@ -139,7 +140,7 @@ const CardPerfilExplorar = ({ perfil = {}, categoriasMap = {}, onLocalizar }) =>
         <div className="card-perfil-acciones">
                     {contacto_whatsapp && (
             <a
-              href={`https://wa.me/${contacto_whatsapp.replace(/\D/g, '')}`}
+              href={`https://wa.me/${numeroParaWhatsapp(contacto_whatsapp)}`}
               target="_blank"
               rel="noopener noreferrer"
               className={`btn-accion btn-whatsapp ${nivelWsp ? `btn-whatsapp-${nivelWsp}` : ''}`}

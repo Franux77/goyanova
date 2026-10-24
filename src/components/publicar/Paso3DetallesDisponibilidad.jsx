@@ -413,7 +413,6 @@ const agregarTurno = (dia) => {
 
   return (
     <div className="paso3-wrapper">
-      <h2 className="paso3-titulo">Paso 3: ¿Cuándo trabajás?</h2>
 
       <div className="opciones-disponibilidad">
   {["horario", "turnos", "pedido", "consultar", "nodisp"].map((op) => (

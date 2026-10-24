@@ -87,10 +87,10 @@ const ResenasHome = () => {
   );
 };
 
-const ModalResena = ({ user, perfil, onClose, onEnviada }) => {
+export const ModalResena = ({ user, perfil, onClose, onEnviada, puntuacionInicial = 5 }) => {
   const nombreInicial = [perfil?.nombre, perfil?.apellido].filter(Boolean).join(' ');
   const [nombre, setNombre] = useState(nombreInicial);
-  const [puntuacion, setPuntuacion] = useState(5);
+  const [puntuacion, setPuntuacion] = useState(puntuacionInicial);
   const [comentario, setComentario] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
@@ -110,12 +110,19 @@ const ModalResena = ({ user, perfil, onClose, onEnviada }) => {
 
     setEnviando(true);
     try {
+      // La IP solo sirve como freno de spam para quien no tiene cuenta.
+      // Con tiempo límite: si el servicio tarda o está bloqueado, no frena el envío.
       let ip = null;
-      try {
-        const r = await fetch('https://api.ipify.org?format=json');
-        ip = (await r.json()).ip;
-      } catch {
-        ip = null;
+      if (!user) {
+        try {
+          const control = new AbortController();
+          const corte = setTimeout(() => control.abort(), 3000);
+          const r = await fetch('https://api.ipify.org?format=json', { signal: control.signal });
+          clearTimeout(corte);
+          ip = (await r.json()).ip;
+        } catch {
+          ip = null;
+        }
       }
 
       const { data, error: err } = await supabase.rpc('crear_comentario_validado', {

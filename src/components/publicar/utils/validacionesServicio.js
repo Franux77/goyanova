@@ -1,3 +1,5 @@
+import { analizarWhatsapp, analizarWhatsappInternacional } from "../../../utils/whatsapp";
+
 // src/components/publicar/utils/validacionesServicio.js
 
 export const validarCamposRequeridos = (formData, setErrores) => {
@@ -26,15 +28,23 @@ export const validarCamposRequeridos = (formData, setErrores) => {
     }
   }
 
- // 🔹 Validación de WhatsApp (acepta números internacionales)
-const numeroLimpio = (formData.whatsapp || "").replace(/\D/g, "");
-if (!numeroLimpio) {
-  nuevosErrores.whatsapp = "El número de WhatsApp es obligatorio";
-} else if (numeroLimpio.length < 10) {
-  nuevosErrores.whatsapp = "El número debe tener al menos 10 dígitos (incluyendo código de país)";
-} else if (numeroLimpio.length > 15) {
-  nuevosErrores.whatsapp = "El número no puede tener más de 15 dígitos";
-}
+ // 🔹 Validación de WhatsApp: el campo ya guarda el número limpio solo cuando está completo
+  const numeroLimpio = (formData.whatsapp || "").replace(/\D/g, "");
+  if (!numeroLimpio) {
+    const escrito = (formData.whatsappTexto || "").trim();
+    if (escrito) {
+      const r = formData.whatsappExtranjero
+        ? analizarWhatsappInternacional(escrito)
+        : analizarWhatsapp(escrito);
+      nuevosErrores.whatsapp = `Revisá tu WhatsApp: ${(r.error || "el número no está completo").toLowerCase()}`;
+    } else {
+      nuevosErrores.whatsapp = "El número de WhatsApp es obligatorio";
+    }
+  } else if (numeroLimpio.length < 10) {
+    nuevosErrores.whatsapp = "El número de WhatsApp está incompleto";
+  } else if (numeroLimpio.length > 15) {
+    nuevosErrores.whatsapp = "El número de WhatsApp tiene demasiados dígitos";
+  }
 
   setErrores(nuevosErrores);
   return { esValido: Object.keys(nuevosErrores).length === 0, nuevosErrores };

@@ -6,6 +6,8 @@ import useContadoresPanelUsuario from '../../../hooks/useContadoresPanelUsuario'
 import { formatearBadge } from '../../../utils/contadoresPanel';
 import BottomNav from '../../navegacion/BottomNav';
 import MasSheetPanel from '../../navegacion/MasSheetPanel';
+import { useInstalarApp } from '../../../utils/instalarApp';
+import { BarraMovilPanel, MigasPanel } from '../EncabezadoSeccion';
 import './PanelUsuario.css';
 
 const ADMIN_EMAILS = [
@@ -28,6 +30,14 @@ const enlaces = [
   { to: 'ayuda', label: 'Ayuda / Soporte', icon: 'help' },
 ];
 
+// Para el título de arriba: secciones del menú + pantallas que no están en el menú
+const SECCIONES_TITULO = [
+  ...enlaces.filter((e) => e.to).map((e) => ({ nombre: e.label, ruta: `/panel/${e.to}`, icono: e.icon })),
+  { nombre: 'Solicitudes', ruta: '/panel/solicitudes', icono: 'inbox' },
+];
+// El formulario de publicar/editar ya tiene su propia barra con "volver"
+const SIN_BARRA_VOLVER = ['/panel/publicar', '/panel/editar-servicio'];
+
 const PanelUsuario = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -35,6 +45,7 @@ const PanelUsuario = () => {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [isAdmin, setIsAdmin] = useState(false);
   const [masAbierto, setMasAbierto] = useState(false);
+  const { yaInstalada } = useInstalarApp();
 
   const location = useLocation();
 
@@ -157,26 +168,23 @@ const PanelUsuario = () => {
     <div className="panel-usuario-layout">
       {isMobile && (
         <header className="panel-mobile-header">
-          <button
-            className="panel-hamburger-btn"
-            onClick={() => setMasAbierto(true)}
-            aria-label="Abrir menú"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-          
-          <div className="panel-mobile-logo">
-            <img 
-              src="/assets/GoyaNova_20250918_144009_0000.png" 
-              alt="Logo GoyaNova" 
-              className="panel-logo-img-mobile"
-            />
-            <span className="panel-logo-text">GoyaNova</span>
-          </div>
-
-          <div className="panel-mobile-spacer"></div>
+          <BarraMovilPanel
+            secciones={SECCIONES_TITULO}
+            rutaInicio="/panel/dashboard"
+            nombreInicio="Mi Panel"
+            ocultarEn={SIN_BARRA_VOLVER}
+            onMenu={() => setMasAbierto(true)}
+            logo={
+              <div className="panel-mobile-logo">
+                <img
+                  src="/assets/GoyaNova_20250918_144009_0000.png"
+                  alt="Logo GoyaNova"
+                  className="panel-logo-img-mobile"
+                />
+                <span className="panel-logo-text">GoyaNova</span>
+              </div>
+            }
+          />
         </header>
       )}
 
@@ -294,6 +302,14 @@ const PanelUsuario = () => {
       </aside>
 
       <main className="panel-main-content">
+        {!isMobile && (
+          <MigasPanel
+            secciones={SECCIONES_TITULO}
+            rutaInicio="/panel/dashboard"
+            nombreInicio="Mi Panel"
+            ocultarEn={SIN_BARRA_VOLVER}
+          />
+        )}
         <Outlet
           context={{
             misServicios,
@@ -330,11 +346,14 @@ const PanelUsuario = () => {
             ? { nombre: 'Cambiar a Panel Admin', icon: 'admin_panel_settings', onClick: handleCambiarAAdmin }
             : null
         }
-        items={enlaces.map((item, index) =>
-          item.type === 'button' && item.action === 'publicar'
-            ? { label: 'Publicar Servicio', icon: 'add_circle', onClick: handleIrAPublicar, key: `btn-${index}` }
-            : { to: `/panel/${item.to}`, label: item.label, icon: item.icon, badge: contadores[item.to] }
-        )}
+        items={[
+          ...enlaces.map((item, index) =>
+            item.type === 'button' && item.action === 'publicar'
+              ? { label: 'Publicar Servicio', icon: 'add_circle', onClick: handleIrAPublicar, key: `btn-${index}` }
+              : { to: `/panel/${item.to}`, label: item.label, icon: item.icon, badge: contadores[item.to] }
+          ),
+          ...(yaInstalada ? [] : [{ to: '/instalar', label: 'Instalar la app', icon: 'install_mobile' }]),
+        ]}
         onSalir={handleSalir}
       />
     </div>

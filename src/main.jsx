@@ -5,6 +5,10 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { NotificationProvider } from './contexts/NotificationsProvider.jsx';
 import 'leaflet/dist/leaflet.css';
+import { iniciarCapturaInstalacion } from './utils/instalarApp';
+
+// Antes de dibujar la app: Chrome avisa una sola vez que se puede instalar
+iniciarCapturaInstalacion();
 
 
 createRoot(document.getElementById('root')).render(

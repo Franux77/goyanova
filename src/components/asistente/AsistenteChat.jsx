@@ -25,7 +25,30 @@ const MENSAJE_BIENVENIDA = {
   content: '¡Hola! 👋 Soy el asistente de GoyaNova. Puedo ayudarte a publicar un servicio, encontrar algo, reportar contenido, entender los planes o cualquier duda sobre la plataforma. ¿En qué te ayudo?'
 };
 
+// Preguntas que la gente hace siempre: un toque y se envían
+const PREGUNTAS_RAPIDAS = [
+  '¿Cómo publico mi servicio?',
+  '¿Cuánto cuesta publicar?',
+  'Busco a alguien para un trabajo',
+  '¿Cómo dejo una reseña?',
+];
+
+const WSP_SOPORTE = 'https://wa.me/5493777599800?text=' + encodeURIComponent('Hola GoyaNova, tengo una consulta');
+const CLAVE_CHARLA = 'asistente_charla';
+
+// La charla se guarda mientras dure la visita (si cambia de página no se pierde)
+const leerCharla = () => {
+  try {
+    const g = JSON.parse(sessionStorage.getItem(CLAVE_CHARLA));
+    if (g && Array.isArray(g.mensajes) && g.mensajes.length) return g;
+  } catch { /* nada guardado */ }
+  return null;
+};
+
 const MARGEN = 16;
+// En el celular hay una barra de navegación abajo: el botón nunca va encima de ella
+const RESERVA_ABAJO_CELULAR = 92;
+const reservaAbajo = () => (window.innerWidth < 1024 ? RESERVA_ABAJO_CELULAR : MARGEN);
 const TAMANO_BOTON = 50;
 const ZONA_CERRAR_ALTO = 70;
 const ZONA_CERRAR_ANCHO = 160;
@@ -34,7 +57,7 @@ const ZONA_CERRAR_ANCHO = 160;
 let ocultoEnEstaCarga = false;
 
 const limitarAPantalla = ({ top, left }) => ({
-  top: Math.min(Math.max(top, MARGEN), window.innerHeight - TAMANO_BOTON - MARGEN),
+  top: Math.min(Math.max(top, MARGEN), window.innerHeight - TAMANO_BOTON - reservaAbajo()),
   left: Math.min(Math.max(left, MARGEN), window.innerWidth - TAMANO_BOTON - MARGEN)
 });
 
@@ -64,7 +87,10 @@ const formatearMensaje = (texto) =>
       const puntuacionFinal = coincidencia.match(/[.,;:!?)\]]+$/);
       const sufijo = puntuacionFinal ? puntuacionFinal[0] : '';
       const url = sufijo ? coincidencia.slice(0, -sufijo.length) : coincidencia;
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 600;">${url}</a>${sufijo}`;
+      // Los links de GoyaNova se abren en la misma pestaña; los de afuera, en otra
+      const propio = /^https?:\/\/(www\.)?goyanova\.com\.ar/i.test(url);
+      const destino = propio ? '' : ' target="_blank" rel="noopener noreferrer"';
+      return `<a href="${url}"${destino} style="color: inherit; text-decoration: underline; font-weight: 600;">${url}</a>${sufijo}`;
     }
   );
 
@@ -73,12 +99,12 @@ const AsistenteChat = () => {
   const [ocultoPorUsuario, setOcultoPorUsuario] = useState(ocultoEnEstaCarga);
   const [mostrandoZonaCerrar, setMostrandoZonaCerrar] = useState(false);
   const [sobreZonaCerrar, setSobreZonaCerrar] = useState(false);
-  const [mensajes, setMensajes] = useState([MENSAJE_BIENVENIDA]);
+  const [mensajes, setMensajes] = useState(() => leerCharla()?.mensajes || [MENSAJE_BIENVENIDA]);
   const [texto, setTexto] = useState('');
   const [cargando, setCargando] = useState(false);
   // Valoración (1 a 5 estrellas) por cada respuesta del asistente, guardada por índice de mensaje.
   // Es opcional y silenciosa: no se le pregunta nada por texto, solo puede tocar una estrella si quiere.
-  const [valoraciones, setValoraciones] = useState({});
+  const [valoraciones, setValoraciones] = useState(() => leerCharla()?.valoraciones || {});
   const scrollRef = useRef(null);
   const botonRef = useRef(null);
 
@@ -99,7 +125,7 @@ const AsistenteChat = () => {
       } catch { /* ignorar */ }
     }
     return {
-      top: window.innerHeight - TAMANO_BOTON - MARGEN * 2,
+      top: window.innerHeight - TAMANO_BOTON - reservaAbajo() - MARGEN,
       left: window.innerWidth - TAMANO_BOTON - MARGEN
     };
   });
@@ -111,8 +137,29 @@ const AsistenteChat = () => {
   const sobreZonaCerrarRef = useRef(false);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [mensajes, abierto]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(CLAVE_CHARLA, JSON.stringify({ mensajes: mensajes.slice(-40), valoraciones }));
+    } catch { /* modo privado */ }
+  }, [mensajes, valoraciones]);
+
+  // En el celular el chat ocupa toda la pantalla: se frena el scroll de atrás
+  useEffect(() => {
+    if (!abierto || window.innerWidth > 480) return undefined;
+    const previo = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previo; };
+  }, [abierto]);
+
+  // Si se achica la ventana (o gira el celular), el botón vuelve a un lugar visible
+  useEffect(() => {
+    const alCambiar = () => setPos((p) => limitarAPantalla(p));
+    window.addEventListener('resize', alCambiar);
+    return () => window.removeEventListener('resize', alCambiar);
+  }, []);
 
   const iniciarArrastre = (clientX, clientY) => {
     arrastrando.current = true;
@@ -187,8 +234,14 @@ const AsistenteChat = () => {
     setAbierto(true);
   };
 
-  const enviarMensaje = async () => {
-    const contenido = texto.trim();
+  const nuevaCharla = () => {
+    setMensajes([MENSAJE_BIENVENIDA]);
+    setValoraciones({});
+    setTexto('');
+  };
+
+  const enviarMensaje = async (textoDirecto) => {
+    const contenido = (typeof textoDirecto === 'string' ? textoDirecto : texto).trim();
     if (!contenido || cargando) return;
 
     const nuevosMensajes = [...mensajes, { role: 'user', content: contenido }];
@@ -306,9 +359,16 @@ const AsistenteChat = () => {
                 <span>Te ayudo con lo que necesites</span>
               </div>
             </div>
-            <button className="asistente-cerrar" onClick={() => setAbierto(false)}>
-              <span className="material-icons">close</span>
-            </button>
+            <div className="asistente-header-acciones">
+              {mensajes.length > 1 && (
+                <button className="asistente-cerrar" onClick={nuevaCharla} aria-label="Empezar de nuevo" title="Empezar de nuevo">
+                  <span className="material-icons">restart_alt</span>
+                </button>
+              )}
+              <button className="asistente-cerrar" onClick={() => setAbierto(false)} aria-label="Cerrar">
+                <span className="material-icons">close</span>
+              </button>
+            </div>
           </div>
 
           <div className="asistente-mensajes">
@@ -323,26 +383,32 @@ const AsistenteChat = () => {
                     {valoraciones[i] ? (
                       <span className="asistente-valoracion-gracias">
                         <span className="material-icons">favorite</span>
-                        ¡Gracias por tu opinión!
+                        ¡Gracias!
                       </span>
                     ) : (
-                      [1, 2, 3, 4, 5].map(estrella => (
-                        <button
-                          key={estrella}
-                          type="button"
-                          className="asistente-valoracion-estrella"
-                          onClick={() => valorarRespuesta(i, estrella)}
-                          aria-label={`Calificar con ${estrella} estrella${estrella > 1 ? 's' : ''}`}
-                          title="¿Qué te pareció esta respuesta?"
-                        >
-                          <span className="material-icons">star</span>
+                      <>
+                        <span className="asistente-valoracion-pregunta">¿Te sirvió?</span>
+                        <button type="button" className="asistente-pulgar" onClick={() => valorarRespuesta(i, 5)} aria-label="Me sirvió">
+                          <span className="material-icons">thumb_up</span>
                         </button>
-                      ))
+                        <button type="button" className="asistente-pulgar" onClick={() => valorarRespuesta(i, 1)} aria-label="No me sirvió">
+                          <span className="material-icons">thumb_down</span>
+                        </button>
+                      </>
                     )}
                   </div>
                 )}
               </React.Fragment>
             ))}
+            {mensajes.length === 1 && !cargando && (
+              <div className="asistente-sugerencias">
+                {PREGUNTAS_RAPIDAS.map((pregunta) => (
+                  <button key={pregunta} type="button" className="asistente-chip" onClick={() => enviarMensaje(pregunta)}>
+                    {pregunta}
+                  </button>
+                ))}
+              </div>
+            )}
             {cargando && (
               <div className="asistente-burbuja assistant asistente-escribiendo">
                 <span></span><span></span><span></span>
@@ -350,6 +416,11 @@ const AsistenteChat = () => {
             )}
             <div ref={scrollRef} />
           </div>
+
+          <a href={WSP_SOPORTE} target="_blank" rel="noopener noreferrer" className="asistente-persona">
+            <span className="material-icons">support_agent</span>
+            ¿Preferís hablar con una persona? Escribinos por WhatsApp
+          </a>
 
           <div className="asistente-input-row">
             <input
@@ -359,8 +430,10 @@ const AsistenteChat = () => {
               onKeyDown={handleKeyDown}
               placeholder="Escribí tu pregunta..."
               disabled={cargando}
+              aria-label="Tu pregunta"
+              enterKeyHint="send"
             />
-            <button onClick={enviarMensaje} disabled={cargando || !texto.trim()}>
+            <button onClick={() => enviarMensaje()} disabled={cargando || !texto.trim()} aria-label="Enviar">
               <span className="material-icons">send</span>
             </button>
           </div>

@@ -1,0 +1,179 @@
+/* Encabezado de sección de los paneles */
+
+/* ---------- Celular (dentro de la barra fija de arriba) ---------- */
+.enc-movil {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.enc-movil-boton {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(23, 116, 246, 0.08);
+  color: #1e3a8a;
+  cursor: pointer;
+}
+
+.enc-movil-boton .material-icons {
+  font-size: 24px;
+}
+
+.enc-movil-espacio {
+  flex: 0 0 40px;
+}
+
+.enc-movil-logo {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.enc-movil-volver {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 38px;
+  padding: 0 12px 0 6px;
+  border: none;
+  border-radius: 12px;
+  background: #1774f6;
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(23, 116, 246, 0.25);
+  cursor: pointer;
+}
+
+.enc-movil-volver .material-icons {
+  font-size: 20px;
+}
+
+.enc-movil-volver:active {
+  transform: scale(0.97);
+}
+
+.enc-movil-titulo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #0f172a;
+}
+
+.enc-movil-titulo .material-icons {
+  flex: 0 0 auto;
+  font-size: 19px;
+  color: #1774f6;
+}
+
+.enc-movil-titulo strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+@media (max-width: 360px) {
+  .enc-movil-volver-texto {
+    display: none;
+  }
+
+  .enc-movil-volver {
+    padding: 0 8px;
+  }
+}
+
+/* ---------- PC: migas arriba del contenido ---------- */
+.enc-migas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+.enc-migas-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 10px;
+  background: #eaf2ff;
+  color: #0f5cc9;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.enc-migas-volver:hover {
+  background: #dbe8ff;
+}
+
+.enc-migas-volver .material-icons {
+  font-size: 19px;
+}
+
+.enc-migas-ruta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b;
+}
+
+.enc-migas-ruta a {
+  color: #64748b;
+  text-decoration: none;
+}
+
+.enc-migas-ruta a:hover {
+  color: #1774f6;
+  text-decoration: underline;
+}
+
+.enc-migas-ruta > .material-icons {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.enc-migas-ruta strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.enc-migas-ruta strong .material-icons {
+  font-size: 18px;
+  color: #1774f6;
+}
+
+/* La barra de arriba de los paneles necesita menos margen con los botones nuevos */
+.admin-mobile-header,
+.panel-mobile-header {
+  padding: 0 8px !important;
+}

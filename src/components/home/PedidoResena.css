@@ -1,0 +1,123 @@
+/* Tarjeta chica que pide la reseña (no tapa la página) */
+.pedido-resena {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  z-index: 1150;
+  width: min(380px, calc(100% - 28px));
+  box-sizing: border-box;
+  padding: 14px 16px 10px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  transform: translateX(-50%);
+  animation: pedidoResenaEntrar 0.35s ease-out;
+}
+
+@keyframes pedidoResenaEntrar {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.pedido-resena-cerrar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.pedido-resena-cerrar .material-icons {
+  font-size: 20px;
+}
+
+.pedido-resena-titulo {
+  margin: 0 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pedido-resena-sub {
+  margin: 4px 0 0;
+  font-size: 0.83rem;
+  color: #64748b;
+}
+
+.pedido-resena-estrellas {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.pedido-resena-estrellas button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.pedido-resena-estrellas .material-icons {
+  font-size: 34px;
+}
+
+/* Al pasar por una estrella se pintan esa y las anteriores */
+.pedido-resena-estrellas:hover button,
+.pedido-resena-estrellas button:focus-visible {
+  color: #f5b301;
+}
+
+.pedido-resena-estrellas button:hover ~ button {
+  color: #cbd5e1;
+}
+
+.pedido-resena-estrellas button:active {
+  transform: scale(0.9);
+}
+
+.pedido-resena-luego {
+  margin-top: 2px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: #64748b;
+  font: 500 0.82rem 'Inter', sans-serif;
+  cursor: pointer;
+}
+
+@media (min-width: 769px) {
+  .pedido-resena {
+    left: 24px;
+    bottom: 24px;
+    transform: none;
+    animation-name: pedidoResenaEntrarPc;
+  }
+
+  @keyframes pedidoResenaEntrarPc {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pedido-resena {
+    animation: none;
+  }
+}

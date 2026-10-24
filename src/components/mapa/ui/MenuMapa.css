@@ -1,0 +1,249 @@
+/* Menú del mapa: mismo lenguaje que la hoja "Más" de la web */
+.mm-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: rgba(15, 23, 42, 0.45);
+  animation: mmAparecer 0.2s ease;
+}
+
+.mm-fondo-pc {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.mm-menu {
+  position: fixed;
+  z-index: 1301;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #0f172a;
+}
+
+.mm-menu * {
+  box-sizing: border-box;
+}
+
+/* Celular: hoja que sube desde abajo */
+.mm-cel {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 8px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.2);
+  animation: mmSubir 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* PC: tarjeta debajo del botón del menú, dentro del panel izquierdo */
+.mm-pc {
+  top: 117px;
+  left: 96px;
+  width: 308px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  animation: mmBajar 0.18s ease;
+}
+
+@keyframes mmAparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mmSubir {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes mmBajar {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mm-manija {
+  display: block;
+  width: 40px;
+  height: 5px;
+  margin: 0 auto 10px;
+  border-radius: 999px;
+  background: #d5dbe5;
+}
+
+.mm-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 12px;
+}
+
+.mm-cabecera img {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.mm-cabecera div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.mm-cabecera strong {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mm-cabecera span {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.mm-cerrar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+}
+
+.mm-principales {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mm-mosaico {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #eaf2ff;
+  color: #0f5cc9;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+
+.mm-mosaico .material-icons {
+  font-size: 24px;
+}
+
+.mm-mosaico:hover {
+  background: #dce9ff;
+}
+
+.mm-mosaico:active {
+  transform: scale(0.98);
+}
+
+.mm-verde {
+  background: #e7f8f1;
+  color: #059669;
+}
+
+.mm-verde:hover {
+  background: #d4f3e6;
+}
+
+.mm-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.mm-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 8px;
+  border-radius: 12px;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mm-item:hover,
+.mm-item:active {
+  background: #f5f8ff;
+}
+
+.mm-item-icono {
+  font-size: 22px;
+  color: #1774f6;
+}
+
+.mm-flecha {
+  margin-left: auto;
+  font-size: 20px;
+  color: #cbd5e1;
+}
+
+.mm-pie {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #eef1f6;
+}
+
+.mm-pie-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: #1774f6;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mm-pie-item .material-icons {
+  font-size: 22px;
+}
+
+.mm-pie-item:hover,
+.mm-pie-item:active {
+  background: #f5f8ff;
+}
+
+.mm-salir {
+  color: #d92d20;
+}
+
+.mm-salir:hover {
+  background: #fef3f2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-fondo,
+  .mm-cel,
+  .mm-pc {
+    animation: none;
+  }
+}

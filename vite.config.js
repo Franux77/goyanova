@@ -30,5 +30,14 @@ export default defineConfig({
   // 🆕 Mejora el prefetch/preload
   server: {
     preTransformRequests: true,
+    // En la compu (npm run dev) no existen las funciones de Netlify: el asistente
+    // usa la del sitio publicado. Solo afecta al modo desarrollo, no al sitio real.
+    proxy: {
+      '/api/asistente-chat': {
+        target: 'https://goyanova.com.ar',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })

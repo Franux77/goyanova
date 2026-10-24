@@ -16,6 +16,7 @@ import { supabase } from '../../../utils/supabaseClient';
 import { getNivelWhatsapp } from '../../../utils/whatsappPlan';
 import EstadoActividad from './EstadoActividad';
 import './ResumenPerfil.css';
+import { numeroParaWhatsapp } from '../../../utils/whatsapp';
 
 const coloresSuaves = [
   '#e3f2fd', '#e8f5e9', '#f3e5f5', '#fff9c4', '#ffe0b2', '#e1bee7', '#b2dfdb'
@@ -171,7 +172,7 @@ useEffect(() => {
   const descripcion = perfil.descripcion || 'Sin descripción';
   const mostrarVerMas = descripcion.length > 120;
 
-  const whatsappNumero = perfil.contacto_whatsapp || '549000000000';
+  const whatsappNumero = numeroParaWhatsapp(perfil.contacto_whatsapp) || '549000000000';
   const mensajePredefinido = perfil.whatsapp_mensaje_personalizado?.trim();
   const contactoUrl = mensajePredefinido
     ? `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensajePredefinido)}`

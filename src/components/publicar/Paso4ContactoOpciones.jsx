@@ -1,11 +1,111 @@
 import React, { useState, useEffect } from "react";
-import PhoneInput from "react-phone-input-2";
-import 'react-phone-input-2/lib/style.css';
+import { analizarWhatsapp, analizarWhatsappInternacional, enlaceWhatsapp } from "../../utils/whatsapp";
 import { supabase } from "../../utils/supabaseClient";
 import { useCaracteristicasPlan } from "../../hooks/useCaracteristicasPlan";
 import "./Paso4ContactoOpciones.css";
 
-const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) => {
+/* Campo de WhatsApp que se corrige solo mientras la persona escribe:
+   saca el 0 y el 15, agrega el 3777 si falta y avisa cuántos números faltan. */
+const CampoWhatsapp = ({ formData, setFormData, errores, setErrores }) => {
+  const guardado = formData.whatsapp || "";
+  const esExtranjero = !!formData.whatsappExtranjero;
+
+  // Lo que se ve en el campo: lo que escribió, o el número guardado si viene de antes
+  const [texto, setTexto] = useState(() => {
+    if (formData.whatsappTexto) return formData.whatsappTexto;
+    if (!guardado) return "";
+    if (esExtranjero) return `+${guardado}`;
+    const r = analizarWhatsapp(guardado);
+    return r.valido ? r.visible.replace("+54 9 ", "") : guardado;
+  });
+  const [tocado, setTocado] = useState(false);
+
+  const analisis = esExtranjero ? analizarWhatsappInternacional(texto) : analizarWhatsapp(texto);
+
+  const actualizar = (valor, extranjero = esExtranjero) => {
+    setTexto(valor);
+    const r = extranjero ? analizarWhatsappInternacional(valor) : analizarWhatsapp(valor);
+    setFormData({
+      ...formData,
+      whatsapp: r.valido ? r.numero : "",
+      whatsappTexto: valor,
+      whatsappExtranjero: extranjero,
+    });
+    setErrores((prev) => ({ ...prev, whatsapp: r.valido || !valor ? "" : r.error }));
+  };
+
+  const cambiarPais = () => actualizar("", !esExtranjero);
+
+  // El error se muestra recién cuando deja el campo (o si ya intentó publicar)
+  const mostrarError = !analisis.valido && texto && (tocado || errores.whatsapp) && !analisis.incompleto;
+  const mostrarFalta = !analisis.valido && texto && analisis.incompleto;
+
+  return (
+    <div className="psf-campo">
+      <label className="psf-label" htmlFor="psf-whatsapp">
+        Tu número de WhatsApp
+      </label>
+      <p className="psf-ayuda">
+        {esExtranjero
+          ? "Escribí el número completo con el código del país."
+          : "Escribilo como te salga: con o sin 0, con o sin 15. Lo acomodamos solos."}
+      </p>
+
+      <div className={`psf-wsp ${analisis.valido ? "ok" : ""} ${mostrarError || (errores.whatsapp && !texto) ? "error" : ""}`}>
+        <span className="psf-wsp-pais" aria-hidden="true">
+          {esExtranjero ? "🌎 +" : "🇦🇷 +54 9"}
+        </span>
+        <input
+          id="psf-whatsapp"
+          name="whatsapp"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel-national"
+          placeholder={esExtranjero ? "Ej: 595 981 123456" : "Ej: 3777 41-2345"}
+          value={texto}
+          onChange={(e) => actualizar(e.target.value.replace(/[^\d\s()+-]/g, "").slice(0, 22))}
+          onBlur={() => setTocado(true)}
+          aria-invalid={!!mostrarError}
+          aria-describedby="psf-wsp-estado"
+        />
+        {analisis.valido && <span className="material-icons psf-wsp-check" aria-hidden="true">check_circle</span>}
+      </div>
+
+      <div id="psf-wsp-estado" className="psf-wsp-estado" aria-live="polite">
+        {analisis.valido ? (
+          <>
+            <p className="psf-wsp-listo">
+              <span className="material-icons">verified</span>
+              Te van a escribir al <strong>{analisis.visible}</strong>
+            </p>
+            {analisis.aviso && <p className="psf-wsp-aviso">{analisis.aviso}</p>}
+            <a
+              href={enlaceWhatsapp(analisis.numero, "Hola, esto es una prueba desde GoyaNova")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="psf-wsp-probar"
+            >
+              <span className="material-icons">open_in_new</span>
+              Probar que abre mi WhatsApp
+            </a>
+          </>
+        ) : mostrarFalta ? (
+          <p className="psf-wsp-falta">{analisis.error}…</p>
+        ) : mostrarError ? (
+          <p className="psf-error">{analisis.error}</p>
+        ) : errores.whatsapp && !texto ? (
+          <p className="psf-error">{errores.whatsapp}</p>
+        ) : null}
+      </div>
+
+      <button type="button" className="psf-link-boton" onClick={cambiarPais}>
+        {esExtranjero ? "Mi número es de Argentina" : "Mi número es de otro país"}
+      </button>
+    </div>
+  );
+};
+
+const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores, parte = "todo" }) => {
   const { tiene, cargando } = useCaracteristicasPlan();
   const [catalogoPagos, setCatalogoPagos] = useState([]);
 
@@ -24,22 +124,6 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
 
     cargarCatalogo();
   }, [tiene]);
-
-  const handleChange = (value, country) => {
-    // value viene con el código de país incluido (ej: "543777209955")
-    setFormData({ ...formData, whatsapp: value });
-
-    // Validar longitud mínima (código país + al menos 8 dígitos)
-    const numeroSinCodigo = value.replace(country.dialCode, "");
-
-    if (!value || value === country.dialCode) {
-      setErrores(prev => ({ ...prev, whatsapp: "El número de WhatsApp es obligatorio" }));
-    } else if (numeroSinCodigo.length < 8) {
-      setErrores(prev => ({ ...prev, whatsapp: "El número debe tener al menos 8 dígitos" }));
-    } else {
-      setErrores(prev => ({ ...prev, whatsapp: "" }));
-    }
-  };
 
   const handleOtherChange = (e) => {
     const { name, value } = e.target;
@@ -72,62 +156,14 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
     setFormData({ ...formData, metodos_pago: nuevos });
   };
 
-  const generarLinkWhatsapp = (numero) => {
-    // Limpiar completamente el número (sin espacios ni caracteres especiales)
-    const limpio = numero.replace(/\D/g, "");
-    return `https://wa.me/${limpio}`;
-  };
-
-  // Verificar si el número es válido para mostrar el link
-  const numeroValido = formData.whatsapp && formData.whatsapp.replace(/\D/g, "").length >= 10;
-
   return (
     <div className="paso4-container">
-      <h3>Paso 4: ¿Cómo te contactan?</h3>
+      {parte !== "extras" && (
+        <CampoWhatsapp formData={formData} setFormData={setFormData} errores={errores} setErrores={setErrores} />
+      )}
 
-      <div className="paso4-group">
-        <label>Tu número de WhatsApp *</label>
-        <p className="paso4-hint">
-          Poné tu número de celu (sin espacios)
-        </p>
-        <PhoneInput
-          country={"ar"}
-          value={formData.whatsapp || ""}
-          onChange={handleChange}
-          inputProps={{
-            name: "whatsapp",
-            required: true,
-            autoFocus: false,
-          }}
-          placeholder="37772020526"
-          enableSearch={true}
-          countryCodeEditable={false}
-          disableCountryCode={false}
-          specialLabel=""
-          containerClass="paso4-phone-container"
-          inputClass={`paso4-phone-input ${errores.whatsapp ? 'input-error' : ''}`}
-          buttonClass="paso4-phone-button"
-          dropdownClass="paso4-phone-dropdown"
-        />
-
-        {errores.whatsapp && <p className="paso4-error">{errores.whatsapp}</p>}
-
-        <p className="paso4-hint">
-          Ejemplo: +54 3777 123123 (elegí tu país arriba)
-        </p>
-
-        {numeroValido && (
-          <a
-            href={generarLinkWhatsapp(formData.whatsapp)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="paso4-whatsapp-link"
-          >
-            🔗 Probar enlace de WhatsApp
-          </a>
-        )}
-      </div>
-
+      {parte !== "whatsapp" && (
+      <>
       <div className="paso4-group">
         <label>Tu email (si querés)</label>
         <input
@@ -141,7 +177,7 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
         {errores.email && <p className="paso4-error">{errores.email}</p>}
       </div>
 
-      <h3>Tus redes (si tenés)</h3>
+      <h3 className="psf-subtitulo">Tus redes</h3>
 
       <div className="paso4-group">
         <label>Instagram</label>
@@ -286,6 +322,8 @@ const Paso4ContactoOpciones = ({ formData, setFormData, errores, setErrores }) =
             placeholder="Ej: Aceptamos devoluciones dentro de las 48hs con ticket. Los pedidos se preparan con 1 día de anticipación..."
           />
         </div>
+      )}
+      </>
       )}
     </div>
   );

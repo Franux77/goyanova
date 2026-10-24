@@ -1,453 +1,543 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../../auth/useAuth';
 import { llamarEmail } from '../../utils/llamarEmail';
-import NavbarGeneral from '../home/NavbarGeneral'; // 🔥 Importar aquí
-import Loading from '../loading/Loading';
+import { useInstalarApp } from '../../utils/instalarApp';
+import NavbarGeneral from '../home/NavbarGeneral';
+import { GUIAS, iconoCategoriaFaq, normalizar } from './guiasAyuda';
 import './AyudaPublica.css';
+
+const WHATSAPP_SOPORTE = '5493777599800';
+const EMAIL_SOPORTE = 'goyanovasoporte@gmail.com';
+const SUGERENCIAS = ['Publicar', 'Contraseña', 'Mapa', 'Instalar', 'Planes', 'Fotos'];
+
+const linkWhatsApp = (texto) =>
+  `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent(texto)}`;
+
+/* ---------- Ventana con los pasos de una guía ---------- */
+const VentanaGuia = ({ guia, onCerrar }) => {
+  const { puedeInstalar, yaInstalada, instalar } = useInstalarApp();
+
+  useEffect(() => {
+    const alTeclear = (e) => e.key === 'Escape' && onCerrar();
+    window.addEventListener('keydown', alTeclear);
+    const overflowPrevio = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', alTeclear);
+      document.body.style.overflow = overflowPrevio;
+    };
+  }, [onCerrar]);
+
+  return (
+    <div className="ay-modal-fondo" onClick={onCerrar}>
+      <div
+        className="ay-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ay-modal-titulo"
+        onClick={(e) => e.stopPropagation()}
+        style={{ '--ay-color': guia.color }}
+      >
+        <span className="ay-manija" aria-hidden="true" />
+        <div className="ay-modal-cabecera">
+          <span className="ay-guia-icono">
+            <span className="material-icons">{guia.icono}</span>
+          </span>
+          <div>
+            <h2 id="ay-modal-titulo">{guia.titulo}</h2>
+            <p>{guia.resumen}</p>
+          </div>
+          <button type="button" className="ay-cerrar" onClick={onCerrar} aria-label="Cerrar">
+            <span className="material-icons">close</span>
+          </button>
+        </div>
+
+        <ol className="ay-pasos">
+          {guia.pasos.map((paso, i) => (
+            <li key={i}>
+              <span className="ay-paso-num">{i + 1}</span>
+              <p>{paso}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div className="ay-modal-acciones">
+          {guia.instalar && yaInstalada && (
+            <p className="ay-instalada">
+              <span className="material-icons">check_circle</span>
+              Ya tenés GoyaNova instalada en este dispositivo.
+            </p>
+          )}
+          {guia.instalar && !yaInstalada && puedeInstalar && (
+            <button type="button" className="ay-boton ay-boton-principal" onClick={instalar}>
+              <span className="material-icons">download</span>
+              Instalar ahora
+            </button>
+          )}
+          {guia.accion && (
+            <Link
+              to={guia.accion.to}
+              className={`ay-boton ${guia.instalar && puedeInstalar ? 'ay-boton-sec' : 'ay-boton-principal'}`}
+              onClick={onCerrar}
+            >
+              {guia.accion.texto}
+              <span className="material-icons">arrow_forward</span>
+            </Link>
+          )}
+          <a
+            className="ay-link-ayuda"
+            href={linkWhatsApp(`Hola GoyaNova, necesito ayuda con: ${guia.titulo}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ¿Seguís con dudas? Escribinos por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- Una pregunta frecuente ---------- */
+const Pregunta = ({ faq, abierta, onAlternar }) => (
+  <div className={`ay-faq ${abierta ? 'abierta' : ''}`}>
+    <button type="button" className="ay-faq-pregunta" onClick={onAlternar} aria-expanded={abierta}>
+      <span>{faq.pregunta}</span>
+      <span className="material-icons">expand_more</span>
+    </button>
+    {abierta && <p className="ay-faq-respuesta">{faq.respuesta}</p>}
+  </div>
+);
 
 const AyudaPublica = () => {
   const { user } = useAuth();
+  const { yaInstalada } = useInstalarApp();
   const [busqueda, setBusqueda] = useState('');
-  const [expandido, setExpandido] = useState(null);
+  const [faqAbierta, setFaqAbierta] = useState(null);
   const [categoriaActiva, setCategoriaActiva] = useState('todas');
   const [categoriasFaqs, setCategoriasFaqs] = useState([]);
   const [faqs, setFaqs] = useState([]);
   const [tutoriales, setTutoriales] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [guiaAbierta, setGuiaAbierta] = useState(null);
+  const cerrarGuia = useCallback(() => setGuiaAbierta(null), []);
+
+  const [formAbierto, setFormAbierto] = useState(false);
   const [form, setForm] = useState({ nombre: '', email: '', asunto: '', mensaje: '' });
   const [enviando, setEnviando] = useState(false);
-  const [mensajeEstado, setMensajeEstado] = useState(null);
-  const [cargando, setCargando] = useState(true);
+  const [estadoEnvio, setEstadoEnvio] = useState(null);
 
   useEffect(() => {
-    cargarDatos();
+    window.scrollTo(0, 0);
+    const cargar = async () => {
+      try {
+        const [cats, preguntas, tuts] = await Promise.all([
+          supabase.from('categorias_faqs').select('*').eq('activo', true).order('orden', { ascending: true }),
+          supabase
+            .from('faqs')
+            .select('*, categorias_faqs (nombre, icono)')
+            .eq('activo', true)
+            .eq('visible', true)
+            .order('orden', { ascending: true }),
+          supabase.from('tutoriales').select('*').eq('activo', true).eq('visible', true).order('orden', { ascending: true }),
+        ]);
+        setCategoriasFaqs(cats.data || []);
+        setFaqs(preguntas.data || []);
+        setTutoriales(tuts.data || []);
+      } catch (error) {
+        console.error('Error al cargar la ayuda:', error);
+      } finally {
+        setCargando(false);
+      }
+    };
+    cargar();
   }, []);
 
-  const cargarDatos = async () => {
-    try {
-      setCargando(true);
+  // Si hay sesión, el formulario ya viene con el nombre y el email
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      nombre: f.nombre || user.user_metadata?.nombre || user.user_metadata?.full_name || '',
+      email: f.email || user.email || '',
+    }));
+  }, [user]);
 
-      // Cargar categorías
-      const { data: cats } = await supabase
-        .from('categorias_faqs')
-        .select('*')
-        .eq('activo', true)
-        .order('orden', { ascending: true });
+  const texto = normalizar(busqueda.trim());
+  const buscando = texto.length > 1;
 
-      setCategoriasFaqs(cats || []);
+  const guiasEncontradas = useMemo(() => {
+    if (!buscando) return GUIAS;
+    return GUIAS.filter((g) =>
+      normalizar(`${g.titulo} ${g.resumen} ${g.palabras} ${g.pasos.join(' ')}`).includes(texto)
+    );
+  }, [buscando, texto]);
 
-      // Cargar FAQs - Solo las visibles públicamente
-      const { data: faqsData } = await supabase
-        .from('faqs')
-        .select(`
-          *,
-          categorias_faqs (
-            nombre,
-            icono
-          )
-        `)
-        .eq('activo', true)
-        .eq('visible', true)
-        .order('orden', { ascending: true });
+  const faqsFiltradas = useMemo(
+    () =>
+      faqs.filter((f) => {
+        const enCategoria = buscando || categoriaActiva === 'todas' || f.categorias_faqs?.nombre === categoriaActiva;
+        const coincide = !buscando || normalizar(`${f.pregunta} ${f.respuesta}`).includes(texto);
+        return enCategoria && coincide;
+      }),
+    [faqs, categoriaActiva, buscando, texto]
+  );
 
-      setFaqs(faqsData || []);
+  const sinResultados = buscando && guiasEncontradas.length === 0 && faqsFiltradas.length === 0;
 
-      // Cargar tutoriales - Solo los visibles públicamente
-      const { data: tutData } = await supabase
-        .from('tutoriales')
-        .select('*')
-        .eq('activo', true)
-        .eq('visible', true)
-        .order('orden', { ascending: true });
+  const cambiarCampo = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-      setTutoriales(tutData || []);
-
-    } catch (error) {
-      console.error('Error al cargar datos:', error);
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const enviarEmailBrevo = async (datos) => {
-    try {
-      // El servidor arma los mails (aviso a soporte + confirmación al visitante) y decide los destinatarios
-      const { ok } = await llamarEmail({
-        tipo: 'contacto',
-        origen: 'publica',
-        nombre: datos.nombre,
-        email: datos.email,
-        asunto: datos.asunto,
-        mensaje: datos.mensaje,
-      });
-      return ok;
-    } catch (error) {
-      console.error('Error al enviar email:', error);
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const enviarConsulta = async (e) => {
     e.preventDefault();
     setEnviando(true);
-    setMensajeEstado(null);
-
+    setEstadoEnvio(null);
     try {
-      // Guardar en base de datos
-      const { error: dbError } = await supabase
-        .from('mensajes_soporte')
-        .insert([{
+      const { error } = await supabase.from('mensajes_soporte').insert([
+        {
           usuario_id: user?.id || null,
           nombre: form.nombre,
           email: form.email,
           asunto: form.asunto,
           mensaje: form.mensaje,
-          estado: 'pendiente'
-        }]);
+          estado: 'pendiente',
+        },
+      ]);
+      if (error) throw error;
 
-      if (dbError) throw dbError;
-
-      // Enviar email
-      const emailEnviado = await enviarEmailBrevo(form);
-
-      if (emailEnviado) {
-        setMensajeEstado({
-          tipo: 'exito',
-          mensaje: '¡Mensaje enviado! Te responderemos en menos de 24 horas.'
-        });
-        setForm({ nombre: '', email: '', asunto: '', mensaje: '' });
-      } else {
-        throw new Error('Error al enviar email');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setMensajeEstado({
-        tipo: 'error',
-        mensaje: 'Error al enviar. Intenta de nuevo o escríbenos a goyanovasoporte@gmail.com'
+      // El servidor arma los mails (aviso a soporte + confirmación al visitante)
+      const { ok } = await llamarEmail({
+        tipo: 'contacto',
+        origen: 'publica',
+        nombre: form.nombre,
+        email: form.email,
+        asunto: form.asunto,
+        mensaje: form.mensaje,
       });
+      if (!ok) throw new Error('No se pudo enviar el mail');
+
+      setEstadoEnvio('ok');
+      setForm((f) => ({ ...f, asunto: '', mensaje: '' }));
+    } catch (error) {
+      console.error('Error al enviar la consulta:', error);
+      setEstadoEnvio('error');
     } finally {
       setEnviando(false);
-      setTimeout(() => setMensajeEstado(null), 5000);
     }
-  };
-
-  const togglePregunta = (id) => {
-    setExpandido(expandido === id ? null : id);
   };
 
   const abrirTutorial = async (tutorial) => {
     try {
       await supabase.rpc('incrementar_vistas_tutorial', { tutorial_id: tutorial.id });
-    } catch (error) {
-      console.error('Error al incrementar vistas:', error);
+    } catch {
+      // contar la vista no es importante
     }
-    
-    if (tutorial.url) {
-      window.open(tutorial.url, '_blank');
-    }
+    if (tutorial.url) window.open(tutorial.url, '_blank', 'noopener');
   };
-
-  const faqsFiltradas = faqs.filter(faq => {
-    const categoriaMatch = categoriaActiva === 'todas' || 
-      faq.categorias_faqs?.nombre === categoriaActiva;
-    
-    const busquedaMatch = !busqueda || 
-      faq.pregunta.toLowerCase().includes(busqueda.toLowerCase()) ||
-      faq.respuesta.toLowerCase().includes(busqueda.toLowerCase());
-    
-    return categoriaMatch && busquedaMatch;
-  });
-
-  const faqsAgrupadas = faqsFiltradas.reduce((acc, faq) => {
-    const catNombre = faq.categorias_faqs?.nombre || 'General';
-    if (!acc[catNombre]) {
-      acc[catNombre] = {
-        nombre: catNombre,
-        icono: faq.categorias_faqs?.icono || '📋',
-        preguntas: []
-      };
-    }
-    acc[catNombre].preguntas.push(faq);
-    return acc;
-  }, {});
-
-  if (cargando) {
-    return <Loading message="Cargando centro de ayuda..." />;
-  }
 
   return (
     <>
-      {/* 🔥 NavbarGeneral SOLO aquí */}
       <NavbarGeneral />
-      
-      <div className="ayuda-publica-page">
-        
-        {/* Hero */}
-        <section className="ayuda-hero">
-          <div className="ayuda-hero-content">
-            <span className="material-icons ayuda-hero-icon">help_center</span>
-            <h1>¿Cómo podemos ayudarte?</h1>
-            <p>Encontrá respuestas, guías y tutoriales para usar GoyaNova</p>
-            {user && (
-              <Link to="/panel/ayuda" className="ayuda-link-panel">
-                <span className="material-icons">dashboard</span>
-                Ir a mi Centro de Ayuda
-              </Link>
-            )}
-          </div>
-        </section>
 
-        <div className="ayuda-container">
-          
-          {/* Accesos Rápidos */}
-          <section className="ayuda-quick-access">
-            <div className="quick-card">
-              <span className="material-icons">person_add</span>
-              <h3>Registrá tu servicio</h3>
-              <p>Aprendé a publicar en 5 minutos</p>
-              <a href="#tutoriales" className="quick-link">Ver tutorial →</a>
-            </div>
-            
-            <div className="quick-card">
+      <div className="ay-pagina">
+        {/* ---------- Encabezado con buscador ---------- */}
+        <header className="ay-hero">
+          <div className="ay-hero-interior">
+            <span className="ay-etiqueta">
+              <span className="material-icons">support_agent</span>
+              Centro de ayuda
+            </span>
+            <h1>¿En qué te ayudamos?</h1>
+            <p>Guías cortas, respuestas a lo que más nos preguntan y una persona del otro lado si la necesitás.</p>
+
+            <div className="ay-buscador">
               <span className="material-icons">search</span>
-              <h3>Buscá profesionales</h3>
-              <p>Encontrá lo que necesitás</p>
-              <a href="#faqs" className="quick-link">Ver guía →</a>
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Ej: cómo publico, olvidé mi contraseña…"
+                aria-label="Buscar en la ayuda"
+              />
+              {busqueda && (
+                <button type="button" onClick={() => setBusqueda('')} aria-label="Borrar búsqueda">
+                  <span className="material-icons">close</span>
+                </button>
+              )}
             </div>
-            
-            <div className="quick-card">
-              <span className="material-icons">email</span>
-              <h3>Ayuda personalizada</h3>
-              <p>Respuesta en 24 horas</p>
-              <Link to="/contacto" className="quick-link">Contactar →</Link>
-            </div>
-          </section>
 
-          {/* Buscador */}
-          <div className="ayuda-buscador-wrapper">
-            <span className="material-icons ayuda-buscador-icon">search</span>
-            <input
-              type="search"
-              placeholder="Buscá tu pregunta..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="ayuda-buscador"
-            />
+            <div className="ay-sugerencias">
+              {SUGERENCIAS.map((s) => (
+                <button key={s} type="button" onClick={() => setBusqueda(s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
+        </header>
 
-          {/* Filtros */}
-          <div className="ayuda-categorias">
-            <button
-              onClick={() => setCategoriaActiva('todas')}
-              className={`ayuda-btn-categoria ${categoriaActiva === 'todas' ? 'activa' : ''}`}
-            >
-              Todas
-            </button>
-            {categoriasFaqs.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setCategoriaActiva(cat.nombre)}
-                className={`ayuda-btn-categoria ${categoriaActiva === cat.nombre ? 'activa' : ''}`}
-              >
-                {cat.icono} {cat.nombre}
-              </button>
-            ))}
-          </div>
-
-          {/* FAQs */}
-          <section id="faqs" className="ayuda-section">
-            <div className="section-header">
-              <span className="material-icons">quiz</span>
-              <h2>Preguntas Frecuentes</h2>
+        <main className="ay-contenido">
+          {sinResultados ? (
+            <div className="ay-vacio">
+              <span className="material-icons">search_off</span>
+              <h2>No encontramos «{busqueda}»</h2>
+              <p>Probá con otra palabra o preguntanos directamente.</p>
+              <div className="ay-vacio-acciones">
+                <button type="button" className="ay-boton ay-boton-sec" onClick={() => setBusqueda('')}>
+                  Ver toda la ayuda
+                </button>
+                <a
+                  className="ay-boton ay-boton-wsp"
+                  href={linkWhatsApp(`Hola GoyaNova, tengo una consulta: ${busqueda}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="material-icons">chat</span>
+                  Preguntar por WhatsApp
+                </a>
+              </div>
             </div>
-            
-            {Object.keys(faqsAgrupadas).length === 0 ? (
-              <p className="no-content">No se encontraron resultados para "{busqueda}"</p>
-            ) : (
-              Object.values(faqsAgrupadas).map((categoria, idx) => (
-                <div key={idx} className="ayuda-categoria-grupo">
-                  <h3 className="ayuda-categoria-titulo">
-                    <span>{categoria.icono}</span>
-                    {categoria.nombre}
-                  </h3>
-                  
-                  {categoria.preguntas.map(pregunta => (
-                    <div key={pregunta.id} className="faq-item">
-                      <button
-                        onClick={() => togglePregunta(pregunta.id)}
-                        className="faq-question"
-                      >
-                        <span>{pregunta.pregunta}</span>
-                        <span className="material-icons">
-                          {expandido === pregunta.id ? 'expand_less' : 'expand_more'}
-                        </span>
-                      </button>
-                      
-                      {expandido === pregunta.id && (
-                        <div className="faq-answer">
-                          <p>{pregunta.respuesta}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))
-            )}
-          </section>
-
-          {/* Tutoriales */}
-          <section id="tutoriales" className="ayuda-section">
-            <div className="section-header">
-              <span className="material-icons">school</span>
-              <h2>Tutoriales y Guías</h2>
-            </div>
-            
-            {tutoriales.length === 0 ? (
-              <p className="no-content">No hay tutoriales disponibles.</p>
-            ) : (
-              <div className="tutoriales-grid">
-                {tutoriales.map(tutorial => (
-                  <div key={tutorial.id} className="tutorial-card">
-                    <div className="tutorial-thumbnail">
-                      {tutorial.thumbnail ? (
-                        <img src={tutorial.thumbnail} alt={tutorial.titulo} />
-                      ) : (
-                        <div className="tutorial-placeholder">
-                          <span className="material-icons">
-                            {tutorial.tipo === 'video' ? 'play_circle' : 'description'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="tutorial-content">
-                      <h3>{tutorial.titulo}</h3>
-                      <p>{tutorial.descripcion}</p>
-                      <button 
-                        onClick={() => abrirTutorial(tutorial)}
-                        className="btn-ver-tutorial"
-                      >
-                        <span className="material-icons">
-                          {tutorial.tipo === 'video' ? 'play_arrow' : 'article'}
-                        </span>
-                        {tutorial.tipo === 'video' ? 'Ver video' : 'Leer guía'}
-                      </button>
-                    </div>
+          ) : (
+            <>
+              {/* ---------- Guías ---------- */}
+              {guiasEncontradas.length > 0 && (
+                <section className="ay-seccion" aria-labelledby="ay-guias">
+                  <div className="ay-seccion-titulo">
+                    <h2 id="ay-guias">{buscando ? 'Guías' : 'Guías rápidas'}</h2>
+                    {!buscando && <p>Paso a paso, en menos de un minuto.</p>}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                  <div className="ay-guias">
+                    {guiasEncontradas.map((g) => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        className="ay-guia"
+                        style={{ '--ay-color': g.color }}
+                        onClick={() => setGuiaAbierta(g)}
+                      >
+                        <span className="ay-guia-icono">
+                          <span className="material-icons">{g.icono}</span>
+                        </span>
+                        <span className="ay-guia-textos">
+                          <strong>{g.titulo}</strong>
+                          <span>{g.resumen}</span>
+                        </span>
+                        <span className="ay-guia-pie">
+                          {g.instalar && yaInstalada ? 'Ya instalada ✓' : `${g.pasos.length} pasos`}
+                          <span className="material-icons">arrow_forward</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
 
-          {/* Formulario */}
-          <section className="ayuda-section">
-            <div className="section-header">
-              <span className="material-icons">mail</span>
-              <h2>¿Necesitás más ayuda?</h2>
+              {/* ---------- Preguntas frecuentes ---------- */}
+              {!cargando && faqs.length > 0 && (buscando ? faqsFiltradas.length > 0 : true) && (
+                <section className="ay-seccion" aria-labelledby="ay-faqs">
+                  <div className="ay-seccion-titulo">
+                    <h2 id="ay-faqs">Preguntas frecuentes</h2>
+                  </div>
+
+                  {!buscando && (
+                    <div className="ay-pestanas" role="tablist">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={categoriaActiva === 'todas'}
+                        className={categoriaActiva === 'todas' ? 'activa' : ''}
+                        onClick={() => setCategoriaActiva('todas')}
+                      >
+                        Todas
+                      </button>
+                      {categoriasFaqs.map((cat) => (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          role="tab"
+                          aria-selected={categoriaActiva === cat.nombre}
+                          className={categoriaActiva === cat.nombre ? 'activa' : ''}
+                          onClick={() => setCategoriaActiva(cat.nombre)}
+                        >
+                          <span className="material-icons">{iconoCategoriaFaq(cat.nombre)}</span>
+                          {cat.nombre}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="ay-faqs">
+                    {faqsFiltradas.map((faq) => (
+                      <Pregunta
+                        key={faq.id}
+                        faq={faq}
+                        abierta={faqAbierta === faq.id}
+                        onAlternar={() => setFaqAbierta(faqAbierta === faq.id ? null : faq.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+              {cargando && (
+                <div className="ay-cargando" aria-live="polite">
+                  <span className="ay-esqueleto" />
+                  <span className="ay-esqueleto" />
+                  <span className="ay-esqueleto" />
+                </div>
+              )}
+
+              {/* ---------- Tutoriales (si el admin cargó alguno) ---------- */}
+              {!buscando && tutoriales.length > 0 && (
+                <section className="ay-seccion" aria-labelledby="ay-tutoriales">
+                  <div className="ay-seccion-titulo">
+                    <h2 id="ay-tutoriales">Videos y tutoriales</h2>
+                  </div>
+                  <div className="ay-tutoriales">
+                    {tutoriales.map((t) => (
+                      <button key={t.id} type="button" className="ay-tutorial" onClick={() => abrirTutorial(t)}>
+                        {t.thumbnail ? (
+                          <img src={t.thumbnail} alt="" loading="lazy" />
+                        ) : (
+                          <span className="ay-tutorial-icono">
+                            <span className="material-icons">{t.tipo === 'video' ? 'play_circle' : 'article'}</span>
+                          </span>
+                        )}
+                        <span className="ay-tutorial-textos">
+                          <strong>{t.titulo}</strong>
+                          {t.descripcion && <span>{t.descripcion}</span>}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          )}
+
+          {/* ---------- Contacto ---------- */}
+          <section className="ay-seccion ay-contacto" aria-labelledby="ay-contacto">
+            <div className="ay-seccion-titulo">
+              <h2 id="ay-contacto">¿Necesitás hablar con alguien?</h2>
+              <p>Somos de Goya y te respondemos nosotros, no un robot.</p>
             </div>
 
-            <p className="ayuda-intro">
-              Completá el formulario y te responderemos en menos de 24 horas.
-            </p>
-
-            {mensajeEstado && (
-              <div className={`mensaje-estado ${mensajeEstado.tipo}`}>
-                <span className="material-icons">
-                  {mensajeEstado.tipo === 'exito' ? 'check_circle' : 'error'}
+            <div className="ay-canales">
+              <a
+                className="ay-canal ay-canal-wsp"
+                href={linkWhatsApp('Hola GoyaNova, tengo una consulta')}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="ay-canal-icono">
+                  <span className="material-icons">chat</span>
                 </span>
-                <span>{mensajeEstado.mensaje}</span>
+                <span className="ay-canal-textos">
+                  <strong>WhatsApp</strong>
+                  <span>La forma más rápida</span>
+                </span>
+                <span className="material-icons ay-canal-flecha">arrow_forward</span>
+              </a>
+
+              <button
+                type="button"
+                className={`ay-canal ${formAbierto ? 'activo' : ''}`}
+                onClick={() => setFormAbierto((v) => !v)}
+                aria-expanded={formAbierto}
+              >
+                <span className="ay-canal-icono">
+                  <span className="material-icons">mail</span>
+                </span>
+                <span className="ay-canal-textos">
+                  <strong>Escribinos un mensaje</strong>
+                  <span>Te respondemos por mail en menos de 24 h</span>
+                </span>
+                <span className="material-icons ay-canal-flecha">{formAbierto ? 'expand_less' : 'expand_more'}</span>
+              </button>
+
+              {user && (
+                <Link to="/panel/ayuda" className="ay-canal">
+                  <span className="ay-canal-icono">
+                    <span className="material-icons">confirmation_number</span>
+                  </span>
+                  <span className="ay-canal-textos">
+                    <strong>Mis consultas</strong>
+                    <span>Seguí tus mensajes desde tu panel</span>
+                  </span>
+                  <span className="material-icons ay-canal-flecha">arrow_forward</span>
+                </Link>
+              )}
+            </div>
+
+            {formAbierto && (
+              <div className="ay-form-caja">
+                {estadoEnvio === 'ok' ? (
+                  <div className="ay-enviado">
+                    <span className="material-icons">mark_email_read</span>
+                    <h3>¡Recibimos tu mensaje!</h3>
+                    <p>Te respondemos a <strong>{form.email}</strong> en menos de 24 horas.</p>
+                    <button type="button" className="ay-boton ay-boton-sec" onClick={() => setEstadoEnvio(null)}>
+                      Enviar otro mensaje
+                    </button>
+                  </div>
+                ) : (
+                  <form className="ay-form" onSubmit={enviarConsulta}>
+                    <div className="ay-form-fila">
+                      <label>
+                        <span>Tu nombre</span>
+                        <input name="nombre" value={form.nombre} onChange={cambiarCampo} required autoComplete="name" />
+                      </label>
+                      <label>
+                        <span>Tu email</span>
+                        <input
+                          type="email"
+                          name="email"
+                          value={form.email}
+                          onChange={cambiarCampo}
+                          required
+                          autoComplete="email"
+                        />
+                      </label>
+                    </div>
+                    <label>
+                      <span>Asunto</span>
+                      <input
+                        name="asunto"
+                        value={form.asunto}
+                        onChange={cambiarCampo}
+                        required
+                        placeholder="Ej: No puedo subir fotos"
+                      />
+                    </label>
+                    <label>
+                      <span>Contanos qué pasó</span>
+                      <textarea name="mensaje" value={form.mensaje} onChange={cambiarCampo} required rows={5} />
+                    </label>
+
+                    {estadoEnvio === 'error' && (
+                      <p className="ay-error" role="alert">
+                        <span className="material-icons">error</span>
+                        No se pudo enviar. Probá de nuevo o escribinos a {EMAIL_SOPORTE}.
+                      </p>
+                    )}
+
+                    <button type="submit" className="ay-boton ay-boton-principal" disabled={enviando}>
+                      <span className="material-icons">{enviando ? 'hourglass_top' : 'send'}</span>
+                      {enviando ? 'Enviando…' : 'Enviar mensaje'}
+                    </button>
+                  </form>
+                )}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="ayuda-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>
-                    <span className="material-icons">person</span>
-                    Nombre completo
-                  </label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    value={form.nombre}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    <span className="material-icons">email</span>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <span className="material-icons">subject</span>
-                  Asunto
-                </label>
-                <input
-                  type="text"
-                  name="asunto"
-                  value={form.asunto}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <span className="material-icons">message</span>
-                  Mensaje
-                </label>
-                <textarea
-                  name="mensaje"
-                  value={form.mensaje}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                />
-              </div>
-
-              <button type="submit" className="btn-enviar" disabled={enviando}>
-                {enviando ? (
-                  <>
-                    <span className="material-icons spinning">refresh</span>
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons">send</span>
-                    Enviar mensaje
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div className="contacto-alternativo">
-              <p>O escríbenos directamente a:</p>
-              <a href="mailto:goyanovasoporte@gmail.com">
-                <span className="material-icons">email</span>
-                goyanovasoporte@gmail.com
-              </a>
-            </div>
+            <p className="ay-email-directo">
+              También podés escribir a <a href={`mailto:${EMAIL_SOPORTE}`}>{EMAIL_SOPORTE}</a>
+            </p>
           </section>
-
-        </div>
+        </main>
       </div>
+
+      {guiaAbierta && <VentanaGuia guia={guiaAbierta} onCerrar={cerrarGuia} />}
     </>
   );
 };

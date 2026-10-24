@@ -6,6 +6,7 @@ import { useNotifications } from '../../../contexts/NotificationsProvider';
 import { useCaracteristicasPlan } from '../../../hooks/useCaracteristicasPlan';
 import Loading from '../../loading/Loading';
 import './Dashboard.css';
+import TuMesGoyaNova from './TuMesGoyaNova';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -246,6 +247,9 @@ const Dashboard = () => {
           <span className="material-icons">arrow_forward</span>
         </button>
       </div>
+
+      {/* Visitas y clics del mes + oferta de destacado */}
+      <TuMesGoyaNova esPremium={!!membresia?.es_premium} email={user?.email || ''} />
 
       {/* Accesos directos */}
       <div className="dash-accesos-grid">

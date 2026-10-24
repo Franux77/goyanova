@@ -69,6 +69,7 @@ const Footer = () => {
   <li><Link to="/nosotros">Nosotros</Link></li>
   <li><Link to="/explorar">Explorar Mapa</Link></li>
   <li><Link to="/ayuda">Centro de Ayuda</Link></li>
+  <li><Link to="/instalar">Instalar la app</Link></li>
   <li><Link to="/contacto">Contacto</Link></li>
   <li><Link to="/terminos">Términos y Condiciones</Link></li>       {/* 👈 NUEVA */}
   <li><Link to="/privacidad">Política de Privacidad</Link></li>     {/* 👈 NUEVA */}

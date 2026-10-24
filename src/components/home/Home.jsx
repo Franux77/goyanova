@@ -10,8 +10,11 @@ import MapaHome from './MapaHome';
 import HistoriasHome from './HistoriasHome';
 import CampanaCodigos from './CampanaCodigos';
 import ResenasHome from './ResenasHome';
+import PedidoResena from './PedidoResena';
+import { BienvenidaGoya, ComoFunciona, PreguntasFrecuentes } from './BienvenidaGoya';
 import useCampanaCodigos from '../../hooks/useCampanaCodigos';
 import { supabase } from '../../utils/supabaseClient';
+import { useInstalarApp } from '../../utils/instalarApp';
 
 const Home = () => {
   const [selectedType, setSelectedType] = useState('servicio');
@@ -21,54 +24,17 @@ const Home = () => {
   const campana = useCampanaCodigos();
 
   const [mostrarModalCodigo, setMostrarModalCodigo] = useState(false);
-  const [tiempoRestante, setTiempoRestante] = useState(null);
   const [esPremium, setEsPremium] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [mostrarBotonInstalar, setMostrarBotonInstalar] = useState(false);
+  const { yaInstalada, puedeInstalar, instalar } = useInstalarApp();
+  const mostrarBotonInstalar = !yaInstalada;
     const [mostrarTutoriales, setMostrarTutoriales] = useState(false);
-      const [mostrarHero, setMostrarHero] = useState(false);
   const verificacionRealizada = useRef(false);
-  const intervaloCuentaRegresiva = useRef(null);
 
   const diasDesdeRegistro = perfil?.creado_en 
     ? Math.floor((Date.now() - new Date(perfil.creado_en).getTime()) / (1000 * 60 * 60 * 24))
     : 999;
   
   const esUsuarioNuevo = diasDesdeRegistro <= 5;
-
-  // Capturar evento de instalación PWA
-  useEffect(() => {
-    const isInstalled = window.matchMedia('(display-mode: standalone)').matches 
-                      || window.navigator.standalone
-                      || localStorage.getItem('pwa-installed') === 'true';
-    
-    if (isInstalled) {
-      setMostrarBotonInstalar(false);
-      return;
-    }
-
-    setMostrarBotonInstalar(true);
-
-    const handleBeforeInstall = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setMostrarBotonInstalar(true);
-      
-      // 🔥 Compartir con el modal
-      window.__pwaPrompt = e;
-    };
-
-    // 🔥 Verificar si ya existe el prompt
-    if (window.__pwaPrompt) {
-      setDeferredPrompt(window.__pwaPrompt);
-    }
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-    };
-  }, []);
 
   useEffect(() => {
     if (!user?.id || verificacionRealizada.current) {
@@ -108,53 +74,6 @@ const Home = () => {
     };
   }, [user?.id]);
 
-  // Mientras la campaña de códigos está activa (Panel Admin), manda su botón y se oculta el aviso de 5 días
-  const mostrarBanner = user && !esPremium && esUsuarioNuevo && !campana.activa;
-
-  useEffect(() => {
-    if (intervaloCuentaRegresiva.current) {
-      clearInterval(intervaloCuentaRegresiva.current);
-      intervaloCuentaRegresiva.current = null;
-    }
-
-    if (!mostrarBanner || !perfil?.creado_en) {
-      setTiempoRestante(null);
-      return;
-    }
-
-    const calcularTiempoRestante = () => {
-      const fechaRegistro = new Date(perfil.creado_en);
-      const fechaLimite = new Date(fechaRegistro.getTime() + (5 * 24 * 60 * 60 * 1000));
-      const ahora = Date.now();
-      const diferencia = fechaLimite - ahora;
-
-      if (diferencia <= 0) {
-        setTiempoRestante(null);
-        if (intervaloCuentaRegresiva.current) {
-          clearInterval(intervaloCuentaRegresiva.current);
-          intervaloCuentaRegresiva.current = null;
-        }
-        return;
-      }
-
-      const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-      const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-      const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
-
-      setTiempoRestante({ dias, horas, minutos, segundos });
-    };
-
-    calcularTiempoRestante();
-    intervaloCuentaRegresiva.current = setInterval(calcularTiempoRestante, 1000);
-
-    return () => {
-      if (intervaloCuentaRegresiva.current) {
-        clearInterval(intervaloCuentaRegresiva.current);
-        intervaloCuentaRegresiva.current = null;
-      }
-    };
-  }, [mostrarBanner, perfil?.creado_en]);
 
   useEffect(() => {
     if (!user || esPremium) return;
@@ -214,40 +133,13 @@ const Home = () => {
     });
   };
 
+  // Si Chrome ya permite instalar, se instala directo; si no, la página con los pasos
   const handleInstalarApp = async () => {
-    // 🔥 Verificar también window.__pwaPrompt
-    const promptToUse = deferredPrompt || window.__pwaPrompt;
-    
-    if (promptToUse) {
-      try {
-        promptToUse.prompt();
-        const { outcome } = await promptToUse.userChoice;
-        
-        if (outcome === 'accepted') {
-          console.log('✅ App instalada desde Hero');
-          localStorage.setItem('pwa-installed', 'true');
-          setMostrarBotonInstalar(false);
-          setDeferredPrompt(null);
-          window.__pwaPrompt = null;
-        } else {
-          console.log('⚠️ Usuario rechazó instalación desde Hero');
-          // Si rechaza, el prompt sigue disponible para reintentar
-        }
-        
-        return;
-      } catch (err) {
-        console.error('Error en prompt nativo:', err);
-      }
+    if (puedeInstalar) {
+      const resultado = await instalar();
+      if (resultado !== 'no-disponible') return;
     }
-
-    // Si no hay prompt, mostrar instrucciones
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
-    if (isIOSDevice) {
-      alert('📱 Para instalar en iPhone/iPad:\n\n1. Tocá el botón "Compartir" ⎙ (abajo)\n2. Desplazate y tocá "Agregar a pantalla de inicio"\n3. Tocá "Agregar"\n\n¡Es gratis y accedés más rápido!');
-    } else {
-      alert('💻 Para instalar GoyaNova:\n\n1. Abrí el menú de Chrome (⋮) arriba a la derecha\n2. Seleccioná "Instalar aplicación" o "Agregar a pantalla de inicio"\n3. Confirmá tocando "Instalar"\n\n¡Es gratis y accedés más rápido!');
-    }
+    navigate('/instalar');
   };
 
   const handlePublicarClick = async () => {
@@ -291,17 +183,20 @@ const Home = () => {
     navigate('/explorar');
   };
 
-  const handleScrollCategorias = () => {
-    const categoriasSection = document.getElementById('categorias');
-    if (categoriasSection) {
-      categoriasSection.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleScrollComoFunciona = () => {
+    document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
     return (
     <div className="home">
       <HistoriasHome />
       <SaludoUsuario />
+
+      <BienvenidaGoya
+        onComoFunciona={handleScrollComoFunciona}
+        mostrarInstalar={mostrarBotonInstalar}
+        onInstalar={handleInstalarApp}
+      />
 
       {/* ESTE ES EL BOTÓN GIGANTE QUE QUERÍAS MANTENER: */}
       <section className="publicar-servicio-hero">
@@ -325,55 +220,6 @@ const Home = () => {
       <div className="home-fila-pc">
       <ResenasHome />
 
-    {mostrarBanner && tiempoRestante && (
-        <section className="promo-code-banner">
-          <div className="banner-content">
-            <span className="material-icons banner-icon">redeem</span>
-            
-            <div className="banner-info">
-              <div className="banner-text">
-                <strong>¡Tenés una Promo!</strong>
-                <p>Usá tu código para ser Premium gratis</p>
-              </div>
-              
-              <div className="countdown-timer">
-                <div className="countdown-item">
-                  <span className="countdown-numero">{tiempoRestante.dias}</span>
-                  <span className="countdown-label">días</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.horas).padStart(2, '0')}</span>
-                  <span className="countdown-label">hrs</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.minutos).padStart(2, '0')}</span>
-                  <span className="countdown-label">min</span>
-                </div>
-                <span className="countdown-separador">:</span>
-                <div className="countdown-item">
-                  <span className="countdown-numero">{String(tiempoRestante.segundos).padStart(2, '0')}</span>
-                  <span className="countdown-label">seg</span>
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              className="btn-aplicar-codigo"
-              onClick={() => setMostrarModalCodigo(true)}
-            >
-              <span className="material-icons">redeem</span>
-              Usar Código
-            </button>
-          </div>
-          
-          <div className="banner-footer">
-            <span className="material-icons">info</span>
-            <span>Buscá códigos en nuestro Instagram</span>
-          </div>
-        </section>
-      )}
 
             <section className={`goya-tutorial-section ${mostrarTutoriales ? 'abierta' : ''}`}>
         <button
@@ -419,74 +265,6 @@ const Home = () => {
       </section>
      
 
-            <section className={`goya-hero-section ${mostrarHero ? 'abierta' : ''}`}>
-        <button
-          className="goya-hero-toggle"
-          onClick={() => setMostrarHero(!mostrarHero)}
-        >
-          <span className="material-icons goya-hero-toggle-icon">location_on</span>
-          <div className="goya-hero-toggle-text">
-            <strong>Servicios en Goya, Corrientes</strong>
-            <span>Encontrá lo que buscás, rápido</span>
-          </div>
-          <span className={`material-icons goya-hero-chevron ${mostrarHero ? 'rotado' : ''}`}>
-            expand_more
-          </span>
-        </button>
-
-        <div className={`goya-hero-collapse ${mostrarHero ? 'abierta' : ''}`}>
-        <div className="goya-hero-content">
-          <div className="goya-hero-badge">
-            <span className="material-icons">location_on</span>
-            Servicios en Goya, Corrientes
-          </div>
-          
-          {/* TEXTO SIMPLIFICADO: Directo al grano */}
-          <h1 className="goya-hero-title">
-            Encontrá lo que buscás, rápido.
-          </h1>
-          
-          <p className="goya-hero-description">
-            Profesionales, comida y oficios. <strong>Trato directo por WhatsApp</strong>, sin vueltas.
-          </p>
-          
-                    <div className="goya-hero-actions">
-            <a
-              href="#categorias"
-              className="goya-btn-hero-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                handleScrollCategorias();
-              }}
-            >
-              <span className="material-icons">search</span>
-              Buscar
-            </a>
-            {/* Mantenemos este botón secundario por si bajaron mucho, pero el importante es el de arriba */}
-            <button
-              className="goya-btn-hero-secondary"
-              onClick={handlePublicarClick}
-            >
-              <span className="material-icons">add_circle</span>
-              Publicar
-            </button>
-          </div>
-
-          <div className="goya-hero-footer">
-            <p className="goya-hero-info-text">
-              ¿Dudas? <Link to="/nosotros" className="goya-hero-link">Conocé el proyecto</Link>
-            </p>
-            
-                        {mostrarBotonInstalar && (
-              <button className="goya-hero-install-btn" onClick={handleInstalarApp}>
-                <span className="material-icons">get_app</span>
-                Descargar App
-              </button>
-            )}
-          </div>
-        </div>
-        </div>
-      </section>  
       </div>
 
       {/* <section className="goya-howworks-section">
@@ -582,24 +360,20 @@ const Home = () => {
       </section>
 
       <section id="categorias" className="category-section">
-        <h2>Categorías de {selectedType === 'servicio' ? 'Servicios' : 'Productos'}</h2>
+        <h2>{selectedType === 'servicio' ? 'Oficios y servicios' : 'Negocios y productos'}</h2>
+        <p className="categorias-explicacion">
+          {selectedType === 'servicio'
+            ? 'Personas que hacen un trabajo: arreglos, clases, belleza, salud, fletes…'
+            : 'Lugares y emprendimientos que venden: comida, ropa, tiendas, artesanías…'}
+        </p>
         <CategoryList type={selectedType} onSelectCategory={handleSelectCategory} />
       </section>
 
-      {mostrarBanner && (
-        <button 
-          className="floating-promo-btn"
-          onClick={() => setMostrarModalCodigo(true)}
-          title="Usá tu código"
-        >
-          <span className="material-icons">redeem</span>
-          <span className="floating-text">
-            {tiempoRestante && tiempoRestante.dias === 0 
-              ? '¡Último día!' 
-              : `${tiempoRestante?.dias || 0} días`}
-          </span>
-        </button>
-      )}
+      <ComoFunciona onPublicar={handlePublicarClick} />
+      <PreguntasFrecuentes />
+
+      <PedidoResena />
+
 
       {mostrarModalCodigo && user && !esPremium && (
         <ModalCodigoPromo
